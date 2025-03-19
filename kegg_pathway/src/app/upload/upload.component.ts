@@ -17,6 +17,9 @@ export class UploadComponent {
   uploadedFiles: UploadedFile[] = [];
   showFileList = false;
   searchResults: any[] = [];
+  uniqueKingdoms: string[] = [];
+  // selectedKingdom: string | null = null;
+  // uniqueSubgroups: string[] = [];
 
   constructor(private keggService: KeggDataService) {} // Inject service
 
@@ -29,6 +32,7 @@ export class UploadComponent {
       const files: FileList = event.target.files;
       if (files && files.length > 0) {
         this.handleFiles(files);
+        this.fetchAndPopulateKingdoms();
       }
     };
 
@@ -42,6 +46,19 @@ export class UploadComponent {
     }
     this.showFileList = true; // Show the file list after upload
   }
+
+  private fetchAndPopulateKingdoms(): void {
+    this.keggService.fetchKEGGData().subscribe(() => {
+      this.uniqueKingdoms = this.keggService.getUniqueKingdoms();
+    });
+  }
+
+  // onKingdomSelected(event: Event): void {
+  //   const selectedKingdom = (event.target as HTMLSelectElement).value;
+  //   this.selectedKingdom = selectedKingdom;
+  //   this.uniqueSubgroups = this.keggService.getSubgroups(selectedKingdom);
+  // }
+
 
   removeFile(index: number): void {
     this.uploadedFiles.splice(index, 1);
