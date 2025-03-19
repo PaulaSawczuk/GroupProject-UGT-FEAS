@@ -1,6 +1,16 @@
 <div class="upload-container">
-    <div class="upload-box">
+  <div class="upload-box">
+    <div class="title-button-container">
       <h1 class="upload-title">Upload Files</h1>
       <button class="upload-button" (click)="onUploadClick()">Upload <span class="arrow">⬆</span></button>
     </div>
+
+    <div *ngIf="showFileList" class="file-list">
+      <div *ngFor="let file of uploadedFiles; let i = index" class="file-item">
+        <span>{{ file.name }}</span>
+        <button class="remove-button" (click)="removeFile(i)">X</button>
+      </div>
+      <button class="process-button" (click)="processFiles()">Process</button>
+    </div>
   </div>
+</div>
