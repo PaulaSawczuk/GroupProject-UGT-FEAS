@@ -80,11 +80,55 @@
 }
 
 .process-button {
-  margin-top: 20px;
   padding: 10px 20px;
   background-color: #083B61;
   color: #fff;
   border: none;
   border-radius: 8px;
   cursor: pointer;
+}
+
+.process-container {
+  /* Align button to the right */
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 20px;
+}
+
+/* Add this style for the dropdown container */
+.dropdown-container {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: bold;
+  color: #482E3C;
+  font-size: 12px;
+}
+
+/* Title above the dropdown */
+.dropdown-title {
+  font-size: 16px;
+  color: #4A4459;
+  margin-bottom: 8px;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 500; 
+}
+
+/* Style for the dropdown select */
+.dropdown-select {
+  padding: 6px;
+  border-radius: 2px;
+  border-color: #482E3C;
+  font-size: 16px;
+  width: 150px;
+  font-family: 'DM Sans', sans-serif;
+}
+
+/* Align the dropdown section to the left */
+.dropdown-section {
+  text-align: left;
+  margin-top: 20px; /* Add some space between file list and dropdown */
+  width: 100%; /* Ensure full width for alignment */
 }
