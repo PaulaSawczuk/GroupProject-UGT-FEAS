@@ -13,7 +13,7 @@
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   width: 600px;
-  height: auto; /* Allow height to adjust */
+  height: auto; 
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -46,14 +46,14 @@
 }
 
 .shifted {
-  margin-bottom: 20px; /* Add space below the title and button */
+  margin-bottom: 20px; 
 }
 
 .title-button-container {
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 100%; /* Ensure it takes full width */
+  width: 100%; 
 }
 
 .file-list {
