@@ -16,11 +16,16 @@ interface UploadedFile {
 export class UploadComponent {
   uploadedFiles: UploadedFile[] = [];
   showFileList = false;
-  searchResults: any[] = [];
-  uniqueKingdoms: string[] = [];
-  // selectedKingdom: string | null = null;
-  // uniqueSubgroups: string[] = [];
 
+  uniqueKingdoms: string[] = [];
+  uniqueSubgroups: string[] = [];
+  uniqueClasses: string[] = [];
+  uniqueOrganisms: string[] = [];
+
+  selectedKingdom: string | null = null;
+  selectedSubgroup: string | null = null;
+  selectedClass: string | null = null;
+  
   constructor(private keggService: KeggDataService) {} // Inject service
 
   onUploadClick(): void {
@@ -48,9 +53,43 @@ export class UploadComponent {
   }
 
   private fetchAndPopulateKingdoms(): void {
-    this.keggService.fetchKEGGData().subscribe(() => {
+    if (this.keggService.getUniqueKingdoms().length > 0) {
+      // If organisms are already available, use them immediately
       this.uniqueKingdoms = this.keggService.getUniqueKingdoms();
-    });
+    } else {
+      // Otherwise, fetch data from KEGG API
+      this.keggService.fetchKEGGData().subscribe(() => {
+        this.uniqueKingdoms = this.keggService.getUniqueKingdoms();
+      });
+    }
+  }
+  
+  onKingdomSelected(event: Event): void {
+    const selectedKingdom = (event.target as HTMLSelectElement).value;
+    this.selectedKingdom = selectedKingdom;
+    this.selectedSubgroup = null;
+    this.selectedClass = null;
+    this.uniqueSubgroups = this.keggService.getSubgroups(selectedKingdom);
+    this.uniqueClasses = [];
+    this.uniqueOrganisms = [];
+  }
+
+  onSubgroupSelected(event: Event): void {
+    const selectedSubgroup = (event.target as HTMLSelectElement).value;
+    this.selectedSubgroup = selectedSubgroup;
+    this.selectedClass = null;
+    if (this.selectedKingdom) {
+      this.uniqueClasses = this.keggService.getOrganismClass(this.selectedKingdom, selectedSubgroup);
+      this.uniqueOrganisms = [];
+    }
+  }
+
+  onClassSelected(event: Event): void {
+    const selectedClass = (event.target as HTMLSelectElement).value;
+    this.selectedClass = selectedClass;
+    if (this.selectedKingdom && this.selectedSubgroup) {
+      this.uniqueOrganisms = this.keggService.getOrganismName(this.selectedKingdom, this.selectedSubgroup, selectedClass);
+    }
   }
 
   // onKingdomSelected(event: Event): void {
@@ -63,13 +102,20 @@ export class UploadComponent {
   removeFile(index: number): void {
     this.uploadedFiles.splice(index, 1);
     if (this.uploadedFiles.length === 0) {
-      this.showFileList = false; // Hide the list if there are no files
+      this.showFileList = false;
+      this.resetDropdowns(); // Reset dropdowns when all files are removed
     }
   }
-  searchKEGG(query: string): void {
-    this.searchResults = this.keggService.searchOrganisms(query);
-    console.log('Search results:', this.searchResults);
+  private resetDropdowns(): void {
+    this.selectedKingdom = null;
+    this.selectedSubgroup = null;
+    this.selectedClass = null;
+    this.uniqueSubgroups = [];
+    this.uniqueClasses = [];
+    this.uniqueOrganisms = [];
   }
+
+  
   processFiles(): void {
     // TODO: Implement the logic to process the uploaded files
     console.log('Processing files:', this.uploadedFiles);

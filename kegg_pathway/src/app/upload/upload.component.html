@@ -10,7 +10,39 @@
         <span>{{ file.name }}</span>
         <button class="remove-button" (click)="removeFile(i)">X</button>
       </div>
-      <button class="process-button" (click)="processFiles()">Process</button>
+
+      <div class="dropdown-section" *ngIf="uniqueKingdoms.length > 0">
+        <h3 class="dropdown-title">Choose an Organism</h3>
+        
+        <div class="dropdown-container">
+          <label for="kingdomSelect" class="dropdown-label">Kingdom:</label>
+          <select id="kingdomSelect" class="dropdown-select" (change)="onKingdomSelected($event)">
+            <option value="" disabled selected>Select a Kingdom</option>
+            <option *ngFor="let kingdom of uniqueKingdoms" [value]="kingdom">{{ kingdom }}</option>
+          </select>
+        </div>
+
+        <div class="dropdown-container" *ngIf="selectedKingdom && uniqueSubgroups.length > 0">
+          <label for="subgroupSelect" class="dropdown-label">Subgroup:</label>
+          <select id="subgroupSelect" class="dropdown-select" (change)="onSubgroupSelected($event)">
+            <option value="" disabled selected>Select a Subgroup</option>
+            <option *ngFor="let subgroup of uniqueSubgroups" [value]="subgroup">{{ subgroup }}</option>
+          </select>
+        </div>
+
+        <div class="dropdown-container" *ngIf="selectedSubgroup && uniqueClasses.length > 0">
+          <label for="classSelect" class="dropdown-label">Class:</label>
+          <select id="classSelect" class="dropdown-select">
+            <option value="" disabled selected>Select a Class</option>
+            <option *ngFor="let organismClass of uniqueClasses" [value]="organismClass">{{ organismClass }}</option>
+          </select>
+        </div>
+
+      </div>
+      
+      <div class="process-container">
+        <button class="process-button" (click)="processFiles()">Process</button>
+      </div>
     </div>
   </div>
 </div> -->
@@ -29,13 +61,44 @@
       </div>
 
       <div class="dropdown-section" *ngIf="uniqueKingdoms.length > 0">
-        <h3 class="dropdown-title">Choose an Organism</h3>
+        <h3 class="dropdown-title">Select an Organism</h3>
+        
+        <!-- Kingdom Dropdown -->
         <div class="dropdown-container">
           <label for="kingdomSelect" class="dropdown-label">Kingdom:</label>
-          <select id="kingdomSelect" class="dropdown-select">
+          <select id="kingdomSelect" class="dropdown-select" (change)="onKingdomSelected($event)">
+            <option value="" disabled selected>Select a Kingdom</option>
             <option *ngFor="let kingdom of uniqueKingdoms" [value]="kingdom">{{ kingdom }}</option>
           </select>
         </div>
+
+        <!-- Subgroup Dropdown (Appears only after Kingdom selection) -->
+        <div class="dropdown-container" *ngIf="selectedKingdom && uniqueSubgroups.length > 0">
+          <label for="subgroupSelect" class="dropdown-label">Subgroup:</label>
+          <select id="subgroupSelect" class="dropdown-select" (change)="onSubgroupSelected($event)">
+            <option value="" disabled selected>Select a Subgroup</option>
+            <option *ngFor="let subgroup of uniqueSubgroups" [value]="subgroup">{{ subgroup }}</option>
+          </select>
+        </div>
+
+        <!-- Class Dropdown (Appears only after Subgroup selection) -->
+        <div class="dropdown-container" *ngIf="selectedSubgroup && uniqueClasses.length > 0">
+          <label for="classSelect" class="dropdown-label">Class:</label>
+          <select id="classSelect" class="dropdown-select" (change)="onClassSelected($event)">
+            <option value="" disabled selected>Select a Class</option>
+            <option *ngFor="let organismClass of uniqueClasses" [value]="organismClass">{{ organismClass }}</option>
+          </select>
+        </div>
+
+        <!-- Organism Dropdown (Appears only after Class selection) -->
+        <div class="dropdown-container" *ngIf="selectedClass && uniqueOrganisms.length > 0">
+          <label for="organismSelect" class="dropdown-label">Organism:</label>
+          <select id="organismSelect" class="dropdown-select">
+            <option value="" disabled selected>Select an Organism</option>
+            <option *ngFor="let organism of uniqueOrganisms" [value]="organism">{{ organism }}</option>
+          </select>
+        </div>
+
       </div>
       
       <div class="process-container">
@@ -44,3 +107,5 @@
     </div>
   </div>
 </div>
+
+
