@@ -41,54 +41,6 @@ async function fetchAndParseURL(url) {
     }
   }
 
-async function getCompoundName(start, end){
-    var compound_names = '';
-    for (let i = 0; i < anno_data.length; i++) {
-        //console.log(anno_data[j]);
-        //console.log(start);
-        const match = anno_data[start].match(/C\d+(.*)/);
-        // Check if a match is found and log the result
-        if (start != end) {
-            if (match) {
-            console.log("Found:", match[1]);
-            compound_names += compound_names + match[1];
-            //console.log(match[1])  // match[1] contains the text after "C" followed by any number
-            } else {
-            console.log("No match found.");
-            }
-            start ++;
-        }else{
-            break
-        }
-    };
-    return compound_names;
-}
-
-
-async function getCompoundID(start, end){
-    var compound_id = '';
-    for (let i = 0; i < anno_data.length; i++) {
-        //console.log(anno_data[j]);
-        //console.log(start);
-        const match = anno_data[start].match(/C\d+/g);
-        // Check if a match is found and log the result
-        if (start != end) {
-            if (match) {
-            console.log("Found:", match[1]);
-            compound_id += compound_id + match[1];
-            //console.log(match[1])  // match[1] contains the text after "C" followed by any number
-            } else {
-            console.log("No match found.");
-            }
-            start ++;
-        }else{
-            break
-        }
-    };
-    return compound_id;
-}
-
-
 function getCompounds(anno_data){
     var compounds=[];
     var start;
