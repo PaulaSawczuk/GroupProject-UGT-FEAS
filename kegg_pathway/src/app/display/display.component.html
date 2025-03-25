@@ -1,0 +1,16 @@
+<div *ngFor="let file of fileDataKeys">
+    <h2>{{ file }}</h2>
+    <table>
+      <thead>
+        <!-- Assuming the first row contains headers -->
+        <tr>
+          <th *ngFor="let header of fileData[file][0]">{{ header }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let row of fileData[file].slice(1, 11)"> <!-- Slice for the first 10 rows -->
+          <td *ngFor="let cell of row">{{ cell }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
