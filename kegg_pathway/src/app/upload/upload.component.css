@@ -134,3 +134,11 @@
   width: 100%; /* Ensure full width for alignment */
 }
 
+.warning-message {
+  background-color: #f8d7da;
+  color: #721c24;
+  padding: 10px;
+  border-radius: 5px;
+  margin: 10px 0;
+  font-family: 'DM Sans', sans-serif;
+}

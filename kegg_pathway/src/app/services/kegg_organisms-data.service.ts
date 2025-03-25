@@ -128,4 +128,11 @@ export class KeggDataService {
     return Array.from(new Set(organismName));
   }
 
+  getID(kingdom: string, subgroup: string, organismclass: string, organismname: string): string {
+    // Filter organisms by the specified criteria
+    const filteredID = this.organisms.filter(organism => organism.kingdom === kingdom && organism.subgroup === subgroup && organism.organismClass === organismclass && organism.name === organismname);
+  
+    return filteredID[0].id; // Assuming your organism object has an 'id' property
+  }
+
 }
