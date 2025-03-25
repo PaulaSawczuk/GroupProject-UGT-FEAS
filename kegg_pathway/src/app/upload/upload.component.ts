@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { KeggDataService } from  '../services/kegg_organisms-data.service';
 import { Router } from '@angular/router';
 import { FileDataService } from '../services/file-data.service';
+import { getUniquePathways } from '../helper/getGenePathways';
 interface UploadedFile {
   name: string;
   file: File;
@@ -31,6 +32,7 @@ export class UploadComponent {
   selectedSubgroup: string | null = null;
   selectedClass: string | null = null;
   selectedOrganism: string | null = null;
+   private hardcodedFilePath: string = '../helperData/KEGG_IDs.csv';
   
   constructor(private keggService: KeggDataService, private router: Router, private fileDataService: FileDataService) {} // Inject service
 
@@ -144,103 +146,129 @@ export class UploadComponent {
     this.validationMessage = '';
   }
 
-  // processFiles(): void {
-  //   if (!this.selectedKingdom || !this.selectedSubgroup || !this.selectedClass || !this.selectedOrganism) {
-  //     this.validationMessage = 'Please select all required options: Kingdom, Subgroup, Class, and Organism.';
-  //     return;  
-  //   }
-  
-  //   const validExtensions = ['txt', 'csv'];
-
-  //   const dataLoadPromises = this.uploadedFiles.map(fileObj => {
-  //     const fileExtension = fileObj.name.split('.').pop()?.toLowerCase();
-
-  //     if (!fileExtension || !validExtensions.includes(fileExtension)) {
-  //       this.unsupportedFileTypeMessage = `File ${fileObj.name} is not supported. Supported formats: .txt, .csv`;
-  //       return Promise.resolve();
-  //     }
-      
-  //     return new Promise<void>((resolve, reject) => {
-  //       const fileReader = new FileReader();
-  //       fileReader.onload = (event: any) => {
-  //         const content = event.target.result;
-  //         const parsedData = this.parseFileContent(content, fileObj.name);
-  //         if (parsedData) {
-  //           this.fileDataService.setFileData(fileObj.name, parsedData);
-  //           resolve();
-  //         } else {
-  //           this.warningMessage = `File ${fileObj.name} is not compatible. Files must be tab-separated.`;
-  //           reject();
-  //         }
-  //       };
-  //       fileReader.readAsText(fileObj.file);
-  //     });
-  //   });
-
-  //   Promise.all(dataLoadPromises).then(() => {
-  //     if (!this.warningMessage) {
-  //       this.router.navigate(['/display']);
-  //     }
-  //   }).catch(() => {
-  //     console.warn('Some files were not processed due to incompatible formats.');
-  //   });
-  // }
-
   processFiles(): void {
-    if (!this.selectedKingdom || !this.selectedSubgroup || !this.selectedClass || !this.selectedOrganism) {
-      this.validationMessage = 'Please select all required options: Kingdom, Subgroup, Class, and Organism.';
+    // Validate that all required selections are made
+    if (
+      !this.selectedKingdom ||
+      !this.selectedSubgroup ||
+      !this.selectedClass ||
+      !this.selectedOrganism
+    ) {
+      this.validationMessage =
+        'Please select all required options: Kingdom, Subgroup, Class, and Organism.';
       return;
     }
-  
-    const validExtensions = ['txt', 'csv'];
-  
-    const dataLoadPromises = this.uploadedFiles.map(fileObj => new Promise<void>((resolve, reject) => {
-      const fileExtension = fileObj.name.split('.').pop()?.toLowerCase();
-  
-      if (!fileExtension || !validExtensions.includes(fileExtension)) {
-        this.unsupportedFileTypeMessage = `File ${fileObj.name} is not supported. Supported formats: .txt, .csv`;
-        return reject(); // Ensure to reject here; not resolving on error
-      }
-  
-      const fileReader = new FileReader();
-      fileReader.onload = (event: any) => {
-        const content = event.target.result;
-        const parsedData = this.parseFileContent(content, fileObj.name);
-        if (parsedData) {
-          this.fileDataService.setFileData(fileObj.name, parsedData);
-          resolve();
+
+    const validExtensions = ['txt', 'csv']; // Supported file types
+    const expressionData: { [filename: string]: string[][] } = {};
+    const countMatrixData: { [filename: string]: string[][] } = {};
+
+    const dataLoadPromises = this.uploadedFiles.map(
+      (fileObj) =>
+          new Promise<void>((resolve, reject) => {
+              // Get the file extension from the file name
+              const fileExtension = fileObj.name.split('.').pop()?.toLowerCase();
+
+              // Check if the file extension is valid
+              if (!fileExtension || !validExtensions.includes(fileExtension)) {
+                  this.unsupportedFileTypeMessage = `File ${fileObj.name} is not supported. Supported formats: .txt, .csv`;
+                  return reject();
+              }
+
+              const fileReader = new FileReader();
+              fileReader.onload = (event: any) => {
+                  const content = event.target.result;
+                  const parsedData = this.parseFileContent(content, fileObj.name, fileExtension);
+
+                  if (parsedData) {
+                      if (this.containsGeneAndLog2FoldChange(parsedData)) {
+                          expressionData[fileObj.name] = parsedData;
+                      } else {
+                          countMatrixData[fileObj.name] = parsedData;
+                      }
+                      resolve();
+                  } else {
+                      this.warningMessage = `File ${fileObj.name} is not compatible. Files must be tab-separated for .txt or comma separated for .csv.`;
+                      reject(); // Properly reject if parsing fails
+                  }
+              };
+              fileReader.readAsText(fileObj.file);
+          })
+  );
+
+  Promise.all(dataLoadPromises)
+      .then(async () => {
+        this.fileDataService.setExpressionData(expressionData);
+        this.fileDataService.setCountMatrixData(countMatrixData);
+
+        const organismCode = this.keggService.getOrganismCode(
+          this.selectedKingdom!,
+          this.selectedSubgroup!,
+          this.selectedClass!,
+          this.selectedOrganism!
+        );
+        console.log('Organism code:', organismCode);
+        if (organismCode) {
+          const keggIds = await this.loadKeggIdsFromFile(this.hardcodedFilePath);
+          console.log('KEGG IDs:', keggIds);
+          if (keggIds && keggIds.length > 0) {
+            const pathways = await getUniquePathways(keggIds, organismCode);
+            this.fileDataService.setPathways(pathways);
+          } else {
+            console.log('KEGG IDs:', keggIds);
+            console.warn('No KEGG IDs found in the file.');
+          }
         } else {
-          this.warningMessage = `File ${fileObj.name} is not compatible. Files must be tab-separated.`;
-          reject(); // Properly reject if parsing fails
+          console.error('Organism code not found.');
         }
-      };
-      fileReader.readAsText(fileObj.file);
-    }));
-  
-    Promise.all(dataLoadPromises)
-      .then(() => {
-        // If all promises resolved successfully
+
         this.router.navigate(['/display']);
       })
       .catch(() => {
-        // Handle rejection
         console.warn('Some files were not processed due to incompatible formats.');
-        // Optionally display a global error if needed
       });
   }
 
-  parseFileContent(content: string, fileName: string): string[][] | null {
+  parseFileContent(
+    content: string,
+    fileName: string,
+    fileExtension: string
+  ): string[][] | null {
     const data: string[][] = [];
     const lines = content.split('\n');
+    const separator = fileExtension === 'csv' ? ',' : '\t'; // Determine separator
 
     for (const line of lines) {
-      const values = line.split('\t');  // Assume tab as separator
-      if (values.length <= 1) return null;  // Ensure delimiter is operating properly
-      data.push(values);
+        const values = line.split(separator);
+        if (values.length <= 1) return null; // Ensure delimiter is operating properly
+        data.push(values);
     }
 
     console.log(`Parsed data from ${fileName}: `, data);
     return data;
+  }
+
+  containsGeneAndLog2FoldChange(data: string[][]): boolean {
+    if (data.length > 0) {
+        const header = data[0];
+        return header.includes('gene') && header.includes('log2FoldChange');
+    }
+    return false;
+  }
+
+  async loadKeggIdsFromFile(filePath: string): Promise<string[]> {
+    try {
+      const response = await fetch(filePath);
+      if (!response.ok) {
+        throw new Error(`Failed to load file: ${response.statusText}`);
+      }
+      const text = await response.text();
+      const lines = text.split('\n');
+      return lines.map(line => line.split(',')[0].trim()).filter(id => id);
+    } catch (error) {
+      console.error('Error loading KEGG IDs:', error);
+      return [];
+    }
   }
 
 }
