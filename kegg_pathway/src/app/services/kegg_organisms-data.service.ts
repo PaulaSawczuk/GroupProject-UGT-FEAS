@@ -173,4 +173,16 @@ export class KeggDataService {
     return Array.from(new Set(organismName));
   }
 
+  getOrganismCode(kingdom: string, subgroup: string, organismClass: string, organismName: string): string | undefined {
+    const organism = this.organisms.find(org =>
+      org.kingdom === kingdom &&
+      org.subgroup === subgroup &&
+      org.organismClass === organismClass &&
+      org.name === organismName
+    );
+    return organism ? organism.code : undefined;
+  }
+
+  
+
 }

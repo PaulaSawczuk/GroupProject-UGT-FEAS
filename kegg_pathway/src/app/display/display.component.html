@@ -1,16 +1,26 @@
-<div *ngFor="let file of fileDataKeys">
-    <h2>{{ file }}</h2>
-    <table>
-      <thead>
-        <!-- Assuming the first row contains headers -->
-        <tr>
-          <th *ngFor="let header of fileData[file][0]">{{ header }}</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let row of fileData[file].slice(1, 11)"> <!-- Slice for the first 10 rows -->
-          <td *ngFor="let cell of row">{{ cell }}</td>
-        </tr>
-      </tbody>
-    </table>
+<div class="display-container">
+  <div class="side-menu" [class.open]="isMenuOpen">
+    <div class="menu-header" (click)="toggleMenu()">
+      Menu
+      <span class="menu-icon" [class.open]="isMenuOpen">&#9776;</span>
+    </div>
+    <div class="menu-item">
+      Pathways
+      <span class="expand-icon" *ngIf="isMenuOpen">&#9650;</span>
+    </div>
+    <div class="pathway-list" *ngIf="isMenuOpen">
+      <div *ngFor="let pathway of pathways" class="pathway-item" (click)="selectPathway(pathway)">
+        {{ pathway }}
+      </div>
+    </div>
   </div>
+  <div class="main-display">
+    <div *ngIf="selectedPathway">
+      <h2>{{ selectedPathway }}</h2>
+      <p>Content for {{ selectedPathway }} goes here...</p>
+    </div>
+    <div *ngIf="!selectedPathway">
+      <p>Select a pathway to view details.</p>
+    </div>
+  </div>
+</div>

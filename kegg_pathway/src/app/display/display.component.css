@@ -1,0 +1,63 @@
+/* display.component.css */
+
+.display-container {
+    display: flex;
+    height: 100vh;
+  }
+  
+  .side-menu {
+    width: 250px;
+    background-color: #f0f0f0;
+    border-right: 1px solid #ccc;
+    transition: width 0.3s ease;
+  }
+  
+  .side-menu.open {
+    width: 250px;
+  }
+  
+  .menu-header {
+    padding: 10px;
+    background-color: #ddd;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .menu-icon {
+    font-size: 1.5em;
+    transition: transform 0.3s ease;
+  }
+  
+  .menu-icon.open {
+    transform: rotate(90deg);
+  }
+  
+  .menu-item {
+    padding: 10px;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .pathway-list {
+    max-height: 300px;
+    overflow-y: auto;
+  }
+  
+  .pathway-item {
+    padding: 8px 10px;
+    cursor: pointer;
+  }
+  
+  .pathway-item:hover {
+    background-color: #e0e0e0;
+  }
+  
+  .main-display {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+  }
