@@ -32,7 +32,7 @@ export class UploadComponent {
   selectedSubgroup: string | null = null;
   selectedClass: string | null = null;
   selectedOrganism: string | null = null;
-   private hardcodedFilePath: string = '/Users/ktcd392/Downloads/KEGG_IDs.csv';
+   private hardcodedFilePath: string = '../helperData/KEGG_IDs.csv';
   
   constructor(private keggService: KeggDataService, private router: Router, private fileDataService: FileDataService) {} // Inject service
 
@@ -207,14 +207,15 @@ export class UploadComponent {
           this.selectedClass!,
           this.selectedOrganism!
         );
-
+        console.log('Organism code:', organismCode);
         if (organismCode) {
           const keggIds = await this.loadKeggIdsFromFile(this.hardcodedFilePath);
-
+          console.log('KEGG IDs:', keggIds);
           if (keggIds && keggIds.length > 0) {
             const pathways = await getUniquePathways(keggIds, organismCode);
             this.fileDataService.setPathways(pathways);
           } else {
+            console.log('KEGG IDs:', keggIds);
             console.warn('No KEGG IDs found in the file.');
           }
         } else {
