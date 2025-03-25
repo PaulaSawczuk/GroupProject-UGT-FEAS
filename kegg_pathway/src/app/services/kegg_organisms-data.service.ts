@@ -172,4 +172,5 @@ export class KeggDataService {
     const organismName = filteredOrganisms.map(organism => organism.name);
     return Array.from(new Set(organismName));
   }
+
 }
