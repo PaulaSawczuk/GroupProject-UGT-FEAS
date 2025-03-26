@@ -1,11 +1,104 @@
 <div class="display-container">
-  <h1>Kegg Pathways</h1>
-  <div *ngIf="pathways.length > 0; else noPathways">
+  <aside id="sidebar" [class.close]="!isMenuOpen">
     <ul>
-      <li *ngFor="let pathway of pathways">{{ pathway }}</li>
+      <li>
+        <div class="toggle-container" [class.right]="isMenuOpen">
+          <button id="toggle-btn" (click)="toggleMenu()">
+            <svg width="24" height="24" viewBox="0 0 24 24">
+              <path d="M3 12h18M3 6h18M3 18h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </button>
+        </div>
+      </li>
+
+      <li>
+        <button class="dropdown-btn" (click)="isMenuOpen ? (pathwaysOpen = !pathwaysOpen) : null">
+          <div class="icons-container">
+            <div class="icons">
+              <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#482E3C">
+                <path d="M760-120q-39 0-70-22.5T647-200H440q-66 0-113-47t-47-113q0-66 47-113t113-47h80q33 0 56.5-23.5T600-600q0-33-23.5-56.5T520-680H313q-13 35-43.5 57.5T200-600q-50 0-85-35t-35-85q0-50 35-85t85-35q39 0 69.5 22.5T313-760h207q66 0 113 47t47 113q0 66-47 113t-113 47h-80q-33 0-56.5 23.5T360-360q0 33 23.5 56.5T440-280h207q13-35 43.5-57.5T760-360q50 0 85 35t35 85q0 50-35 85t-85 35ZM200-680q17 0 28.5-11.5T240-720q0-17-11.5-28.5T200-760q-17 0-28.5 11.5T160-720q0 17 11.5 28.5T200-680Z"/>
+              </svg>
+            </div>
+            <span class="menu-text">Pathways</span>
+          </div>
+          <svg class="dropdown-arrow" [class.rotate]="pathwaysOpen" width="24" height="24" viewBox="0 -960 960 960">
+            <path d="M480-360 280-560h400L480-360Z" fill="currentColor"/>
+          </svg>
+        </button>
+        <ul class="sub-menu" [class.show]="pathwaysOpen">
+          <li *ngFor="let pathway of pathways">
+            <a (click)="selectPathway($event, pathway)">{{ pathway }}</a>
+          </li>
+        </ul>
+      </li>
+
+      <li>
+        <button class="dropdown-btn" (click)="isMenuOpen ? (exportOpen = !exportOpen) : null">
+          <div class="icons-container">
+            <div class="icons">
+              <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#482E3C">
+                <path d="M480-320 280-520l56-58 104 104v-326h80v326l104-104 56 58-200 200ZM240-160q-33 0-56.5-23.5T160-240v-120h80v120h480v-120h80v120q0 33-23.5 56.5T720-160H240Z"/>
+              </svg>
+            </div>
+            <span class="menu-text">Export</span>
+          </div>
+          <svg class="dropdown-arrow" [class.rotate]="exportOpen" width="24" height="24" viewBox="0 -960 960 960">
+            <path d="M480-360 280-560h400L480-360Z" fill="currentColor"/>
+          </svg>
+        </button>
+        <ul class="sub-menu" [class.show]="exportOpen">
+          <li *ngFor="let option of exportOptions">
+            <a>{{ option }}</a>
+          </li>
+        </ul>
+      </li>
+
+      <li>
+        <button class="dropdown-btn" (click)="isMenuOpen ? (targetAnalysisOpen = !targetAnalysisOpen) : null">
+          <div class="icons-container">
+            <div class="icons">
+              <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#482E3C">
+                <path d="M400-240v-80h160v80H400ZM240-440v-80h480v80H240ZM120-640v-80h720v80H120Z"/>
+              </svg>
+            </div>
+            <span class="menu-text">Target Analysis</span>
+          </div>
+          <svg class="dropdown-arrow" [class.rotate]="targetAnalysisOpen" width="24" height="24" viewBox="0 -960 960 960">
+            <path d="M480-360 280-560h400L480-360Z" fill="currentColor"/>
+          </svg>
+        </button>
+        <ul class="sub-menu" [class.show]="targetAnalysisOpen">
+          <li *ngFor="let target of targets">
+            <a (click)="selectTarget($event, target)">{{ target }}</a>
+          </li>
+        </ul>
+      </li>
     </ul>
-  </div>
-  <ng-template #noPathways>
-    <p>No pathways available to display.</p>
-  </ng-template>
-</div>
+  </aside>
+
+  <main class="main-panel">
+    <div class="visualization-area">
+      {{ selectedPathway }} <br>
+      Timepoint: {{ selectedTimepoint }}
+    </div>
+    <div class="slider-container">
+      <div class="custom-slider">
+        <div class="slider-line" #sliderLine>
+          <svg class="slider-pointer" xmlns="http://www.w3.org/2000/svg" height="48px" viewBox="0 -960 960 960" width="48px" fill="#482E3C" [style.left.%]="(100 / (timepoints.length - 1)) * selectedTimeIndex">
+            <path d="m280-400 200-201 200 201H280Z"/>
+          </svg>
+          <span *ngFor="let time of timepoints; let i = index" 
+                [style.left.%]="(100 / (timepoints.length - 1)) * i">
+          </span>
+        </div>
+      <div class="timepoint-labels">
+        <span *ngFor="let time of timepoints; let i = index" 
+              class="timepoint-label" 
+              [style.left.%]="(100 / (timepoints.length - 1)) * i"
+              [style.transform]="'translateX(-50%)'">
+              {{ time }}
+            </span>
+          </div>
+        </div>
+    </div>
+</main>
