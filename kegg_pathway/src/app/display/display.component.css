@@ -1,17 +1,244 @@
-.display-container {
-  padding: 20px;
-  font-family: Arial, sans-serif;
+:root {
+  --base-clr: #11121a;
+  --line-clr: #42434a;
+  --hover-clr: #222533;
+  --text-clr: #e6e6ef;
+  --accent-clr: #5e63ff;
 }
 
-h1 {
-  text-align: center;
-}
-
-ul {
-  list-style-type: none;
+* {
+  margin: 0;
   padding: 0;
+  box-sizing: border-box;
 }
 
-li {
-  margin: 10px 0;
+html {
+  font-family: 'Poppins', sans-serif;
+}
+
+.display-container {
+  display: flex;
+  height: 100vh;
+}
+
+#sidebar {
+  width: 250px;
+  background-color: var(--base-clr);
+  color: var(--text-clr);
+  position: fixed;
+  height: 100vh;
+  left: 0;
+  top: 8px;
+  transition: width 0.3s ease-in-out;
+  padding-top: 5px;
+  background-color: #482e3c43;
+  border-radius: 8px;
+}
+
+#sidebar.close {
+  width: 60px;
+}
+
+#sidebar ul {
+  list-style: none;
+  padding: 10px;
+}
+
+#sidebar li {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: 100%;
+}
+
+#sidebar button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between; 
+  width: 100%;
+  background: none;
+  border: none;
+  color: var(--text-clr);
+  padding: 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+#sidebar button:hover {
+  background-color: var(--hover-clr);
+}
+
+#sidebar svg {
+  fill: #482E3C;
+}
+
+.dropdown-arrow {
+  transition: transform 0.3s ease-in-out;
+  color: #482E3C;
+}
+
+.dropdown-arrow.rotate {
+  transform: rotate(180deg);
+}
+
+.sub-menu {
+  display: none;
+  flex-direction: column;
+  background-color: var(--base-clr);
+  padding: 5px 10px;
+  border-radius: 5px;
+}
+
+.sub-menu.show {
+  display: flex;
+}
+
+.sub-menu li {
+  width: 100%;
+}
+
+.sub-menu a {
+  display: block;
+  color: var(--text-clr);
+  text-decoration: none;
+  padding: 5px 10px;
+  border-radius: 4px;
+  font-family: 'DM Sans', sans-serif;
+}
+
+.sub-menu a:hover {
+  background-color: rgba(126, 76, 76, 0.185);
+  width: 200px;
+}
+
+.main-panel {
+  flex-grow: 1;
+  margin-left: 250px;
+  transition: margin-left 0.3s ease-in-out;
+  background-color: #ffffff;
+}
+
+#sidebar.close + .main-panel {
+  margin-left: 60px;
+}
+
+.visualization-area {
+  height: 80%;
+  background-color: #d3cbcb62;
+  border-radius: 8px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 2px solid #482E3C;
+  margin-bottom: 80px;
+}
+
+.icons {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.dropdown-btn {
+  display: flex;
+  align-items: center;
+  justify-content: space-between; 
+  width: 100%;
+  background: none;
+  border: none;
+  color: var(--text-clr);
+  padding: 15px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  font-size: 18px;
+  font-family: 'DM Sans', sans-serif;
+}
+
+.dropdown-btn:hover {
+  background-color: var(--hover-clr);
+}
+
+.menu-text {
+  white-space: nowrap;
+}
+
+#sidebar.close .menu-text {
+  display: none;
+}
+
+.icons-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.toggle-container {
+  transition: transform 0.3s ease; 
+  justify-content: flex-start; 
+  display: flex;  
+}
+
+.toggle-container.right {
+  transform: translateX(186px); 
+  justify-content: flex-end; 
+}
+
+.custom-slider {
+  width: 100%;
+  margin-top: 20px;
+  margin-bottom: 30px;
+}
+
+.slider-line {
+  position: relative;
+  height: 3px;
+  background: #d3d3d3;
+  cursor: pointer;
+}
+
+.slider-pointer {
+  position: absolute;
+  top: 15px;
+  transform: translateX(-50%);
+  font-size: 2em;
+}
+
+.timepoint-labels {
+  position: relative;
+  display: block;
+}
+
+.timepoint-label {
+  position: absolute;
+  bottom: 20px;
+  font-size: 14px;
+  font-family: 'DM Sans', sans-serif;
+  color: #482E3C;
+}
+
+.slider-line::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 100%;
+  background: #482E3C;
+}
+
+.slider-line span {
+  position: absolute;
+  bottom: -5px; 
+  width: 3px;
+  height: 15px; 
+  background: #482E3C;
+}
+
+.slider-container {
+  position: flex; 
+  left: 0;
+  right: 0;
+  padding: 0 20px; 
 }
