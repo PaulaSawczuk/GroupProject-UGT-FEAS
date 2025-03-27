@@ -214,6 +214,13 @@ export async function getElements(pathway){
 }
 
 
+
+
+
+
+
+
+/*
 function matchGeneName(id,genes){
   console.log(id);
   //console.log(genes[0]);
@@ -230,7 +237,7 @@ function matchGeneName(id,genes){
     }
   }
 }
-
+*/
 
 /*
 const ids = ['106353174'];
