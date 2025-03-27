@@ -19,7 +19,8 @@ import util from 'util';
 //import { initialiseMap } from './go_trial_parse.js';
 
 
-const ids = ['106353174'];
+//const ids = ['106353174'];
+
 var pathway = 'bna00030';
 var ec_pathway = 'ec00030';
 
