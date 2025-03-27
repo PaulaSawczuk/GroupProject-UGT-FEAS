@@ -171,13 +171,13 @@ function init() {
     },
     {
       key: '111',
-      text: 'D-Ribose 1,5-bisphosphate',
+      text: 'cpd:C01151',
       type: 'compound',
       category: 'compound'
     },
     {
       key: '124',
-      text: '5-Phospho-alpha-D-ribose 1-diphosphate',
+      text: 'cpd:C00119',
       type: 'compound',
       category: 'compound',
       position: undefined
@@ -191,13 +191,13 @@ function init() {
     },
     {
       key: '112',
-      text: 'alpha-D-Glucose 6-phosphate',
+      text: 'cpd:C00668',
       type: 'compound',
       category: 'compound'
     },
     {
       key: '134',
-      text: 'beta-D-Glucose 6-phosphate',
+      text: 'cpd:C01172',
       type: 'compound',
       category: 'compound',
       position: undefined
@@ -211,20 +211,20 @@ function init() {
     },
     {
       key: '122',
-      text: '2-Dehydro-3-deoxy-6-phospho-D-gluconate',
+      text: 'cpd:C04442',
       type: 'compound',
       category: 'compound'
     },
     {
       key: '114',
-      text: 'Pyruvate',
+      text: 'cpd:C00022',
       type: 'compound',
       category: 'compound',
       position: undefined
     },
     {
       key: '113',
-      text: 'D-Glyceraldehyde 3-phosphate',
+      text: 'cpd:C00118',
       type: 'compound',
       category: 'compound',
       position: undefined
@@ -238,13 +238,13 @@ function init() {
     },
     {
       key: '130',
-      text: 'Deoxyribose',
+      text: 'cpd:C01801',
       type: 'compound',
       category: 'compound'
     },
     {
       key: '131',
-      text: '2-Deoxy-D-ribose 5-phosphate',
+      text: 'cpd:C00673',
       type: 'compound',
       category: 'compound',
       position: undefined
@@ -258,7 +258,7 @@ function init() {
     },
     {
       key: '138',
-      text: '2-Deoxy-D-ribose 1-phosphate',
+      text: 'cpd:C00672',
       type: 'compound',
       category: 'compound'
     },
@@ -271,7 +271,7 @@ function init() {
     },
     {
       key: '132',
-      text: 'D-Glyceraldehyde 3-phosphate',
+      text: 'cpd:C00118',
       type: 'compound',
       category: 'compound',
       position: undefined
@@ -285,7 +285,7 @@ function init() {
     },
     {
       key: '123',
-      text: 'D-Ribose 5-phosphate',
+      text: 'cpd:C00117',
       type: 'compound',
       category: 'compound'
     },
@@ -298,7 +298,7 @@ function init() {
     },
     {
       key: '125',
-      text: 'alpha-D-Ribose 1-phosphate',
+      text: 'cpd:C00620',
       type: 'compound',
       category: 'compound'
     },
@@ -311,7 +311,7 @@ function init() {
     },
     {
       key: '126',
-      text: 'D-Ribose',
+      text: 'cpd:C00121',
       type: 'compound',
       category: 'compound'
     },
@@ -324,13 +324,13 @@ function init() {
     },
     {
       key: '129',
-      text: 'Sedoheptulose 7-phosphate',
+      text: 'cpd:C05382',
       type: 'compound',
       category: 'compound'
     },
     {
       key: '142',
-      text: 'D-Xylulose 5-phosphate',
+      text: 'cpd:C00231',
       type: 'compound',
       category: 'compound',
       position: undefined
@@ -344,7 +344,7 @@ function init() {
     },
     {
       key: '144',
-      text: 'D-Ribulose 5-phosphate',
+      text: 'cpd:C00199',
       type: 'compound',
       category: 'compound',
       position: undefined
@@ -365,13 +365,13 @@ function init() {
     },
     {
       key: '137',
-      text: 'D-Fructose 6-phosphate',
+      text: 'cpd:C00085',
       type: 'compound',
       category: 'compound'
     },
     {
       key: '127',
-      text: 'D-Erythrose 4-phosphate',
+      text: 'cpd:C00279',
       type: 'compound',
       category: 'compound',
       position: undefined
@@ -385,7 +385,7 @@ function init() {
     },
     {
       key: '133',
-      text: 'D-Fructose 1,6-bisphosphate',
+      text: 'cpd:C00354',
       type: 'compound',
       category: 'compound'
     },
@@ -419,13 +419,13 @@ function init() {
     },
     {
       key: '119',
-      text: '6-Phospho-D-gluconate',
+      text: 'cpd:C00345',
       type: 'compound',
       category: 'compound'
     },
     {
       key: '128',
-      text: '6-Phospho-2-dehydro-D-gluconate',
+      text: 'cpd:C01218',
       type: 'compound',
       category: 'compound',
       position: undefined
@@ -439,7 +439,7 @@ function init() {
     },
     {
       key: '136',
-      text: '2-Keto-D-gluconic acid',
+      text: 'cpd:C06473',
       type: 'compound',
       category: 'compound'
     },
@@ -459,7 +459,7 @@ function init() {
     },
     {
       key: '135',
-      text: 'D-Glucono-1,5-lactone 6-phosphate',
+      text: 'cpd:C01236',
       type: 'compound',
       category: 'compound'
     },
@@ -479,13 +479,13 @@ function init() {
     },
     {
       key: '158',
-      text: '2-Amino-2-deoxy-D-gluconate',
+      text: 'cpd:C03752',
       type: 'compound',
       category: 'compound'
     },
     {
       key: '120',
-      text: '2-Dehydro-3-deoxy-D-gluconate',
+      text: 'cpd:C00204',
       type: 'compound',
       category: 'compound',
       position: undefined
@@ -513,7 +513,7 @@ function init() {
     },
     {
       key: '115',
-      text: 'D-Gluconic acid',
+      text: 'cpd:C00257',
       type: 'compound',
       category: 'compound'
     },
@@ -533,7 +533,7 @@ function init() {
     },
     {
       key: '116',
-      text: 'D-Glucono-1,5-lactone',
+      text: 'cpd:C00198',
       type: 'compound',
       category: 'compound'
     },
@@ -546,7 +546,7 @@ function init() {
     },
     {
       key: '117',
-      text: 'D-Glucose',
+      text: 'cpd:C00031',
       type: 'compound',
       category: 'compound'
     },
@@ -566,7 +566,7 @@ function init() {
     },
     {
       key: '118',
-      text: 'beta-D-Glucose',
+      text: 'cpd:C00221',
       type: 'compound',
       category: 'compound'
     },
@@ -614,7 +614,7 @@ function init() {
     },
     {
       key: '139',
-      text: 'D-Glyceraldehyde',
+      text: 'cpd:C00577',
       type: 'compound',
       category: 'compound',
       position: undefined
@@ -628,7 +628,7 @@ function init() {
     },
     {
       key: '140',
-      text: 'D-Glycerate',
+      text: 'cpd:C00258',
       type: 'compound',
       category: 'compound',
       position: undefined
@@ -642,7 +642,7 @@ function init() {
     },
     {
       key: '141',
-      text: '2-Phospho-D-glycerate',
+      text: 'cpd:C00631',
       type: 'compound',
       category: 'compound',
       position: undefined
@@ -670,7 +670,7 @@ function init() {
     },
     {
       key: '143',
-      text: 'D-Xylulose 5-phosphate',
+      text: 'cpd:C00231',
       type: 'compound',
       category: 'compound'
     },
@@ -683,7 +683,7 @@ function init() {
     },
     {
       key: '145',
-      text: 'D-arabino-Hex-3-ulose 6-phosphate',
+      text: 'cpd:C06019',
       type: 'compound',
       category: 'compound',
       position: undefined
@@ -711,7 +711,7 @@ function init() {
     },
     {
       key: '154',
-      text: 'D-Glucosaminate-6-phosphate',
+      text: 'cpd:C20589',
       type: 'compound',
       category: 'compound'
     },
@@ -724,7 +724,7 @@ function init() {
     },
     {
       key: '121',
-      text: '2-Amino-2-deoxy-D-gluconate',
+      text: 'cpd:C03752',
       type: 'compound',
       category: 'compound'
     },
@@ -744,7 +744,7 @@ function init() {
     },
     {
       key: '161',
-      text: '3-Phospho-D-glycerate',
+      text: 'cpd:C00197',
       type: 'compound',
       category: 'compound',
       position: undefined
@@ -849,7 +849,7 @@ function init() {
     },
     {
       key: '185',
-      text: 'D-Ribulose 1,5-bisphosphate',
+      text: 'cpd:C01182',
       type: 'compound',
       category: 'compound',
       position: undefined
@@ -863,7 +863,7 @@ function init() {
     },
     {
       key: '192',
-      text: 'Sedoheptulose',
+      text: 'cpd:C02076',
       type: 'compound',
       category: 'compound'
     },
@@ -1433,7 +1433,7 @@ function init() {
       text: 'ec:5.3.1.27',
       type: 'enzyme',
       category: 'enzyme',
-      colour: 'lightgrey',
+      colour: 'rgb(134, 0, 0)',
       group: 'R152',
       position: { x: '298', y: '406' }
     },
@@ -1442,7 +1442,7 @@ function init() {
       text: 'ec:4.3.1.29',
       type: 'enzyme',
       category: 'enzyme',
-      colour: 'lightgrey',
+      colour: 'rgb(0, 255, 0)',
       group: 'R156',
       position: { x: '672', y: '378' }
     },
@@ -1514,7 +1514,7 @@ function init() {
       text: 'ec:1.1.1.360',
       type: 'enzyme',
       category: 'enzyme',
-      colour: 'lightgrey',
+      colour: 'rgb(148, 0, 0)',
       group: 'R165',
       position: { x: '248', y: '220' }
     },
@@ -1523,7 +1523,7 @@ function init() {
       text: 'ec:1.1.1.360',
       type: 'enzyme',
       category: 'enzyme',
-      colour: 'lightgrey',
+      colour: 'rgb(148, 0, 0)',
       group: 'R166',
       position: { x: '248', y: '220' }
     },
@@ -1532,7 +1532,7 @@ function init() {
       text: 'ec:1.1.1.359',
       type: 'enzyme',
       category: 'enzyme',
-      colour: 'lightgrey',
+      colour: 'rgb(255, 0, 0)',
       group: 'R165',
       position: { x: '296', y: '220' }
     },
@@ -1541,7 +1541,7 @@ function init() {
       text: 'ec:1.1.1.359',
       type: 'enzyme',
       category: 'enzyme',
-      colour: 'lightgrey',
+      colour: 'rgb(255, 0, 0)',
       group: 'R166',
       position: { x: '296', y: '220' }
     },
@@ -1577,7 +1577,7 @@ function init() {
       text: 'ec:1.2.1.90',
       type: 'enzyme',
       category: 'enzyme',
-      colour: 'lightgrey',
+      colour: 'rgb(0, 255, 0)',
       group: 'R174',
       position: { x: '892', y: '340' }
     },
@@ -1622,7 +1622,7 @@ function init() {
       text: 'ec:2.7.1.212',
       type: 'enzyme',
       category: 'enzyme',
-      colour: 'lightgrey',
+      colour: 'rgb(255, 0, 0)',
       group: 'R183',
       position: { x: '673', y: '615' }
     },
@@ -1640,7 +1640,7 @@ function init() {
       text: 'ec:5.3.1.29',
       type: 'enzyme',
       category: 'enzyme',
-      colour: 'lightgrey',
+      colour: 'rgb(190, 0, 0)',
       group: 'R187',
       position: { x: '759', y: '658' }
     },
