@@ -9,13 +9,10 @@
 // Inputs: 
 // Outputs: 
 
-
+// ORIGINAL SCRIPT
 // Takes EC pathway code and fetches KGML of that pathway from KEGG API.
 // ProcessKGML - Returns Relations, Entries and Reactions for the KGML
 // getNodesEdges - Takes KGML elements and gets NODEs and LINKS in GO.JS format for visualisation
-
-
-
 
 
 
@@ -25,10 +22,6 @@ import xml2js from 'xml2js';
 import xpath from "xml2js-xpath";
 import https from 'https'
 import util from 'util';
-
-
-
-
 
 
 async function getKGML(mapCode) {
@@ -55,6 +48,7 @@ async function getKGML(mapCode) {
         });
     });
 }
+
 
 function getEntries(data){
     var entries = '';
