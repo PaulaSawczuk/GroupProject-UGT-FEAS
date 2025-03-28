@@ -11,6 +11,7 @@ const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const { processInput } = require('./helper/merge.js');
+const {getEnzymePathways} = require('./helper/getEnzymePathways.js');
 
 
 const app = express();
@@ -27,6 +28,23 @@ app.get('/api/getModel/:code', (req, res) => {
     console.log('Getting Diagram Model');
     // Wait for response - async function
     processInput(req.params.code).then(elements => res.json(elements));
+
+  });
+
+
+app.get('/api/getEnzymePathways/enzymes', (req, res) => {
+    // Handling a post request of Enzyme codes?? - list of enzyme code expected
+    console.log('Getting Enzyme Pathways');
+    const enzymes = [
+        'ec:1.1.1.360',
+        'ec:1.1.1.359',
+        'ec:4.3.1.29',
+        'ec:5.3.1.27',
+        'ec:5.3.1.29',
+        'ec:2.7.1.212',
+        'ec:1.2.1.90'];
+    
+    getEnzymePathways(enzymes).then(pathways => res.json(pathways));
 
   });
 

@@ -1,14 +1,16 @@
-import { Injectable } from '@angular/core';
+import { Injectable, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 
+// REDUNDANT CURRENTLY
 
 @Injectable({
   providedIn: 'root',
 })
-export class ApiService {
-  private apiUrl = 'http://localhost:3000/api/getenzymes'; // Your backend URL
+export class enzymeApiService {
+
+  private apiUrl = 'http://localhost:3000/api/getEnzymesPathways/enzymes'; // Your backend URL
 
   constructor(private http: HttpClient) {}
 

@@ -16,9 +16,7 @@ const util = require('util');
 
 function initialiseMap(inputNodes,inputEdges){
   console.log('Initialising Map');
-  console.log(inputEdges);
-  console.log(inputNodes);
-  //console.log(code);
+
   var $ = go.GraphObject.make;
   
   // Create the GoJS Diagram
@@ -262,7 +260,7 @@ function initialiseMap(inputNodes,inputEdges){
         if (enzyme.group == nodesToRemove[i]){
           //console.log("Match! :"+enzyme.group);
           //console.log(nodesToRemove[i]);
-          console.log(enzyme.key);
+          //console.log(enzyme.key);
           //console.log("------------")
           enzyme_matches.push({
             key: enzyme.key,
@@ -276,13 +274,13 @@ function initialiseMap(inputNodes,inputEdges){
       const node = diagram.findNodeForKey(nodeKey); // Get the node by its key
     
       if (!node) {
-        console.error("Node not found!");
+        //console.error("Node not found!");
         return [];
       }
     
       const parentGroupKey = node.data.group; // Get the parent group's key
       if (!parentGroupKey) {
-        console.log("This node has no parent (it's not in a group).");
+        //console.log("This node has no parent (it's not in a group).");
         return [];
       }
     
@@ -355,7 +353,7 @@ function initialiseMap(inputNodes,inputEdges){
         const node = diagram.findNodeForKey(nodeKey); // Find the node by its key
         
         if (!node) {
-          console.error("Node not found!");
+          //console.error("Node not found!");
           return [];
         }
       
@@ -368,7 +366,7 @@ function initialiseMap(inputNodes,inputEdges){
         });
       
         if (parentNodes.size === 0) {
-          console.log("This node has no parent.");
+          //console.log("This node has no parent.");
           return [];
         }
       
@@ -464,7 +462,7 @@ function initialiseMap(inputNodes,inputEdges){
       }
     });
 
-    console.log("Removed Duplicate Nodes:", nodesToRemove);
+    //console.log("Removed Duplicate Nodes:", nodesToRemove);
   }
 
   // Call the function to remove duplicate reaction-type nodes
