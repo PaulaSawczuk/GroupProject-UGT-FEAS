@@ -1,8 +1,6 @@
 import { Component, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { enzymeApiService} from '../services/kegg_enzymepathways.service';
-import { HttpClient } from '@angular/common/http';
 import { enzymeApiServicePost } from '../services/kegg_enzymepathwaysPost.serice';
 
 
@@ -31,31 +29,54 @@ export class DisplayComponent {
   pathwayData: any[] = [];
   // Array of only names in the same order as pathwayData but for display purposes
   pathways: any[] = [];
-  //constructor(private http: HttpClient) { }
 
-  constructor(private enzymeApiServicePost: enzymeApiServicePost) {}
+  mapData: any[] = [];
+  nodeData: any[] = [];
+  linkData: any[] = [];
+  constructor(private enzymeApiServicePost: enzymeApiServicePost) {};
+
 
   // Function for loading Names of each pathway that is fetched from the backend
   loadNames(): void {
     this.pathways = this.pathwayData.map(pathway => pathway.name);
   }
-/*
-  ngOnInit(): void {
-    // Example of sending data with a POST request
-    this.enzymeApiService.getData().subscribe(
-      (response) => {
-        this.pathwayData = response;
-        this.loadNames();
-        console.log('Data sent successfully:', this.pathwayData);
-      },
-      (error) => {
-        console.error('Error sending data:', error);
-      }
-    );
-  }*/
+
+  loadNodes(): void {
+    console.log('Getting Nodes');
+    const entries: [string, string][] = Object.entries(this.mapData);
+    //this.nodeData = this.mapData.
+    const firstEntry: [string, string] = entries[0]; 
+    //console.log(firstEntry);
+    const nodes = firstEntry[1];
+    //console.log(nodes);
+    //console.log(nodes[0]);
+    for (let i=0; i<nodes.length;i++){
+      //console.log(nodes[i]);
+      this.nodeData.push(nodes[i])
+    }
+    //this.nodeData = nodes;
+    //console.log(this.nodeData);
+
+  }
+  loadLinks(): void {
+    console.log('Getting Links');
+    const entries: [string, string][] = Object.entries(this.mapData);
+    const secondEntry: [string, string] = entries[1]; 
+    //console.log(secondEntry);
+    const links = secondEntry[1];
+    //console.log(links);
+    //this.linkData = JSON.links;
+    for (let i=0; i<links.length;i++){
+      //console.log(links[i]);
+      this.linkData.push(links[i])
+    }
+    //console.log(this.linkData);
+    //console.log(this.linkData[0]);
+
+  }
 
   ngOnInit(): void {
-    this.enzymeApiServicePost.postData(this.enzymesList).subscribe(
+    this.enzymeApiServicePost.postEnzymeData(this.enzymesList).subscribe(
       (response) => {
         // Handle the successful response
         this.pathwayData = response;
@@ -69,6 +90,27 @@ export class DisplayComponent {
       }
     );
   };
+
+  getMapData(data: string): void {
+    this.enzymeApiServicePost.postMapData(data).subscribe(
+      (response) => {
+
+        this.mapData = response;
+
+        console.log('Loading data');
+        this.loadNodes();
+        this.loadLinks();
+        console.log('Received from backend:', response);
+        console.log(this.linkData);
+        console.log(this.nodeData);
+        console.log(this.nodeData[0]);
+      },
+      (error) => {
+        console.error('Error:', error);
+      }
+    );
+  };
+
 
 
   isMenuOpen = true;
@@ -123,9 +165,11 @@ export class DisplayComponent {
     console.log('Selected:', pathway);
     const nameSelected = pathway;
     const path = this.pathwayData.find(path => path.name === nameSelected);
-    console.log('Corresponding Code:'+ path.pathway)
+    console.log('Corresponding Code: '+path.pathway)
     this.selectedPathway = path.pathway;
+    const code = path.pathway
     this.selectedTimeIndex = 0;
+    this.getMapData(code);
   }
 
   selectTarget(event: Event, target: string) {

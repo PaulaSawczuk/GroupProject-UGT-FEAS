@@ -167,9 +167,12 @@ async function processInput(code) {
     
     getCompoundNames(elements.compounds, map_elements.uniqueNodes);
 
-    const processedElements = init.initialiseMap(map_elements.uniqueNodes,map_elements.edges);
-    
-    return {processedElements};
+    //const processedElements = init.initialiseMap(map_elements.uniqueNodes,map_elements.edges);
+    let nodeData = map_elements.uniqueNodes
+    console.log(nodeData);
+    let linkData = map_elements.edges
+    console.log(linkData);
+    return {nodeData,linkData};
   }
 
 module.exports = {

@@ -22,20 +22,29 @@ app.use(cors()); // To allow cross-origin requests
 app.use(bodyParser.json()); // To parse JSON request bodies
 
 
-
-// Enter Random code at the moment --- Code is currentl hard coded 
+ 
 // Calles Process Input from Merge.js 
 app.get('/api/getModel/:code', (req, res) => {
     console.log('Getting Diagram Model');
     // Wait for response - async function
-    processInput(req.params.code).then(elements => res.json(elements));
+    processInput(req.params.code).then(elements => res.json(elements.map_elements));
 
   });
 
 
 
+// Calles Process Input from Merge.js 
+app.post('/api/getModel', (req, res) => {
+    console.log('Getting Diagram Model');
+    // Wait for response - async function
+    
+    processInput(req.body).then(elements => res.json(elements));
+
+  });
+
+
   // POST REQUEST FROM SERVER 
-  app.post('/api/getEnzymePathways/enzymes3', (req, res) => {
+  app.post('/api/getEnzymePathways', (req, res) => {
     // Handling a post request of Enzyme codes?? - list of enzyme code expected
     console.log('Getting Enzyme Pathways');
     console.log(req.body);
