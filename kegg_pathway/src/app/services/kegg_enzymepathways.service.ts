@@ -1,3 +1,13 @@
+// Jennifer O'Halloran 
+// 29/03/2025
+//----------------------------------------
+// GET request service to backend Express Node API
+// Utilises hard-coded enzyme list in back-end
+// Response : Array of Pathway Objects - Name and Pathway Code
+
+// ----------  REDUNDANT -----------------
+
+
 import { Injectable, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';

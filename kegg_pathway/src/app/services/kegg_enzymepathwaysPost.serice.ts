@@ -1,9 +1,18 @@
+
+// Jennifer O'Halloran 
+// 29/03/2025
+//----------------------------------------
+// POST request service to backend Express Node API
+// Input : List of Enzymes From the input Data 
+// Response : Array of Pathway Objects - Name and Pathway Code
+
+
+
+
 import { Injectable, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
-
-// REDUNDANT CURRENTLY
 
 @Injectable({
   providedIn: 'root',
