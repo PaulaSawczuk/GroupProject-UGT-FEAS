@@ -12,6 +12,7 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const { processInput } = require('./helper/merge.js');
 const {getEnzymePathways} = require('./helper/getEnzymePathways.js');
+const {getPathwayNames} = require('./helper/getPathwayName.js')
 
 
 const app = express();
@@ -32,9 +33,25 @@ app.get('/api/getModel/:code', (req, res) => {
   });
 
 
-app.get('/api/getEnzymePathways/enzymes', (req, res) => {
+
+  // POST REQUEST FROM SERVER 
+  app.post('/api/getEnzymePathways/enzymes3', (req, res) => {
     // Handling a post request of Enzyme codes?? - list of enzyme code expected
     console.log('Getting Enzyme Pathways');
+    console.log(req.body);
+    var enzymes = req.body;
+    getEnzymePathways(enzymes).then(pathways => getPathwayNames(pathways))
+        .then((result)=>{
+            //console.log(result)
+            //console.log(result.paths[0]);
+            res.json(result.paths);
+        });
+
+  });
+
+// GET REQUEST  - REDUNDANT 
+  app.get('/api/getEnzymePathways/enzymes2', (req, res) => {
+    // Handling a post request of Enzyme codes?? - list of enzyme code expected
     const enzymes = [
         'ec:1.1.1.360',
         'ec:1.1.1.359',
@@ -44,9 +61,14 @@ app.get('/api/getEnzymePathways/enzymes', (req, res) => {
         'ec:2.7.1.212',
         'ec:1.2.1.90'];
     
-    getEnzymePathways(enzymes).then(pathways => res.json(pathways));
-
+    getEnzymePathways(enzymes).then(pathways => getPathwayNames(pathways))
+        .then((result)=>{
+            //console.log(result)
+            console.log(result.paths[0]);
+            res.json(result.paths);
+        });
   });
+
 
 
 const PORT = process.env.PORT || 3000;
