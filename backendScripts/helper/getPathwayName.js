@@ -85,10 +85,12 @@ function addUniqueElements(all_paths, paths) {
 
 
 async function getPathwayNames(all_paths){
+  console.log("Getting Pathway Names");
+  console.log("----------------------");
   var paths=[];
   for (const path of all_paths) {
       var url = 'https://rest.kegg.jp/get/'+path;
-      console.log(url);
+      //console.log(url);
       try {
         // Fetch the URL response
         const response = await fetch(url);
@@ -123,11 +125,11 @@ async function getPathwayNames(all_paths){
     console.error('There was a problem with the fetch operation:', error);
           }
   }
-  console.log(paths);
-  return paths;
+  //console.log(paths);
+  return {paths};
 }
 
-const all_paths = [
+/*const all_paths = [
   'ec00030',
   'ec00052',
   'ec01100',
@@ -135,13 +137,13 @@ const all_paths = [
   'ec00680',
   'ec01120',
   'ec00010'
-]
+]*/
 
-getPathwayNames(all_paths);
+//getPathwayNames(all_paths);
 
 
 module.exports = {
-  getPathwaysNames
+  getPathwayNames
 };
 
 

@@ -9,14 +9,15 @@ import { Observable } from 'rxjs';
   providedIn: 'root',
 })
 
-export class enzymeApiService {
 
-  private apiUrl = 'http://localhost:3000/api/getEnzymePathways/enzymes2'; // Your backend URL
+export class enzymeApiServicePost {
+
+  private apiUrl = 'http://localhost:3000/api/getEnzymePathways/enzymes3'; // Your backend URL
 
   constructor(private http: HttpClient) {}
 
   // Example of fetching data from the Node.js backend
-  getData(): Observable<any[]> {
-    return this.http.get<any[]>(this.apiUrl);
+  postData(data: any): Observable<any[]>{
+    return this.http.post<any>(this.apiUrl, data);
   }
-};
+}

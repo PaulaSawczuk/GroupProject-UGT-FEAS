@@ -1,9 +1,9 @@
 import { Component, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { enzymeApiService } from '../services/kegg_enzymepathways.service';
+import { enzymeApiService} from '../services/kegg_enzymepathways.service';
 import { HttpClient } from '@angular/common/http';
-
+import { enzymeApiServicePost } from '../services/kegg_enzymepathwaysPost.serice';
 
 
 @Component({
@@ -17,27 +17,59 @@ import { HttpClient } from '@angular/common/http';
 export class DisplayComponent {
 
 
-  pathways: any[] = [];
-  constructor(private http: HttpClient) { }
 
-  //constructor(private enzymeApiService: enzymeApiService) {}
-  loadMenuItems(): void {
-    // Adjust your backend API URL here
-    this.http.get<any[]>('http://localhost:3000/api/getEnzymePathways/enzymes') // API endpoint for menu item
-      .subscribe({
-        next: (data) => {
-          this.pathways = data; // Save the response data (menu items) to the component
-        },
-        error: (err) => {
-          console.error('Error loading menu items', err);
-        }
-      });
-    }
-    ngOnInit(): void {
-      this.loadMenuItems();
-      
-    }
-    //c
+  enzymesList = [
+    'ec:1.1.1.360',
+    'ec:1.1.1.359',
+    'ec:4.3.1.29',
+    'ec:5.3.1.27',
+    'ec:5.3.1.29',
+    'ec:2.7.1.212',
+    'ec:1.2.1.90'];
+
+  // Array for the Fetch Data - contains Pathway Objects - Name and Pathway (ec No.)
+  pathwayData: any[] = [];
+  // Array of only names in the same order as pathwayData but for display purposes
+  pathways: any[] = [];
+  //constructor(private http: HttpClient) { }
+
+  constructor(private enzymeApiServicePost: enzymeApiServicePost) {}
+
+  // Function for loading Names of each pathway that is fetched from the backend
+  loadNames(): void {
+    this.pathways = this.pathwayData.map(pathway => pathway.name);
+  }
+/*
+  ngOnInit(): void {
+    // Example of sending data with a POST request
+    this.enzymeApiService.getData().subscribe(
+      (response) => {
+        this.pathwayData = response;
+        this.loadNames();
+        console.log('Data sent successfully:', this.pathwayData);
+      },
+      (error) => {
+        console.error('Error sending data:', error);
+      }
+    );
+  }*/
+
+  ngOnInit(): void {
+    this.enzymeApiServicePost.postData(this.enzymesList).subscribe(
+      (response) => {
+        // Handle the successful response
+        this.pathwayData = response;
+        this.loadNames();
+        console.log('Received from backend:', response);
+      },
+      (error) => {
+        // Handle errors
+        console.error('Error:', error);
+        //this.responseMessage = 'Error sending data';
+      }
+    );
+  };
+
 
   isMenuOpen = true;
   pathwaysOpen = false;

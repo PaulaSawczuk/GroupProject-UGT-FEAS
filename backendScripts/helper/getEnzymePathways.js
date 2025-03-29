@@ -14,7 +14,8 @@
 
 
 async function getEnzymePathways(enzymeIDs){
-
+  console.log("Getting Enzyme Pathways");
+  console.log("----------------------");
   var all_paths=[];
 
   for (const id of enzymeIDs) {
@@ -22,7 +23,7 @@ async function getEnzymePathways(enzymeIDs){
     
 
     var url = 'https://rest.kegg.jp/link/pathway/'+id
-    console.log(url);
+    //console.log(url);
     try {
       // Fetch the URL response
       const response = await fetch(url);
