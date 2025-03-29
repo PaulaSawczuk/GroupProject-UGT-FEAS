@@ -121,7 +121,10 @@ export class DisplayComponent {
   selectPathway(event: Event, pathway: string) {
     event.stopPropagation();
     console.log('Selected:', pathway);
-    this.selectedPathway = pathway;
+    const nameSelected = pathway;
+    const path = this.pathwayData.find(path => path.name === nameSelected);
+    console.log('Corresponding Code:'+ path.pathway)
+    this.selectedPathway = path.pathway;
     this.selectedTimeIndex = 0;
   }
 
