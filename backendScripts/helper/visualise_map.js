@@ -1,184 +1,24 @@
 
+/*** 
+ * // Date: 25/03/2025
+ * // Jennifer O'Halloran
+ * // IBIX2 Group Project 2025 
+***/
 
-// Jennifer O'Halloran
-// IBIX2 Group Project 2025
-// Date: 25/03/2025
-// Mapping inialisation functions - builds mapping Model
+/***
+// Map Initilaisation Function
 
-
-
-// Initilaisation Function
-// This can be exported and called externally in link.js 
-
+// Creates a instance of a Go.JS to compare and remove nodes 
+// Removes duplicate reaction nodes by comparing parent and child compound ndoes 
+// Removes enzymes within the same reaction group 
+***/
 
 const go = require('gojs');
-const util = require('util');
 
-function initialiseMap(inputNodes,inputEdges){
-  console.log('Initialising Map');
-
-  var $ = go.GraphObject.make;
-  
-  // Create the GoJS Diagram
-  var myDiagram = $(go.Diagram, "myDiagramDiv", {
-    initialContentAlignment: go.Spot.Center,
-    "undoManager.isEnabled": true,
-    initialAutoScale: go.AutoScale.Uniform
-  });
-/*
-  // TEMPLATE FOR LAYOUT
-  myDiagram.layout = new go.LayeredDigraphLayout({
-    // Set optional parameters for the layout
-    direction: 0,
-    layerSpacing: 30,  // Space between layers (nodes grouped in layers)
-    columnSpacing: 30,  // Space between columns (nodes within the same layer)
-    setsPortSpots: false,  // Don't automatically adjust port spots (ports can be manually set)
-    aggressiveOption: go.LayeredDigraphLayout.Aggressive, // Aggressiveness of the layout (adjusts edge crossings)
-    initializeOption: go.LayeredDigraphLayout.InitDepthPriority // Set initial node depth ordering (helps to minimize crossings)
-  });
-
-
-  // TEMPLATE FOR COMPOUNDS 
-    myDiagram.nodeTemplateMap.add("compound",  // Custom category for compound nodes
-      new go.Node("Vertical")  // Use Vertical Panel to place the label above the shape
-        .add(
-          new go.Shape("Circle", {
-            width: 40,
-            height: 40,
-            fill: "lightgrey",
-          })
-        ).add(new go.TextBlock(
-          { margin: 5,
-            font: "15px sans-serif",
-            maxSize: new go.Size(100, 20),
-            overflow: go.TextBlock.OverflowEllipsis,
-            //wrap: go.TextBlock.WrapFit,
-            })
-          .bind("text","text")
-        )
-    );
-
-  // TEMPLATE FOR LINKS
-    myDiagram.linkTemplate =
-    new go.Link({
-        routing: go.Routing.AvoidsNodes,
-        //routing: go.Link.Bezier,
-        //corner: 5    // rounded corners
-      })
-      .add(
-        new go.Shape(),
-        new go.Shape( { toArrow: "Standard" })
-      );
-
-  // TEMPLATE FOR LINKS for MAPLINKS
-  myDiagram.linkTemplateMap.add("maplink",  // Link type category
-    $(go.Link,
-      {
-        relinkableFrom: true,
-        relinkableTo: true,
-        routing: go.Link.AvoidsNodes,  // Route around nodes
-        corner: 5,  // Optional: corner rounding
-        reshapable: true,  // Allow reshaping the link
-        selectable: true,  // Make link selectable
-        layerName: "Foreground",  // Draw link on the foreground layer
-      },
-      new go.Binding("points").makeTwoWay(),
-      
-      // Shape of the link (the line itself)
-      $(go.Shape, 
-        {
-          stroke: "darkgrey",  // Set the color of the link (line) to black
-          strokeWidth: 3,
-          strokeDashArray: [10, 5]  // Set the line to be dashed (10px dashes, 5px gaps)
-        }),
-  
-      // Arrowhead at the "to" end of the link (one-way arrow)
-      $(go.Shape, 
-        {
-          toArrow: "Standard",  // Standard arrowhead at the end of the link
-          fill: "black",  // Set the color of the arrow to black
-          stroke: null  // No border around the arrow
-        })
-    )
-  );
-
-
-  // TEMPLATE FOR ENZYME NODES
-    myDiagram.nodeTemplateMap.add("enzyme",  // Custom category for compound nodes
-      new go.Node("Auto")  // Use Vertical Panel to place the label above the shape
-        .add(
-          new go.Shape("Rectangle").bind("fill","colour")
-        ).add(new go.TextBlock(
-          { margin: 2,
-            font: "10px sans-serif",
-            wrap: go.TextBlock.WrapFit,
-          width: 80 })
-          .bind("text")
-        )
-    );
-
-    // TEMPLATE FOR MAP NODES
-    myDiagram.nodeTemplateMap.add("map",  // Custom category for compound nodes
-      new go.Node("Auto")  // Use Vertical Panel to place the label above the shape
-        .add(
-          new go.Shape("RoundedRectangle", {
-            fill: "lightblue",
-            width: 100,
-            height: 60
-          })
-        ).add(new go.TextBlock(
-          { margin: 2,
-            font: "10px sans-serif",
-            wrap: go.TextBlock.WrapFit,
-          width: 80 })
-          .bind("text", "name")
-        ),
-        {
-          toolTip:  // Create ToolTip when hovering over a node
-            $(go.Adornment, "Auto",
-              $(go.Shape, { fill: "#FFFFCC" }),  // Tooltip background color
-              $(go.TextBlock, { margin: 4 }, new go.Binding("text", "toolTipText"))
-            )
-        }
-    );
-
-  // TEMPLATE FOR REACTION GROUPS
-    myDiagram.groupTemplate =
-    new go.Group("Horizontal")
-      .add(
-        new go.Panel("Auto")
-          .add(
-            new go.Shape("Rectangle", {  // surrounds the Placeholder
-                parameter1: 0,
-                fill: "#F2F2F2"
-              }),
-            new go.Placeholder(    // represents the area of all member parts,
-                { padding: 10})  // with some extra padding around them
-          ),
-        new go.TextBlock({         // group title
-            visible: false
-          })
-          .bind("text")
-      );
-
-
-*/
-  // Assigning Nodes and Links to model - this will be parsed through and assigned
-  var model = $(go.GraphLinksModel);
-
-  model.nodeDataArray = inputNodes; 
-
-  model.linkDataArray = inputEdges;
-  
-  myDiagram.model = model;
-
-
-  // FUNCTION FOR REMOVING DUPLICATES AND REGROUPING ENZYMES
-  // Functions for Removing duplicate reactions and links
-  // And changing enzyme groups appropriately -- Will clean up 
 
   // Function to remove duplicate reaction-type nodes
-  function removeDuplicateReactionNodes() {
+  // Regroups Enzymes based on reaction nodes removed 
+function removeDuplicateReactionNodes() {
     var nodesInfo = {};
     var uniqueParentChildCombinations = new Set();
 
@@ -231,10 +71,14 @@ function initialiseMap(inputNodes,inputEdges){
     // Remove the duplicate nodes
     nodesToRemove = [...new Set(nodesToRemove)]; // Remove duplicates from the removal list
 
+    //console.log(nodesToRemove);
 
     var enzyme_groups=[];
     myDiagram.nodes.each(function(node) {
       if (node.data.type == "enzyme"){
+        //console.log(node.data.type);
+        //console.log(node.data.group);
+        //console.log(node.data.text);
         enzyme_groups.push({
           key: node.data.key,
           group: node.data.group,
@@ -246,21 +90,31 @@ function initialiseMap(inputNodes,inputEdges){
     var reaction_groups= [];
     myDiagram.nodes.each(function(node) {
       if (node.data.type == "reaction"){
+        //console.log(node.data.key);
+        //console.log(node.data.group);
+        //console.log(node.data.text);
         reaction_groups.push(node.data.key);
       }
     });
 
 
+
+    //console.log(enzyme_groups);
+    //console.log(reaction_groups);
     var enzyme_matches=[];
     //console.log(enzyme_groups);
+    
     enzyme_groups.forEach(function(enzyme){
      //console.log(enzyme);
       
       for (let i=0; i<nodesToRemove.length;i++){
+        //console.log(nodesToRemove[i]);
+        //console.log(enzyme.group);
+        //console.log("------------")
         if (enzyme.group == nodesToRemove[i]){
           //console.log("Match! :"+enzyme.group);
           //console.log(nodesToRemove[i]);
-          //console.log(enzyme.key);
+          console.log(enzyme.key);
           //console.log("------------")
           enzyme_matches.push({
             key: enzyme.key,
@@ -269,71 +123,6 @@ function initialiseMap(inputNodes,inputEdges){
         }
       }
     })
-
-    function getNodesWithSameParent(diagram, nodeKey) {
-      const node = diagram.findNodeForKey(nodeKey); // Get the node by its key
-    
-      if (!node) {
-        //console.error("Node not found!");
-        return [];
-      }
-    
-      const parentGroupKey = node.data.group; // Get the parent group's key
-      if (!parentGroupKey) {
-        //console.log("This node has no parent (it's not in a group).");
-        return [];
-      }
-    
-      // Find all nodes in the same group (same parent)
-      const sameParentNodes = [];
-      diagram.nodes.each(n => {
-        if (n.data.group === parentGroupKey) {
-          sameParentNodes.push(n);
-        }
-      });
-    
-      return sameParentNodes;
-    }
-
-    function getNodesWithSameChild(diagram, nodeKey) {
-      const node = diagram.findNodeForKey(nodeKey); // Get the node by its key
-    
-      if (!node) {
-        console.error("Node not found!");
-        return [];
-      }
-    
-      const sameChildNodes = [];
-      diagram.links.each(link => {
-        if (link.fromNode === node) {
-          const toNode = link.toNode; // The child node
-          // Add nodes that are connected to the same child nodes
-          diagram.nodes.each(n => {
-            if (n !== node && n !== toNode && (link.toNode === n || link.fromNode === n)) {
-              if (!sameChildNodes.includes(n)) {
-                sameChildNodes.push(n);
-              }
-            }
-          });
-        }
-      });
-    
-      return sameChildNodes;
-    }
-
-    function getNodesWithSameParentAndChild(diagram, nodeKey) {
-      // Step 1: Get nodes with the same parent
-      const sameParentNodes = getNodesWithSameParent(diagram, nodeKey);
-      
-      // Step 2: Get nodes with the same child
-      const sameChildNodes = getNodesWithSameChild(diagram, nodeKey);
-    
-      // Filter out nodes that are both in the same parent group and share the same child nodes
-      const result = sameParentNodes.filter(node => sameChildNodes.includes(node));
-    
-      return result;
-    }
-
 
   function areSetsEqual(set1, set2) {
         if (set1.size !== set2.size) {
@@ -353,7 +142,7 @@ function initialiseMap(inputNodes,inputEdges){
         const node = diagram.findNodeForKey(nodeKey); // Find the node by its key
         
         if (!node) {
-          //console.error("Node not found!");
+          console.error("Node not found!");
           return [];
         }
       
@@ -366,7 +155,7 @@ function initialiseMap(inputNodes,inputEdges){
         });
       
         if (parentNodes.size === 0) {
-          //console.log("This node has no parent.");
+          console.log("This node has no parent.");
           return [];
         }
       
@@ -408,15 +197,13 @@ function initialiseMap(inputNodes,inputEdges){
         return result;
       }
 
-
-
-
   function removeMatchingObjects(arr, keyList) {
         return arr.filter(obj => !keyList.includes(obj.key));
     }
-      
-    var corresponding_reactions = [];
-    nodesToRemove.forEach(node=>{
+  
+  
+  var corresponding_reactions = [];
+  nodesToRemove.forEach(node=>{
         //console.log("Searching: "+node);
         const nodesWithSameParentAndChild = getNodesWithSameParentAndChild2(myDiagram, node);
         //console.log(nodesWithSameParentAndChild);
@@ -428,8 +215,9 @@ function initialiseMap(inputNodes,inputEdges){
         })
     });
 
-    //console.log(corresponding_reactions);
+    console.log(corresponding_reactions);
 
+    //console.log(enzyme_matches[0]);
     enzyme_matches.forEach(match=>{
       //console.log(match);
       nodesToRemove.forEach(node=>{
@@ -437,16 +225,23 @@ function initialiseMap(inputNodes,inputEdges){
           //console.log(node);
           //console.log("match!");
           var enzyme_node = myDiagram.findNodeForKey(match.key);
+          //console.log(enzyme_node.data);
+          //console.log(enzyme_node.group);
 
           if (enzyme_node) {
             corresponding_reactions.forEach(node_removed=>{
               //console.log(node_removed.removednode);
               //console.log(enzyme_node.data.group);
               if (enzyme_node.data.group == node_removed.removednode){
+                //console.log("match");
+                //console.log("Current group:"+enzyme_node.data.group);
+                //console.log('New Reaction group: '+node_removed.matchingnodes);
                 let group = node_removed.matchingnodes
                 myDiagram.model.setDataProperty(enzyme_node.data, "group", group);
               }
             })
+            // Detach the node from the group
+            //myDiagram.model.setDataProperty(enzyme_node.data, "group",null );
           }
           var enzyme_node = myDiagram.findNodeForKey(match.key);
           //console.log(enzyme_node.data);
@@ -455,6 +250,10 @@ function initialiseMap(inputNodes,inputEdges){
       //console.log("Enzyme-Nodes to Remove matches:" +match);
     });
 
+
+    //console.log("Enzyme-Nodes to Remove matches:" +enzyme_matches);
+    //console.log("Nodes to remove: "+nodesToRemove);
+
     nodesToRemove.forEach(function(nodeId) {
       var node = myDiagram.findNodeForKey(nodeId);
       if (node) {
@@ -462,23 +261,81 @@ function initialiseMap(inputNodes,inputEdges){
       }
     });
 
-    //console.log("Removed Duplicate Nodes:", nodesToRemove);
+    console.log("Removed Duplicate Nodes:", nodesToRemove);
   }
 
-  // Call the function to remove duplicate reaction-type nodes
-  removeDuplicateReactionNodes();
+// Function for removing duplicate Enzymes 
+function removeDuplicateEnzymeNodes() {
+    const nodes = myDiagram.nodes;
+    const nodeNamesAndGroups = {};  // To track nodes by their name and group combination
+  
+    // Iterate over all nodes in the diagram
+    nodes.each(function(node) {
+      const nodeName = node.data.text;  // Assuming the name is stored in the data field
+      const nodeGroup = node.data.group;  // Assuming the group is stored in the data field
+      
+      // Create a unique key combining name and group
+      const key = `${nodeName}_${nodeGroup}`;
+  
+      // Check if this combination of name and group has already been encountered
+      if (nodeNamesAndGroups[key]) {
+        // If found, remove the duplicate node
+        console.log("Node Removed: "+nodeNamesAndGroups[key])
+        myDiagram.remove(node);
+      } else {
+        // If not found, store this combination in the nodeNamesAndGroups object
+        nodeNamesAndGroups[key] = true;
+      }
+    });
+  }
 
+// --------------  Processing Function ------------------
+// Creates Go.js model to assign nodes and edges 
+// Calls above functions 
+// Returns Processed Nodes and Edges for Mapping 
+
+function initialiseMap(inputNodes,inputEdges){
+  console.log('Initialising Map');
+
+  var $ = go.GraphObject.make;
+  
+  // Create the GoJS Diagram
+  var myDiagram = $(go.Diagram, "myDiagramDiv", {
+    initialContentAlignment: go.Spot.Center,
+    "undoManager.isEnabled": true,
+    initialAutoScale: go.AutoScale.Uniform
+  });
+
+  // Assigning Nodes and Links to model - this will be parsed through and assigned
+  var model = $(go.GraphLinksModel);
+  model.nodeDataArray = inputNodes; 
+  model.linkDataArray = inputEdges;
+  
+  myDiagram.model = model;
+
+ // Call the function to remove duplicate reaction-type nodes
+  removeDuplicateReactionNodes();
+  removeDuplicateEnzymeNodes();
+
+  // Retrieves the model of the diagram 
   const diagramModel = myDiagram.model;
-  //console.log(diagramModel);
+
+  // Extracts the Links and Nodes from the Model
   const nodesProcessed = diagramModel.nodeDataArray;
   const edgesProcessed = diagramModel.linkDataArray;
 
-  return {nodesProcessed,edgesProcessed};
+  // Turns the go.Object of Nodes into an Array of Objects to be parsed to the front end.
+  var finalNodes = [];
+  //console.log('Accessing go.ObjectData')
+  nodesProcessed.forEach((nodeData) => {
+    finalNodes.push(nodeData);
+    return finalNodes;
+  });
+
+  // Parses Nodes and Edges as Arrays back to merge.js to be sent to the front-end
+  return {finalNodes,edgesProcessed};
+
 }
-
-
-
-// Initialize the diagram -- called from link.js with Node and Link arrays 
 
 
 module.exports = {

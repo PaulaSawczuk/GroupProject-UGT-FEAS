@@ -1,35 +1,81 @@
+/*** 
+ * // Date: 38/03/2025
+ * // Jennifer O'Halloran
+ * // IBIX2 Group Project 2025 
+***/
 
-// Date: 28/03/2025
-// Jennifer O'Halloran
-// IBIX2 Group Project 2025 
-
-
+/***
 // Function  - merge.js
 // Central script that calls the processing functions 
-// WORK IN PROGRESS
+// Utilised by server.js to link front and backend 
+***/
 
-
-
-
-const { getElements } = require('./getElements');
+const { getElements } = require('./getElements2');
 const { getNodesEdges } = require('./get_go_map');
 const { processKGML } = require('./get_go_map');
 const init = require('./visualise_map');
 
 
-async function processInput(code) {
-    console.log('processing');
-    console.log(code);
-    // Here we will just echo back the input, but you can modify this function
-    // to perform any logic like math operations, string manipulations, etc.
-    var pathway = 'bna00030';
-    var ec_pathway = 'ec00030';
-    
-    // -------------------------------------------------------------
-    // Getting Genes and Compounds for the organism specific pathway - used for labelling and indexing 
-    var elements = await getElements(pathway);
-    
-    function getLogFCColor(data) {
+function getCompoundNames(compounds, nodes){
+    console.log('------------');
+    console.log('Matching Entry Names to Nodes');
+    console.log('------------');
+    //console.log(compounds);
+    //console.log(nodes)
+
+    //console.log(compounds[0]['id'])
+
+    for (let i = 0; i< nodes.length; i++){
+        if (nodes[i].type == 'compound'){
+            //console.log(nodes[i]);
+            //console.log(nodes[i].text);
+            var name = nodes[i].text;
+            name = name.replace(/^cpd:/, '');
+            //console.log(name);
+
+            
+            for (let j = 0; j< compounds.length; j++){
+                //console.log(compounds[j].id);
+                if (compounds[j].id == name ){
+                    //console.log(compounds[j].id);
+                    //console.log(name);
+                    //console.log(compounds[j].name);
+                    nodes[i].text = compounds[j].name
+                } else {
+                    continue
+                }
+
+            }
+            //console.log(nodes[i]) 
+        }else{
+            continue;
+        }
+    }
+    console.log('ALL DONE - getCompound Names');
+}
+
+    // -----------------------------------------------
+    // 
+function matchEnzymes(data, nodes) {
+        //console.log('matching nodes')
+        // Check if the values for the given kesy match in both objects
+        for (let i=0;i<data.length;i++){
+            //console.log(data[i]);
+            for (let j=0;j<nodes.length;j++){
+                //console.log(data[i].enzyme);
+                //console.log(nodes[j].text);
+                if (data[i].enzyme === nodes[j].text){
+                //console.log('match');
+                // If they match, update the specified attribute in object1
+                nodes[j].colour = data[i].value;
+                }else{
+                    continue
+                }
+            }
+        }
+    }
+
+function getLogFCColor(data) {
         /**
          * Maps a log fold change (logfc) value to a color where:
          * - Positive logfc is a shade of green.
@@ -80,101 +126,60 @@ async function processInput(code) {
             value: values[i]
         })
     }
+
+async function processInput(code) {
+    console.log('processing');
+    console.log(code);
+
+    // Here we will just echo back the input, but you can modify this function
+    // to perform any logic like math operations, string manipulations, etc.
+    var ec_pathway = code;
     
+    // -------------------------------------------------------------
+    // Getting Compounds for the organism specific pathway - used for labelling and indexing 
+    // NEED TO BE RE-IMPLEMENTED
+    //var compounds = await getElements(ec_pathway);
+    //console.log(compounds);
+    
+    // -----------------------Converting LOGFC to RBG --------------------------------------
+    // EXPERIMENTAL FUNCTION -- MOVE TO FRONT END???
     // Replacing the LogFC with realtive RGB value 
     getLogFCColor(data);
-    
 
-
+     // -----------------Data --> Reactions, Entries, and Relations-----------------------------
     
+    // Processing the whole KGML parsed
     var kgml_elements = await processKGML(ec_pathway);
 
-    // ----------------------------------------------
+    // ------------------Taking Entries, Reactions and Relations --> Nodes and Edges ----------------------------
     //Getting Element names
     //Getting mapping nodes and edges 
     var map_elements = getNodesEdges(kgml_elements.entries, kgml_elements.reactions,kgml_elements.relations)
     
-    
-    // -----------------------------------------------
-    function matchEnzymes(data, nodes) {
-        //console.log('matching nodes')
-        // Check if the values for the given kesy match in both objects
-        for (let i=0;i<data.length;i++){
-            //console.log(data[i]);
-            for (let j=0;j<nodes.length;j++){
-                //console.log(data[i].enzyme);
-                //console.log(nodes[j].text);
-                if (data[i].enzyme === nodes[j].text){
-                //console.log('match');
-                // If they match, update the specified attribute in object1
-                nodes[j].colour = data[i].value;
-                }else{
-                    continue
-                }
-            }
-        }
-    }
-    
-    //console.log(map_elements.uniqueNodes);
-    
-    // -----------------------------------------------
+
+    // ----------------------Matching Enzymes to Nodes - change colour -------------------------
     // Matching enzyme names of data to nodes - TRIAL WITH MOCK DATA
-    console.log("Number of Nodes Before:"+map_elements.uniqueNodes.length);
     
     matchEnzymes(data,map_elements.uniqueNodes);
     
     
-    
-    // -----------------------------------------------
-    // Function for matching compound names from getElements to Node Names
-    function getCompoundNames(compounds, nodes){
-        console.log('------------');
-        console.log('Matching Entry Names to Nodes');
-        console.log('------------');
-        //console.log(compounds);
-        //console.log(nodes)
-    
-        //console.log(compounds[0]['id'])
-    
-        for (let i = 0; i< nodes.length; i++){
-            if (nodes[i].type == 'compound'){
-                //console.log(nodes[i]);
-                //console.log(nodes[i].text);
-                var name = nodes[i].text;
-                name = name.replace(/^cpd:/, '');
-                //console.log(name);
-    
-                
-                for (let j = 0; j< compounds.length; j++){
-                    //console.log(compounds[j].id);
-                    if (compounds[j].id == name ){
-                        //console.log(compounds[j].id);
-                        //console.log(name);
-                        //console.log(compounds[j].name);
-                        nodes[i].text = compounds[j].name
-                    } else {
-                        continue
-                    }
-    
-                }
-                //console.log(nodes[i]) 
-            }else{
-                continue;
-            }
-        }
-        console.log('ALL DONE - getCompound Names');
-    }
-    
-    getCompoundNames(elements.compounds, map_elements.uniqueNodes);
+    // --------------------Re-Labelling Compounds---------------------------
+    // Linking names retireved in getElements to Nodes and re-labelling 
+    //getCompoundNames(compounds, map_elements.uniqueNodes);
 
-    //const processedElements = init.initialiseMap(map_elements.uniqueNodes,map_elements.edges);
-    let nodeData = map_elements.uniqueNodes
-    console.log(nodeData);
-    let linkData = map_elements.edges
-    console.log(linkData);
+
+    // ------------------Processing Diagram Model -----------------------------
+    // Removing duplicate nodes and enzymes
+    const processedElements = init.initialiseMap(map_elements.uniqueNodes,map_elements.edges);
+
+
+    // ---------------- Parsing the data to the front-end -----------------------
+    let nodeData = processedElements.finalNodes;
+    //console.log(nodeData);
+    let linkData = processedElements.edgesProcessed;
+    //console.log(linkData);
     return {nodeData,linkData};
   }
-
 module.exports = {
     processInput
   };
