@@ -1,13 +1,16 @@
+/*** 
+ * // Date: 29/03/2025
+ * // Jennifer O'Halloran
+ * // IBIX2 Group Project 2025 
+***/
 
-// Jennifer O'Halloran 
-// 29/03/2025
+/***
 //----------------------------------------
 // POST request service to backend Express Node API
-// Input : List of Enzymes From the input Data 
-// Response : Array of Pathway Objects - Name and Pathway Code
+// Makes Post Requests to Server.js via localhost
+// PORT : 3000
 
-
-
+***/
 
 import { Injectable} from '@angular/core';
 import { HttpClient } from '@angular/common/http';
@@ -18,6 +21,7 @@ import { Observable } from 'rxjs';
   providedIn: 'root',
 })
 
+// ------------ Creating Post Service Class -------------
 
 export class enzymeApiServicePost {
 
@@ -25,13 +29,18 @@ export class enzymeApiServicePost {
 
   constructor(private http: HttpClient) {}
 
+  // ------------ Post Request for Enzyme Pathways -------------
+  // Sends Enzyme Codes 
+  // Returns Array of Pathway Objects (name:, pathway:)
   postEnzymeData(data: any): Observable<any[]>{
-    return this.http.post<any>(this.apiUrl+'getEnzymePathways', data);
+    return this.http.post<any>(this.apiUrl+'getPathways', data);
 
   }
 
-
-  postMapData(data: any): Observable<any[]>{
-    return this.http.post<any>(this.apiUrl+'getModel', data);
+  // ------------ Post Request for Mapping Data -------------
+  // Sends selected ec code (e.g. ec00030)
+  // Returns Array of Nodes and Array of Links for visulisation
+  postMapData(data: string): Observable<any[]>{
+    return this.http.post<any>(this.apiUrl+'getMap', data);
   }
 }
