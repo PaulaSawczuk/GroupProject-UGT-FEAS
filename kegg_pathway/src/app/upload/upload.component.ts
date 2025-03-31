@@ -326,5 +326,11 @@ export class UploadComponent {
       return [];
     }
   }
-
+  hideDropdowns: boolean = true;
+  toggleDropdowns(): void {
+    this.hideDropdowns = !this.hideDropdowns;
+    if (!this.hideDropdowns) {
+      this.resetDropdowns();
+    }
+  }
 }
