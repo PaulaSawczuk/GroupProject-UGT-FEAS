@@ -18,7 +18,7 @@ const go = require('gojs');
 
   // Function to remove duplicate reaction-type nodes
   // Regroups Enzymes based on reaction nodes removed 
-function removeDuplicateReactionNodes() {
+function removeDuplicateReactionNodes(myDiagram) {
     var nodesInfo = {};
     var uniqueParentChildCombinations = new Set();
 
@@ -265,7 +265,7 @@ function removeDuplicateReactionNodes() {
   }
 
 // Function for removing duplicate Enzymes 
-function removeDuplicateEnzymeNodes() {
+function removeDuplicateEnzymeNodes(myDiagram) {
     const nodes = myDiagram.nodes;
     const nodeNamesAndGroups = {};  // To track nodes by their name and group combination
   
@@ -314,8 +314,8 @@ function initialiseMap(inputNodes,inputEdges){
   myDiagram.model = model;
 
  // Call the function to remove duplicate reaction-type nodes
-  removeDuplicateReactionNodes();
-  removeDuplicateEnzymeNodes();
+  removeDuplicateReactionNodes(myDiagram);
+  removeDuplicateEnzymeNodes(myDiagram);
 
   // Retrieves the model of the diagram 
   const diagramModel = myDiagram.model;
