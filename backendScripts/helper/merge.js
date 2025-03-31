@@ -13,6 +13,9 @@
 const { getElements } = require('./getElements2');
 const { getNodesEdges } = require('./get_go_map');
 const { processKGML } = require('./get_go_map');
+const { processRN } = require('./get_go_map');
+const { getCompoundLinks } = require('./get_go_map');
+const { addCompoundLinks } = require('./get_go_map');
 const init = require('./visualise_map');
 
 
@@ -134,22 +137,25 @@ async function processInput(code) {
     // Here we will just echo back the input, but you can modify this function
     // to perform any logic like math operations, string manipulations, etc.
     var ec_pathway = code;
+    var rn_pathway = code.replace(/^ec/, 'rn');
     
     // -------------------------------------------------------------
     // Getting Compounds for the organism specific pathway - used for labelling and indexing 
     // NEED TO BE RE-IMPLEMENTED
-    //var compounds = await getElements(ec_pathway);
-    //console.log(compounds);
+    var compounds = await getElements(ec_pathway);
+    console.log(compounds);
     
     // -----------------------Converting LOGFC to RBG --------------------------------------
     // EXPERIMENTAL FUNCTION -- MOVE TO FRONT END???
     // Replacing the LogFC with realtive RGB value 
-    getLogFCColor(data);
+    //getLogFCColor(data);
 
      // -----------------Data --> Reactions, Entries, and Relations-----------------------------
     
     // Processing the whole KGML parsed
     var kgml_elements = await processKGML(ec_pathway);
+
+    var rn_elements = await processKGML(rn_pathway)
 
     // ------------------Taking Entries, Reactions and Relations --> Nodes and Edges ----------------------------
     //Getting Element names
@@ -161,12 +167,17 @@ async function processInput(code) {
     // Matching enzyme names of data to nodes - TRIAL WITH MOCK DATA
     
     matchEnzymes(data,map_elements.uniqueNodes);
-    
+
+
+
+
+    var compoundLinks = processRN(rn_elements.entries, rn_elements.relations, rn_elements.reactions, map_elements.uniqueNodes);
+    addCompoundLinks(compoundLinks.entryLinks,map_elements.edges);
     
     // --------------------Re-Labelling Compounds---------------------------
     // Linking names retireved in getElements to Nodes and re-labelling 
-    //getCompoundNames(compounds, map_elements.uniqueNodes);
-
+    getCompoundNames(compounds, map_elements.uniqueNodes);
+    
 
     // ------------------Processing Diagram Model -----------------------------
     // Removing duplicate nodes and enzymes

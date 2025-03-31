@@ -23,6 +23,75 @@ const xpath =require ("xml2js-xpath");
 const https = require('https')
 const util = require('util')
 
+function addCompounds(uniqueNodes,compoundIDs,entries){
+
+    var no = 0;
+    var knownNodes = [];
+    for (let i=0; i<uniqueNodes.length;i++){
+        //console.log(map_elements.uniqueNodes[i]);
+        let node = uniqueNodes[i];
+        //console.log('--------------------')
+        if (node.type == "compound"){
+            //console.log(node);
+            //console.log(node.key)
+            no ++;
+            knownNodes.push(node.key);
+            //console.log(entries[i].$.id);
+            }
+        }
+
+    console.log(no);
+    console.log(knownNodes);
+
+    let uniqueToList1 = compoundIDs.filter(item => !knownNodes.includes(item));
+
+    // Find elements in list2 that are not in list1
+    let uniqueToList2 = knownNodes.filter(item => !compoundIDs.includes(item));
+
+    // Combine both results to get non-overlapping elements
+    let nonOverlapping = [...uniqueToList1, ...uniqueToList2];
+
+    console.log(nonOverlapping);
+    console.log(nonOverlapping.length);
+
+    for (let i = 0; i < entries.length; i++){
+        if (entries[i].$.type=='compound'&& nonOverlapping.includes(entries[i].$.id)){
+            console.log(entries[i].$.id);
+            console.log(entries[i].$.name);
+            console.log('Compound Added: '+entries[i].$.name);
+            uniqueNodes.push({
+                // Adding Product Nodes
+                    key: entries[i].$.id,
+                    text: entries[i].$.name,
+                    type: 'compound',
+                    category: 'compound',
+
+        });
+        }
+    }
+}
+
+function getCompoundEntries(entries){
+
+    //console.log(entries);
+    var compoundList = [];
+    for (let i=0; i<entries.length;i++){
+        //console.log(entries[i]);
+        //console.log(entries[i].graphics);
+        //console.log('--------------------')
+        if (entries[i].$.type == "compound"){
+            //console.log(entries[i].$);
+            //console.log(entries[i].$.id);
+            
+            compoundList.push(entries[i].$.id);
+
+        }
+    }
+    //console.log(compoundList);
+    return compoundList;
+
+}
+
 
 async function getKGML(mapCode) {
     var url = 'https://rest.kegg.jp/get/'+mapCode+'/kgml';
@@ -355,22 +424,175 @@ function getNodesEdges(entries, reactions, relations){
     //console.log(uniqueNodes);
     //console.log('Number of Nodes: ',uniqueNodes.length);
     //console.log('Number of Edges:',edges.length);
-
+    const compoundIDs = getCompoundEntries(entries);
+    addCompounds(uniqueNodes,compoundIDs,entries);
 
     //console.log(uniqueNodes)
 
     console.log('------------');
     console.log('ALL DONE - processKGML');
     return{ uniqueNodes, edges}
-
-    //int.initializeCytoscape(uniqueNodes, edges);
 }
+
+function processRN(entries, relations, reactions, nodes){
+    // get list of reaction names 
+    var rn_reactions = [];
+    for (let i = 0; i < entries.length; i++){
+        if (entries[i].$.type=='reaction'){
+            //console.log(entries[i].$);
+            console.log(entries[i].$.reaction);
+            var reaction = entries[i].$.reaction;
+            var reaction = reaction.split(" ");
+            //console.log(reaction);
+            reaction.forEach(reaction=> rn_reactions.push(reaction))
+            //rn_reactions.push(reaction);
+
+        }
+
+    }
+    //console.log(rn_reactions);
+    var node_reactions=[];
+    for (let i = 0; i < nodes.length; i++){
+        if (nodes[i].type == 'reaction'){
+            //console.log(nodes[i]);
+            let reaction = nodes[i].text;
+            //console.log(reaction);
+
+            if (rn_reactions.includes(reaction))
+                //console.log('match');
+                node_reactions.push(reaction);
+        }
+    }
+
+    //console.log(rn_reactions);
+    //console.log(node_reactions);
+
+    let uniqueToList1 = rn_reactions.filter(item => !node_reactions.includes(item));
+
+    // Find elements in list2 that are not in list1
+    let uniqueToList2 = node_reactions.filter(item => !rn_reactions.includes(item));
+
+    // Combine both results to get non-overlapping elements
+    let nonOverlapping = [...uniqueToList1, ...uniqueToList2];
+    //console.log(nonOverlapping);
+    let uniqueList = [...new Set(nonOverlapping)];
+    //console.log(uniqueList);
+    
+    // Matching Unique Reaction to entries in RN
+    for (let i = 0; i < entries.length; i++){
+        for (let j=0; j<uniqueList.length;j++){
+            let reaction = uniqueList[j]
+            //console.log(reaction);
+            //console.log(entries[i].$.reaction);
+            if (entries[i].$.reaction==reaction){
+                console.log(entries[i].$);
+
+
+            }
+        }
+
+    }
+
+    var compoundLinks = [];
+    var entryLinks = [];
+
+    for (let i = 0; i < reactions.length; i++){
+        //console.log(reactions[i]);
+        for (let j=0; j<uniqueList.length;j++){
+            let reaction = uniqueList[j]
+            //console.log(reaction);
+            //console.log(entries[i].$.reaction);
+            if (reactions[i].$.name==reaction){
+                //console.log(reaction);
+                //console.log(reactions[i].substrate);
+                //console.log(reactions[i].substrate[0].$.id);
+                let substrate = reactions[i].substrate[0].$.id;
+                //console.log(reactions[i].product);
+                let product = reactions[i].product[0].$.id;
+                //console.log(reactions[i].product[0].$.id);
+                //console.log('---------------')
+                for (let k=0; k<entries.length;k++){
+                    var entry1;
+                    var id1;
+                    var entry2;
+                    var id2;
+                    if (entries[k].$.id==substrate && entries[k].$.type == 'compound'){
+                        //console.log(entries[k].$);
+                        entry1=entries[k].$.name;
+                        id1=entries[k].$.id;
+                        //console.log('entry1: '+entry1);
+                    }
+                    if (entries[k].$.id==product && entries[k].$.type == 'compound'){
+                        //console.log(entries[k].$);
+                        entry2=entries[k].$.name;
+                        id2=entries[k].$.id;
+                        //console.log('entry2: '+entry2);
+                        //console.log('Adding Compounds');
+                        compoundLinks.push({
+                            entry1:entry1,
+                            entry2:entry2 
+                        })
+                        entryLinks.push({
+                            from: id1,
+                            to: id2
+                        })
+                    }
+
+                }
+            }
+        }
+    }
+    //console.log(compoundLinks);
+    return {compoundLinks, entryLinks};
+}
+
+function getCompoundLinks(compoundLinks, entries,links){
+    console.log(compoundLinks.length);
+    console.log(links);
+    for (let i = 0; i < entries.length; i++){
+        if (entries[i].$.type == 'compound'){
+        //console.log('Entry Name: '+entries[i].$.name);
+        let name = entries[i].$.name
+            for (let j = 0; j < compoundLinks.length; j++){
+                //console.log(compoundLinks[j]);
+                if (compoundLinks[j].entry1.includes(name)){
+                    console.log('Entry 1: '+name);
+                    console.log(entries[i].$.id);
+                    console.log(compoundLinks[j].entry1);
+                }
+            }
+        }
+    }
+
+}
+
+function addCompoundLinks(compoundLinks,links){
+    console.log(compoundLinks);
+    console.log(links);
+    for (let j = 0; j < compoundLinks.length; j++){
+        console.log('adding Links');
+        console.log(compoundLinks[j]);
+        links.push(compoundLinks[j])
+
+        }
+    console.log(links);
+    return links;
+    }
+
+
 
 module.exports = {
     processKGML,
-    getNodesEdges
+    getNodesEdges,
+    processRN,
+    getCompoundLinks,
+    addCompoundLinks
+
   };
   
+
+
+
 
 
 //processKGML();
