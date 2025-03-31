@@ -127,11 +127,20 @@
   font-family: 'DM Sans', sans-serif;
 }
 
-/* Align the dropdown section to the left */
 .dropdown-section {
   text-align: left;
-  margin-top: 20px; /* Add some space between file list and dropdown */
-  width: 100%; /* Ensure full width for alignment */
+  margin-top: 20px;
+  width: 100%;
+  padding-bottom: 20px; 
+  position: relative;
+  display: flex; 
+  flex-direction: column; 
+}
+
+.kingdom-container {
+  display: flex; 
+  align-items: center; 
+  margin-bottom: 10px;
 }
 
 .warning-message {
@@ -141,4 +150,18 @@
   border-radius: 5px;
   margin: 10px 0;
   font-family: 'DM Sans', sans-serif;
+}
+
+.checkbox-container {
+  display: flex;
+  align-items: center;
+  position: absolute; 
+  left: 0; 
+  bottom: 0;
+  margin: 0px; 
+  z-index: 10;
+}
+
+.checkbox-container input[type="checkbox"] {
+  margin-right: 5px;
 }
