@@ -21,7 +21,8 @@
 const xml2js = require('xml2js');
 const xpath =require ("xml2js-xpath");
 const https = require('https')
-const util = require('util')
+const util = require('util');
+const { LayeredDigraphCycleRemove } = require('gojs');
 
 
 async function getKGML(mapCode) {
@@ -127,6 +128,9 @@ function getNodesEdges(entries, reactions, relations){
     nodes = reactionData.nodes;
     edges = reactionData.edges;
 
+    var compoundNodes = getCompoundNodes(entries);
+    console.log('No of compound nodes: '+compoundNodes.length);
+
     // Adding Map Nodes
     var mapNodes = getMapNodes(entries);
     mapNodes.forEach(node=>{
@@ -145,13 +149,26 @@ function getNodesEdges(entries, reactions, relations){
         edges.push(link);
     });
     
-    uniqueNodes = nodes;
-    /*
+    //uniqueNodes = nodes;
+
+    var count = 0;
+    for (let i = 0; i < nodes.length; i++){
+        if (nodes[i].type =='compound'){
+            count ++;
+        }
+
+    }
+
+    console.log('No of compound Nodes from rn: '+count);
+    console.log('No of nodes: '+nodes.length);
+    
     const uniqueNodes = nodes.filter((value, index, self) => 
     index === self.findIndex((t) => (
         t.key === value.key
+
         ))
-    );*/
+    );
+    console.log('No of nodes: '+uniqueNodes.length);
 
     function removeDuplicates(list) {
         let uniqueObjects = [];  // To store unique objects
@@ -172,7 +189,7 @@ function getNodesEdges(entries, reactions, relations){
         return uniqueObjects;  // Return the list without duplicates
       }
     
-    //edges=removeDuplicates(edges);
+    edges=removeDuplicates(edges);
 
     //console.log(uniqueNodes);
     //console.log('Number of Nodes: ',uniqueNodes.length);
@@ -191,6 +208,7 @@ function getNodesEdges(entries, reactions, relations){
 
     console.log('------------');
     console.log('ALL DONE - processKGML');
+    console.log('------------');
     return{ uniqueNodes, edges}
     }
 
@@ -200,7 +218,7 @@ function processRN(entries, relations, reactions, nodes){
     for (let i = 0; i < entries.length; i++){
         if (entries[i].$.type=='reaction'){
             //console.log(entries[i].$);
-            console.log(entries[i].$.reaction);
+            //console.log(entries[i].$.reaction);
             var reaction = entries[i].$.reaction;
             var reaction = reaction.split(" ");
             //console.log(reaction);
@@ -245,7 +263,7 @@ function processRN(entries, relations, reactions, nodes){
             //console.log(reaction);
             //console.log(entries[i].$.reaction);
             if (entries[i].$.reaction==reaction){
-                console.log(entries[i].$);
+                //console.log(entries[i].$);
 
 
             }
@@ -303,6 +321,8 @@ function processRN(entries, relations, reactions, nodes){
         }
     }
     //console.log(compoundLinks);
+    console.log('------------');
+    console.log('ALL DONE - processRN');
     return {compoundLinks, entryLinks};
 }
 
@@ -328,10 +348,10 @@ function getCompoundLinks(compoundLinks, entries,links){
     }
 
 }*/
-
+/*
 function addCompoundLinks(compoundLinks,links){
-    console.log(compoundLinks);
-    console.log(links);
+    /console.log(compoundLinks);
+    //console.log(links);
     for (let j = 0; j < compoundLinks.length; j++){
         console.log('adding Links');
         console.log(compoundLinks[j]);
@@ -341,7 +361,7 @@ function addCompoundLinks(compoundLinks,links){
     console.log(links);
     return links;
     }
-
+*/
 
 function getReactionNodes(reactions,entries){
 
@@ -473,8 +493,42 @@ function getMapNodes(entries){
             });
         }
     }
+    for (let i=0; i<nodes.length; i++){
+        //console.log(nodes[i].name);
+        if (nodes[i].name.includes('TITLE:')){
+        console.log(nodes[i]);
+        let index=i;
+        nodes.splice(index, 1)
+        }
+
+    }
+
     return nodes;
 }
+
+function getCompoundNodes(entries){
+    var nodes = [];
+    for (let i = 0; i < entries.length; i++){
+        if (entries[i].$.type=='compound'){
+
+            nodes.push({
+                // Adding Substrate Nodes
+                        key: entries[i].$.id,
+                        text: entries[i].$.name,
+                        name: entries[i].graphics[0].$.name,
+                        type: 'compound',
+                        category:'compound'
+    
+    
+            });
+        }
+    }
+
+    return nodes;
+}
+
+
+
 
 function getMapLinks(nodes, relations){
 

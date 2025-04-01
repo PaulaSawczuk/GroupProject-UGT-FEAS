@@ -50,14 +50,14 @@ function getCompounds(anno_data){
     var end;
     for (let i = 0; i < anno_data.length; i++) {
         if (anno_data[i].includes('COMPOUND')) {
-          console.log(`'COMPOUND' found at line ${i + 1}: $(anno_data[i]}`);
-          console.log(anno_data[i]);
+          //console.log(`'COMPOUND' found at line ${i + 1}: $(anno_data[i]}`);
+          //console.log(anno_data[i]);
           start = i;
-          console.log(start);
+          //console.log(start);
         }
         if (anno_data[i].includes('REFERENCE')||anno_data[i].includes('REL_PATHWAY')) {
             end = i;
-            console.log(end);
+            //console.log(end);
             break;
         }else{continue
           
@@ -119,7 +119,7 @@ async function getElements(pathway){
     console.log(url);
     var elements = await fetchAndParseURL(url).then(lines => {
     anno_data=lines;
-    console.log(anno_data);
+    //console.log(anno_data);
     const compounds = getCompounds(anno_data);
     //console.log(compounds);
 
