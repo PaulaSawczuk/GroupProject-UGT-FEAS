@@ -22,7 +22,7 @@ const xml2js = require('xml2js');
 const xpath =require ("xml2js-xpath");
 const https = require('https')
 const util = require('util');
-const { LayeredDigraphCycleRemove } = require('gojs');
+//const { LayeredDigraphCycleRemove } = require('gojs');
 
 
 async function getKGML(mapCode) {
@@ -49,7 +49,6 @@ async function getKGML(mapCode) {
         });
     });
 }
-
 
 function getEntries(data){
     var entries = '';
@@ -102,6 +101,12 @@ function getRelations(data){
 
     return {entries, relations, reactions};
 }
+
+
+
+
+
+
 
 function getPosition(entry){
 
@@ -170,25 +175,6 @@ function getNodesEdges(entries, reactions, relations){
     );
     console.log('No of nodes: '+uniqueNodes.length);
 
-    function removeDuplicates(list) {
-        let uniqueObjects = [];  // To store unique objects
-        let seen = new Set();  // To track unique {from, to} combinations
-        
-        list.forEach(function(item) {
-          // Create a unique identifier based on the {from, to} properties
-          let identifier = `${item.from}-${item.to}`;
-          
-          // Check if this combination has been seen before
-          if (!seen.has(identifier)) {
-            // If not, add it to the unique objects list and mark it as seen
-            uniqueObjects.push(item);
-            seen.add(identifier);
-          }
-        });
-      
-        return uniqueObjects;  // Return the list without duplicates
-      }
-    
     edges=removeDuplicates(edges);
 
     //console.log(uniqueNodes);
@@ -210,7 +196,7 @@ function getNodesEdges(entries, reactions, relations){
     console.log('ALL DONE - processKGML');
     console.log('------------');
     return{ uniqueNodes, edges}
-    }
+}
 
 function processRN(entries, relations, reactions, nodes){
     // get list of reaction names 
@@ -326,43 +312,6 @@ function processRN(entries, relations, reactions, nodes){
     return {compoundLinks, entryLinks};
 }
 
-
-
-/*
-function getCompoundLinks(compoundLinks, entries,links){
-    console.log(compoundLinks.length);
-    console.log(links);
-    for (let i = 0; i < entries.length; i++){
-        if (entries[i].$.type == 'compound'){
-        //console.log('Entry Name: '+entries[i].$.name);
-        let name = entries[i].$.name
-            for (let j = 0; j < compoundLinks.length; j++){
-                //console.log(compoundLinks[j]);
-                if (compoundLinks[j].entry1.includes(name)){
-                    console.log('Entry 1: '+name);
-                    console.log(entries[i].$.id);
-                    console.log(compoundLinks[j].entry1);
-                }
-            }
-        }
-    }
-
-}*/
-/*
-function addCompoundLinks(compoundLinks,links){
-    /console.log(compoundLinks);
-    //console.log(links);
-    for (let j = 0; j < compoundLinks.length; j++){
-        console.log('adding Links');
-        console.log(compoundLinks[j]);
-        links.push(compoundLinks[j])
-
-        }
-    console.log(links);
-    return links;
-    }
-*/
-
 function getReactionNodes(reactions,entries){
 
     var nodes = [];
@@ -394,8 +343,8 @@ function getReactionNodes(reactions,entries){
             edges.push({
                     //id: edge_id,
                     from: reactions[i].substrate[j].$.id,
-                    to: reaction_id
-                    //type: reactions[i].$.type,
+                    to: reaction_id,
+                    category: reactions[i].$.type,
             });
             // Adding Reaction Node to list of Reaction nodes
             reaction_nodes.push({
@@ -429,7 +378,7 @@ function getReactionNodes(reactions,entries){
             edges.push({
                     from: reaction_id,
                     to: reactions[i].product[j].$.id,
-                    //type: reactions[i].$.type,
+                    category: reactions[i].$.type,
         });
         };
     };
@@ -527,9 +476,6 @@ function getCompoundNodes(entries){
     return nodes;
 }
 
-
-
-
 function getMapLinks(nodes, relations){
 
         var links =[];
@@ -588,7 +534,6 @@ function isPairInMap(pair,seenReactions) {
         }
         return false;  // No match found
     }
-
 
 function addCompounds(uniqueNodes,compoundIDs,entries){
         var no = 0;
@@ -656,33 +601,6 @@ function getCompoundEntries(entries){
     
     }
     
-
-
-
-
-
-/*
-function getCompoundLinks(compoundLinks, entries, links){
-    //console.log(compoundLinks.length);
-    //console.log(links);
-    for (let i = 0; i < entries.length; i++){
-        if (entries[i].$.type == 'compound'){
-        //console.log('Entry Name: '+entries[i].$.name);
-        let name = entries[i].$.name
-            for (let j = 0; j < compoundLinks.length; j++){
-                //console.log(compoundLinks[j]);
-                if (compoundLinks[j].entry1.includes(name)){
-                    //console.log('Entry 1: '+name);
-                    //console.log(entries[i].$.id);
-                    //console.log(compoundLinks[j].entry1);
-                }
-            }
-        }
-    }
-
-}*/
-   
-
 function addCompoundLinks(compoundLinks,links){
     //console.log(compoundLinks);
     //console.log(links);
@@ -696,7 +614,24 @@ function addCompoundLinks(compoundLinks,links){
     return links;
 }
     
+function removeDuplicates(list) {
+    let uniqueObjects = [];  // To store unique objects
+    let seen = new Set();  // To track unique {from, to} combinations
     
+    list.forEach(function(item) {
+      // Create a unique identifier based on the {from, to} properties
+      let identifier = `${item.from}-${item.to}`;
+      
+      // Check if this combination has been seen before
+      if (!seen.has(identifier)) {
+        // If not, add it to the unique objects list and mark it as seen
+        uniqueObjects.push(item);
+        seen.add(identifier);
+      }
+    });
+  
+    return uniqueObjects;  // Return the list without duplicates
+  }   
     
 
 module.exports = {

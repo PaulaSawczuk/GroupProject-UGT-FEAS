@@ -153,11 +153,9 @@ export class DisplayComponent {
   this.myDiagram.layout = new go.LayeredDigraphLayout({
     // Set optional parameters for the layout
     direction: 90,
-    layerSpacing: 30,  // Space between layers (nodes grouped in layers)
-    columnSpacing: 30,  // Space between columns (nodes within the same layer)
+    layerSpacing: 50,  // Space between layers (nodes grouped in layers)
+    columnSpacing: 50,  // Space between columns (nodes within the same layer)
     setsPortSpots: true,  // Don't automatically adjust port spots (ports can be manually set)
-    //aggressiveOption: go.LayeredDigraphLayout.Aggressive, // Aggressiveness of the layout (adjusts edge crossings)
-    //initializeOption: go.LayeredDigraphLayout.InitDepthPriority // Set initial node depth ordering (helps to minimize crossings)
   });
 
 
@@ -213,6 +211,68 @@ export class DisplayComponent {
           stroke: "darkgrey",  // Set the color of the link (line) to black
           strokeWidth: 3,
           strokeDashArray: [10, 5]  // Set the line to be dashed (10px dashes, 5px gaps)
+        }),
+  
+      // Arrowhead at the "to" end of the link (one-way arrow)
+      $(go.Shape, 
+        {
+          toArrow: "Standard",  // Standard arrowhead at the end of the link
+          fill: "black",  // Set the color of the arrow to black
+          stroke: null  // No border around the arrow
+        })
+    )
+  );
+
+  this.myDiagram.linkTemplateMap.add("reversible",  // Link type category
+    $(go.Link,
+      {
+        relinkableFrom: true,
+        relinkableTo: true,
+        routing: go.Link.AvoidsNodes,  // Route around nodes
+        corner: 5,  // Optional: corner rounding
+        reshapable: true,  // Allow reshaping the link
+        selectable: true,  // Make link selectable
+        layerName: "Foreground",  // Draw link on the foreground layer
+      },
+      new go.Binding("points").makeTwoWay(),
+      
+      // Shape of the link (the line itself)
+      $(go.Shape, 
+        {
+          stroke: "black",  // Set the color of the link (line) to black
+          strokeWidth: 3,
+          strokeDashArray: [10, 5]  // Set the line to be dashed (10px dashes, 5px gaps)
+        }),
+  
+      // Arrowhead at the "to" end of the link (one-way arrow)
+      $(go.Shape, 
+        {
+          toArrow: "Standard",  // Standard arrowhead at the end of the link
+          fill: "black",  // Set the color of the arrow to black
+          stroke: null  // No border around the arrow
+        })
+    )
+  );
+
+  this.myDiagram.linkTemplateMap.add("irreversible",  // Link type category
+    $(go.Link,
+      {
+        relinkableFrom: true,
+        relinkableTo: true,
+        routing: go.Link.AvoidsNodes,  // Route around nodes
+        corner: 5,  // Optional: corner rounding
+        reshapable: true,  // Allow reshaping the link
+        selectable: true,  // Make link selectable
+        layerName: "Foreground",  // Draw link on the foreground layer
+      },
+      new go.Binding("points").makeTwoWay(),
+      
+      // Shape of the link (the line itself)
+      $(go.Shape, 
+        {
+          stroke: "black",  // Set the color of the link (line) to black
+          strokeWidth: 3,
+          //strokeDashArray: [10, 5]  // Set the line to be dashed (10px dashes, 5px gaps)
         }),
   
       // Arrowhead at the "to" end of the link (one-way arrow)
