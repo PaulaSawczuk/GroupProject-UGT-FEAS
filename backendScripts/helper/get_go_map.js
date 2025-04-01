@@ -21,76 +21,8 @@
 const xml2js = require('xml2js');
 const xpath =require ("xml2js-xpath");
 const https = require('https')
-const util = require('util')
-
-function addCompounds(uniqueNodes,compoundIDs,entries){
-
-    var no = 0;
-    var knownNodes = [];
-    for (let i=0; i<uniqueNodes.length;i++){
-        //console.log(map_elements.uniqueNodes[i]);
-        let node = uniqueNodes[i];
-        //console.log('--------------------')
-        if (node.type == "compound"){
-            //console.log(node);
-            //console.log(node.key)
-            no ++;
-            knownNodes.push(node.key);
-            //console.log(entries[i].$.id);
-            }
-        }
-
-    console.log(no);
-    console.log(knownNodes);
-
-    let uniqueToList1 = compoundIDs.filter(item => !knownNodes.includes(item));
-
-    // Find elements in list2 that are not in list1
-    let uniqueToList2 = knownNodes.filter(item => !compoundIDs.includes(item));
-
-    // Combine both results to get non-overlapping elements
-    let nonOverlapping = [...uniqueToList1, ...uniqueToList2];
-
-    console.log(nonOverlapping);
-    console.log(nonOverlapping.length);
-
-    for (let i = 0; i < entries.length; i++){
-        if (entries[i].$.type=='compound'&& nonOverlapping.includes(entries[i].$.id)){
-            console.log(entries[i].$.id);
-            console.log(entries[i].$.name);
-            console.log('Compound Added: '+entries[i].$.name);
-            uniqueNodes.push({
-                // Adding Product Nodes
-                    key: entries[i].$.id,
-                    text: entries[i].$.name,
-                    type: 'compound',
-                    category: 'compound',
-
-        });
-        }
-    }
-}
-
-function getCompoundEntries(entries){
-
-    //console.log(entries);
-    var compoundList = [];
-    for (let i=0; i<entries.length;i++){
-        //console.log(entries[i]);
-        //console.log(entries[i].graphics);
-        //console.log('--------------------')
-        if (entries[i].$.type == "compound"){
-            //console.log(entries[i].$);
-            //console.log(entries[i].$.id);
-            
-            compoundList.push(entries[i].$.id);
-
-        }
-    }
-    //console.log(compoundList);
-    return compoundList;
-
-}
+const util = require('util');
+const { LayeredDigraphCycleRemove } = require('gojs');
 
 
 async function getKGML(mapCode) {
@@ -171,7 +103,6 @@ function getRelations(data){
     return {entries, relations, reactions};
 }
 
-
 function getPosition(entry){
 
     //console.log(entry.graphics);
@@ -185,220 +116,59 @@ function getPosition(entry){
     return{x,y};
 }
 
-function findNodesByKeyPrefix(prefix) {
-
-    nodes.each(function(node) {
-      if (node.key.toString().startsWith(prefix.toString())) {
-        console.log("Found node with key starting with: " + prefix);
-        console.log("Node data: ", node);  // Output the node data
-        // Do something with the node, e.g., select it
-        //node.isSelected = true;  // Select the matching node
-      }
-      return
-    });
-  }
-
-
-
 function getNodesEdges(entries, reactions, relations){
     //console.log(reactions);
     var nodes = [];
     var edges = []; 
     var reaction_nodes=[];
     
+    // Processing Reactions Nodes
+    var reactionData = getReactionNodes(reactions,entries);
+    reaction_nodes = reactionData.reaction_nodes;
+    nodes = reactionData.nodes;
+    edges = reactionData.edges;
 
-    for (let i = 0; i < reactions.length; i++) {
-        const reaction_id = "R"+reactions[i].$.id
-        
-        //console.log(reactions[i]);
-        //getPosition()
-        nodes.push({
-            // Adding Reaction Nodes
-                    key: reaction_id,
-                    text: reactions[i].$.name,
-                    type: 'reaction',
-                    category:'reaction',
-                    isGroup: true
-            });
-        
-        for (let j = 0; j < reactions[i].substrate.length; j++){
+    var compoundNodes = getCompoundNodes(entries);
+    console.log('No of compound nodes: '+compoundNodes.length);
 
-            nodes.push({
-            // Adding Substrate Nodes
-                    key: reactions[i].substrate[j].$.id,
-                    text: reactions[i].substrate[j].$.name,
-                    type: 'compound',
-                    category:"compound"
+    // Adding Map Nodes
+    var mapNodes = getMapNodes(entries);
+    mapNodes.forEach(node=>{
+        nodes.push(node);
+    });
 
+    // Adding Enzyme Nodes
+    var enzymeNodes = getEnzymeNodes(reaction_nodes,entries)
+    enzymeNodes.forEach(node=>{
+        nodes.push(node);
+    });
 
-        });
-            
-            // Adding Edges 
-            //const edge_id = reactions[i].substrate[j].$.id+reaction_id;
-            edges.push({
-                    //id: edge_id,
-                    from: reactions[i].substrate[j].$.id,
-                    to: reaction_id
-                    //type: reactions[i].$.type,
-            });
-
-            // Adding Reaction Node to list of Reaction nodes
-            reaction_nodes.push({
-                data: {
-                    id: reaction_id,
-                    name: reactions[i].$.name,
-                }
-
-            });
-        };
-
-        for (let j = 0; j < reactions[i].product.length; j++){
- 
-            const positions = entries.forEach(function(entry){
-                //console.log(entry.$.name)
-                if (entry.$.name==reactions[i].product[j].$.name){
-                    //console.log('Match');
-                    //console.log(entry.$.name);
-                    //console.log(reactions[i].product[j].$.name);
-                    const positions = getPosition(entry);
-                    //console.log(positions);
-                    return positions;
-                }
-
-
-            })
-
-            nodes.push({
-                // Adding Product Nodes
-                    key: reactions[i].product[j].$.id,
-                    text: reactions[i].product[j].$.name,
-                    type: 'compound',
-                    category: 'compound',
-                    position: positions
-                    //type: "P",
-        });
-            const edge_id = reaction_id+reactions[i].product[j].$.id
-            //console.log(edge_id);
-            edges.push({
-                    //id: edge_id,
-                    from: reaction_id,
-                    to: reactions[i].product[j].$.id,
-                    //type: reactions[i].$.type,
-        });
-
-
-        };
-
-    };
-
-    for (let i = 0; i < entries.length; i++){
-        if (entries[i].$.type=='map'){
-
-            nodes.push({
-                // Adding Substrate Nodes
-                        key: entries[i].$.id,
-                        text: entries[i].$.name,
-                        name: entries[i].graphics[0].$.name,
-                        type: 'map',
-                        category:'map'
+    // Adding Map Links
+    var mapLinks = getMapLinks(nodes,relations);
+    mapLinks.forEach(link=>{
+        edges.push(link);
+    });
     
-    
-            });
+    //uniqueNodes = nodes;
 
+    var count = 0;
+    for (let i = 0; i < nodes.length; i++){
+        if (nodes[i].type =='compound'){
+            count ++;
         }
 
-        }
-    
-    // Getting Enzyme Entries 
-    for (let i = 0; i < entries.length; i++){
-        //console.log(entries[i]);
-        
-        if (entries[i].$.type=='enzyme'){
-            var matches=[];
-            for (let j = 0; j < reaction_nodes.length; j++){
-                //console.log(reaction_nodes[j]);
-                
-                if (entries[i].$.reaction == reaction_nodes[j].data.name){
-
-                    matches.push(reaction_nodes[j].data.id);
-                    //console.log(matches);
-                    matches = matches.filter((value, index, self) => self.indexOf(value) === index);
-                    //console.log(matches);
-                    
-                    for (let k = 0; k < matches.length; k++){
-                        //console.log('Reaction Node ID: '+matches[k]);
-                        //console.log('Enzyme Node ID: '+entries[i].$.id);
-                        var edge_id = entries[i].$.id+matches[k];
-                        //console.log('Edge ID: '+edge_id);
-
-                        const positions= getPosition(entries[i]);
-                        //console.log(positions);
-
-                        nodes.push({
-                            // Adding Enzyme Nodes
-                                key: edge_id,
-                                text: entries[i].$.name,
-                                type: 'enzyme',
-                                category:'enzyme',
-                                colour: "lightgrey",
-                                group: matches[k],
-                                position: positions,
-                                //type: "E",
-                            });
-                    }
-                }
-            }
-        }
-    }
-    
-    for (let i=0; i<nodes.length;i++){
-        //console.log(nodes[i]);
-        if (nodes[i].type == "map"){
-            //console.log(nodes[i].key);
-            let key = nodes[i].key;
-            for (let j=0; j<relations.length;j++){
-                //console.log(relations[j].$.type);
-                if (relations[j].$.type == 'maplink'){
-                    //console.log(relations[j].$.type);
-                    //console.log(relations[j]);
-                    let entry1 = relations[j].$.entry1
-                    let entry2 = relations[j].$.entry2
-                    if (key == entry1){
-
-                        edges.push({
-                            //id: edge_id,
-                            from: key,
-                            to: relations[j].subtype[0].$.value,
-                            category: 'maplink'
-                        });
-                    }
-                    if (key == entry2){
-
-                        edges.push({
-                            //id: edge_id,
-                            from: relations[j].subtype[0].$.value,
-                            to: key,
-                            category: 'maplink'
-                        });
-
-                    }else{
-                        continue
-                    }
-                }
-            }
-        }
     }
 
-
-
-
-
-
+    console.log('No of compound Nodes from rn: '+count);
+    console.log('No of nodes: '+nodes.length);
+    
     const uniqueNodes = nodes.filter((value, index, self) => 
     index === self.findIndex((t) => (
         t.key === value.key
+
         ))
     );
+    console.log('No of nodes: '+uniqueNodes.length);
 
     function removeDuplicates(list) {
         let uniqueObjects = [];  // To store unique objects
@@ -424,15 +194,23 @@ function getNodesEdges(entries, reactions, relations){
     //console.log(uniqueNodes);
     //console.log('Number of Nodes: ',uniqueNodes.length);
     //console.log('Number of Edges:',edges.length);
+
+    // Adding lost compounds
     const compoundIDs = getCompoundEntries(entries);
-    addCompounds(uniqueNodes,compoundIDs,entries);
+
+    var compoundNodes = addCompounds(uniqueNodes,compoundIDs,entries);
+    compoundNodes.forEach(node=>{
+        nodes.push(node);
+    });
+
 
     //console.log(uniqueNodes)
 
     console.log('------------');
     console.log('ALL DONE - processKGML');
+    console.log('------------');
     return{ uniqueNodes, edges}
-}
+    }
 
 function processRN(entries, relations, reactions, nodes){
     // get list of reaction names 
@@ -440,7 +218,7 @@ function processRN(entries, relations, reactions, nodes){
     for (let i = 0; i < entries.length; i++){
         if (entries[i].$.type=='reaction'){
             //console.log(entries[i].$);
-            console.log(entries[i].$.reaction);
+            //console.log(entries[i].$.reaction);
             var reaction = entries[i].$.reaction;
             var reaction = reaction.split(" ");
             //console.log(reaction);
@@ -485,7 +263,7 @@ function processRN(entries, relations, reactions, nodes){
             //console.log(reaction);
             //console.log(entries[i].$.reaction);
             if (entries[i].$.reaction==reaction){
-                console.log(entries[i].$);
+                //console.log(entries[i].$);
 
 
             }
@@ -543,9 +321,14 @@ function processRN(entries, relations, reactions, nodes){
         }
     }
     //console.log(compoundLinks);
+    console.log('------------');
+    console.log('ALL DONE - processRN');
     return {compoundLinks, entryLinks};
 }
 
+
+
+/*
 function getCompoundLinks(compoundLinks, entries,links){
     console.log(compoundLinks.length);
     console.log(links);
@@ -564,11 +347,11 @@ function getCompoundLinks(compoundLinks, entries,links){
         }
     }
 
-}
-
+}*/
+/*
 function addCompoundLinks(compoundLinks,links){
-    console.log(compoundLinks);
-    console.log(links);
+    /console.log(compoundLinks);
+    //console.log(links);
     for (let j = 0; j < compoundLinks.length; j++){
         console.log('adding Links');
         console.log(compoundLinks[j]);
@@ -578,14 +361,349 @@ function addCompoundLinks(compoundLinks,links){
     console.log(links);
     return links;
     }
+*/
+
+function getReactionNodes(reactions,entries){
+
+    var nodes = [];
+    var edges = [];
+    var reaction_nodes = [];
+
+    for (let i = 0; i < reactions.length; i++) {
+        const reaction_id = "R"+reactions[i].$.id
+        nodes.push({
+            // Adding Reaction Nodes
+                    key: reaction_id,
+                    text: reactions[i].$.name,
+                    type: 'reaction',
+                    category:'reaction',
+                    isGroup: true
+            });
+        
+        // Finding Substrates
+        for (let j = 0; j < reactions[i].substrate.length; j++){
+
+            nodes.push({
+            // Adding Substrate Nodes
+                    key: reactions[i].substrate[j].$.id,
+                    text: reactions[i].substrate[j].$.name,
+                    type: 'compound',
+                    category:"compound"
+        });
+            // Adding Edges 
+            edges.push({
+                    //id: edge_id,
+                    from: reactions[i].substrate[j].$.id,
+                    to: reaction_id
+                    //type: reactions[i].$.type,
+            });
+            // Adding Reaction Node to list of Reaction nodes
+            reaction_nodes.push({
+                data: {
+                    id: reaction_id,
+                    name: reactions[i].$.name,
+                }
+
+            });
+        };
+
+        // Finding Products 
+        for (let j = 0; j < reactions[i].product.length; j++){
+
+            const positions = entries.forEach(function(entry){
+                if (entry.$.name==reactions[i].product[j].$.name){
+                    const positions = getPosition(entry);
+                    //console.log(positions);
+                    return positions;
+                }
+            })
+
+            nodes.push({
+                // Adding Product Nodes
+                    key: reactions[i].product[j].$.id,
+                    text: reactions[i].product[j].$.name,
+                    type: 'compound',
+                    category: 'compound',
+                    position: positions
+        });
+            edges.push({
+                    from: reaction_id,
+                    to: reactions[i].product[j].$.id,
+                    //type: reactions[i].$.type,
+        });
+        };
+    };
+    return {nodes, edges, reaction_nodes};
+}
+
+function getEnzymeNodes (reaction_nodes, entries){
+    var nodes = [];
+
+    for (let i = 0; i < entries.length; i++){
+        //console.log(entries[i]);
+        if (entries[i].$.type=='enzyme'){
+            var matches=[];
+            for (let j = 0; j < reaction_nodes.length; j++){
+                //console.log(reaction_nodes[j]);
+
+                // If reaction assigned to Enzyme matches the name of stored reaction 
+                if (entries[i].$.reaction == reaction_nodes[j].data.name){
+                    matches.push(reaction_nodes[j].data.id);
+                    //console.log(matches);
+                    matches = matches.filter((value, index, self) => self.indexOf(value) === index);
+                    //console.log(matches);
+                    for (let k = 0; k < matches.length; k++){
+                        var edge_id = entries[i].$.id+matches[k];
+                        //console.log('Edge ID: '+edge_id);
+                        const positions= getPosition(entries[i]);
+                        //console.log(positions);
+                        nodes.push({
+                            // Adding Enzyme Nodes
+                                key: edge_id,
+                                text: entries[i].$.name,
+                                type: 'enzyme',
+                                category:'enzyme',
+                                colour: "lightgrey",
+                                group: matches[k],
+                                position: positions,
+                            });
+                    }
+                }
+            }
+        }
+    }
+    return nodes;
+
+}
+
+function getMapNodes(entries){
+    var nodes = [];
+    for (let i = 0; i < entries.length; i++){
+        if (entries[i].$.type=='map'){
+
+            nodes.push({
+                // Adding Substrate Nodes
+                        key: entries[i].$.id,
+                        text: entries[i].$.name,
+                        name: entries[i].graphics[0].$.name,
+                        type: 'map',
+                        category:'map'
+    
+    
+            });
+        }
+    }
+    for (let i=0; i<nodes.length; i++){
+        //console.log(nodes[i].name);
+        if (nodes[i].name.includes('TITLE:')){
+        console.log(nodes[i]);
+        let index=i;
+        nodes.splice(index, 1)
+        }
+
+    }
+
+    return nodes;
+}
+
+function getCompoundNodes(entries){
+    var nodes = [];
+    for (let i = 0; i < entries.length; i++){
+        if (entries[i].$.type=='compound'){
+
+            nodes.push({
+                // Adding Substrate Nodes
+                        key: entries[i].$.id,
+                        text: entries[i].$.name,
+                        name: entries[i].graphics[0].$.name,
+                        type: 'compound',
+                        category:'compound'
+    
+    
+            });
+        }
+    }
+
+    return nodes;
+}
 
 
+
+
+function getMapLinks(nodes, relations){
+
+        var links =[];
+        var seenLinks=new Set();
+        for (let i=0; i<nodes.length;i++){
+            //console.log(nodes[i]);
+            if (nodes[i].type == "map"){
+                //console.log(nodes[i].key);
+                let key = nodes[i].key;
+                for (let j=0; j<relations.length;j++){
+                    //console.log(relations[j].$.type);
+                    if (relations[j].$.type == 'maplink'){
+                        //console.log(relations[j].$.type);
+                        //console.log(relations[j]);
+                        let entry1 = relations[j].$.entry1
+                        let entry2 = relations[j].$.entry2
+                        if (key == entry1){
+    
+                            var pair = [key,relations[j].subtype[0].$.value];
+                            if (isPairInMap(pair,seenLinks) == false){
+                                links.push({
+                                    from: key,
+                                    to: relations[j].subtype[0].$.value,
+                                    category: 'maplink'
+                                });
+                                seenLinks.add(pair);
+                            }
+                        }
+                        if (key == entry2){
+                            var pair = [key,relations[j].subtype[0].$.value];
+                            if (isPairInMap(pair,seenLinks) == false){
+                                links.push({
+                                    //id: edge_id,
+                                    from: relations[j].subtype[0].$.value,
+                                    to: key,
+                                    category: 'maplink'
+                                });
+                                seenLinks.add(pair);
+                            }
+                        }else{
+                            continue
+                        }
+                    }
+                }
+            }
+        }
+        //console.log(links);
+        return links;
+    }
+
+function isPairInMap(pair,seenReactions) {
+        for (let [key, value] of seenReactions) {
+          if (key === pair[0] && value === pair[1]) {
+            return true;  // Found the exact match
+          }
+        }
+        return false;  // No match found
+    }
+
+
+function addCompounds(uniqueNodes,compoundIDs,entries){
+        var no = 0;
+        var knownNodes = [];
+        var nodes = [];
+        for (let i=0; i<uniqueNodes.length;i++){
+            //console.log(map_elements.uniqueNodes[i]);
+            let node = uniqueNodes[i];
+            //console.log('--------------------')
+            if (node.type == "compound"){
+                //console.log(node);
+                //console.log(node.key)
+                no ++;
+                knownNodes.push(node.key);
+                //console.log(entries[i].$.id);
+                }
+            }
+        //console.log(no);
+        //console.log(knownNodes);
+    
+        let uniqueToList1 = compoundIDs.filter(item => !knownNodes.includes(item));
+    
+        // Find elements in list2 that are not in list1
+        let uniqueToList2 = knownNodes.filter(item => !compoundIDs.includes(item));
+    
+        // Combine both results to get non-overlapping elements
+        let nonOverlapping = [...uniqueToList1, ...uniqueToList2];
+    
+        //console.log(nonOverlapping);
+        //console.log(nonOverlapping.length);
+    
+        for (let i = 0; i < entries.length; i++){
+            if (entries[i].$.type=='compound'&& nonOverlapping.includes(entries[i].$.id)){
+                //console.log(entries[i].$.id);
+                //console.log(entries[i].$.name);
+                console.log('Compound Added: '+entries[i].$.name);
+                nodes.push({
+                    // Adding Product Nodes
+                        key: entries[i].$.id,
+                        text: entries[i].$.name,
+                        type: 'compound',
+                        category: 'compound',
+    
+            });
+            }
+        }
+        console.log(nodes);
+        return nodes;
+    }
+    
+function getCompoundEntries(entries){
+    
+        //console.log(entries);
+        var compoundList = [];
+        for (let i=0; i<entries.length;i++){
+    
+            if (entries[i].$.type == "compound"){
+    
+                compoundList.push(entries[i].$.id);
+    
+            }
+        }
+        //console.log(compoundList);
+        return compoundList;
+    
+    }
+    
+
+
+
+
+
+/*
+function getCompoundLinks(compoundLinks, entries, links){
+    //console.log(compoundLinks.length);
+    //console.log(links);
+    for (let i = 0; i < entries.length; i++){
+        if (entries[i].$.type == 'compound'){
+        //console.log('Entry Name: '+entries[i].$.name);
+        let name = entries[i].$.name
+            for (let j = 0; j < compoundLinks.length; j++){
+                //console.log(compoundLinks[j]);
+                if (compoundLinks[j].entry1.includes(name)){
+                    //console.log('Entry 1: '+name);
+                    //console.log(entries[i].$.id);
+                    //console.log(compoundLinks[j].entry1);
+                }
+            }
+        }
+    }
+
+}*/
+   
+
+function addCompoundLinks(compoundLinks,links){
+    //console.log(compoundLinks);
+    //console.log(links);
+    for (let j = 0; j < compoundLinks.length; j++){
+        console.log('adding Links');
+        console.log(compoundLinks[j]);
+        links.push(compoundLinks[j])
+
+        }
+    //console.log(links);
+    return links;
+}
+    
+    
+    
 
 module.exports = {
     processKGML,
     getNodesEdges,
     processRN,
-    getCompoundLinks,
+    //getCompoundLinks,
     addCompoundLinks
 
   };

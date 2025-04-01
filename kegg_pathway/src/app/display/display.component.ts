@@ -159,10 +159,10 @@ export class DisplayComponent {
   // TEMPLATE FOR LAYOUT
   this.myDiagram.layout = new go.LayeredDigraphLayout({
     // Set optional parameters for the layout
-    direction: 0,
+    direction: 90,
     layerSpacing: 30,  // Space between layers (nodes grouped in layers)
     columnSpacing: 30,  // Space between columns (nodes within the same layer)
-    setsPortSpots: false,  // Don't automatically adjust port spots (ports can be manually set)
+    setsPortSpots: true,  // Don't automatically adjust port spots (ports can be manually set)
     //aggressiveOption: go.LayeredDigraphLayout.Aggressive, // Aggressiveness of the layout (adjusts edge crossings)
     //initializeOption: go.LayeredDigraphLayout.InitDepthPriority // Set initial node depth ordering (helps to minimize crossings)
   });

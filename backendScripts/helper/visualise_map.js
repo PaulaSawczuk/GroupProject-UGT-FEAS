@@ -114,7 +114,7 @@ function removeDuplicateReactionNodes(myDiagram) {
         if (enzyme.group == nodesToRemove[i]){
           //console.log("Match! :"+enzyme.group);
           //console.log(nodesToRemove[i]);
-          console.log(enzyme.key);
+          //console.log(enzyme.key);
           //console.log("------------")
           enzyme_matches.push({
             key: enzyme.key,
@@ -215,7 +215,7 @@ function removeDuplicateReactionNodes(myDiagram) {
         })
     });
 
-    console.log(corresponding_reactions);
+    //console.log(corresponding_reactions);
 
     //console.log(enzyme_matches[0]);
     enzyme_matches.forEach(match=>{
@@ -251,9 +251,6 @@ function removeDuplicateReactionNodes(myDiagram) {
     });
 
 
-    //console.log("Enzyme-Nodes to Remove matches:" +enzyme_matches);
-    //console.log("Nodes to remove: "+nodesToRemove);
-
     nodesToRemove.forEach(function(nodeId) {
       var node = myDiagram.findNodeForKey(nodeId);
       if (node) {
@@ -280,7 +277,7 @@ function removeDuplicateEnzymeNodes(myDiagram) {
       // Check if this combination of name and group has already been encountered
       if (nodeNamesAndGroups[key]) {
         // If found, remove the duplicate node
-        console.log("Node Removed: "+nodeNamesAndGroups[key])
+        //console.log("Node Removed: "+nodeNamesAndGroups[key])
         myDiagram.remove(node);
       } else {
         // If not found, store this combination in the nodeNamesAndGroups object
@@ -315,7 +312,7 @@ function initialiseMap(inputNodes,inputEdges){
 
  // Call the function to remove duplicate reaction-type nodes
   removeDuplicateReactionNodes(myDiagram);
-  removeDuplicateEnzymeNodes(myDiagram);
+  //removeDuplicateEnzymeNodes(myDiagram);
 
   // Retrieves the model of the diagram 
   const diagramModel = myDiagram.model;

@@ -14,7 +14,6 @@ const { getElements } = require('./getElements2');
 const { getNodesEdges } = require('./get_go_map');
 const { processKGML } = require('./get_go_map');
 const { processRN } = require('./get_go_map');
-const { getCompoundLinks } = require('./get_go_map');
 const { addCompoundLinks } = require('./get_go_map');
 const init = require('./visualise_map');
 
@@ -138,12 +137,13 @@ async function processInput(code) {
     // to perform any logic like math operations, string manipulations, etc.
     var ec_pathway = code;
     var rn_pathway = code.replace(/^ec/, 'rn');
+    var ko_pathway = code.replace(/^ec/, 'ko');
     
     // -------------------------------------------------------------
     // Getting Compounds for the organism specific pathway - used for labelling and indexing 
     // NEED TO BE RE-IMPLEMENTED
     var compounds = await getElements(ec_pathway);
-    console.log(compounds);
+    //console.log(compounds);
     
     // -----------------------Converting LOGFC to RBG --------------------------------------
     // EXPERIMENTAL FUNCTION -- MOVE TO FRONT END???
@@ -155,7 +155,9 @@ async function processInput(code) {
     // Processing the whole KGML parsed
     var kgml_elements = await processKGML(ec_pathway);
 
-    var rn_elements = await processKGML(rn_pathway)
+    var rn_elements = await processKGML(rn_pathway);
+
+    //var ko_elements = await processKGML(ko_pathway)
 
     // ------------------Taking Entries, Reactions and Relations --> Nodes and Edges ----------------------------
     //Getting Element names
@@ -170,10 +172,15 @@ async function processInput(code) {
 
 
 
-
-    var compoundLinks = processRN(rn_elements.entries, rn_elements.relations, rn_elements.reactions, map_elements.uniqueNodes);
-    addCompoundLinks(compoundLinks.entryLinks,map_elements.edges);
+    //var KOcompoundLinks = processRN(ko_elements.entries, ko_elements.relations, ko_elements.reactions, map_elements.uniqueNodes);
+    var RNcompoundLinks = processRN(rn_elements.entries, rn_elements.relations, rn_elements.reactions, map_elements.uniqueNodes);
+    var finalEdges = addCompoundLinks(RNcompoundLinks.entryLinks,map_elements.edges);
+    //console.log(finalEdges);
     
+
+    //console.log(KOcompoundLinks.compoundLinks);
+    console.log(RNcompoundLinks.compoundLinks);
+
     // --------------------Re-Labelling Compounds---------------------------
     // Linking names retireved in getElements to Nodes and re-labelling 
     getCompoundNames(compounds, map_elements.uniqueNodes);
@@ -181,7 +188,7 @@ async function processInput(code) {
 
     // ------------------Processing Diagram Model -----------------------------
     // Removing duplicate nodes and enzymes
-    const processedElements = init.initialiseMap(map_elements.uniqueNodes,map_elements.edges);
+    const processedElements = init.initialiseMap(map_elements.uniqueNodes,finalEdges);
 
 
     // ---------------- Parsing the data to the front-end -----------------------
