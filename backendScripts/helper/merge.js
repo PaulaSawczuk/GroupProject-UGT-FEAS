@@ -14,7 +14,6 @@ const { getElements } = require('./getElements2');
 const { getNodesEdges } = require('./get_go_map');
 const { processKGML } = require('./get_go_map');
 const { processRN } = require('./get_go_map');
-const { getCompoundLinks } = require('./get_go_map');
 const { addCompoundLinks } = require('./get_go_map');
 const init = require('./visualise_map');
 
