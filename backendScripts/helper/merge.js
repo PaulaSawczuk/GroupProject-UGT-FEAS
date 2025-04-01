@@ -142,7 +142,7 @@ async function processInput(code) {
     // -------------------------------------------------------------
     // Getting Compounds for the organism specific pathway - used for labelling and indexing 
     // NEED TO BE RE-IMPLEMENTED
-    //var compounds = await getElements(ec_pathway);
+    var compounds = await getElements(ko_pathway);
     //console.log(compounds);
     
     // -----------------------Converting LOGFC to RBG --------------------------------------
@@ -183,7 +183,7 @@ async function processInput(code) {
 
     // --------------------Re-Labelling Compounds---------------------------
     // Linking names retireved in getElements to Nodes and re-labelling 
-    //getCompoundNames(compounds, map_elements.uniqueNodes);
+    getCompoundNames(compounds, map_elements.uniqueNodes);
     
 
     // ------------------Processing Diagram Model -----------------------------

@@ -67,8 +67,8 @@ function getCompounds(anno_data){
     for (let i = 0; i < anno_data.length; i++) {
         //console.log(anno_data[i]);
         //console.log(start);
-        const match = anno_data[start].match(/C\d+(.*)/);
-        const matches = anno_data[start].match(/C(\d+)(?=\s|$)/g);
+        var match = anno_data[start].match(/C\d+(.*)/);
+        var matches = anno_data[start].match(/C(\d+)(?=\s|$)/g);
         // Check if a match is found and log the result
         var name;
         var id;
@@ -93,6 +93,7 @@ function getCompounds(anno_data){
 
             } else {
               //console.log("No match found.");
+              matches = 0;
             }
 
             //console.log(matches.length)

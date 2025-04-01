@@ -1,28 +1,26 @@
 
+/*** 
+ * // Date: 27/03/2025
+ * // Jennifer O'Halloran
+ * // IBIX2 Group Project 2025 
+***/
 
-// Date: 27/03/2025
-// Jennifer O'Halloran
-// IBIX2 Group Project 2025 
-
-
+/*** 
 // Function  - get_go_map.js
 // Inputs: 
 // Outputs: 
 
-// ORIGINAL SCRIPT
+
 // Takes EC pathway code and fetches KGML of that pathway from KEGG API.
 // ProcessKGML - Returns Relations, Entries and Reactions for the KGML
 // getNodesEdges - Takes KGML elements and gets NODEs and LINKS in GO.JS format for visualisation
-
-
-
+***/
 
 
 const xml2js = require('xml2js');
 const xpath =require ("xml2js-xpath");
 const https = require('https')
 const util = require('util');
-//const { LayeredDigraphCycleRemove } = require('gojs');
 
 
 async function getKGML(mapCode) {

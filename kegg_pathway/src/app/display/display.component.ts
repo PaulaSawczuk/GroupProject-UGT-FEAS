@@ -145,6 +145,7 @@ export class DisplayComponent {
   // Creating the First GoJS MAP
   // Creates the Diagram Template and initialises 
   createGoJSMap(nodes: any[], links: any[] ): void {
+    
     console.log('Initialising Map');
 
     var $ = go.GraphObject.make;
@@ -160,7 +161,7 @@ export class DisplayComponent {
   this.myDiagram.layout = new go.LayeredDigraphLayout({
     // Set optional parameters for the layout
     direction: 90,
-    layerSpacing: 50,  // Space between layers (nodes grouped in layers)
+    layerSpacing: 70,  // Space between layers (nodes grouped in layers)
     columnSpacing: 50,  // Space between columns (nodes within the same layer)
     setsPortSpots: true,  // Don't automatically adjust port spots (ports can be manually set)
   });
@@ -350,6 +351,7 @@ export class DisplayComponent {
   this.myDiagram.model = model;
 
   }
+  
 
   // --------------- Updating GO.js Model -------------------
   // Updates the pre-existing Diagram Model
@@ -384,7 +386,6 @@ export class DisplayComponent {
   exportOpen = false;
   targetAnalysisOpen = false;
 
-  //pathways = ['ec00020', 'ec00030', 'ec00040'];
   exportOptions = ['PDF', 'CSV', 'JSON'];
   targets = ['Target 1', 'Target 2', 'Target 3'];
   timepoints = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
