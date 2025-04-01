@@ -57,6 +57,20 @@ app.post('/api/getPathways', (req, res) => {
   });
 
 
+// This works for Paula lol please don't delete for now 
+// let requestCount = 0;
+
+// app.post('/api/getPathways', (req, res) => {
+//     requestCount++;
+//     console.log(`Received request #${requestCount} for getPathways`);
+//     console.log(req.body);
+    
+//     var enzymes = req.body;
+//     getEnzymePathways(enzymes).then(pathways => getPathwayNames(pathways))
+//         .then((result)=>{
+//             res.json(result.paths);
+//         });
+// });
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {

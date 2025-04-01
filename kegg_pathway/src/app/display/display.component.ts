@@ -88,20 +88,25 @@ export class DisplayComponent {
     console.log(linkData);
     return linkData;
   }
-
+  isLoading: boolean = false;
   // -------------- Sending Pathway Request to Back-end ---------------------
   // Fetches relevant pathways when the Display component is initialised
   ngOnInit(): void {
+    this.isLoading = true;
     this.enzymeApiServicePost.postEnzymeData(this.enzymeList).subscribe(
       (response) => {
         // Handle the successful response
         this.pathwayData = response;
         this.loadNames();
         console.log('Received from backend:', response);
+        this.isLoading = false; 
+
       },
       (error) => {
         // Handle errors
         console.error('Error:', error);
+        this.isLoading = false; 
+
         //this.responseMessage = 'Error sending data';
       }
     );
@@ -116,6 +121,7 @@ export class DisplayComponent {
   // Calls Data Processing functions (loadNodes, loadLinks)
   // Changes Diagram 
   getMapData(data: string): void {
+    this.isLoading = true;
     this.enzymeApiServicePost.postMapData(data).subscribe(
       (response) => {
 
@@ -126,13 +132,14 @@ export class DisplayComponent {
         var links = this.loadLinks();
         //console.log('Received from backend:', response);
         this.changeDiagram(nodes, links);
+        this.isLoading = false;
       },
       (error) => {
         console.error('Error:', error);
+        this.isLoading = false;
       }
     );
   };
-
 
   // --------------- Creating GO.js Model -------------------
   // Creating the First GoJS MAP
@@ -324,7 +331,7 @@ export class DisplayComponent {
   
   selectedPathway: string = this.pathways[0];
   selectedTimeIndex: number = 0;
-
+  SelectedPathwayName: string = '';
   sliderLine: ElementRef | undefined;
 
   @ViewChild('sliderLine') set sliderLineRef(sliderLineRef: ElementRef | undefined) {
@@ -361,6 +368,7 @@ export class DisplayComponent {
 
   selectPathway(event: Event, pathway: string) {
     event.stopPropagation();
+    this.SelectedPathwayName = pathway;
     console.log('Selected:', pathway);
     const nameSelected = pathway;
     // Finding corresponding map code to pathway name
