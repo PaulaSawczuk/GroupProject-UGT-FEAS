@@ -21,6 +21,16 @@ html {
   height: 100vh;
 }
 
+.content-container {
+  flex-grow: 1; 
+  display: flex;
+}
+
+.content-container.loading-blur {
+  filter: blur(5px);
+  transition: filter 0.3s ease;
+}
+
 #sidebar {
   width: 250px;
   background-color: var(--base-clr);
@@ -241,4 +251,38 @@ html {
   left: 0;
   right: 0;
   padding: 0 20px; 
+}
+
+
+.loading-container {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(255, 255, 255, 0.8);
+  padding: 20px;
+  border-radius: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000; 
+}
+
+.loading-icon {
+  animation: spin 1s linear infinite;
+  width: 50px;
+  height: 50px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.pathway-title {
+  text-align: left; 
+  font-size: 0.6em;
+  margin-bottom: 2px; 
+  color: #482E3C; 
+  font-family: 'DM Sans', sans-serif; 
 }

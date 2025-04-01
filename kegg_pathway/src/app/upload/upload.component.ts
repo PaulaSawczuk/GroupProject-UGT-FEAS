@@ -157,6 +157,7 @@ export class UploadComponent {
     if (this.uploadedFiles.length === 0) {
       this.showFileList = false;
       this.resetDropdowns(); // Reset dropdowns when all files are removed
+      this.hideDropdowns = false;
     }
     // Reset the warning messages each time a file is removed
     this.unsupportedFileTypeMessage = '';
