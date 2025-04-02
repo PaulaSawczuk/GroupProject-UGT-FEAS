@@ -13,6 +13,7 @@ import * as go from 'gojs';
 })
 
 export class DisplayComponent {
+  
 
 
   // ------------------  MOCK DATA ----------------
@@ -430,6 +431,7 @@ export class DisplayComponent {
   selectPathway(event: Event, pathway: string) {
     event.stopPropagation();
     this.SelectedPathwayName = pathway;
+    console.log(this.SelectedPathwayName);
     console.log('Selected:', pathway);
     const nameSelected = pathway;
     // Finding corresponding map code to pathway name
@@ -462,6 +464,12 @@ export class DisplayComponent {
         this.selectedTimeIndex = timeIndex;
       }
     }
+  }
+
+  isCustomisationPanelOpen: boolean = false;
+
+  onCustomisationPanelToggle() {
+    this.isCustomisationPanelOpen = !this.isCustomisationPanelOpen;
   }
 }
 
