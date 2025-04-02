@@ -444,7 +444,7 @@ function getMapNodes(entries){
     for (let i=0; i<nodes.length; i++){
         //console.log(nodes[i].name);
         if (nodes[i].name.includes('TITLE:')){
-        console.log(nodes[i]);
+        //console.log(nodes[i]);
         let index=i;
         nodes.splice(index, 1)
         }

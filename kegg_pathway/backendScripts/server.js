@@ -37,7 +37,7 @@ app.post('/api/getMap', (req, res) => {
     console.log(new Date());
     console.log('------------');
     var pathway = req.body;
-    console.log(pathway);
+    //console.log(pathway);
     processInput(pathway).then((elements) => {
         console.log('------------');
         console.log('Sending to FrontEnd');
