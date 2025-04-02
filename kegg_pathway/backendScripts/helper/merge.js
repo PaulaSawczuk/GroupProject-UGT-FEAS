@@ -130,7 +130,7 @@ function getLogFCColor(data) {
     }
 
 async function processInput(code) {
-    console.log('processing');
+    console.log('Processing');
     console.log(code);
 
     // Here we will just echo back the input, but you can modify this function
@@ -195,7 +195,10 @@ async function processInput(code) {
     let nodeData = processedElements.finalNodes;
     //console.log(nodeData);
     let linkData = processedElements.edgesProcessed;
-    console.log(linkData);
+    //console.log(linkData);
+    console.log('------------');
+    console.log('All Links and Nodes Generated');
+    console.log('------------');
     return {nodeData,linkData};
   }
 module.exports = {

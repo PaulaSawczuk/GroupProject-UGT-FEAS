@@ -132,7 +132,7 @@ function getNodesEdges(entries, reactions, relations){
     edges = reactionData.edges;
 
     var compoundNodes = getCompoundNodes(entries);
-    console.log('No of compound nodes: '+compoundNodes.length);
+    //console.log('No of compound nodes: '+compoundNodes.length);
 
     // Adding Map Nodes
     var mapNodes = getMapNodes(entries);
@@ -162,8 +162,8 @@ function getNodesEdges(entries, reactions, relations){
 
     }
 
-    console.log('No of compound Nodes from rn: '+count);
-    console.log('No of nodes: '+nodes.length);
+    //console.log('No of compound Nodes from rn: '+count);
+    //console.log('No of nodes: '+nodes.length);
     
     const uniqueNodes = nodes.filter((value, index, self) => 
     index === self.findIndex((t) => (
@@ -307,6 +307,7 @@ function processRN(entries, relations, reactions, nodes){
     //console.log(compoundLinks);
     console.log('------------');
     console.log('ALL DONE - processRN');
+    console.log('------------');
     return {compoundLinks, entryLinks};
 }
 
@@ -567,7 +568,7 @@ function addCompounds(uniqueNodes,compoundIDs,entries){
             if (entries[i].$.type=='compound'&& nonOverlapping.includes(entries[i].$.id)){
                 //console.log(entries[i].$.id);
                 //console.log(entries[i].$.name);
-                console.log('Compound Added: '+entries[i].$.name);
+                //console.log('Compound Added: '+entries[i].$.name);
                 nodes.push({
                     // Adding Product Nodes
                         key: entries[i].$.id,
@@ -578,7 +579,7 @@ function addCompounds(uniqueNodes,compoundIDs,entries){
             });
             }
         }
-        console.log(nodes);
+        //console.log(nodes);
         return nodes;
     }
     
@@ -603,8 +604,8 @@ function addCompoundLinks(compoundLinks,links){
     //console.log(compoundLinks);
     //console.log(links);
     for (let j = 0; j < compoundLinks.length; j++){
-        console.log('adding Links');
-        console.log(compoundLinks[j]);
+        //console.log('adding Links');
+        //console.log(compoundLinks[j]);
         links.push(compoundLinks[j])
 
         }
