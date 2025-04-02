@@ -31,10 +31,20 @@ app.use(express.text()); // To parse selected ec code from user as string
   //------------ Retrieving Mapping Data -------------
   // 
 app.post('/api/getMap', (req, res) => {
+    console.log('------------');
     console.log('Getting Diagram Model');
+    console.log('------------');
+    console.log(new Date());
+    console.log('------------');
     var pathway = req.body;
-    console.log(pathway);
-    processInput(pathway).then(elements => res.json(elements));
+    //console.log(pathway);
+    processInput(pathway).then((elements) => {
+        console.log('------------');
+        console.log('Sending to FrontEnd');
+        console.log('------------');
+        console.log(new Date());
+        console.log('------------');
+        res.json(elements)});
 
   });
 
@@ -47,11 +57,19 @@ app.post('/api/getMap', (req, res) => {
 
 app.post('/api/getPathways', (req, res) => {
     // Handling a post request of Enzyme codes?? - list of enzyme code expected
+    console.log('------------');
     console.log('Getting Enzyme Pathways');
+    console.log('------------');
+    console.log(new Date());
     console.log(req.body);
+    console.log('------------');
     var enzymes = req.body;
     getEnzymePathways(enzymes).then(pathways => getPathwayNames(pathways))
         .then((result)=>{
+          console.log('Sending to Frontend');
+          console.log('------------');
+          console.log(new Date());
+          console.log('------------');
             res.json(result.paths);
         });
   });

@@ -10,7 +10,7 @@
 // Utilised by server.js to link front and backend 
 ***/
 
-const { getElements } = require('./getElements2');
+const { getElements, getEnzymeNames } = require('./getElements2');
 const { getNodesEdges } = require('./get_go_map');
 const { processKGML } = require('./get_go_map');
 const { processRN } = require('./get_go_map');
@@ -77,6 +77,56 @@ function matchEnzymes(data, nodes) {
         }
     }
 
+
+
+function matchEnzymeNames(enzymeNames, nodes){
+    console.log('------------');
+    console.log('Matching Enzyme Names to Nodes');
+    console.log('------------');
+    //console.log(compounds);
+    //console.log(nodes)
+
+    //console.log(compounds[0]['id'])
+
+    for (let i = 0; i< nodes.length; i++){
+        if (nodes[i].type == 'enzyme'){
+            //console.log(nodes[i]);
+            //console.log(nodes[i].text);
+            var name = nodes[i].text;
+            //name = name.replace(/^cpd:/, '');
+            //console.log(name);
+
+            
+            for (let j = 0; j< enzymeNames.length; j++){
+                let enzyme = enzymeNames[j].EC;
+                //console.log(enzyme);
+                if (enzyme != undefined){
+                    enzyme = enzyme.replace('EC', 'ec');
+                    //console.log(enzyme);
+                    if (name == enzyme){
+                        //console.log('match');
+                        //console.log(enzymeNames[j].name);
+                        nodes[i].name = enzymeNames[j].name;
+
+                    } else {
+                        continue
+                    }
+                }else{
+                    continue
+                }
+
+            }
+            //console.log(nodes[i]) 
+        }else{
+            continue;
+        }
+    }
+    console.log('ALL DONE - getEnzymeNames');
+    console.log('------------');
+}
+
+
+
 function getLogFCColor(data) {
         /**
          * Maps a log fold change (logfc) value to a color where:
@@ -130,7 +180,7 @@ function getLogFCColor(data) {
     }
 
 async function processInput(code) {
-    console.log('processing');
+    console.log('Processing');
     console.log(code);
 
     // Here we will just echo back the input, but you can modify this function
@@ -142,8 +192,9 @@ async function processInput(code) {
     // -------------------------------------------------------------
     // Getting Compounds for the organism specific pathway - used for labelling and indexing 
     // NEED TO BE RE-IMPLEMENTED
-    var compounds = await getElements(ec_pathway);
+    var compounds = await getElements(ko_pathway);
     //console.log(compounds);
+    var enzymeNames = await getEnzymeNames(ko_pathway);
     
     // -----------------------Converting LOGFC to RBG --------------------------------------
     // EXPERIMENTAL FUNCTION -- MOVE TO FRONT END???
@@ -179,11 +230,13 @@ async function processInput(code) {
     
 
     //console.log(KOcompoundLinks.compoundLinks);
-    console.log(RNcompoundLinks.compoundLinks);
+    //console.log(RNcompoundLinks.compoundLinks);
 
     // --------------------Re-Labelling Compounds---------------------------
     // Linking names retireved in getElements to Nodes and re-labelling 
     getCompoundNames(compounds, map_elements.uniqueNodes);
+
+    matchEnzymeNames(enzymeNames,map_elements.uniqueNodes);
     
 
     // ------------------Processing Diagram Model -----------------------------
@@ -196,6 +249,9 @@ async function processInput(code) {
     //console.log(nodeData);
     let linkData = processedElements.edgesProcessed;
     //console.log(linkData);
+    console.log('------------');
+    console.log('All Links and Nodes Generated');
+    console.log('------------');
     return {nodeData,linkData};
   }
 module.exports = {

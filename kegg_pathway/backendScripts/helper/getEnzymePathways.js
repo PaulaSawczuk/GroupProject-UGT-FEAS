@@ -88,8 +88,21 @@ async function getEnzymePathways(enzymeIDs){
     }
 
   };
-  //console.log(all_paths);
-  return all_paths;
+  console.log(all_paths);
+
+ // Hard-coded blacklist of pathway codes not to accept.
+  const blacklist = new Set([
+    'ec01120',
+    'ec01100',
+    'ec01110']);
+
+  let filteredPaths = all_paths.filter(path => !blacklist.has(path));
+  //console.log(filteredPaths); 
+
+
+
+
+  return filteredPaths;
   }
 
 
