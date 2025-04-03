@@ -465,6 +465,8 @@ export class DisplayComponent {
         this.myDiagram!.clearSelection();
         this.myDiagram!.nodes.each(n => n.clearAdornments());
 
+        // now updates active popups
+        this.activePopups = [];
       }); 
 
     var model = $(go.GraphLinksModel);
