@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { enzymeApiServicePost } from '../services/kegg_enzymepathwaysPost.serice';
 import * as go from 'gojs';
+import { FileDataService } from '../services/file-data.service';
 
 @Component({
   selector: 'app-display',
@@ -13,8 +14,9 @@ import * as go from 'gojs';
 })
 
 export class DisplayComponent {
+  
 
-
+/*
   // ------------------  MOCK DATA ----------------
   // Random list of enzymes to get Pathways to display in menu 
   enzymeList = [
@@ -29,9 +31,9 @@ export class DisplayComponent {
       "ec:7.1.1.1",  // Guanylate kinase
       "ec:8.1.1.1",  // Adenylate cyclase
       "ec:9.1.1.1"   // NADH dehydrogenase
-    ];
+    ];*/
 
-
+  enzymeList: string[] = [];
   // Array for the Fetch Data - contains Pathway Objects - Name and Pathway (ec No.)
   pathwayData: any[] = [];
   // Array of only names in the same order as pathwayData but for display purposes
@@ -51,7 +53,84 @@ export class DisplayComponent {
   private activePopups: { nodeKey: any }[] = [];
 
   // Creating the Back-end API Service 
-  constructor(private enzymeApiServicePost: enzymeApiServicePost) {};
+  constructor(private enzymeApiServicePost: enzymeApiServicePost,
+    private fileDataService: FileDataService
+  ) {};
+
+
+  filterString(input: string): boolean {
+    // Define the regular expression
+    const pattern = /^ec:(\d+\.\d+\.\d+\.\d+)$/;
+  
+    // Return the string if it matches the pattern, otherwise return null
+    return pattern.test(input);
+  }
+
+  // Extract EC numbers from the uploaded and processed files
+private extractECNumbers(): void {
+
+  
+  // Get the combined data that includes annotation information
+  const combinedData = this.fileDataService.getCombinedData();
+  //console.log('Combined data:', combinedData); // Add debug logging
+  var ecNumbers: any[] = []; // Use Set to avoid duplicates
+  var filteredECs: any[] = [];
+  var filteredSet: Set<any> = new Set()
+  
+  if (combinedData && combinedData.length > 0) {
+    // Loop through the combined data to find EC numbers
+    for (const item of combinedData) {
+      //console.log(item);
+      // Look for properties that contain EC numbers
+      for (const key in item) {
+        if (key.includes('_EC') && item[key]) {
+          // Get the raw EC number
+          let ecNumber = item[key].trim();
+          
+          // Skip empty or NA values
+          if (ecNumber === 'NA' || ecNumber === '' || ecNumber === 'null') continue;
+          
+          // Handle different formats of EC numbers
+          if (ecNumber.toUpperCase().startsWith('EC:')) {
+            // Convert to lowercase and remove spaces
+            ecNumber = ecNumber.replace(/\s+/g, '').toLowerCase();
+            ecNumber = ecNumber.split("|");
+
+          } else {
+
+            // Add lowercase ec: prefix
+            ecNumber = "ec:" + ecNumber;
+          }
+          // Add to our Set of unique EC numbers
+          ecNumbers.push(ecNumber);
+          //console.log(ecNumbers);
+        }
+      }
+    }
+
+    // Checking format 
+    for (let i =0; i<ecNumbers.length;i++){
+      const enzymes = ecNumbers[i];
+      //console.log('Enzymes: '+enzymes);
+      //console.log(enzymes.split(""));
+      for (let j=0; j<enzymes.length; j++){
+        //console.log(enzymes[j])
+        //console.log(this.filterString(enzymes[j]));
+        if (this.filterString(enzymes[j]) == true)
+          filteredSet.add(enzymes[j]);
+        }
+    }
+    
+    // Convert Set to Array for the enzymeList
+    this.enzymeList = Array.from(filteredSet);
+
+    //console.log('Extracted EC numbers:', this.enzymeList);
+  } else {
+    console.warn('No combined data available to extract EC numbers from');
+    // Initialize as empty array
+    this.enzymeList = [];
+  }
+}
 
   // ------------- SETTING UP PROCESSING FUNCTIONS -------------------------
   
@@ -94,24 +173,53 @@ export class DisplayComponent {
     console.log(linkData);
     return linkData;
   }
-
+  isLoading: boolean = false;
   // -------------- Sending Pathway Request to Back-end ---------------------
   // Fetches relevant pathways when the Display component is initialised
+
+  
   ngOnInit(): void {
+    this.extractECNumbers();
+    this.isLoading = true;
     this.enzymeApiServicePost.postEnzymeData(this.enzymeList).subscribe(
       (response) => {
         // Handle the successful response
         this.pathwayData = response;
         this.loadNames();
         console.log('Received from backend:', response);
+        this.isLoading = false; 
+
       },
       (error) => {
         // Handle errors
         console.error('Error:', error);
+        this.isLoading = false; 
+
         //this.responseMessage = 'Error sending data';
       }
     );
   };
+
+    // Updated ngOnInit to extract EC numbers first
+    /*
+  ngOnInit(): void {
+      // Extract EC numbers from uploaded files
+      this.extractECNumbers();
+      
+      // Proceed with the API call using the extracted EC numbers
+      this.enzymeApiServicePost.postEnzymeData(this.enzymeList).subscribe(
+        (response) => {
+          // Handle the successful response
+          this.pathwayData = response;
+          this.loadNames();
+          console.log('Received from backend:', response);
+        },
+        (error) => {
+          // Handle errors
+          console.error('Error:', error);
+        }
+      );
+  }*/
 
 
   /** --------  Mapping Functions -------- **/
@@ -122,6 +230,7 @@ export class DisplayComponent {
   // Calls Data Processing functions (loadNodes, loadLinks)
   // Changes Diagram 
   getMapData(data: string): void {
+    this.isLoading = true;
     this.enzymeApiServicePost.postMapData(data).subscribe(
       (response) => {
 
@@ -132,19 +241,22 @@ export class DisplayComponent {
         var links = this.loadLinks();
         //console.log('Received from backend:', response);
         this.changeDiagram(nodes, links);
+        this.isLoading = false;
       },
       (error) => {
         console.error('Error:', error);
+        this.isLoading = false;
       }
     );
   };
-
 
   // --------------- Creating GO.js Model -------------------
   // Creating the First GoJS MAP
   // Creates the Diagram Template and initialises 
   createGoJSMap(nodes: any[], links: any[] ): void {
+
     this.activePopups = []; // resetting popup tracker for new diagram
+
 
     console.log('Initialising Map');
 
@@ -160,12 +272,10 @@ export class DisplayComponent {
   // TEMPLATE FOR LAYOUT
   this.myDiagram.layout = new go.LayeredDigraphLayout({
     // Set optional parameters for the layout
-    direction: 0,
-    layerSpacing: 30,  // Space between layers (nodes grouped in layers)
-    columnSpacing: 30,  // Space between columns (nodes within the same layer)
-    setsPortSpots: false,  // Don't automatically adjust port spots (ports can be manually set)
-    //aggressiveOption: go.LayeredDigraphLayout.Aggressive, // Aggressiveness of the layout (adjusts edge crossings)
-    //initializeOption: go.LayeredDigraphLayout.InitDepthPriority // Set initial node depth ordering (helps to minimize crossings)
+    direction: 90,
+    layerSpacing: 70,  // Space between layers (nodes grouped in layers)
+    columnSpacing: 50,  // Space between columns (nodes within the same layer)
+    setsPortSpots: true,  // Don't automatically adjust port spots (ports can be manually set)
   });
 
 
@@ -221,6 +331,68 @@ export class DisplayComponent {
           stroke: "darkgrey",  // Set the color of the link (line) to black
           strokeWidth: 3,
           strokeDashArray: [10, 5]  // Set the line to be dashed (10px dashes, 5px gaps)
+        }),
+  
+      // Arrowhead at the "to" end of the link (one-way arrow)
+      $(go.Shape, 
+        {
+          toArrow: "Standard",  // Standard arrowhead at the end of the link
+          fill: "black",  // Set the color of the arrow to black
+          stroke: null  // No border around the arrow
+        })
+    )
+  );
+
+  this.myDiagram.linkTemplateMap.add("reversible",  // Link type category
+    $(go.Link,
+      {
+        relinkableFrom: true,
+        relinkableTo: true,
+        routing: go.Link.AvoidsNodes,  // Route around nodes
+        corner: 5,  // Optional: corner rounding
+        reshapable: true,  // Allow reshaping the link
+        selectable: true,  // Make link selectable
+        layerName: "Foreground",  // Draw link on the foreground layer
+      },
+      new go.Binding("points").makeTwoWay(),
+      
+      // Shape of the link (the line itself)
+      $(go.Shape, 
+        {
+          stroke: "black",  // Set the color of the link (line) to black
+          strokeWidth: 3,
+          strokeDashArray: [10, 5]  // Set the line to be dashed (10px dashes, 5px gaps)
+        }),
+  
+      // Arrowhead at the "to" end of the link (one-way arrow)
+      $(go.Shape, 
+        {
+          toArrow: "Standard",  // Standard arrowhead at the end of the link
+          fill: "black",  // Set the color of the arrow to black
+          stroke: null  // No border around the arrow
+        })
+    )
+  );
+
+  this.myDiagram.linkTemplateMap.add("irreversible",  // Link type category
+    $(go.Link,
+      {
+        relinkableFrom: true,
+        relinkableTo: true,
+        routing: go.Link.AvoidsNodes,  // Route around nodes
+        corner: 5,  // Optional: corner rounding
+        reshapable: true,  // Allow reshaping the link
+        selectable: true,  // Make link selectable
+        layerName: "Foreground",  // Draw link on the foreground layer
+      },
+      new go.Binding("points").makeTwoWay(),
+      
+      // Shape of the link (the line itself)
+      $(go.Shape, 
+        {
+          stroke: "black",  // Set the color of the link (line) to black
+          strokeWidth: 3,
+          //strokeDashArray: [10, 5]  // Set the line to be dashed (10px dashes, 5px gaps)
         }),
   
       // Arrowhead at the "to" end of the link (one-way arrow)
@@ -475,6 +647,7 @@ export class DisplayComponent {
     // Assigning the model to the diagram for visualisation
     this.myDiagram.model = model;
   }
+  
 
   // --------------- Updating GO.js Model -------------------
   // Updates the pre-existing Diagram Model
@@ -509,14 +682,13 @@ export class DisplayComponent {
   exportOpen = false;
   targetAnalysisOpen = false;
 
-  //pathways = ['ec00020', 'ec00030', 'ec00040'];
   exportOptions = ['PDF', 'CSV', 'JSON'];
   targets = ['Target 1', 'Target 2', 'Target 3'];
   timepoints = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
   
   selectedPathway: string = this.pathways[0];
   selectedTimeIndex: number = 0;
-
+  SelectedPathwayName: string = '';
   sliderLine: ElementRef | undefined;
 
   @ViewChild('sliderLine') set sliderLineRef(sliderLineRef: ElementRef | undefined) {
@@ -553,6 +725,8 @@ export class DisplayComponent {
 
   selectPathway(event: Event, pathway: string) {
     event.stopPropagation();
+    this.SelectedPathwayName = pathway;
+    console.log(this.SelectedPathwayName);
     console.log('Selected:', pathway);
     const nameSelected = pathway;
     // Finding corresponding map code to pathway name
@@ -586,4 +760,11 @@ export class DisplayComponent {
       }
     }
   }
+
+  isCustomisationPanelOpen: boolean = false;
+
+  onCustomisationPanelToggle() {
+    this.isCustomisationPanelOpen = !this.isCustomisationPanelOpen;
+  }
 }
+

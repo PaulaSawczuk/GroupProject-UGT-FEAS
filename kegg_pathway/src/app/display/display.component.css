@@ -4,6 +4,8 @@
   --hover-clr: #222533;
   --text-clr: #e6e6ef;
   --accent-clr: #5e63ff;
+  --side-panel-width: 250px;
+
 }
 
 * {
@@ -19,6 +21,16 @@ html {
 .display-container {
   display: flex;
   height: 100vh;
+}
+
+.content-container {
+  flex-grow: 1; 
+  display: flex;
+}
+
+.content-container.loading-blur {
+  filter: blur(5px);
+  transition: filter 0.3s ease;
 }
 
 #sidebar {
@@ -132,6 +144,7 @@ html {
   align-items: center;
   border: 2px solid #482E3C;
   margin-bottom: 80px;
+  position: relative;
 }
 
 .icons {
@@ -241,4 +254,105 @@ html {
   left: 0;
   right: 0;
   padding: 0 20px; 
+}
+
+
+.loading-container {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(255, 255, 255, 0.8);
+  padding: 20px;
+  border-radius: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000; 
+}
+
+.loading-icon {
+  animation: spin 1s linear infinite;
+  width: 50px;
+  height: 50px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.pathway-title {
+  text-align: left; 
+  font-size: 0.6em;
+  margin-bottom: 2px; 
+  color: #482E3C; 
+  font-family: 'DM Sans', sans-serif; 
+}
+
+
+#customisation-panel {
+  width: 250px;
+  background-color: var(--base-clr);
+  color: var(--text-clr);
+  position: fixed;
+  right: 0;
+  top: 8px;
+  height: 100vh;
+  transition: transform 0.3s ease-in-out;
+  padding: 10px;
+  background-color: #482e3c43;
+  border-radius: 8px;
+  box-shadow: -2px 0px 5px rgba(0, 0, 0, 0.2);
+  font-family: 'DM Sans', sans-serif;
+}
+
+#customisation-panel.close {
+  transform: translateX(100%);
+}
+
+/* Customisation Panel Header */
+.customisation-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  font-size: 14px;
+  border-bottom: 1px solid var(--line-clr);
+  font-family: 'DM Sans', sans-serif;
+}
+
+/* Close Button */
+.customisation-header button {
+  background: none;
+  border: none;
+  color: var(--text-clr);
+  cursor: pointer;
+  font-size: 20px;
+  color: #b66791;
+}
+
+/* Customisation Panel Content */
+.customisation-content {
+  padding: 10px;
+}
+
+/* Button to Open Customisation Panel */
+#customisation-toggle-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: var(--accent-clr);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  font-size: 20px;
+  cursor: pointer;
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+}
+
+#customisation-toggle-btn:hover {
+  background-color: #b66791;
 }
