@@ -15,7 +15,7 @@ const { getNodesEdges } = require('./get_go_map');
 const { processKGML } = require('./get_go_map');
 const { processRN } = require('./get_go_map');
 const { addCompoundLinks } = require('./get_go_map');
-const init = require('./visualise_map');
+const { getMapNodes } = require('./visualise_map');
 
 
 function getCompoundNames(compounds, nodes){
@@ -241,7 +241,7 @@ async function processInput(code) {
 
     // ------------------Processing Diagram Model -----------------------------
     // Removing duplicate nodes and enzymes
-    const processedElements = init.initialiseMap(map_elements.uniqueNodes,finalEdges);
+    const processedElements = getMapNodes(map_elements.uniqueNodes,finalEdges);
 
 
     // ---------------- Parsing the data to the front-end -----------------------

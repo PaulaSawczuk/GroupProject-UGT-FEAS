@@ -291,7 +291,7 @@ function removeDuplicateEnzymeNodes(myDiagram) {
 // Calls above functions 
 // Returns Processed Nodes and Edges for Mapping 
 
-function initialiseMap(inputNodes,inputEdges){
+function getMapNodes(inputNodes,inputEdges){
   console.log('Initialising Map');
 
   var $ = go.GraphObject.make;
@@ -313,6 +313,29 @@ function initialiseMap(inputNodes,inputEdges){
  // Call the function to remove duplicate reaction-type nodes
   removeDuplicateReactionNodes(myDiagram);
   //removeDuplicateEnzymeNodes(myDiagram);
+
+  let seenNames = new Set();
+  let seenReactions = new Set();
+  myDiagram.nodes.each(function(node) {
+
+    if (node.data.type == 'enzyme'){
+    // Get the name of the current node
+      let nodeName = node.data.text;
+      let reaction =node.data.group;
+      //console.log(reaction)
+      //console.log(seenNames.has(nodeName));
+     // console.log(seenReactions.has(reaction));
+      // If the name has already been seen, remove this node
+      if (seenNames.has(nodeName)&& seenReactions.has(reaction)) {
+
+        myDiagram.remove(node);
+        console.log("Node Removed: "+nodeName)
+        } else {
+        seenNames.add(nodeName);
+        seenReactions.add(reaction);
+      }
+  }
+  });
 
   // Retrieves the model of the diagram 
   const diagramModel = myDiagram.model;
@@ -336,5 +359,5 @@ function initialiseMap(inputNodes,inputEdges){
 
 
 module.exports = {
-  initialiseMap
+  getMapNodes
 };

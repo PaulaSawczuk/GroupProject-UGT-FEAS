@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { enzymeApiServicePost } from '../services/kegg_enzymepathwaysPost.serice';
 import * as go from 'gojs';
+import { FileDataService } from '../services/file-data.service';
 
 @Component({
   selector: 'app-display',
@@ -15,7 +16,7 @@ import * as go from 'gojs';
 export class DisplayComponent {
   
 
-
+/*
   // ------------------  MOCK DATA ----------------
   // Random list of enzymes to get Pathways to display in menu 
   enzymeList = [
@@ -30,9 +31,9 @@ export class DisplayComponent {
       "ec:7.1.1.1",  // Guanylate kinase
       "ec:8.1.1.1",  // Adenylate cyclase
       "ec:9.1.1.1"   // NADH dehydrogenase
-    ];
+    ];*/
 
-
+  enzymeList: string[] = [];
   // Array for the Fetch Data - contains Pathway Objects - Name and Pathway (ec No.)
   pathwayData: any[] = [];
   // Array of only names in the same order as pathwayData but for display purposes
@@ -46,7 +47,84 @@ export class DisplayComponent {
   //@ViewChild('myDiagramDiv') private diagramDiv!: ElementRef;
 
   // Creating the Back-end API Service 
-  constructor(private enzymeApiServicePost: enzymeApiServicePost) {};
+  constructor(private enzymeApiServicePost: enzymeApiServicePost,
+    private fileDataService: FileDataService
+  ) {};
+
+
+  filterString(input: string): boolean {
+    // Define the regular expression
+    const pattern = /^ec:(\d+\.\d+\.\d+\.\d+)$/;
+  
+    // Return the string if it matches the pattern, otherwise return null
+    return pattern.test(input);
+  }
+
+  // Extract EC numbers from the uploaded and processed files
+private extractECNumbers(): void {
+
+  
+  // Get the combined data that includes annotation information
+  const combinedData = this.fileDataService.getCombinedData();
+  //console.log('Combined data:', combinedData); // Add debug logging
+  var ecNumbers: any[] = []; // Use Set to avoid duplicates
+  var filteredECs: any[] = [];
+  var filteredSet: Set<any> = new Set()
+  
+  if (combinedData && combinedData.length > 0) {
+    // Loop through the combined data to find EC numbers
+    for (const item of combinedData) {
+      //console.log(item);
+      // Look for properties that contain EC numbers
+      for (const key in item) {
+        if (key.includes('_EC') && item[key]) {
+          // Get the raw EC number
+          let ecNumber = item[key].trim();
+          
+          // Skip empty or NA values
+          if (ecNumber === 'NA' || ecNumber === '' || ecNumber === 'null') continue;
+          
+          // Handle different formats of EC numbers
+          if (ecNumber.toUpperCase().startsWith('EC:')) {
+            // Convert to lowercase and remove spaces
+            ecNumber = ecNumber.replace(/\s+/g, '').toLowerCase();
+            ecNumber = ecNumber.split("|");
+
+          } else {
+
+            // Add lowercase ec: prefix
+            ecNumber = "ec:" + ecNumber;
+          }
+          // Add to our Set of unique EC numbers
+          ecNumbers.push(ecNumber);
+          //console.log(ecNumbers);
+        }
+      }
+    }
+
+    // Checking format 
+    for (let i =0; i<ecNumbers.length;i++){
+      const enzymes = ecNumbers[i];
+      //console.log('Enzymes: '+enzymes);
+      //console.log(enzymes.split(""));
+      for (let j=0; j<enzymes.length; j++){
+        //console.log(enzymes[j])
+        //console.log(this.filterString(enzymes[j]));
+        if (this.filterString(enzymes[j]) == true)
+          filteredSet.add(enzymes[j]);
+        }
+    }
+    
+    // Convert Set to Array for the enzymeList
+    this.enzymeList = Array.from(filteredSet);
+
+    //console.log('Extracted EC numbers:', this.enzymeList);
+  } else {
+    console.warn('No combined data available to extract EC numbers from');
+    // Initialize as empty array
+    this.enzymeList = [];
+  }
+}
 
   // ------------- SETTING UP PROCESSING FUNCTIONS -------------------------
   
@@ -92,7 +170,10 @@ export class DisplayComponent {
   isLoading: boolean = false;
   // -------------- Sending Pathway Request to Back-end ---------------------
   // Fetches relevant pathways when the Display component is initialised
+
+  
   ngOnInit(): void {
+    this.extractECNumbers();
     this.isLoading = true;
     this.enzymeApiServicePost.postEnzymeData(this.enzymeList).subscribe(
       (response) => {
@@ -112,6 +193,27 @@ export class DisplayComponent {
       }
     );
   };
+
+    // Updated ngOnInit to extract EC numbers first
+    /*
+  ngOnInit(): void {
+      // Extract EC numbers from uploaded files
+      this.extractECNumbers();
+      
+      // Proceed with the API call using the extracted EC numbers
+      this.enzymeApiServicePost.postEnzymeData(this.enzymeList).subscribe(
+        (response) => {
+          // Handle the successful response
+          this.pathwayData = response;
+          this.loadNames();
+          console.log('Received from backend:', response);
+        },
+        (error) => {
+          // Handle errors
+          console.error('Error:', error);
+        }
+      );
+  }*/
 
 
   /** --------  Mapping Functions -------- **/

@@ -94,7 +94,8 @@ async function getEnzymePathways(enzymeIDs){
   const blacklist = new Set([
     'ec01120',
     'ec01100',
-    'ec01110']);
+    'ec01110',
+    'ec00190']);
 
   let filteredPaths = all_paths.filter(path => !blacklist.has(path));
   //console.log(filteredPaths); 
