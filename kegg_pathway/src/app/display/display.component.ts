@@ -44,6 +44,12 @@ export class DisplayComponent {
   private myDiagram: go.Diagram | null = null;
   //@ViewChild('myDiagramDiv') private diagramDiv!: ElementRef;
 
+  // the below is a part of blocker logic to make the popup not transparent
+  // private activePopups: { nodeKey: any, blocker: go.Part }[] = [];
+
+  // to track the number of popups
+  private activePopups: { nodeKey: any }[] = [];
+
   // Creating the Back-end API Service 
   constructor(private enzymeApiServicePost: enzymeApiServicePost) {};
 
@@ -138,6 +144,8 @@ export class DisplayComponent {
   // Creating the First GoJS MAP
   // Creates the Diagram Template and initialises 
   createGoJSMap(nodes: any[], links: any[] ): void {
+    this.activePopups = []; // resetting popup tracker for new diagram
+
     console.log('Initialising Map');
 
     var $ = go.GraphObject.make;
@@ -276,12 +284,194 @@ export class DisplayComponent {
           })
           .bind("text")
       );
-  var model = $(go.GraphLinksModel);
-  model.nodeDataArray = nodes; 
-  model.linkDataArray = links;
-  // Assigning the model to the diagram for visualisation
-  this.myDiagram.model = model;
+    
+      // to make the nodes to show a pop up window when clicked
+      this.myDiagram!.addDiagramListener("ObjectSingleClicked", (e) => {
+        //const _this = this;
+        const part = e.subject.part;
+        if (!(part instanceof go.Node)) return;
+      
+        const node = part;
+        const data = node.data || {};
+        const key = data.key;
+        const type = data.type || "unknown";
+      
+        // Prevent duplicate popups
+        if (this.activePopups.find(p => p.nodeKey === key)) return;
+      
+        // Limit to 2 active popups
+        if (this.activePopups.length >= 2) {
+          const removed = this.activePopups.shift();
+          const oldNode = this.myDiagram!.findNodeForKey(removed!.nodeKey);
+          if (oldNode) oldNode.removeAdornment("popup");
+        }
+      
+        // Emoji and color mappings
+        const emojiMap: { [key: string]: string } = {
+          enzyme: "🧬",
+          compound: "⚗️",
+          map: "🗺️",
+          reaction: "🔁",
+        };
+        const colorMap: { [key: string]: string } = {
+          enzyme: "#d4edda",      // Soft green
+          compound: "#e6f0ff",    // Soft blue
+          map: "#e2e3e5",         // Gray-blue
+          reaction: "#fff3cd",    // Soft yellow
+          unknown: "#f8d7da"      // Red/pink fallback
+        };
+      
+        const emoji = emojiMap[type] || "❓";
+        const bgColor = colorMap[type] || colorMap["unknown"];
+        const title = `${emoji} ${type.toUpperCase()}`;
+        const contentText = `KEY: ${data.key}\nTEXT: ${data.text ?? "?"}`;
+      
+        // Build the full popup box
+        const box = go.GraphObject.make(go.Adornment, "Spot",
+          {
+            location: node.getDocumentPoint(go.Spot.Bottom),
+            layerName: "Tool",
+            opacity: 0,
+            zOrder: 10 // higher value to keep the box infront of the blocker
+          },
+          go.GraphObject.make(go.Panel, "Auto",
+            /*{
+              pickable: true,
+              isActionable: true,
+            },*/
+            go.GraphObject.make(go.Shape, "RoundedRectangle", {
+              fill: bgColor,
+              stroke: "#ccc",
+              strokeWidth: 1,
+              shadowVisible: true,
+            }),
+            
+            /*go.GraphObject.make(go.TextBlock, "", {
+              width: 1,
+              height: 1,
+              opacity: 0,
+              isActionable: true,
+              mouseDown: (e: go.InputEvent, obj: go.GraphObject) => {
+                e.handled = true;
+              }
+            }),*/
 
+            go.GraphObject.make(go.Panel, "Vertical",
+              go.GraphObject.make(go.Panel, "Horizontal",
+                {
+                  background: "#e6f0ff",
+                  padding: new go.Margin(4, 8, 4, 8)
+                },
+                go.GraphObject.make(go.TextBlock, title, {
+                  font: "bold 12px sans-serif",
+                  stroke: "#004080",
+                  width: 120
+                }),
+                go.GraphObject.make(go.TextBlock, "✖", {
+                  font: "bold 12px sans-serif",
+                  stroke: "red",
+                  cursor: "pointer",
+                  isActionable: true,
+                  margin: new go.Margin(4, 4, 0, 0),
+                  click: (e, obj) => {
+                    console.log("Clicked X"); // ✅ Checkpoint 1
+                  
+                    if (!obj || !obj.part) {
+                      console.warn("No obj.part");
+                      return;
+                    }
+                  
+                    const adorned = (obj.part as go.Adornment).adornedPart;
+                    if (!adorned) {
+                      console.warn("No adornedPart");
+                      return;
+                    }
+                  
+                    const key = adorned.data?.key;
+                    console.log("Closing for:", key); // ✅ Checkpoint 2
+                  
+                    adorned.removeAdornment("popup");
+                    
+                    /*
+                    const popupRecord = this.activePopups.find(p => p.nodeKey === key);
+                      if (popupRecord?.blocker) {
+                        this.myDiagram!.remove(popupRecord.blocker);
+                      }
+                    */
+                    this.activePopups = this.activePopups.filter(p => p.nodeKey !== key);
+
+                    
+                  }
+                  
+                })                
+              ),
+              go.GraphObject.make(go.TextBlock, contentText, {
+                margin: 8,
+                font: "12px 'Segoe UI', sans-serif",
+                stroke: "#333"
+              })
+            )
+          )
+        );        
+      
+        node.removeAdornment("popup");
+        /*
+        const blockerShape = go.GraphObject.make(go.Shape, "Rectangle", {
+          width: 160,
+          height: 60,
+          fill: "rgba(255, 0, 0, 0.2)",
+          stroke: null,
+          cursor: "default",
+          isActionable: true,  // Enable interactivity
+          click: (e: go.InputEvent, obj: go.GraphObject) => {
+            e.handled = true;
+            console.log("Blocker clicked, intercepting");
+          }
+        }); */
+        
+        /*
+        const blocker = go.GraphObject.make(go.Part, "Auto",
+          {
+            location: node.getDocumentPoint(go.Spot.Bottom),
+            layerName: "Tool",
+            selectable: false,
+            pickable: false,
+            zOrder: 1 // lower value than in box to keep this behind the box
+          },
+          blockerShape
+        );  */      
+        
+
+        box.adornedObject = node; // Link the popup to the node properly
+        node.addAdornment("popup", box);
+        //this.activePopups.push({ nodeKey: key ,blocker});
+        this.activePopups.push({ nodeKey: key });
+
+
+        // for making the popup essentially opaque
+        //this.myDiagram!.add(blocker);
+        //console.log("📍 Blocker added to diagram");
+
+
+        const anim = new go.Animation();
+        anim.duration = 300;
+        anim.easing = go.Animation.EaseOutQuad;
+        anim.add(box, "opacity", 0, 1);
+        anim.add(box, "location", box.location.offset(0, -10), box.location);
+        anim.start();
+      });      
+            
+      this.myDiagram!.addDiagramListener("BackgroundSingleClicked", () => {
+        this.myDiagram!.clearSelection();
+        this.myDiagram!.nodes.each(n => n.clearAdornments());
+
+      }); 
+
+    var model = $(go.GraphLinksModel);
+    model.nodeDataArray = nodes; 
+    model.linkDataArray = links;
+    // Assigning the model to the diagram for visualisation
+    this.myDiagram.model = model;
   }
 
   // --------------- Updating GO.js Model -------------------
@@ -395,5 +585,3 @@ export class DisplayComponent {
     }
   }
 }
-
-
