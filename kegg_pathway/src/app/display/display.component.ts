@@ -200,6 +200,7 @@ private filterEnzymeGenes(geneEnzymes:any[]):void{
   this.filteredGenes = filteredArray;
 }
 
+
 private extractECNumbers2(): void {
   var enzymeList: Set<any> = new Set()
 
