@@ -10,7 +10,7 @@
 // Utilised by server.js to link front and backend 
 ***/
 
-const { getElements, getEnzymeNames } = require('./getElements2');
+const { getElements, getEnzymeNames, getEnzymeCodes } = require('./getElements2');
 const { getNodesEdges } = require('./get_go_map');
 const { processKGML } = require('./get_go_map');
 const { processRN } = require('./get_go_map');
@@ -248,11 +248,14 @@ async function processInput(code) {
     let nodeData = processedElements.finalNodes;
     //console.log(nodeData);
     let linkData = processedElements.edgesProcessed;
+
+    const enzymeList = getEnzymeCodes(nodeData);
+    enzymeList = Array.from(enzymeList);
     //console.log(linkData);
     console.log('------------');
     console.log('All Links and Nodes Generated');
     console.log('------------');
-    return {nodeData,linkData};
+    return {nodeData,linkData,enzymeList};
   }
 module.exports = {
     processInput

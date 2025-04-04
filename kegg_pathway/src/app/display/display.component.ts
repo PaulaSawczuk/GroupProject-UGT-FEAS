@@ -16,10 +16,10 @@ import { FileDataService } from '../services/file-data.service';
 export class DisplayComponent {
   
 
-/*
+
   // ------------------  MOCK DATA ----------------
   // Random list of enzymes to get Pathways to display in menu 
-  enzymeList = [
+  /*enzymeList = [
       "ec:1.1.1.1",  // Alcohol dehydrogenase
       "ec:1.1.1.2",  // Aldehyde dehydrogenase
       "ec:2.7.1.1",  // Hexokinase
@@ -41,6 +41,10 @@ export class DisplayComponent {
   // Array for storing response of getMapData
   mapData: any[] = [];
 
+  enzymePathwayList: string[] = [];
+
+  filteredGenes: any[] = [];
+
   // Creating a GoJS Diagram 
   // Initially set as NULL 
   private myDiagram: go.Diagram | null = null;
@@ -52,7 +56,7 @@ export class DisplayComponent {
   ) {};
 
 
-  filterString(input: string): boolean {
+private filterString(input: string): boolean {
     // Define the regular expression
     const pattern = /^ec:(\d+\.\d+\.\d+\.\d+)$/;
   
@@ -60,21 +64,20 @@ export class DisplayComponent {
     return pattern.test(input);
   }
 
+
+  /*
   // Extract EC numbers from the uploaded and processed files
 private extractECNumbers(): void {
-
-  
   // Get the combined data that includes annotation information
   const combinedData = this.fileDataService.getCombinedData();
   //console.log('Combined data:', combinedData); // Add debug logging
   var ecNumbers: any[] = []; // Use Set to avoid duplicates
-  var filteredECs: any[] = [];
   var filteredSet: Set<any> = new Set()
   
   if (combinedData && combinedData.length > 0) {
     // Loop through the combined data to find EC numbers
     for (const item of combinedData) {
-      //console.log(item);
+      //console.log(item.gene);
       // Look for properties that contain EC numbers
       for (const key in item) {
         if (key.includes('_EC') && item[key]) {
@@ -116,7 +119,7 @@ private extractECNumbers(): void {
     }
     
     // Convert Set to Array for the enzymeList
-    this.enzymeList = Array.from(filteredSet);
+    //this.enzymeList = Array.from(filteredSet);
 
     //console.log('Extracted EC numbers:', this.enzymeList);
   } else {
@@ -124,6 +127,100 @@ private extractECNumbers(): void {
     // Initialize as empty array
     this.enzymeList = [];
   }
+}*/
+
+
+private getEnzymeGenes(): void{
+  const combinedData = this.fileDataService.getCombinedData();
+  //console.log(combinedData.keys());
+  //console.log('Combined data:', combinedData); // Add debug logging
+  var geneEnzymes: any[] = []; // Use Set to avoid duplicates
+  var filteredSet: Set<any> = new Set()
+  
+  if (combinedData && combinedData.length > 0) {
+    // Loop through the combined data to find EC numbers
+    for (const item of combinedData) {
+      //console.log(item.gene);
+      //console.log(item.log)
+      for (const key in item) {
+        //console.log(key);
+        var logfc;
+        var gene;
+        var ec;
+        if (key.includes('_log2FoldChange')&& item[key]){
+          logfc = item[key];
+        }
+
+        if (key.includes("_EC") && item[key]) {
+          ec = item[key];
+          if (ec.startsWith("EC")){
+              //ec = item[key];
+              gene = item.gene
+              //console.log(ec);
+              //console.log(gene);
+              //console.log(logfc);
+              geneEnzymes.push({
+                gene: gene,
+                logfc: logfc,
+                enzyme: ec
+              })
+          };
+        }
+      }
+      
+    }
+  }
+  //console.log(geneEnzymes);
+  this.filterEnzymeGenes(geneEnzymes);
+}
+
+private filterEnzymeGenes(geneEnzymes:any[]):void{
+
+  for (let i=0; i<geneEnzymes.length; i++){
+    //console.log(geneEnzymes[i].enzyme);
+    let ecNumber = geneEnzymes[i].enzyme;
+    if (ecNumber.toUpperCase().startsWith('EC:')) {
+      // Convert to lowercase and remove spaces
+      ecNumber = ecNumber.replace(/\s+/g, '').toLowerCase();
+      ecNumber = ecNumber.split("|");
+
+    } else {
+      // Add lowercase ec: prefix
+      ecNumber = "ec:" + ecNumber;
+    }
+
+    for (let j=0; j<ecNumber.length; j++){
+      var filteredEnzymes = [];
+      //console.log(enzymes[j])
+      //console.log(this.filterString(enzymes[j]));
+      if (this.filterString(ecNumber[j]) == true)
+        filteredEnzymes.push(ecNumber[j]);
+        ecNumber = filteredEnzymes;
+
+      }
+      //console.log(ecNumber);
+      geneEnzymes[i].enzyme = ecNumber;
+  }
+  //console.log(geneEnzymes);
+  const filteredArray = geneEnzymes.filter(item => {
+    return item.enzyme && (!Array.isArray(item.enzyme) || item.enzyme.length > 0);
+  });
+  //console.log(filteredArray);
+  this.filteredGenes = filteredArray;
+}
+
+private extractECNumbers2(): void {
+  var enzymeList: Set<any> = new Set()
+
+  const genes = this.filteredGenes;
+  for (let i=0; i<genes.length; i++){
+    let enzyme = genes[i].enzyme[0];
+    //console.log(enzyme);
+    enzymeList.add(enzyme);
+  }
+  //console.log(enzymeList)
+  this.enzymeList = Array.from(enzymeList);
+
 }
 
   // ------------- SETTING UP PROCESSING FUNCTIONS -------------------------
@@ -150,6 +247,24 @@ private extractECNumbers(): void {
     return nodeData;
   }
 
+  loadEnzymes(): any[] {
+    var enzymeData=[];
+    console.log('Getting Enzymes');
+    const entries: [string, string,][] = Object.entries(this.mapData);
+    console.log(entries);
+    const thirdEntry: [string, string] = entries[2]; 
+    console.log(thirdEntry);
+    const enzymes = thirdEntry[1];
+    enzymeData.push(enzymes)
+    console.log(enzymes);
+    /*
+    for (let i=0; i<enzymes.length;i++){
+      enzymeData.push(enzymes[i]);
+    }*/
+    console.log(enzymeData);
+    return enzymeData;
+  }
+
   // Loads Links from mapData 
   loadLinks(): any[] {
     console.log('Getting Links');
@@ -159,7 +274,6 @@ private extractECNumbers(): void {
     //console.log(secondEntry);
     const links = secondEntry[1];
     //console.log(links);
-    //this.linkData = JSON.links;
     for (let i=0; i<links.length;i++){
       //console.log(links[i]);
       linkData.push(links[i])
@@ -173,8 +287,10 @@ private extractECNumbers(): void {
 
   
   ngOnInit(): void {
-    this.extractECNumbers();
+
     this.isLoading = true;
+    this.getEnzymeGenes();
+    this.extractECNumbers2();
     this.enzymeApiServicePost.postEnzymeData(this.enzymeList).subscribe(
       (response) => {
         // Handle the successful response
@@ -233,6 +349,9 @@ private extractECNumbers(): void {
         console.log('Loading data');
         var nodes = this.loadNodes();
         var links = this.loadLinks();
+        var enzymes = this.loadEnzymes();
+        //console.log(response[2].enzymeList);
+        console.log(enzymes);
         //console.log('Received from backend:', response);
         this.changeDiagram(nodes, links);
         this.isLoading = false;

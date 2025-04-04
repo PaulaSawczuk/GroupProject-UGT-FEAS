@@ -218,12 +218,29 @@ async function getEnzymeNames(pathway){
   return names;
 });
 
+
 return elements;
 }
 
+
+function getEnzymeCodes(nodes){
+  const enzymeList = new Set();
+  for (let i=0; i<nodes.length; i++){
+    if (nodes[i].type == 'enzyme'){
+      //console.log(nodes[i].text)
+      enzymeList.add(nodes[i].text);
+    }
+  }
+  //console.log(enzymeList);
+  return enzymeList;
+}
+
+
+
 module.exports = {
   getElements,
-  getEnzymeNames
+  getEnzymeNames,
+  getEnzymeCodes,
 };
 
 
