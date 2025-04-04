@@ -36,9 +36,12 @@ app.post('/api/getMap', (req, res) => {
     console.log('------------');
     console.log(new Date());
     console.log('------------');
-    var pathway = req.body;
+    var response = req.body;
+    var pathway = response[0];
+    var genes = response[1];
+    //console.log(genes);
     //console.log(pathway);
-    processInput(pathway).then((elements) => {
+    processInput(pathway,genes).then((elements) => {
         console.log('------------');
         console.log('Sending to FrontEnd');
         console.log('------------');

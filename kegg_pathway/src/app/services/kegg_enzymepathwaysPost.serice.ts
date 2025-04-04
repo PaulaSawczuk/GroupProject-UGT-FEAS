@@ -40,7 +40,7 @@ export class enzymeApiServicePost {
   // ------------ Post Request for Mapping Data -------------
   // Sends selected ec code (e.g. ec00030)
   // Returns Array of Nodes and Array of Links for visulisation
-  postMapData(data: string): Observable<any[]>{
+  postMapData(data: (string|any[])[]): Observable<any[]>{
     return this.http.post<any>(this.apiUrl+'getMap', data);
   }
 }

@@ -7,6 +7,8 @@
  * // IBIX2 Group Project 2025 
 ***/
 
+const { log } = require("console");
+
 /***
 // Function  - GetEntryNames
 // Inputs: Enzyme Pathway code for selected organism e.g ec00020 
@@ -236,11 +238,99 @@ function getEnzymeCodes(nodes){
 }
 
 
+function logfcToRGB(logFoldChange){
+  // Normalize log fold change to be between -1 and 1 for smoother gradient mapping
+  const normalized = Math.max(-1, Math.min(1, logFoldChange));
+
+  // Red decreases as the value goes from negative to positive
+  const red = normalized < 0 ? 1 : 1 - normalized;
+
+  // Green increases as the value goes from negative to positive
+  const green = normalized > 0 ? 1 : -normalized;
+
+  // Blue stays at 0 (we are only using red and green for the gradient)
+  const blue = 0;
+
+  // Return the RGB value as a string
+  return `rgb(${Math.floor(red * 255)}, ${Math.floor(green * 255)}, ${blue})`;
+}
+
+function findMean(arr) {
+  // Ensure the array is not empty
+  if (arr.length === 0) return 0;
+
+  // Convert string numbers to actual numbers and sum them
+  const sum = arr
+    .map(Number) // Convert each string to a number
+    .reduce((acc, current) => acc + current, 0);
+
+  // Calculate the mean by dividing the sum by the length of the array
+  return sum / arr.length;
+}
+
+function matchGenes(genes, nodes){
+  var enzymeSet = new Set();
+  console.log(genes);
+
+
+  for (let i=0; i<nodes.length; i++){
+    //console.log(nodes[i].type)
+    if (nodes[i].type == 'enzyme'){
+      var geneList = [];
+      var logfcList = [];
+      //console.log(nodes[i].text);
+      let nodetext = nodes[i].text;
+      //console.log('node: '+nodetext);
+      for (let j=0; j<genes.length; j++){
+        //console.log(genes[j].enzyme[0]);
+        let enzyme = genes[j].enzyme[0];
+        let gene = genes[j].gene;
+        let logfc = genes[j].logfc;
+        if (enzyme == nodetext){
+          //console.log('match');
+          //console.log(enzyme);
+          enzymeSet.add(enzyme);
+          //console.log(nodetext);
+          //console.log(gene);
+          geneList.push(gene);
+          logfcList.push(logfc);
+          //console.log(logfc);
+
+        }
+        
+      }
+      //console.log(geneList);
+        if (geneList[0]){
+          nodes[i].gene = geneList;
+          console.log(nodes[i]);
+        }else{
+          continue;
+        }
+        if (logfcList[0]){
+          console.log(logfcList);
+          let mean = findMean(logfcList)
+          console.log(mean);
+          nodes[i].logfc = mean;
+          let rgb = logfcToRGB(mean);
+          console.log(rgb);
+          nodes[i].colour = rgb;
+          //console.log(nodes[i]);
+        }else{
+          continue;
+        }
+    }
+    }
+    console.log(enzymeSet);
+  }
+
+
+
 
 module.exports = {
   getElements,
   getEnzymeNames,
   getEnzymeCodes,
+  matchGenes
 };
 
 

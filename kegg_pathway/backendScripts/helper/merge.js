@@ -10,7 +10,7 @@
 // Utilised by server.js to link front and backend 
 ***/
 
-const { getElements, getEnzymeNames, getEnzymeCodes } = require('./getElements2');
+const { getElements, getEnzymeNames, getEnzymeCodes, matchGenes } = require('./getElements2');
 const { getNodesEdges } = require('./get_go_map');
 const { processKGML } = require('./get_go_map');
 const { processRN } = require('./get_go_map');
@@ -179,9 +179,11 @@ function getLogFCColor(data) {
         })
     }
 
-async function processInput(code) {
+async function processInput(code,genes) {
     console.log('Processing');
     console.log(code);
+    //console.log(genes);
+    
 
     // Here we will just echo back the input, but you can modify this function
     // to perform any logic like math operations, string manipulations, etc.
@@ -243,13 +245,15 @@ async function processInput(code) {
     // Removing duplicate nodes and enzymes
     const processedElements = getMapNodes(map_elements.uniqueNodes,finalEdges);
 
+    matchGenes(genes,processedElements.finalNodes);
+
 
     // ---------------- Parsing the data to the front-end -----------------------
     let nodeData = processedElements.finalNodes;
     //console.log(nodeData);
     let linkData = processedElements.edgesProcessed;
 
-    const enzymeList = getEnzymeCodes(nodeData);
+    var enzymeList = getEnzymeCodes(nodeData);
     enzymeList = Array.from(enzymeList);
     //console.log(linkData);
     console.log('------------');

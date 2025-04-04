@@ -19,21 +19,12 @@ export class DisplayComponent {
 
   // ------------------  MOCK DATA ----------------
   // Random list of enzymes to get Pathways to display in menu 
-  /*enzymeList = [
+  enzymeList = [
       "ec:1.1.1.1",  // Alcohol dehydrogenase
-      "ec:1.1.1.2",  // Aldehyde dehydrogenase
-      "ec:2.7.1.1",  // Hexokinase
-      "ec:3.4.21.1", // Pepsin A
-      "ec:3.6.1.1",  // ATPase
-      "ec:4.1.1.1",  // Pyruvate decarboxylase
-      "ec:5.3.1.1",  // Phosphoglucose isomerase
-      "ec:6.1.1.1",  // Aminoacyl-tRNA synthetase
-      "ec:7.1.1.1",  // Guanylate kinase
-      "ec:8.1.1.1",  // Adenylate cyclase
-      "ec:9.1.1.1"   // NADH dehydrogenase
-    ];*/
+      "ec:1.1.1.2"// Aldehyde dehydrogenase
+    ];
 
-  enzymeList: string[] = [];
+  //enzymeList: string[] = [];
   // Array for the Fetch Data - contains Pathway Objects - Name and Pathway (ec No.)
   pathwayData: any[] = [];
   // Array of only names in the same order as pathwayData but for display purposes
@@ -219,7 +210,7 @@ private extractECNumbers2(): void {
     enzymeList.add(enzyme);
   }
   //console.log(enzymeList)
-  this.enzymeList = Array.from(enzymeList);
+  //this.enzymeList = Array.from(enzymeList);
 
 }
 
@@ -251,17 +242,14 @@ private extractECNumbers2(): void {
     var enzymeData=[];
     console.log('Getting Enzymes');
     const entries: [string, string,][] = Object.entries(this.mapData);
-    console.log(entries);
+    //console.log(entries);
     const thirdEntry: [string, string] = entries[2]; 
-    console.log(thirdEntry);
+    //console.log(thirdEntry);
     const enzymes = thirdEntry[1];
-    enzymeData.push(enzymes)
-    console.log(enzymes);
-    /*
     for (let i=0; i<enzymes.length;i++){
-      enzymeData.push(enzymes[i]);
-    }*/
-    console.log(enzymeData);
+      //console.log(links[i]);
+      enzymeData.push(enzymes[i])
+    }
     return enzymeData;
   }
 
@@ -339,7 +327,9 @@ private extractECNumbers2(): void {
   // Returns Mapping Data for relevant (Nodes and Links)
   // Calls Data Processing functions (loadNodes, loadLinks)
   // Changes Diagram 
-  getMapData(data: string): void {
+  getMapData(code: string): void {
+
+    const data = [code, this.filteredGenes];
     this.isLoading = true;
     this.enzymeApiServicePost.postMapData(data).subscribe(
       (response) => {
@@ -350,9 +340,7 @@ private extractECNumbers2(): void {
         var nodes = this.loadNodes();
         var links = this.loadLinks();
         var enzymes = this.loadEnzymes();
-        //console.log(response[2].enzymeList);
-        console.log(enzymes);
-        //console.log('Received from backend:', response);
+
         this.changeDiagram(nodes, links);
         this.isLoading = false;
       },
