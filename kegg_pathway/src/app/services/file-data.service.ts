@@ -6,7 +6,7 @@ export class FileDataService {
 private fileData: { [fileName: string]: string[][] } = {};
 private pathways: string[] = []; // Add pathways property
 private expressionData: { [fileName: string]: string[][] } = {};
-private countMatrixData: { [fileName: string]: string[][] } = {};
+//private countMatrixData: { [fileName: string]: string[][] } = {};
 private combinedData: any[] = []; // Added for combined data
 private annotationData: { [filename: string]: string[][] } = {}; // Added for annotation data
 
@@ -39,15 +39,15 @@ return this.expressionData;
 clearExpressionData(): void {
 this.expressionData = {};
  }
-setCountMatrixData(data: { [fileName: string]: string[][] }): void {
-this.countMatrixData = data;
- }
-getCountMatrixData(): { [fileName: string]: string[][] } {
-return this.countMatrixData;
- }
-clearCountMatrixData(): void {
-this.countMatrixData = {};
- }
+// setCountMatrixData(data: { [fileName: string]: string[][] }): void {
+// this.countMatrixData = data;
+//  }
+// getCountMatrixData(): { [fileName: string]: string[][] } {
+// return this.countMatrixData;
+//  }
+// clearCountMatrixData(): void {
+// this.countMatrixData = {};
+//  }
 
 // New methods for combined data and annotation data
 setCombinedData(data: any[]): void {
