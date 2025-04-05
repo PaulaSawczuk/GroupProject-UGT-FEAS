@@ -530,9 +530,29 @@ private extractECNumbers2(): void {
           default:
             return "grey"; // Default shape
         }
+      }).bind("figure", "enzymeType",function(enzymeType: string): string {
+        // Map enzymeType to specific shapes
+        switch (enzymeType) {
+          case "Oxidoreductase":
+            return "Circle";
+          case "Transferase":
+            return "Rectangle";
+          case "Hydrolase":
+            return "Diamond";
+          case "Ligase":
+            return "Triangle";
+          case "Lyase":
+            return "Rectangle"
+          case "Translocase":
+            return "Square";
+          case "Isomerase":
+              return "TriangleDown";
+          default:
+            return "Rectangle"; // Default shape
+        }
       })
 
-        ));
+    ));
 
 
 
