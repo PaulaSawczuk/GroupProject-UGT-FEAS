@@ -5,6 +5,8 @@ import { enzymeApiServicePost } from '../services/kegg_enzymepathwaysPost.serice
 import * as go from 'gojs';
 import { FileDataService } from '../services/file-data.service';
 
+declare var figure: any; 
+
 @Component({
   selector: 'app-display',
   standalone: true,
@@ -36,6 +38,8 @@ export class DisplayComponent {
 
   filteredGenes: any[] = [];
 
+  pathwayNumber: number = 10;
+
   // Creating a GoJS Diagram 
   // Initially set as NULL 
   private myDiagram: go.Diagram | null = null;
@@ -46,6 +50,9 @@ export class DisplayComponent {
     private fileDataService: FileDataService
   ) {};
 
+  // ------------- SETTING UP PROCESSING FUNCTIONS -------------------------
+
+  /** --------  INPUT Data Processing Functions -------- **/
 
 private filterString(input: string): boolean {
     // Define the regular expression
@@ -54,72 +61,6 @@ private filterString(input: string): boolean {
     // Return the string if it matches the pattern, otherwise return null
     return pattern.test(input);
   }
-
-
-  /*
-  // Extract EC numbers from the uploaded and processed files
-private extractECNumbers(): void {
-  // Get the combined data that includes annotation information
-  const combinedData = this.fileDataService.getCombinedData();
-  //console.log('Combined data:', combinedData); // Add debug logging
-  var ecNumbers: any[] = []; // Use Set to avoid duplicates
-  var filteredSet: Set<any> = new Set()
-  
-  if (combinedData && combinedData.length > 0) {
-    // Loop through the combined data to find EC numbers
-    for (const item of combinedData) {
-      //console.log(item.gene);
-      // Look for properties that contain EC numbers
-      for (const key in item) {
-        if (key.includes('_EC') && item[key]) {
-          // Get the raw EC number
-          let ecNumber = item[key].trim();
-          
-          // Skip empty or NA values
-          if (ecNumber === 'NA' || ecNumber === '' || ecNumber === 'null') continue;
-          
-          // Handle different formats of EC numbers
-          if (ecNumber.toUpperCase().startsWith('EC:')) {
-            // Convert to lowercase and remove spaces
-            ecNumber = ecNumber.replace(/\s+/g, '').toLowerCase();
-            ecNumber = ecNumber.split("|");
-
-          } else {
-
-            // Add lowercase ec: prefix
-            ecNumber = "ec:" + ecNumber;
-          }
-          // Add to our Set of unique EC numbers
-          ecNumbers.push(ecNumber);
-          //console.log(ecNumbers);
-        }
-      }
-    }
-
-    // Checking format 
-    for (let i =0; i<ecNumbers.length;i++){
-      const enzymes = ecNumbers[i];
-      //console.log('Enzymes: '+enzymes);
-      //console.log(enzymes.split(""));
-      for (let j=0; j<enzymes.length; j++){
-        //console.log(enzymes[j])
-        //console.log(this.filterString(enzymes[j]));
-        if (this.filterString(enzymes[j]) == true)
-          filteredSet.add(enzymes[j]);
-        }
-    }
-    
-    // Convert Set to Array for the enzymeList
-    //this.enzymeList = Array.from(filteredSet);
-
-    //console.log('Extracted EC numbers:', this.enzymeList);
-  } else {
-    console.warn('No combined data available to extract EC numbers from');
-    // Initialize as empty array
-    this.enzymeList = [];
-  }
-}*/
-
 
 private getEnzymeGenes(): void{
   const combinedData = this.fileDataService.getCombinedData();
@@ -200,7 +141,6 @@ private filterEnzymeGenes(geneEnzymes:any[]):void{
   this.filteredGenes = filteredArray;
 }
 
-
 private extractECNumbers2(): void {
   var enzymeList: Set<any> = new Set()
 
@@ -211,13 +151,12 @@ private extractECNumbers2(): void {
     enzymeList.add(enzyme);
   }
   //console.log(enzymeList)
-  //this.enzymeList = Array.from(enzymeList);
+  this.enzymeList = Array.from(enzymeList);
 
 }
 
-  // ------------- SETTING UP PROCESSING FUNCTIONS -------------------------
   
-  /** --------  Data Processing Functions -------- **/
+  /** --------  MAP Data Processing Functions -------- **/
   // Function for loading Names of each pathway that is fetched from the backend
   loadNames(): void {
     this.pathways = this.pathwayData.map(pathway => pathway.name);
@@ -271,23 +210,30 @@ private extractECNumbers2(): void {
     return linkData;
   }
   isLoading: boolean = false;
+
+  
   // -------------- Sending Pathway Request to Back-end ---------------------
   // Fetches relevant pathways when the Display component is initialised
 
-  
+  /** --------  POST REQUEST Functions -------- **/
+
   ngOnInit(): void {
 
+    // Loading Screen
     this.isLoading = true;
+    // Processing Input Data (1 contrast) - Match Genes and Extracting LogFc + EC numbers
     this.getEnzymeGenes();
+    // Getting List of Enzymes from Input Data
     this.extractECNumbers2();
-    this.enzymeApiServicePost.postEnzymeData(this.enzymeList).subscribe(
+    // Setting up Data Array to send to back-end API
+    const data = [this.enzymeList, this.pathwayNumber];
+    this.enzymeApiServicePost.postEnzymeData(data).subscribe(
       (response) => {
         // Handle the successful response
         this.pathwayData = response;
         this.loadNames();
         console.log('Received from backend:', response);
         this.isLoading = false; 
-
       },
       (error) => {
         // Handle errors
@@ -298,27 +244,6 @@ private extractECNumbers2(): void {
       }
     );
   };
-
-    // Updated ngOnInit to extract EC numbers first
-    /*
-  ngOnInit(): void {
-      // Extract EC numbers from uploaded files
-      this.extractECNumbers();
-      
-      // Proceed with the API call using the extracted EC numbers
-      this.enzymeApiServicePost.postEnzymeData(this.enzymeList).subscribe(
-        (response) => {
-          // Handle the successful response
-          this.pathwayData = response;
-          this.loadNames();
-          console.log('Received from backend:', response);
-        },
-        (error) => {
-          // Handle errors
-          console.error('Error:', error);
-        }
-      );
-  }*/
 
 
   /** --------  Mapping Functions -------- **/
@@ -340,7 +265,11 @@ private extractECNumbers2(): void {
         console.log('Loading data');
         var nodes = this.loadNodes();
         var links = this.loadLinks();
+
+        // Loading a list of enzymes present in the map
         var enzymes = this.loadEnzymes();
+
+
 
         this.changeDiagram(nodes, links);
         this.isLoading = false;
@@ -505,6 +434,48 @@ private extractECNumbers2(): void {
   );
 
 
+  this.myDiagram.nodeTemplateMap.add("enzyme",
+  new go.Node("Auto") // "Auto" layout allows the node to adapt its size automatically
+  .add(
+    new go.Shape("Rectangle", 
+      {
+        name: "RECTANGLE",
+        fill: "lightgrey", 
+        width: 50,
+        height: 30, 
+        stroke: 'black',             // Border (stroke) color is set to blue
+        strokeWidth: 3, 
+      }).bind("figure", "enzymeType",function(enzymeType: string): string {
+        // Map enzymeType to specific shapes
+        switch (enzymeType) {
+          case "Oxidoreductase":
+            return "Circle";
+          case "Transferase":
+            return "Rectangle";
+          case "Hydrolase":
+            return "Diamond";
+          case "Ligase":
+            return "Triangle";
+          case "Lyase":
+            return "Capsule"
+          case "Translocase":
+            return "Square";
+          case "Isomerase":
+              return "TriangleDown";
+          default:
+            return "Rectangle"; // Default shape
+        }
+      })
+      .bind("fill","colour")
+    ).add(new go.TextBlock(
+      { margin: 2,
+        font: "10px sans-serif",
+        wrap: go.TextBlock.WrapFit,
+      width: 80 })
+      .bind("text")
+    )
+  );
+  /*
   // TEMPLATE FOR ENZYME NODES
     this.myDiagram.nodeTemplateMap.add("enzyme",  // Custom category for compound nodes
       new go.Node("Auto")  // Use Vertical Panel to place the label above the shape
@@ -517,7 +488,7 @@ private extractECNumbers2(): void {
           width: 80 })
           .bind("text")
         )
-    );
+    );*/
 
     // TEMPLATE FOR MAP NODES
     this.myDiagram.nodeTemplateMap.add("map",  // Custom category for compound nodes
@@ -545,7 +516,8 @@ private extractECNumbers2(): void {
           .add(
             new go.Shape("Rectangle", {
                 parameter1: 0,
-                fill: "#F2F2F2"
+                fill: "#F2F2F2",
+                stroke:"#F2F2F2"
               }),
             new go.Placeholder(
                 { padding: 10})  

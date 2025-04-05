@@ -270,7 +270,7 @@ function findMean(arr) {
 
 function matchGenes(genes, nodes){
   var enzymeSet = new Set();
-  console.log(genes);
+  //console.log(genes);
 
 
   for (let i=0; i<nodes.length; i++){
@@ -302,17 +302,17 @@ function matchGenes(genes, nodes){
       //console.log(geneList);
         if (geneList[0]){
           nodes[i].gene = geneList;
-          console.log(nodes[i]);
+          //console.log(nodes[i]);
         }else{
           continue;
         }
         if (logfcList[0]){
-          console.log(logfcList);
+          //console.log(logfcList);
           let mean = findMean(logfcList)
-          console.log(mean);
+          //console.log(mean);
           nodes[i].logfc = mean;
           let rgb = logfcToRGB(mean);
-          console.log(rgb);
+          //console.log(rgb);
           nodes[i].colour = rgb;
           //console.log(nodes[i]);
         }else{
@@ -320,19 +320,82 @@ function matchGenes(genes, nodes){
         }
     }
     }
-    console.log(enzymeSet);
+    //console.log(enzymeSet);
   }
 
 
+function getEnzymeType(nodes){
 
+  for (let i=0; i<nodes.length; i++){
+    if (nodes[i].type == 'enzyme'){
+      //console.log(nodes[i]);
+      // Extract enzyme name 
+      // strip ec:
+      //console.log(nodes[i].text);
+      let text = nodes[i].text
+      text = text.replace(/^ec:/, "");
+      //console.log(text);
+      let firstNumber = text.split('.')[0];
+      //console.log(firstNumber);
+      var brite;
+      switch (firstNumber) {
+      case '1':
+        //console.log('Oxidoreductase');
+        brite = 'Oxidoreductase';
+        nodes[i].enzymeType = brite;
+        break;
+
+      case '2':
+        //console.log('Transferase');
+        brite = 'Transferase';
+        nodes[i].enzymeType = brite;
+        break;
+
+      case '3':
+        //console.log('Hydrolase');
+        brite = 'Hydrolase';
+        nodes[i].enzymeType = brite;
+        break;
+
+      case '4':
+        //console.log('Lyase');
+        brite = 'Lyase';
+        nodes[i].enzymeType = brite;
+        break;
+
+      case '5':
+        //console.log('Isomerase');
+        brite = 'Isomerase';
+        nodes[i].enzymeType = brite;
+        break;
+
+
+      case '6':
+        //console.log('Ligase')
+        brite = 'Ligase';
+        nodes[i].enzymeType = brite;
+        break;
+
+      case '7':
+        //console.log('Translocase')
+        brite = 'Translocase';
+        nodes[i].enzymeType = brite;
+        break;
+
+      default:
+          //console.log("Number out of range.");
+          break;
+      }
+      //console.log(nodes[i]);
+      }
+    }
+
+  }
 
 module.exports = {
   getElements,
   getEnzymeNames,
   getEnzymeCodes,
-  matchGenes
+  matchGenes,
+  getEnzymeType
 };
-
-
-
-

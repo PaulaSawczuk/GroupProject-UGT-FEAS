@@ -32,16 +32,54 @@ function addUniqueElements(all_paths, paths) {
   return all_paths;
 }
 
+
+function getTally(paths, number){
+  let tally = {};
+
+  // Loop through the array to count each element
+  paths.forEach(item => {
+    // If the item is already in the tally object, increment the count, otherwise initialize it
+    tally[item] = (tally[item] || 0) + 1;
+  });
+
+  console.log(tally);
+  let tallyArray = Object.entries(tally);
+
+// Step 3: Sort the array by frequency in descending order
+  tallyArray.sort((a, b) => b[1] - a[1]);
+  console.log(tallyArray);
+
+// Step 4: Select the top 10 elements (or fewer if there are less than 10 unique elements)
+  let top = tallyArray.slice(0, number);
+
+  //console.log(top);
+  // get only pathway names (not count)
+  var pathways = [];
+  top.forEach(entry =>{
+    let pathway = entry[0];
+    pathways.push(pathway);
+
+
+
+  })
+  //console.log(pathways);
+  return pathways;
+
+}
+
 // ------------- KEGG Requests to get a list of EC Pathway Codes --------
 //  - Makes KEGG API request
 //  - Text response split and filtered to get the Name of the pathway requested 
 //  - Returns a list of Enzyme Pathway codes (e.g. ec00030)
 //  - These are parsed to getPathwayNames() to retireve their corresponding name
 
-async function getEnzymePathways(enzymeIDs){
+async function getEnzymePathways(enzymeIDs,number){
+
   console.log("Getting Enzyme Pathways");
   console.log("----------------------");
   var all_paths=[];
+  var every_path=[];
+  //const number = 10;
 
   for (const id of enzymeIDs) {
     var url = 'https://rest.kegg.jp/link/pathway/'+id
@@ -78,7 +116,9 @@ async function getEnzymePathways(enzymeIDs){
       });
       };
       //console.log(paths);
-
+      paths.forEach(path=>{
+        every_path.push(path);
+      });
       addUniqueElements(all_paths,paths);
       //console.log(all_paths);
 
@@ -88,7 +128,12 @@ async function getEnzymePathways(enzymeIDs){
     }
 
   };
+
   console.log(all_paths);
+
+
+  // Creating Tally of all the returned paths 
+  // Selecting the top enriched paths based on user input 
 
  // Hard-coded blacklist of pathway codes not to accept.
   const blacklist = new Set([
@@ -98,12 +143,14 @@ async function getEnzymePathways(enzymeIDs){
     'ec00190']);
 
   let filteredPaths = all_paths.filter(path => !blacklist.has(path));
+
+  let filteredAllPaths = every_path.filter(path => !blacklist.has(path));
+
+  var top_paths = getTally(filteredAllPaths,number);
+  console.log(top_paths);
   //console.log(filteredPaths); 
 
-
-
-
-  return filteredPaths;
+  return top_paths;
   }
 
 

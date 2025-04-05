@@ -10,7 +10,7 @@
 // Utilised by server.js to link front and backend 
 ***/
 
-const { getElements, getEnzymeNames, getEnzymeCodes, matchGenes } = require('./getElements2');
+const { getElements, getEnzymeNames, getEnzymeCodes, matchGenes, getEnzymeType } = require('./getElements2');
 const { getNodesEdges } = require('./get_go_map');
 const { processKGML } = require('./get_go_map');
 const { processRN } = require('./get_go_map');
@@ -219,9 +219,8 @@ async function processInput(code,genes) {
     
 
     // ----------------------Matching Enzymes to Nodes - change colour -------------------------
-    // Matching enzyme names of data to nodes - TRIAL WITH MOCK DATA
+    // Matching enzyme names of data to nodes
     
-    matchEnzymes(data,map_elements.uniqueNodes);
 
 
 
@@ -245,7 +244,16 @@ async function processInput(code,genes) {
     // Removing duplicate nodes and enzymes
     const processedElements = getMapNodes(map_elements.uniqueNodes,finalEdges);
 
+
+    // ----------------------Matching Enzymes to Nodes - change colour -------------------------
+    // Matching enzyme names of data to nodes
+
     matchGenes(genes,processedElements.finalNodes);
+
+    // ----------------------Matching Enzymes Enzyme Type  -------------------------
+    // Matching enzyme types to nodes - based on EC Brite Hierarchy Number 
+
+    getEnzymeType(processedElements.finalNodes);
 
 
     // ---------------- Parsing the data to the front-end -----------------------
