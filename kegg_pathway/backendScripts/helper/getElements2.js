@@ -271,7 +271,8 @@ function findMean(arr) {
 function matchGenes(genes, nodes){
   var enzymeSet = new Set();
   //console.log(genes);
-
+  var GeneSet = new Set();
+  var allGenes = [];
 
   for (let i=0; i<nodes.length; i++){
     //console.log(nodes[i].type)
@@ -293,6 +294,10 @@ function matchGenes(genes, nodes){
           //console.log(nodetext);
           //console.log(gene);
           geneList.push(gene);
+  
+          GeneSet.add(gene);
+          allGenes.push(gene);
+          //GeneSet.add(gene);
           logfcList.push(logfc);
           //console.log(logfc);
 
@@ -320,6 +325,10 @@ function matchGenes(genes, nodes){
         }
     }
     }
+    //console.log(GeneSet);
+    console.log('Number of Unique Genes: '+GeneSet.size);
+    //console.log(allGenes);
+    console.log('Total Number of instances of Genes: '+allGenes.length);
     //console.log(enzymeSet);
   }
 
