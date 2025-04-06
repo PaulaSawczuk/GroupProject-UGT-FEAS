@@ -433,7 +433,7 @@ private extractECNumbers2(): void {
     )
   );
 
-
+  /*
   this.myDiagram.nodeTemplateMap.add("enzyme",
   new go.Node("Auto") // "Auto" layout allows the node to adapt its size automatically
   .add(
@@ -474,7 +474,7 @@ private extractECNumbers2(): void {
       width: 80 })
       .bind("text")
     )
-  );
+  );*/
   /*
   // TEMPLATE FOR ENZYME NODES
     this.myDiagram.nodeTemplateMap.add("enzyme",  // Custom category for compound nodes
@@ -489,6 +489,70 @@ private extractECNumbers2(): void {
           .bind("text")
         )
     );*/
+
+      // Enzyme node template with little sqaures as type
+  this.myDiagram.nodeTemplateMap.add("enzyme",  // Custom category for compound nodes
+    new go.Node("Auto")  // Use Vertical Panel to place the label above the shape
+      .add(
+        new go.Shape("Rectangle").bind("fill","colour")
+      ).add(new go.TextBlock(
+        { margin: 2,
+          font: "10px sans-serif",
+          wrap: go.TextBlock.WrapFit,
+        width: 80 })
+        .bind("text"))
+        .add(new go.Shape("Square", {
+              alignment: go.Spot.TopRight, width: 14, height: 14,
+              visible: true,
+              strokeWidth: 1
+      }).bind('fill',"enzymeType",function(enzymeType: string): string {
+      // Map enzymeType to specific shapes
+      switch (enzymeType) {
+        case "Oxidoreductase":
+          return "#ed6d6d";
+        case "Transferase":
+          return "#e7f263";
+        case "Hydrolase":
+          return "#c4a7d6";
+        case "Ligase":
+          return "#00aeb8";
+        case "Lyase":
+          return "#75dd2f"
+        case "Translocase":
+          return "Square";
+        case "Isomerase":
+            return "#3a5ba0";
+        default:
+          return "grey"; // Default shape
+      }
+    }).bind("figure", "enzymeType",function(enzymeType: string): string {
+      // Map enzymeType to specific shapes
+      switch (enzymeType) {
+        case "Oxidoreductase":
+          return "Circle";
+        case "Transferase":
+          return "Rectangle";
+        case "Hydrolase":
+          return "Diamond";
+        case "Ligase":
+          return "Triangle";
+        case "Lyase":
+          return "Rectangle"
+        case "Translocase":
+          return "Square";
+        case "Isomerase":
+            return "TriangleDown";
+        default:
+          return "Rectangle"; // Default shape
+      }
+    })
+
+  ));
+
+
+
+
+
 
     // TEMPLATE FOR MAP NODES
     this.myDiagram.nodeTemplateMap.add("map",  // Custom category for compound nodes
