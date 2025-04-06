@@ -270,7 +270,7 @@ function findMean(arr) {
 
 function matchGenes(genes, nodes){
   var enzymeSet = new Set();
-  //console.log(genes);
+  console.log(genes);
   var GeneSet = new Set();
   var allGenes = [];
 

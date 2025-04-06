@@ -248,7 +248,7 @@ async function processInput(code,genes) {
     // ----------------------Matching Enzymes to Nodes - change colour -------------------------
     // Matching enzyme names of data to nodes
 
-    matchGenes(genes,processedElements.finalNodes);
+    //matchGenes(genes,processedElements.finalNodes);
 
     // ----------------------Matching Enzymes Enzyme Type  -------------------------
     // Matching enzyme types to nodes - based on EC Brite Hierarchy Number 
@@ -258,12 +258,12 @@ async function processInput(code,genes) {
 
     // ---------------- Parsing the data to the front-end -----------------------
     let nodeData = processedElements.finalNodes;
-    //console.log(nodeData);
+    console.log(nodeData);
     let linkData = processedElements.edgesProcessed;
 
     var enzymeList = getEnzymeCodes(nodeData);
     enzymeList = Array.from(enzymeList);
-    //console.log(linkData);
+    console.log(linkData);
     console.log('------------');
     console.log('All Links and Nodes Generated');
     console.log('------------');

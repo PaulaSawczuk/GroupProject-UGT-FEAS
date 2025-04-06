@@ -62,13 +62,61 @@ private filterString(input: string): boolean {
     return pattern.test(input);
   }
 
+
+
+private matchEnzymetoGenes(): void{
+  const expressionData = this.fileDataService.getExpressionData();
+  console.log(expressionData);
+  const annotationData = this.fileDataService.getAnnotationData();
+  console.log(annotationData);
+  //console.log(expresseionData.keys())
+  //console.log(expresseionData['entries']);
+  const keys = Object.keys(expressionData);
+  console.log(keys);
+
+  type GeneExpression = {
+    gene_name: string;
+    baseMean: number;
+    log2FoldChange: number;
+    lfcSE: number;
+    stat: number;
+    pvalue: number;
+    padj: number;
+  };
+
+  type GeneAnnotation = {
+    Sequence_Name: string;
+    GO_ID: string;
+    GO_Term: string;
+    GO_Category: string;
+    EC: string;
+    Enzyme_Name: string;
+    Description: string;
+  };
+
+  for (const [filename, data] of Object.entries(expressionData)) {
+    const headerRow = data[0].map(h => h.toLowerCase());
+    const geneColumnIndex = headerRow.findIndex(col => col === 'gene');
+    const log2FoldChangeColumnIndex = headerRow.findIndex(col => col === 'log2foldchange');
+    console.log(geneColumnIndex);
+    console.log(log2FoldChangeColumnIndex);
+  }
+  
+
+
+
+}
+
+
+
+
 private getEnzymeGenes(): void{
   const combinedData = this.fileDataService.getCombinedData();
-  const expresseionData = this.fileDataService.getExpressionData();
-  const annotationData = this.fileDataService.getAnnotationData();
-  console.log(combinedData.keys());
-  console.log(expresseionData);
-  console.log(annotationData);
+  //const expresseionData = this.fileDataService.getExpressionData();
+  //const annotationData = this.fileDataService.getAnnotationData();
+  //console.log(combinedData.keys());
+  //console.log(expresseionData);
+  //console.log(annotationData);
 
   //console.log('Combined data:', combinedData); // Add debug logging
   var geneEnzymes: any[] = []; // Use Set to avoid duplicates
@@ -157,6 +205,121 @@ private extractECNumbers2(): void {
   }
   //console.log(enzymeList)
   this.enzymeList = Array.from(enzymeList);
+
+}
+
+logfcToRGB(logFoldChange: number): string{
+  // Normalize log fold change to be between -1 and 1 for smoother gradient mapping
+  const normalized = Math.max(-1, Math.min(1, logFoldChange));
+
+  // Red decreases as the value goes from negative to positive
+  const red = normalized < 0 ? 1 : 1 - normalized;
+
+  // Green increases as the value goes from negative to positive
+  const green = normalized > 0 ? 1 : -normalized;
+
+  // Blue stays at 0 (we are only using red and green for the gradient)
+  const blue = 0;
+
+  // Return the RGB value as a string
+  return `rgb(${Math.floor(red * 255)}, ${Math.floor(green * 255)}, ${blue})`;
+}
+
+private findMean(arr: any[]): number {
+  // Ensure the array is not empty
+  if (arr.length === 0) return 0;
+
+  // Convert string numbers to actual numbers and sum them
+  const sum = arr
+    .map(Number) // Convert each string to a number
+    .reduce((acc, current) => acc + current, 0);
+
+  // Calculate the mean by dividing the sum by the length of the array
+  return sum / arr.length;
+}
+
+private matchGenes(genes: any[], nodes: any[]): void {
+  var enzymeSet = new Set();
+  //console.log(genes);
+  var GeneSet = new Set();
+  var allGenes = [];
+
+  for (let i=0; i<nodes.length; i++){
+    //console.log(nodes[i].type)
+    if (nodes[i].type == 'enzyme'){
+      var geneList = [];
+      var logfcList = [];
+      //console.log(nodes[i].text);
+      let nodetext = nodes[i].text;
+      //console.log('node: '+nodetext);
+      for (let j=0; j<genes.length; j++){
+        //console.log(genes[j].enzyme[0]);
+        let enzyme = genes[j].enzyme[0];
+        let gene = genes[j].gene;
+        let logfc = genes[j].logfc;
+        if (enzyme == nodetext){
+          //console.log('match');
+          //console.log(enzyme);
+          enzymeSet.add(enzyme);
+          //console.log(nodetext);
+          //console.log(gene);
+          geneList.push(gene);
+  
+          GeneSet.add(gene);
+          allGenes.push(gene);
+          //GeneSet.add(gene);
+          logfcList.push(logfc);
+          //console.log(logfc);
+
+        }
+        
+      }
+      //console.log(geneList);
+        if (geneList[0]){
+          nodes[i].gene = geneList;
+          //console.log(nodes[i]);
+        }else{
+          continue;
+        }
+        if (logfcList[0]){
+          //console.log(logfcList);
+          let mean = this.findMean(logfcList)
+          //console.log(mean);
+          nodes[i].logfc = mean;
+          let rgb = this.logfcToRGB(mean);
+          //console.log(rgb);
+          nodes[i].colour = rgb;
+          //console.log(nodes[i]);
+        }else{
+          continue;
+        }
+    }
+    }
+    //console.log(GeneSet);
+    console.log('Number of Unique Genes: '+GeneSet.size);
+    //console.log(allGenes);
+    console.log('Total Number of instances of Genes: '+allGenes.length);
+    //console.log(enzymeSet);
+  }
+
+
+
+private compareEnzymes(nodes: any[]): void{
+
+  // Get Genes with logfc for the timepoint 
+  const genes = this.filteredGenes;
+  console.log(genes);
+
+  this.matchGenes(genes, nodes)
+  
+  // Get list of Genes for the Timepoint - with annotation
+  // Compare list present in Mapping Data 
+  // Extract logfc -- convert to rgb
+  // Add to node data (gene, rgb, logfc etc)
+
+  // Send another API request??
+  // Send list of genes
+  // Send nodes??? 
 
 }
 
@@ -260,10 +423,15 @@ private extractECNumbers2(): void {
   // Changes Diagram 
   getMapData(code: string): void {
 
+    // Sending Pathway code and Filterend Genes
+
+    // REMOVE GENES -- COMPARISON AFTER MAP NODES ARE GENERATED 
     const data = [code, this.filteredGenes];
     this.isLoading = true;
     this.enzymeApiServicePost.postMapData(data).subscribe(
       (response) => {
+
+        // Return response on mapping -- Change to return all maps 
 
         this.mapData = response;
         console.log('Received from backend:', response);
@@ -273,9 +441,11 @@ private extractECNumbers2(): void {
 
         // Loading a list of enzymes present in the map
         var enzymes = this.loadEnzymes();
+        console.log(enzymes);
+        //this.matchEnzymetoGenes();
 
-
-
+        // Compare enzymes to nodes -- change colour base on logFc
+        this.compareEnzymes(nodes);
         this.changeDiagram(nodes, links);
         this.isLoading = false;
       },
