@@ -237,7 +237,7 @@ function getEnzymeCodes(nodes){
   return enzymeList;
 }
 
-
+/*
 function logfcToRGB(logFoldChange){
   // Normalize log fold change to be between -1 and 1 for smoother gradient mapping
   const normalized = Math.max(-1, Math.min(1, logFoldChange));
@@ -267,10 +267,12 @@ function findMean(arr) {
   // Calculate the mean by dividing the sum by the length of the array
   return sum / arr.length;
 }
+*/
+
 
 function matchGenes(genes, nodes){
   var enzymeSet = new Set();
-  console.log(genes);
+  //console.log(genes);
   var GeneSet = new Set();
   var allGenes = [];
 
@@ -405,6 +407,5 @@ module.exports = {
   getElements,
   getEnzymeNames,
   getEnzymeCodes,
-  matchGenes,
   getEnzymeType
 };

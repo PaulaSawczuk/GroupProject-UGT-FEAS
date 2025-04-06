@@ -10,7 +10,7 @@
 // Utilised by server.js to link front and backend 
 ***/
 
-const { getElements, getEnzymeNames, getEnzymeCodes, matchGenes, getEnzymeType } = require('./getElements2');
+const { getElements, getEnzymeNames, getEnzymeCodes, getEnzymeType } = require('./getElements2');
 const { getNodesEdges } = require('./get_go_map');
 const { processKGML } = require('./get_go_map');
 const { processRN } = require('./get_go_map');
@@ -179,9 +179,10 @@ function getLogFCColor(data) {
         })
     }
 
-async function processInput(code,genes) {
+async function processInput(code) {
     console.log('Processing');
     console.log(code);
+    console.log('------------');
     //console.log(genes);
     
 
@@ -197,6 +198,7 @@ async function processInput(code,genes) {
     var compounds = await getElements(ko_pathway);
     //console.log(compounds);
     var enzymeNames = await getEnzymeNames(ko_pathway);
+    console.log('------------');
     
     // -----------------------Converting LOGFC to RBG --------------------------------------
     // EXPERIMENTAL FUNCTION -- MOVE TO FRONT END???
@@ -209,6 +211,7 @@ async function processInput(code,genes) {
     var kgml_elements = await processKGML(ec_pathway);
 
     var rn_elements = await processKGML(rn_pathway);
+    console.log('------------');
 
     //var ko_elements = await processKGML(ko_pathway)
 
@@ -216,6 +219,7 @@ async function processInput(code,genes) {
     //Getting Element names
     //Getting mapping nodes and edges 
     var map_elements = getNodesEdges(kgml_elements.entries, kgml_elements.reactions,kgml_elements.relations)
+    console.log('------------');
     
 
     // ----------------------Matching Enzymes to Nodes - change colour -------------------------
@@ -258,17 +262,50 @@ async function processInput(code,genes) {
 
     // ---------------- Parsing the data to the front-end -----------------------
     let nodeData = processedElements.finalNodes;
-    console.log(nodeData);
+    //console.log(nodeData);
     let linkData = processedElements.edgesProcessed;
 
     var enzymeList = getEnzymeCodes(nodeData);
     enzymeList = Array.from(enzymeList);
-    console.log(linkData);
+    //console.log(linkData);
     console.log('------------');
     console.log('All Links and Nodes Generated');
     console.log('------------');
     return {nodeData,linkData,enzymeList};
   }
+
+
+async function processPathways(pathways){
+
+    console.log(pathways);
+    console.log('------------');
+    var codes = [];
+    pathwayData = [];
+    for (let i=0; i<pathways.length;i++){
+        //console.log(pathways[i].name);
+        //console.log(pathways[i].pathway);
+        let name = pathways[i].name;
+        let code = pathways[i].pathway;
+        //codes.push(code);
+        let elements = await processInput(code);
+        pathwayData.push({
+            name: name,
+            pathway: code,
+            nodes: elements.nodeData,
+            edges: elements.linkData,
+            enzymes: elements.enzymeList
+        });
+        console.log('------------');
+        console.log('Pathway Added')
+        console.log('------------');
+    }
+    return pathwayData;
+}
+
+
+
+
 module.exports = {
-    processInput
+    processInput,
+    processPathways
   };
