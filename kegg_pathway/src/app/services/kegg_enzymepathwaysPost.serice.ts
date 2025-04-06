@@ -43,4 +43,10 @@ export class enzymeApiServicePost {
   postMapData(data: (string|any[])): Observable<any[]>{
     return this.http.post<any>(this.apiUrl+'getMap', data);
   }
+
+
+
+  postALLMapData(data: (any[])): Observable<any[]>{
+    return this.http.post<any>(this.apiUrl+'getMap2', data);
+  }
 }

@@ -34,6 +34,8 @@ export class DisplayComponent {
   // Array for storing response of getMapData
   mapData: any[] = [];
 
+  ALLpathwayData: any[] = [];
+
   enzymePathwayList: string[] = [];
 
   filteredGenes: any[] = [];
@@ -61,7 +63,6 @@ private filterString(input: string): boolean {
     // Return the string if it matches the pattern, otherwise return null
     return pattern.test(input);
   }
-
 
 
 private matchEnzymetoGenes(): void{
@@ -102,9 +103,6 @@ private matchEnzymetoGenes(): void{
     console.log(log2FoldChangeColumnIndex);
   }
   
-
-
-
 }
 
 
@@ -112,11 +110,6 @@ private matchEnzymetoGenes(): void{
 
 private getEnzymeGenes(): void{
   const combinedData = this.fileDataService.getCombinedData();
-  //const expresseionData = this.fileDataService.getExpressionData();
-  //const annotationData = this.fileDataService.getAnnotationData();
-  //console.log(combinedData.keys());
-  //console.log(expresseionData);
-  //console.log(annotationData);
 
   //console.log('Combined data:', combinedData); // Add debug logging
   var geneEnzymes: any[] = []; // Use Set to avoid duplicates
@@ -208,7 +201,7 @@ private extractECNumbers2(): void {
 
 }
 
-logfcToRGB(logFoldChange: number): string{
+private logfcToRGB(logFoldChange: number): string{
   // Normalize log fold change to be between -1 and 1 for smoother gradient mapping
   const normalized = Math.max(-1, Math.min(1, logFoldChange));
 
@@ -303,7 +296,6 @@ private matchGenes(genes: any[], nodes: any[]): void {
   }
 
 
-
 private compareEnzymes(nodes: any[]): void{
 
   // Get Genes with logfc for the timepoint 
@@ -311,16 +303,6 @@ private compareEnzymes(nodes: any[]): void{
   console.log(genes);
 
   this.matchGenes(genes, nodes)
-  
-  // Get list of Genes for the Timepoint - with annotation
-  // Compare list present in Mapping Data 
-  // Extract logfc -- convert to rgb
-  // Add to node data (gene, rgb, logfc etc)
-
-  // Send another API request??
-  // Send list of genes
-  // Send nodes??? 
-
 }
 
   
@@ -401,7 +383,10 @@ private compareEnzymes(nodes: any[]): void{
         this.pathwayData = response;
         this.loadNames();
         console.log('Received from backend:', response);
-        this.isLoading = false; 
+        console.log('-----------------------------');
+        console.log('Getting Mapping Data');
+        this.getMapData();
+
       },
       (error) => {
         // Handle errors
@@ -421,14 +406,32 @@ private compareEnzymes(nodes: any[]): void{
   // Returns Mapping Data for relevant (Nodes and Links)
   // Calls Data Processing functions (loadNodes, loadLinks)
   // Changes Diagram 
-  getMapData(code: string): void {
+  getMapData(): void {
 
     // Sending Pathway code and Filterend Genes
 
     // REMOVE GENES -- COMPARISON AFTER MAP NODES ARE GENERATED 
-    const data = [code, this.filteredGenes];
+    const data = [this.pathwayData];
     this.isLoading = true;
-    this.enzymeApiServicePost.postMapData(data).subscribe(
+    console.log('-----------------------------');
+    console.log('Sending Request for Pathway Mapping Data');
+    this.enzymeApiServicePost.postALLMapData(data).subscribe(
+      (response) =>{
+      console.log(response);
+      // Storing all the pathways + data to global attribute 
+      // This can used to get data for selected map
+      this.ALLpathwayData = response;
+      console.log('Pathway Data Loaded Successfully');
+      //this.setMap(code);
+      this.isLoading = false;
+      },
+      (error) => {
+        console.error('Error:', error);
+        this.isLoading = false;
+      });
+
+    //const data2 = [code, this.filteredGenes];
+    /*this.enzymeApiServicePost.postMapData(data2).subscribe(
       (response) => {
 
         // Return response on mapping -- Change to return all maps 
@@ -453,8 +456,26 @@ private compareEnzymes(nodes: any[]): void{
         console.error('Error:', error);
         this.isLoading = false;
       }
-    );
+    );*/
+    //this.setMap(code);
   };
+
+  setMap(code: string): void {
+
+    console.log("Getting Map Data: "+code);
+    const pathway = this.ALLpathwayData.find((obj => obj.pathway === code));
+    //console.log(pathway);
+    var nodes = pathway.nodes;
+    var links = pathway.edges;
+    console.log('Nodes + Edges Retrieved')
+    //console.log(nodes);
+    //console.log(links);
+    console.log('Loading Differential Expression Data')
+    this.compareEnzymes(nodes);
+    this.changeDiagram(nodes, links);
+    this.isLoading = false;
+
+  }
 
   // --------------- Creating GO.js Model -------------------
   // Creating the First GoJS MAP
@@ -864,7 +885,7 @@ private compareEnzymes(nodes: any[]): void{
 
     this.selectedTimeIndex = 0;
     // Retrieving Mapping Data from Backend
-    this.getMapData(code);
+    this.setMap(code);
   }
 
   selectTarget(event: Event, target: string) {
