@@ -64,7 +64,7 @@ private filterString(input: string): boolean {
 
 private getEnzymeGenes(): void{
   const combinedData = this.fileDataService.getCombinedData();
-  //console.log(combinedData.keys());
+  console.log(combinedData.keys());
   //console.log('Combined data:', combinedData); // Add debug logging
   var geneEnzymes: any[] = []; // Use Set to avoid duplicates
   var filteredSet: Set<any> = new Set()
@@ -102,7 +102,7 @@ private getEnzymeGenes(): void{
       
     }
   }
-  //console.log(geneEnzymes);
+  console.log(geneEnzymes);
   this.filterEnzymeGenes(geneEnzymes);
 }
 
