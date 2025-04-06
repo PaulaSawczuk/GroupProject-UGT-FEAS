@@ -64,7 +64,12 @@ private filterString(input: string): boolean {
 
 private getEnzymeGenes(): void{
   const combinedData = this.fileDataService.getCombinedData();
-  //console.log(combinedData.keys());
+  const expresseionData = this.fileDataService.getExpressionData();
+  const annotationData = this.fileDataService.getAnnotationData();
+  console.log(combinedData.keys());
+  console.log(expresseionData);
+  console.log(annotationData);
+
   //console.log('Combined data:', combinedData); // Add debug logging
   var geneEnzymes: any[] = []; // Use Set to avoid duplicates
   var filteredSet: Set<any> = new Set()
@@ -102,7 +107,7 @@ private getEnzymeGenes(): void{
       
     }
   }
-  //console.log(geneEnzymes);
+  console.log(geneEnzymes);
   this.filterEnzymeGenes(geneEnzymes);
 }
 
@@ -475,7 +480,7 @@ private extractECNumbers2(): void {
       width: 80 })
       .bind("text")
     )
-  );*/
+  );
 
   /*
   
@@ -491,71 +496,66 @@ private extractECNumbers2(): void {
           width: 80 })
           .bind("text")
         )
-    );
+    );*/
 
-  */
+      // Enzyme node template with little sqaures as type
+  this.myDiagram.nodeTemplateMap.add("enzyme",  // Custom category for compound nodes
+    new go.Node("Auto")  // Use Vertical Panel to place the label above the shape
+      .add(
+        new go.Shape("Rectangle").bind("fill","colour")
+      ).add(new go.TextBlock(
+        { margin: 2,
+          font: "10px sans-serif",
+          wrap: go.TextBlock.WrapFit,
+        width: 80 })
+        .bind("text"))
+        .add(new go.Shape("Square", {
+              alignment: go.Spot.TopRight, width: 14, height: 14,
+              visible: true,
+              strokeWidth: 1
+      }).bind('fill',"enzymeType",function(enzymeType: string): string {
+      // Map enzymeType to specific shapes
+      switch (enzymeType) {
+        case "Oxidoreductase":
+          return "#ed6d6d";
+        case "Transferase":
+          return "#e7f263";
+        case "Hydrolase":
+          return "#c4a7d6";
+        case "Ligase":
+          return "#00aeb8";
+        case "Lyase":
+          return "#75dd2f"
+        case "Translocase":
+          return "Square";
+        case "Isomerase":
+            return "#3a5ba0";
+        default:
+          return "grey"; // Default shape
+      }
+    }).bind("figure", "enzymeType",function(enzymeType: string): string {
+      // Map enzymeType to specific shapes
+      switch (enzymeType) {
+        case "Oxidoreductase":
+          return "Circle";
+        case "Transferase":
+          return "Rectangle";
+        case "Hydrolase":
+          return "Diamond";
+        case "Ligase":
+          return "Triangle";
+        case "Lyase":
+          return "Rectangle"
+        case "Translocase":
+          return "Square";
+        case "Isomerase":
+            return "TriangleDown";
+        default:
+          return "Rectangle"; // Default shape
+      }
+    })
 
-    // Enzyme node template with little sqaures as type
-    this.myDiagram.nodeTemplateMap.add("enzyme",  // Custom category for compound nodes
-      new go.Node("Auto")  // Use Vertical Panel to place the label above the shape
-        .add(
-          new go.Shape("Rectangle").bind("fill","colour")
-        ).add(new go.TextBlock(
-          { margin: 2,
-            font: "10px sans-serif",
-            wrap: go.TextBlock.WrapFit,
-          width: 80 })
-          .bind("text"))
-          .add(new go.Shape("Square", {
-                alignment: go.Spot.TopRight, width: 14, height: 14,
-                visible: true,
-                strokeWidth: 1
-        }).bind('fill',"enzymeType",function(enzymeType: string): string {
-        // Map enzymeType to specific shapes
-        switch (enzymeType) {
-          case "Oxidoreductase":
-            return "#ed6d6d";
-          case "Transferase":
-            return "#e7f263";
-          case "Hydrolase":
-            return "#c4a7d6";
-          case "Ligase":
-            return "#00aeb8";
-          case "Lyase":
-            return "#75dd2f"
-          case "Translocase":
-            return "Square";
-          case "Isomerase":
-              return "#3a5ba0";
-          default:
-            return "grey"; // Default shape
-        }
-      }).bind("figure", "enzymeType",function(enzymeType: string): string {
-        // Map enzymeType to specific shapes
-        switch (enzymeType) {
-          case "Oxidoreductase":
-            return "Circle";
-          case "Transferase":
-            return "Rectangle";
-          case "Hydrolase":
-            return "Diamond";
-          case "Ligase":
-            return "Triangle";
-          case "Lyase":
-            return "Rectangle"
-          case "Translocase":
-            return "Square";
-          case "Isomerase":
-              return "TriangleDown";
-          default:
-            return "Rectangle"; // Default shape
-        }
-      })
-
-    ));
-
-
-
+  ));
 
     // TEMPLATE FOR MAP NODES
     this.myDiagram.nodeTemplateMap.add("map",  // Custom category for compound nodes
