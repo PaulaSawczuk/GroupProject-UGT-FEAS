@@ -64,7 +64,12 @@ private filterString(input: string): boolean {
 
 private getEnzymeGenes(): void{
   const combinedData = this.fileDataService.getCombinedData();
+  const expresseionData = this.fileDataService.getExpressionData();
+  const annotationData = this.fileDataService.getAnnotationData();
   console.log(combinedData.keys());
+  console.log(expresseionData);
+  console.log(annotationData);
+
   //console.log('Combined data:', combinedData); // Add debug logging
   var geneEnzymes: any[] = []; // Use Set to avoid duplicates
   var filteredSet: Set<any> = new Set()
@@ -548,11 +553,6 @@ private extractECNumbers2(): void {
     })
 
   ));
-
-
-
-
-
 
     // TEMPLATE FOR MAP NODES
     this.myDiagram.nodeTemplateMap.add("map",  // Custom category for compound nodes
