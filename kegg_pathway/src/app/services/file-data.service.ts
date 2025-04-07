@@ -9,6 +9,8 @@ private expressionData: { [fileName: string]: string[][] } = {};
 //private countMatrixData: { [fileName: string]: string[][] } = {};
 private combinedData: any[] = []; // Added for combined data
 private annotationData: { [filename: string]: string[][] } = {}; // Added for annotation data
+private multipleCombinedArrays: any[][] = [];
+
 
 setFileData(fileName: string, data: string[][]): void {
 this.fileData[fileName] = data;
@@ -57,6 +59,19 @@ setCombinedData(data: any[]): void {
 getCombinedData(): any[] {
   return this.combinedData;
 }
+
+setMultipleCombinedArrays(data: any[][]): void {
+  this.multipleCombinedArrays = data;
+}
+
+getMultipleCombinedArrays(): any[][] {
+  return this.multipleCombinedArrays;
+}
+
+clearMultipleCombinedArrays(): void {
+  this.multipleCombinedArrays = [];
+}
+
 
 clearCombinedData(): void {
   this.combinedData = [];
