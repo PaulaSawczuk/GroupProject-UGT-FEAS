@@ -1,10 +1,11 @@
-import { Component, ViewChild, ElementRef } from '@angular/core';
+import { Component, ViewChild, ElementRef , HostListener} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { enzymeApiServicePost } from '../services/kegg_enzymepathwaysPost.serice';
 import * as go from 'gojs';
 import { FileDataService } from '../services/file-data.service';
 import { filter } from 'rxjs';
+
 
 declare var figure: any; 
 
@@ -1012,8 +1013,7 @@ private compareEnzymes(nodes: any[],timepoint: number): void{
 
 
   isMenuOpen = true;
-  pathwaysOpen = false;
-  exportOpen = false;
+  pathwaysOpen = true;
   targetAnalysisOpen = false;
 
   exportOptions = ['PDF', 'CSV', 'JSON'];
@@ -1043,18 +1043,19 @@ private compareEnzymes(nodes: any[],timepoint: number): void{
       });
     }
   }
-
+  // ------------------ PATHWAY SIDE BAR -------------------
   toggleMenu() {
     this.isMenuOpen = !this.isMenuOpen;
     if (!this.isMenuOpen) {
       this.closeAllDropdowns();
+      this.sortDropdownOpen = false;
+    }else {
+      this.pathwaysOpen = true;
     }
   }
 
   closeAllDropdowns() {
     this.pathwaysOpen = false;
-    this.exportOpen = false;
-    this.targetAnalysisOpen = false;
   }
 
   selectPathway(event: Event, pathway: string) {
@@ -1083,10 +1084,23 @@ private compareEnzymes(nodes: any[],timepoint: number): void{
     this.setMap(code, this.selectedTimeIndex);
   }
 
-  selectTarget(event: Event, target: string) {
+  // ------------------ SORT BY FUNCTIONALITY -------------------
+  sortDropdownOpen = false;
+  
+  toggleSortDropdown(event: MouseEvent) {
     event.stopPropagation();
-    console.log('Selected:', target);
+    this.sortDropdownOpen = !this.sortDropdownOpen;
   }
+  
+  sortPathways(criteria: string) {
+    console.log(`Sorting by ${criteria}`);
+    
+    // TODO: Code for sorting the pathways
+    
+    this.sortDropdownOpen = false;
+  }
+
+
 
   updateTimeFromClick(event: MouseEvent) {
     if (this.sliderLine) {
@@ -1102,10 +1116,211 @@ private compareEnzymes(nodes: any[],timepoint: number): void{
     }
   }
 
-  isCustomisationPanelOpen: boolean = false;
 
-  onCustomisationPanelToggle() {
-    this.isCustomisationPanelOpen = !this.isCustomisationPanelOpen;
+  //  ------------------ EXPORTING -------------------
+  
+  exportSubmenuOpen = false;
+
+  toggleExportSubmenu(event: MouseEvent) {
+    event.preventDefault();
+    event.stopPropagation(); 
+    this.exportSubmenuOpen = !this.exportSubmenuOpen;
   }
+
+  onSubmenuClick(event: MouseEvent) {
+    event.stopPropagation(); 
+  }
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent) {
+    // Close submenu if clicked outside
+    if (this.exportSubmenuOpen) {
+      this.exportSubmenuOpen = false;
+    }
+  }
+
+  exportImage(format: string) {
+    if (!this.myDiagram) return;
+  
+    const diagramBounds = this.myDiagram.documentBounds; // Get the actual bounds of the diagram
+    const diagramWidth = diagramBounds.width;
+    const diagramHeight = diagramBounds.height;
+  
+    // Max size you want for the exported image
+    const maxWidth = 13500; 
+    const maxHeight = 2200;
+
+    // Calculate scale to fit the diagram within the maxSize while maintaining the aspect ratio
+    const scaleX = maxWidth / diagramWidth;
+    const scaleY = maxHeight / diagramHeight;
+    const scale = Math.min(scaleX, scaleY);
+  
+    if (format === 'png') {
+      const pngData = this.myDiagram.makeImageData({
+        background: "white",
+        scale: scale,  // Adjusted scale
+        maxSize: new go.Size(maxWidth, maxHeight),
+        type: "image/png"
+      });
+  
+      if (pngData) {
+        const link = document.createElement('a');
+        if (typeof pngData === 'string') {
+          link.href = pngData;
+        } else {
+          console.error('Failed to generate PNG image as a string.');
+          return;
+        }
+        link.download = 'diagram.png';
+        link.click();
+      } else {
+        console.error('Failed to generate PNG image.');
+      }
+  
+    } else if (format === 'svg') {
+      const svg = this.myDiagram.makeSvg({
+        scale: scale,  // Adjusted scale
+        background: 'white'
+      });
+  
+      if (svg) {
+        const serializer = new XMLSerializer();
+        const svgData = serializer.serializeToString(svg);
+        const blob = new Blob([svgData], { type: "image/svg+xml" });
+        const url = URL.createObjectURL(blob);
+  
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = 'diagram.svg';
+        link.click();
+  
+        URL.revokeObjectURL(url);
+      } else {
+        console.error('Failed to generate SVG image.');
+      }
+  
+    } else {
+      console.error(`Unsupported format: ${format}`);
+    }
+  }
+
+  //  ------------------ UPLOADING -------------------
+
+  isUploadModalOpen: boolean = false;
+  uploadedFiles: { name: string; file: File }[] = [];
+  unsupportedFileTypeMessage: string = '';
+  validationMessage: string = '';
+  warningMessage: string = '';
+  showFileList: boolean = false;
+
+  // Open the modal when the 'Import files' button is clicked
+  openUploadModal() {
+    this.isUploadModalOpen = true;
+  }
+
+  // Close the modal when the 'X' button is clicked
+  closeUploadModal() {
+    this.isUploadModalOpen = false;
+    this.uploadedFiles = []; // Clear uploaded files on close
+    this.unsupportedFileTypeMessage = '';
+    this.validationMessage = '';
+    this.warningMessage = '';
+    this.showFileList = false;
+  }
+
+  // Trigger file input click
+  onUploadClick(): void {
+    const fileInput = document.createElement('input');
+    fileInput.type = 'file';
+    fileInput.multiple = true; // Allow multiple file selection
+
+    // Trigger the click event
+    fileInput.onchange = (event: any) => {
+      const files: FileList = event.target.files; // Get the selected files
+
+      // if files are selected, handle them
+      if (files && files.length > 0) {
+        this.handleFiles(files);
+      }
+    };
+
+    fileInput.click();
+  }
+
+  // Handle the selected files
+  private handleFiles(files: FileList): void {
+    const validExtensions = ['txt', 'csv']; // Supported file types
+
+    // Reset the warning messages each time files are uploaded
+    this.unsupportedFileTypeMessage = '';
+    this.validationMessage = '';
+    this.warningMessage = '';
+
+    const newFiles: { name: string; file: File }[] = [];
+
+    // Loop through the selected files
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      const fileExtension = file.name.split('.').pop()?.toLowerCase(); // Get the file extension
+      // Check if the file extension is valid
+      if (fileExtension && validExtensions.includes(fileExtension)) {
+        newFiles.push({ name: file.name, file: file }); // Add the file to the new files array
+      } else {
+        this.unsupportedFileTypeMessage += `File "${file.name}" is not supported. Supported formats: ${validExtensions.join(', ')}<br>`; // Display unsupported file type message
+      }
+    }
+
+    // Update the uploadedFiles array with the newly selected valid files
+    this.uploadedFiles = [...this.uploadedFiles, ...newFiles];
+    this.showFileList = this.uploadedFiles.length > 0; // Show the file list if files are uploaded
+  }
+
+  // Remove a specific file from the uploadedFiles list
+  removeFile(index: number): void {
+    this.uploadedFiles.splice(index, 1);
+    this.showFileList = this.uploadedFiles.length > 0;
+  }
+
+  // Add files
+  addFiles() {
+    if (this.uploadedFiles.length > 0) {
+      console.log('Files to be added:', this.uploadedFiles);
+      
+      // TODO: Add functionality to add and process more files to already existing ones
+
+      this.closeUploadModal(); // Close the modal after adding
+    } else {
+      console.error('No files selected!');
+    }
+  }
+
+  //  ------------------ FILTERING PATHWAYS -------------------
+  isFilterPathwayModalOpen: boolean = false;
+  selectedFilters: string[] = [];
+
+  openFilterPathwayModal() {
+    this.isFilterPathwayModalOpen = true;
+  }
+
+  closeFilterPathwayModal() {
+    this.isFilterPathwayModalOpen = false;
+  }
+
+  updateFilter(event: any) {
+    const filterValue = event.target.id;
+    if (event.target.checked) {
+      this.selectedFilters = [...this.selectedFilters, filterValue];
+    } else {
+      this.selectedFilters = this.selectedFilters.filter(filter => filter !== filterValue);
+    }
+    console.log('Selected Filters:', this.selectedFilters);
+  }
+
+  FilterPathways() {
+  // TODO: Add Filtering of pathways functionality
+    this.closeFilterPathwayModal();
+  }
+
+  
 }
 
