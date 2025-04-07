@@ -261,8 +261,8 @@ export class UploadComponent {
   //     });
   // }
   
-  
-  
+
+
   // Process the uploaded files
   processFiles(): void {
     const validExtensions = ['txt', 'csv'];
@@ -285,6 +285,8 @@ export class UploadComponent {
             this.warningMessage = `File ${fileObj.name} is empty or invalid.`;
             return reject();
           }
+
+          console.log(`Parsed data from ${fileObj.name}:`, parsedData);
 
           const fileType = this.identifyFileType(parsedData, fileObj.name);
           const shortName = (fileObj.name || '').replace(/\.[^/.]+$/, '');
@@ -318,11 +320,17 @@ export class UploadComponent {
         this.fileDataService.setExpressionData(expressionData);
         const annotationData = this.fileDataService.getAnnotationData();
 
+        console.log("Expression data files:", expressionData);
+        console.log("Annotation data files:", annotationData);
+
         const combinedArrayList: any[][] = [];
 
         for (const [exprFilename, exprData] of Object.entries(expressionData)) {
           const singleExpressionMap = { [exprFilename]: exprData };
           const commonGenes = this.findCommonGenes(singleExpressionMap, annotationData);
+
+          console.log(`Common genes for ${exprFilename}:`, commonGenes);
+
           const combined = this.createCombinedDataset(commonGenes, singleExpressionMap, annotationData);
 
           if (!combined || combined.length === 0) {
@@ -330,10 +338,14 @@ export class UploadComponent {
             continue;
           }
 
+          console.log(`Combined dataset for ${exprFilename}:`, combined);
           combinedArrayList.push(combined);
         }
 
         const allCombined = combinedArrayList.flat();
+
+        console.log("All combined data (flattened):", allCombined);
+        console.log("Combined arrays stored separately:", combinedArrayList);
 
         if (allCombined.length === 0) {
           this.warningMessage = "No combined data available to extract EC numbers from any expression file.";
