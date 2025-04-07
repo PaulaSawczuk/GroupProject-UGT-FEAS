@@ -31,16 +31,19 @@ export class DisplayComponent {
   pathwayData: any[] = [];
   // Array of only names in the same order as pathwayData but for display purposes
   pathways: any[] = [];
+
   // Array for storing response of getMapData
   mapData: any[] = [];
 
-  ALLpathwayData: any[] = [];
+  ALLpathwayData: any[] = []; // Global attribute for storing all Pathway Data - Name, code, Edges, Nodes and EnzymeList
 
   enzymePathwayList: string[] = [];
 
-  filteredGenes: any[] = [];
+  filteredGenes: any[] = []; // Array of Genes, Logfc and EC number of combined Data 
 
-  pathwayNumber: number = 10;
+  pathwayNumber: number = 10; // Hard Coded - but can add functionality for user to change this
+
+  fileNames: any[] = [];
 
   // Creating a GoJS Diagram 
   // Initially set as NULL 
@@ -64,56 +67,12 @@ private filterString(input: string): boolean {
     return pattern.test(input);
   }
 
-
-private matchEnzymetoGenes(): void{
-  const expressionData = this.fileDataService.getExpressionData();
-  console.log(expressionData);
-  const annotationData = this.fileDataService.getAnnotationData();
-  console.log(annotationData);
-  //console.log(expresseionData.keys())
-  //console.log(expresseionData['entries']);
-  const keys = Object.keys(expressionData);
-  console.log(keys);
-
-  type GeneExpression = {
-    gene_name: string;
-    baseMean: number;
-    log2FoldChange: number;
-    lfcSE: number;
-    stat: number;
-    pvalue: number;
-    padj: number;
-  };
-
-  type GeneAnnotation = {
-    Sequence_Name: string;
-    GO_ID: string;
-    GO_Term: string;
-    GO_Category: string;
-    EC: string;
-    Enzyme_Name: string;
-    Description: string;
-  };
-
-  for (const [filename, data] of Object.entries(expressionData)) {
-    const headerRow = data[0].map(h => h.toLowerCase());
-    const geneColumnIndex = headerRow.findIndex(col => col === 'gene');
-    const log2FoldChangeColumnIndex = headerRow.findIndex(col => col === 'log2foldchange');
-    console.log(geneColumnIndex);
-    console.log(log2FoldChangeColumnIndex);
-  }
-  
-}
-
-
-
-
 private getEnzymeGenes(): void{
   const combinedData = this.fileDataService.getCombinedData();
 
   //console.log('Combined data:', combinedData); // Add debug logging
   var geneEnzymes: any[] = []; // Use Set to avoid duplicates
-  var filteredSet: Set<any> = new Set()
+  //var filteredSet: Set<any> = new Set()
   
   if (combinedData && combinedData.length > 0) {
     // Loop through the combined data to find EC numbers
@@ -148,11 +107,12 @@ private getEnzymeGenes(): void{
       
     }
   }
-  console.log(geneEnzymes);
-  this.filterEnzymeGenes(geneEnzymes);
+  console.log(geneEnzymes); //Array of Genes with EC matched 
+  this.filterEnzymeGenes(geneEnzymes); // pass to 
 }
 
 private filterEnzymeGenes(geneEnzymes:any[]):void{
+
 
   for (let i=0; i<geneEnzymes.length; i++){
     //console.log(geneEnzymes[i].enzyme);
@@ -188,19 +148,29 @@ private filterEnzymeGenes(geneEnzymes:any[]):void{
 }
 
 private extractECNumbers2(): void {
-  var enzymeList: Set<any> = new Set()
+
+  // Set this up to loop through all files -- total enzymes 
+  console.log('Extracting Enzymes to Search');
+  console.log(this.filteredGenes);
+  //var enzymeList: Set<any> = new Set()
+  var enzymeList: any[]=[];
 
   const genes = this.filteredGenes;
   for (let i=0; i<genes.length; i++){
     let enzyme = genes[i].enzyme[0];
     //console.log(enzyme);
-    enzymeList.add(enzyme);
+    enzymeList.push(enzyme);
   }
   //console.log(enzymeList)
   this.enzymeList = Array.from(enzymeList);
 
 }
 
+
+
+
+// LogFC to RGB conversion function 
+// Takes Logfc value -- returns rgb value to change enzyme node colour
 private logfcToRGB(logFoldChange: number): string{
   // Normalize log fold change to be between -1 and 1 for smoother gradient mapping
   const normalized = Math.max(-1, Math.min(1, logFoldChange));
@@ -218,6 +188,8 @@ private logfcToRGB(logFoldChange: number): string{
   return `rgb(${Math.floor(red * 255)}, ${Math.floor(green * 255)}, ${blue})`;
 }
 
+// Takes array of logfc and find average value 
+// used when there are multiple genes acting on an enzyme 
 private findMean(arr: any[]): number {
   // Ensure the array is not empty
   if (arr.length === 0) return 0;
@@ -231,7 +203,12 @@ private findMean(arr: any[]): number {
   return sum / arr.length;
 }
 
+
+// Mathing Enzyme Nodes to Enzymes present in Expression file selected 
+// Changing Enzyme node colour based on LogFC if match is found
+// Adding Genes to Enzyme node 
 private matchGenes(genes: any[], nodes: any[]): void {
+  // Matching Genes to Enzymes in Selected Map Data 
   var enzymeSet = new Set();
   //console.log(genes);
   var GeneSet = new Set();
@@ -296,12 +273,17 @@ private matchGenes(genes: any[], nodes: any[]): void {
   }
 
 
+
+// Takes nodes of selected Map 
+// Gets relevant timepoint, retrieves annotated genes
 private compareEnzymes(nodes: any[]): void{
-
-  // Get Genes with logfc for the timepoint 
+  console.log('Extracting Logfc Data - Comparing to Enzymes');
+  // Get Genes with logfc for the timepoint  (index this in future)
   const genes = this.filteredGenes;
-  console.log(genes);
+  //console.log(genes);
 
+  // Taking Genes from file and matching them to enzyme nodes 
+  // Change enzyme node attributes accordingly 
   this.matchGenes(genes, nodes)
 }
 
@@ -309,6 +291,7 @@ private compareEnzymes(nodes: any[]): void{
   /** --------  MAP Data Processing Functions -------- **/
   // Function for loading Names of each pathway that is fetched from the backend
   loadNames(): void {
+    console.log('Processing Pathway Names');
     this.pathways = this.pathwayData.map(pathway => pathway.name);
   }
 
@@ -369,6 +352,12 @@ private compareEnzymes(nodes: any[]): void{
 
   ngOnInit(): void {
 
+    const files = this.fileDataService.getExpressionData();
+    const keys = Object.keys(files);
+    this.fileNames = keys;
+    console.log(this.fileNames);
+    console.log(keys.length);
+    console.log(keys[0]);
     // Loading Screen
     this.isLoading = true;
     // Processing Input Data (1 contrast) - Match Genes and Extracting LogFc + EC numbers
@@ -381,6 +370,7 @@ private compareEnzymes(nodes: any[]): void{
       (response) => {
         // Handle the successful response
         this.pathwayData = response;
+        // Loading Pathway names 
         this.loadNames();
         console.log('Received from backend:', response);
         console.log('-----------------------------');
@@ -403,14 +393,12 @@ private compareEnzymes(nodes: any[]): void{
 
   // --------------- Retrieving Mapping Data -------------------
   // Sends Map code (Post Request)(e.g. ec:00030)
-  // Returns Mapping Data for relevant (Nodes and Links)
+  // Returns Mapping Data for relevant pathways (Nodes and Links)
   // Calls Data Processing functions (loadNodes, loadLinks)
-  // Changes Diagram 
   getMapData(): void {
 
-    // Sending Pathway code and Filterend Genes
 
-    // REMOVE GENES -- COMPARISON AFTER MAP NODES ARE GENERATED 
+    // Sending top 10 Pathways to back-end to retrieve Mapping Data 
     const data = [this.pathwayData];
     this.isLoading = true;
     console.log('-----------------------------');
@@ -418,9 +406,11 @@ private compareEnzymes(nodes: any[]): void{
     this.enzymeApiServicePost.postALLMapData(data).subscribe(
       (response) =>{
       console.log(response);
+
       // Storing all the pathways + data to global attribute 
       // This can used to get data for selected map
       this.ALLpathwayData = response;
+
       console.log('Pathway Data Loaded Successfully');
       //this.setMap(code);
       this.isLoading = false;
@@ -429,35 +419,6 @@ private compareEnzymes(nodes: any[]): void{
         console.error('Error:', error);
         this.isLoading = false;
       });
-
-    //const data2 = [code, this.filteredGenes];
-    /*this.enzymeApiServicePost.postMapData(data2).subscribe(
-      (response) => {
-
-        // Return response on mapping -- Change to return all maps 
-
-        this.mapData = response;
-        console.log('Received from backend:', response);
-        console.log('Loading data');
-        var nodes = this.loadNodes();
-        var links = this.loadLinks();
-
-        // Loading a list of enzymes present in the map
-        var enzymes = this.loadEnzymes();
-        console.log(enzymes);
-        //this.matchEnzymetoGenes();
-
-        // Compare enzymes to nodes -- change colour base on logFc
-        this.compareEnzymes(nodes);
-        this.changeDiagram(nodes, links);
-        this.isLoading = false;
-      },
-      (error) => {
-        console.error('Error:', error);
-        this.isLoading = false;
-      }
-    );*/
-    //this.setMap(code);
   };
 
   setMap(code: string): void {
@@ -883,6 +844,7 @@ private compareEnzymes(nodes: any[]): void{
     const code = path.pathway
     console.log(code);
 
+    // Set Time index to defualt value of 0 -- open up on first timepoint 
     this.selectedTimeIndex = 0;
     // Retrieving Mapping Data from Backend
     this.setMap(code);
@@ -902,6 +864,7 @@ private compareEnzymes(nodes: any[]): void{
 
       if (timeIndex >= 0 && timeIndex < this.timepoints.length) {
         this.selectedTimeIndex = timeIndex;
+        console.log(this.selectedTimeIndex);
       }
     }
   }
