@@ -90,6 +90,7 @@ app.post('/api/getPathways', (req, res) => {
     var number= req.body[1];
     //console.log(number);
     var enzymes = req.body[0];
+    console.log(enzymes);
     //console.log(enzymes);
     getEnzymePathways(enzymes,number).then(pathways => getPathwayNames(pathways))
         .then((result)=>{

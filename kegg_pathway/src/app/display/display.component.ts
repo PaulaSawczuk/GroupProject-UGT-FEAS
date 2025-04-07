@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { enzymeApiServicePost } from '../services/kegg_enzymepathwaysPost.serice';
 import * as go from 'gojs';
 import { FileDataService } from '../services/file-data.service';
+import { filter } from 'rxjs';
 
 declare var figure: any; 
 
@@ -73,107 +74,182 @@ private filterString(input: string): boolean {
     return pattern.test(input);
   }
 
+// --------------- Filtering Required Information from Expression/Contrast Data -----------
+// Takes Annotation Files and selects Genes, Logfc and EC columns for each 
+// Filters to only get Genes that have corresponding full EC codes (filterEnzymeGenes)
+
 private getEnzymeGenes(): void{
-  const combinedData = this.fileDataService.getCombinedData();
-
+  const combinedData = this.fileDataService.getMultipleCombinedArrays();
+  //const firstFile = combinedData[0];
+  var filteredFiles = [];
+  //console.log('First File: '+firstFile);
+  for (let i=0; i<combinedData.length; i++){
+    const file = combinedData[i];
   //console.log('Combined data:', combinedData); // Add debug logging
-  var geneEnzymes: any[] = []; // Use Set to avoid duplicates
-  //var filteredSet: Set<any> = new Set()
-  
-  if (combinedData && combinedData.length > 0) {
-    // Loop through the combined data to find EC numbers
-    for (const item of combinedData) {
-      //console.log(item.gene);
-      //console.log(item.log)
-      for (const key in item) {
-        //console.log(key);
-        var logfc;
-        var gene;
-        var ec;
-        if (key.includes('_log2FoldChange')&& item[key]){
-          logfc = item[key];
-        }
+    var geneEnzymes: any[] = []; // Use Set to avoid duplicates
+    //var filteredSet: Set<any> = new Set()
+    
+    if (file && file.length > 0) {
+      // Loop through the combined data to find EC numbers
+      for (const item of file) {
+        //console.log(item.gene);
+        //console.log(item.log)
+        for (const key in item) {
+          //console.log(key);
+          var logfc;
+          var gene;
+          var ec;
+          if (key.includes('_log2FoldChange')&& item[key]){
+            logfc = item[key];
+          }
 
-        if (key.includes("_EC") && item[key]) {
-          ec = item[key];
-          if (ec.startsWith("EC")){
-              //ec = item[key];
-              gene = item.gene
-              //console.log(ec);
-              //console.log(gene);
-              //console.log(logfc);
-              geneEnzymes.push({
-                gene: gene,
-                logfc: logfc,
-                enzyme: ec
-              })
-          };
+          if (key.includes("_EC") && item[key]) {
+            ec = item[key];
+            if (ec.startsWith("EC")){
+                //ec = item[key];
+                gene = item.gene
+                //console.log(ec);
+                //console.log(gene);
+                //console.log(logfc);
+                geneEnzymes.push({
+                  gene: gene,
+                  logfc: logfc,
+                  enzyme: ec
+                })
+            };
+          }
         }
+        
       }
-      
+      filteredFiles.push(geneEnzymes);
     }
   }
-  console.log(geneEnzymes); //Array of Genes with EC matched 
-  this.filterEnzymeGenes(geneEnzymes); // pass to 
+  //console.log('filtered files: '+filteredFiles)
+  //console.log(geneEnzymes); //Array of Genes with EC matched 
+  this.filterEnzymeGenes(filteredFiles); // pass to 
 }
 
-private filterEnzymeGenes(geneEnzymes:any[]):void{
+// Called from getEnzymeGenes()
+// Filters genes to those only with corresponding ec codes and reformats them in the correct order
+private filterEnzymeGenes(filteredFiles:any[]):void{
+  var filteredFiles_enzymes = [];
+  for (let j=0; j<filteredFiles.length; j++){
+    console.log(this.fileNames[j]);
+    let geneEnzymes = filteredFiles[j];
+    console.log(geneEnzymes);
+    for (let i=0; i<geneEnzymes.length; i++){
+      //console.log(geneEnzymes[i].enzyme);
+      let ecNumber = geneEnzymes[i].enzyme;
+      if (ecNumber.toUpperCase().startsWith('EC:')) {
+        // Convert to lowercase and remove spaces
+        ecNumber = ecNumber.replace(/\s+/g, '').toLowerCase();
+        ecNumber = ecNumber.split("|");
 
-
-  for (let i=0; i<geneEnzymes.length; i++){
-    //console.log(geneEnzymes[i].enzyme);
-    let ecNumber = geneEnzymes[i].enzyme;
-    if (ecNumber.toUpperCase().startsWith('EC:')) {
-      // Convert to lowercase and remove spaces
-      ecNumber = ecNumber.replace(/\s+/g, '').toLowerCase();
-      ecNumber = ecNumber.split("|");
-
-    } else {
-      // Add lowercase ec: prefix
-      ecNumber = "ec:" + ecNumber;
-    }
-
-    for (let j=0; j<ecNumber.length; j++){
-      var filteredEnzymes = [];
-      //console.log(enzymes[j])
-      //console.log(this.filterString(enzymes[j]));
-      if (this.filterString(ecNumber[j]) == true)
-        filteredEnzymes.push(ecNumber[j]);
-        ecNumber = filteredEnzymes;
-
+      } else {
+        // Add lowercase ec: prefix
+        ecNumber = "ec:" + ecNumber;
       }
-      //console.log(ecNumber);
-      geneEnzymes[i].enzyme = ecNumber;
+
+      for (let j=0; j<ecNumber.length; j++){
+        var filteredEnzymes = [];
+        //console.log(enzymes[j])
+        //console.log(this.filterString(enzymes[j]));
+        if (this.filterString(ecNumber[j]) == true)
+          filteredEnzymes.push(ecNumber[j]);
+          ecNumber = filteredEnzymes;
+
+        }
+        //console.log(ecNumber);
+        geneEnzymes[i].enzyme = ecNumber;
+    }
+    //console.log(geneEnzymes);
+    const filteredArray = geneEnzymes.filter((item: { enzyme: string | any[]; }) => {
+      return item.enzyme && (!Array.isArray(item.enzyme) || item.enzyme.length > 0);
+    });
+    //console.log(filteredArray);
+    filteredFiles_enzymes.push(filteredArray);
   }
-  //console.log(geneEnzymes);
-  const filteredArray = geneEnzymes.filter(item => {
-    return item.enzyme && (!Array.isArray(item.enzyme) || item.enzyme.length > 0);
-  });
-  //console.log(filteredArray);
-  this.filteredGenes = filteredArray;
+  //console.log("Filteref out enzymes: "+ filteredFiles_enzymes[0]);
+  this.filteredGenes = filteredFiles_enzymes;
 }
 
-private extractECNumbers2(): void {
+
+// ---------------- Extraction of enzymes in filtered Constrast Datasets ---------------------
+// This Gets a processed list of all the enzymes present in the input files that have corresponding DEGs
+// Returns the top 1000 (or otherwise specified) list of enzymes to be queried to KEGG to get paths
+
+private extractECNumbers(): void {
 
   // Set this up to loop through all files -- total enzymes 
   console.log('Extracting Enzymes to Search');
-  console.log(this.filteredGenes);
+  //console.log(this.filteredGenes);
   //var enzymeList: Set<any> = new Set()
   var enzymeList: any[]=[];
+  //const file_number=0; // default to first file
 
-  const genes = this.filteredGenes;
-  for (let i=0; i<genes.length; i++){
-    let enzyme = genes[i].enzyme[0];
-    //console.log(enzyme);
-    enzymeList.push(enzyme);
+  console.log(this.filteredGenes.length);
+  console.log(this.filteredGenes);
+  for (let i=0; i<this.filteredGenes.length;i++){
+    const genes = this.filteredGenes[i];
+    console.log(genes);
+    for (let i=0; i<genes.length; i++){
+      let enzyme = genes[i].enzyme[0];
+      //console.log(enzyme);
+      enzymeList.push(enzyme);
+    }
+    //const topEnzymes = this.getTop100Names(enzymeList);
   }
+  console.log(enzymeList);
+  const topEnzymes = this.getTopEnzymes(enzymeList);
   //console.log(enzymeList)
-  this.enzymeList = Array.from(enzymeList);
+  this.enzymeList = Array.from(topEnzymes);
 
 }
 
 
 
+// --------- Enzyme Tally and Processing Functions --------
+// Called from extractECNumbers()
+// Getting a list of all enzymes present in files
+// Mulitple Genes to one enzyme are represented by enzyme duplicated in list 
+
+// Fully Enzyme List is too large query KEGG rest API in succession 
+// Enzymes are tallied and sorted in descending order 
+// Top 1000 (or can be changed) are selected and submitted to backend to query KEGG
+private tallyStrings(items: string[]): Record<string, number> {
+  const tally: Record<string, number> = {};
+
+  items.forEach(item => {
+    tally[item] = (tally[item] || 0) + 1;
+  });
+
+  return tally;
+}
+
+// Sorting Enzyme Tally 
+private sortTally(tally: Record<string, number>): [string, number][] {
+  // Convert the tally object into an array of key-value pairs
+  const entries = Object.entries(tally);
+  // Sort by the count in descending order
+  entries.sort((a, b) => b[1] - a[1]);
+  return entries;
+}
+
+// Extracting Top enzymes from Tally
+private getTopEnzymes(items: string[]): string[] {
+  const tally = this.tallyStrings(items);       // Step 1
+  const sortedTally = this.sortTally(tally);    // Step 2
+
+  // Step 3: Select the top 100 items and extract only the names (keys)
+  const top100Names = sortedTally.slice(0, 1000).map(entry => entry[0]);
+  return top100Names;
+}
+
+
+
+
+// ----------- Differential Gene Expression Data Functions ----------------
+// Called when changing Node information when map is selected/ timepoint changes 
 
 // LogFC to RGB conversion function 
 // Takes Logfc value -- returns rgb value to change enzyme node colour
@@ -278,20 +354,18 @@ private matchGenes(genes: any[], nodes: any[]): void {
     //console.log(enzymeSet);
   }
 
-
-
 // Takes nodes of selected Map 
 // Gets relevant timepoint, retrieves annotated genes
-private compareEnzymes(nodes: any[]): void{
+private compareEnzymes(nodes: any[],timepoint: number): void{
   console.log('Extracting Logfc Data - Comparing to Enzymes');
   // Get Genes with logfc for the timepoint  (index this in future)
-  const genes = this.filteredGenes;
-  //console.log(genes);
-
+  const genes = this.filteredGenes[timepoint];
   // Taking Genes from file and matching them to enzyme nodes 
   // Change enzyme node attributes accordingly 
   this.matchGenes(genes, nodes)
 }
+
+
 
   
   /** --------  MAP Data Processing Functions -------- **/
@@ -300,7 +374,7 @@ private compareEnzymes(nodes: any[]): void{
     console.log('Processing Pathway Names');
     this.pathways = this.pathwayData.map(pathway => pathway.name);
   }
-
+  /* --------- JENNYS ------------------
   // Loads Nodes from mapData 
   loadNodes(): any[] {
     var nodeData=[];
@@ -315,7 +389,7 @@ private compareEnzymes(nodes: any[]): void{
     }
     console.log(nodeData);
     return nodeData;
-  }
+  }*/
 
   loadEnzymes(): any[] {
     var enzymeData=[];
@@ -331,7 +405,7 @@ private compareEnzymes(nodes: any[]): void{
     }
     return enzymeData;
   }
-
+  /* ---------- JENNYS ----------------
   // Loads Links from mapData 
   loadLinks(): any[] {
     console.log('Getting Links');
@@ -347,9 +421,9 @@ private compareEnzymes(nodes: any[]): void{
     }
     console.log(linkData);
     return linkData;
-  }
-  isLoading: boolean = false;
+  }*/
 
+  isLoading: boolean = false;
   
   // -------------- Sending Pathway Request to Back-end ---------------------
   // Fetches relevant pathways when the Display component is initialised
@@ -358,25 +432,29 @@ private compareEnzymes(nodes: any[]): void{
 
   ngOnInit(): void {
 
+    // Assinging filenames from ExpressionData 
+    // Can be used to create list to select which to view 
+    // Also good for debugging 
     const files = this.fileDataService.getExpressionData();
-    const keys = Object.keys(files);
-    this.fileNames = keys;
-    console.log(this.fileNames);
-    console.log(keys.length);
-    console.log(keys[0]);
+    const fileNames = Object.keys(files);
+    console.log(fileNames);
+    this.fileNames = fileNames;
     // Loading Screen
     this.isLoading = true;
-    // Processing Input Data (1 contrast) - Match Genes and Extracting LogFc + EC numbers
+    // Processing Input Data - Match Genes and Extracting LogFc + EC numbers
     this.getEnzymeGenes();
     // Getting List of Enzymes from Input Data
-    this.extractECNumbers2();
+    this.extractECNumbers();
+
     // Setting up Data Array to send to back-end API
+    // Sending list of enzymes (from ExtractECNUmber()) and Number of top pathways to get (e.g. 10))
     const data = [this.enzymeList, this.pathwayNumber];
     this.enzymeApiServicePost.postEnzymeData(data).subscribe(
       (response) => {
         // Handle the successful response
         this.pathwayData = response;
-        // Loading Pathway names 
+
+        // Loading Pathway names -- for displaying to user
         this.loadNames();
         console.log('Received from backend:', response);
         console.log('-----------------------------');
@@ -403,7 +481,6 @@ private compareEnzymes(nodes: any[]): void{
   // Calls Data Processing functions (loadNodes, loadLinks)
   getMapData(): void {
 
-
     // Sending top 10 Pathways to back-end to retrieve Mapping Data 
     const data = [this.pathwayData];
     this.isLoading = true;
@@ -418,7 +495,6 @@ private compareEnzymes(nodes: any[]): void{
       this.ALLpathwayData = response;
 
       console.log('Pathway Data Loaded Successfully');
-      //this.setMap(code);
       this.isLoading = false;
       },
       (error) => {
@@ -427,18 +503,21 @@ private compareEnzymes(nodes: any[]): void{
       });
   };
 
-  setMap(code: string): void {
+  setMap(code: string, timepoint: number): void {
 
     console.log("Getting Map Data: "+code);
+    // Finding pathway data by its code in pathway array
     const pathway = this.ALLpathwayData.find((obj => obj.pathway === code));
     //console.log(pathway);
+
+    // Extracting nodes and edges 
     var nodes = pathway.nodes;
     var links = pathway.edges;
     console.log('Nodes + Edges Retrieved')
     //console.log(nodes);
     //console.log(links);
     console.log('Loading Differential Expression Data')
-    this.compareEnzymes(nodes);
+    this.compareEnzymes(nodes,timepoint);
     this.changeDiagram(nodes, links);
     this.isLoading = false;
 
@@ -596,50 +675,6 @@ private compareEnzymes(nodes: any[]): void{
           fill: "black",  // Set the color of the arrow to black
           stroke: null  // No border around the arrow
         })
-    )
-  );
-
-  /*
-  // Enzyme Node template with node shape as enzyme type
-  this.myDiagram.nodeTemplateMap.add("enzyme",
-  new go.Node("Auto") // "Auto" layout allows the node to adapt its size automatically
-  .add(
-    new go.Shape("Rectangle", 
-      {
-        name: "RECTANGLE",
-        fill: "lightgrey", 
-        width: 50,
-        height: 30, 
-        stroke: 'black',             // Border (stroke) color is set to blue
-        strokeWidth: 3, 
-      }).bind("figure", "enzymeType",function(enzymeType: string): string {
-        // Map enzymeType to specific shapes
-        switch (enzymeType) {
-          case "Oxidoreductase":
-            return "Circle";
-          case "Transferase":
-            return "Rectangle";
-          case "Hydrolase":
-            return "Diamond";
-          case "Ligase":
-            return "Triangle";
-          case "Lyase":
-            return "Capsule"
-          case "Translocase":
-            return "Square";
-          case "Isomerase":
-              return "TriangleDown";
-          default:
-            return "Rectangle"; // Default shape
-        }
-      })
-      .bind("fill","colour")
-    ).add(new go.TextBlock(
-      { margin: 2,
-        font: "10px sans-serif",
-        wrap: go.TextBlock.WrapFit,
-      width: 80 })
-      .bind("text")
     )
   );
 
@@ -1038,9 +1073,14 @@ private compareEnzymes(nodes: any[]): void{
     console.log(code);
 
     // Set Time index to defualt value of 0 -- open up on first timepoint 
-    this.selectedTimeIndex = 0;
-    // Retrieving Mapping Data from Backend
-    this.setMap(code);
+    //this.selectedTimeIndex = 0;
+    console.log(this.selectedTimepoint);
+    console.log(this.selectedTimeIndex);
+    //console.log(this.filteredGenes[this.selectedTimepoint][0]);
+
+    // Retrieving Mapping Data from stored arrays
+    // Specifcying the timepoint -- can be set default to 0 (first file)
+    this.setMap(code, this.selectedTimeIndex);
   }
 
   selectTarget(event: Event, target: string) {
