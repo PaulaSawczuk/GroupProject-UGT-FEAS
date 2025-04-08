@@ -5,7 +5,7 @@
 ***/
 
 /***
-// Shared Methods 
+// Shared Methods For Loading Files
 ***/
 
 // Contains methods to check file types
