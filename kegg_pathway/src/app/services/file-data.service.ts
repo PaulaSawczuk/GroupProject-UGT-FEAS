@@ -6,7 +6,7 @@ export class FileDataService {
 private fileData: { [fileName: string]: string[][] } = {};
 private pathways: string[] = []; // Add pathways property
 private expressionData: { [fileName: string]: string[][] } = {};
-private countMatrixData: { [fileName: string]: string[][] } = {};
+//private countMatrixData: { [fileName: string]: string[][] } = {};
 private combinedData: any[] = []; // Added for combined data
 private annotationData: { [filename: string]: string[][] } = {}; // Added for annotation data
 private multipleCombinedArrays: any[][] = [];
@@ -41,15 +41,15 @@ return this.expressionData;
 clearExpressionData(): void {
 this.expressionData = {};
  }
-setCountMatrixData(data: { [fileName: string]: string[][] }): void {
-this.countMatrixData = data;
- }
-getCountMatrixData(): { [fileName: string]: string[][] } {
-return this.countMatrixData;
- }
-clearCountMatrixData(): void {
-this.countMatrixData = {};
- }
+// setCountMatrixData(data: { [fileName: string]: string[][] }): void {
+// this.countMatrixData = data;
+//  }
+// getCountMatrixData(): { [fileName: string]: string[][] } {
+// return this.countMatrixData;
+//  }
+// clearCountMatrixData(): void {
+// this.countMatrixData = {};
+//  }
 
 // New methods for combined data and annotation data
 setCombinedData(data: any[]): void {
@@ -59,6 +59,19 @@ setCombinedData(data: any[]): void {
 getCombinedData(): any[] {
   return this.combinedData;
 }
+
+setMultipleCombinedArrays(data: any[][]): void {
+  this.multipleCombinedArrays = data;
+}
+
+getMultipleCombinedArrays(): any[][] {
+  return this.multipleCombinedArrays;
+}
+
+clearMultipleCombinedArrays(): void {
+  this.multipleCombinedArrays = [];
+}
+
 
 clearCombinedData(): void {
   this.combinedData = [];
@@ -75,21 +88,6 @@ getAnnotationData(): { [filename: string]: string[][] } {
 clearAnnotationData(): void {
   this.annotationData = {};
 }
-
-
-
-setMultipleCombinedArrays(data: any[][]): void {
-  this.multipleCombinedArrays = data;
-}
-
-getMultipleCombinedArrays(): any[][] {
-  return this.multipleCombinedArrays;
-}
-
-clearMultipleCombinedArrays(): void {
-  this.multipleCombinedArrays = [];
-}
-
 
 getAnnotationForGene(geneName: string): any {
   // Find annotation information for a specific gene
@@ -177,5 +175,5 @@ getGenesWithECNumbers(): string[] {
   }
   
   return Array.from(genesWithEC);
-  }
+}
 }

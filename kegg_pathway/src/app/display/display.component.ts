@@ -47,6 +47,8 @@ export class DisplayComponent {
 
   fileNames: any[] = [];
 
+  pathwaySizeData: any[] = [];
+
   // Creating a GoJS Diagram 
   // Initially set as NULL 
   private myDiagram: go.Diagram | null = null;
@@ -81,11 +83,15 @@ private filterString(input: string): boolean {
 
 private getEnzymeGenes(): void{
   const combinedData = this.fileDataService.getMultipleCombinedArrays();
+  //console.log('MultiCombined: '+combinedData);
+  //console.log('First File: '+combinedData[0]);
+  console.log('Number of Files: '+combinedData.length);
   //const firstFile = combinedData[0];
   var filteredFiles = [];
   //console.log('First File: '+firstFile);
   for (let i=0; i<combinedData.length; i++){
     const file = combinedData[i];
+    console.log(file);
   //console.log('Combined data:', combinedData); // Add debug logging
     var geneEnzymes: any[] = []; // Use Set to avoid duplicates
     //var filteredSet: Set<any> = new Set()
@@ -100,11 +106,11 @@ private getEnzymeGenes(): void{
           var logfc;
           var gene;
           var ec;
-          if (key.includes('_log2FoldChange')&& item[key]){
+          if (key.includes('_log2foldchange')&& item[key]){
             logfc = item[key];
           }
 
-          if (key.includes("_EC") && item[key]) {
+          if (key.includes("_enzyme.code") && item[key]) {
             ec = item[key];
             if (ec.startsWith("EC")){
                 //ec = item[key];
@@ -122,6 +128,7 @@ private getEnzymeGenes(): void{
         }
         
       }
+      //console.log(geneEnzymes);
       filteredFiles.push(geneEnzymes);
     }
   }
@@ -238,11 +245,11 @@ private sortTally(tally: Record<string, number>): [string, number][] {
 
 // Extracting Top enzymes from Tally
 private getTopEnzymes(items: string[]): string[] {
-  const tally = this.tallyStrings(items);       // Step 1
-  const sortedTally = this.sortTally(tally);    // Step 2
+  const tally = this.tallyStrings(items);    
+  const sortedTally = this.sortTally(tally);  
 
-  // Step 3: Select the top 100 items and extract only the names (keys)
-  const top100Names = sortedTally.slice(0, 1000).map(entry => entry[0]);
+  // Step 3: Select the top items and extract only the names
+  const top100Names = sortedTally.slice(0, 750).map(entry => entry[0]);
   return top100Names;
 }
 
@@ -353,6 +360,7 @@ private matchGenes(genes: any[], nodes: any[]): void {
     //console.log(allGenes);
     console.log('Total Number of instances of Genes: '+allGenes.length);
     //console.log(enzymeSet);
+    console.log('Enzymes Effected: '+ enzymeSet.size);
   }
 
 // Takes nodes of selected Map 
@@ -744,7 +752,7 @@ private compareEnzymes(nodes: any[],timepoint: number): void{
         case "Lyase":
           return "Rectangle"
         case "Translocase":
-          return "Square";
+          return "Capsule";
         case "Isomerase":
             return "TriangleDown";
         default:
@@ -1091,11 +1099,76 @@ private compareEnzymes(nodes: any[],timepoint: number): void{
     event.stopPropagation();
     this.sortDropdownOpen = !this.sortDropdownOpen;
   }
+
+
+  pathwaySize(): any[]{
+    let list = this.pathways;
+    let data = this.ALLpathwayData;
+    //console.log(list);
+    //console.log(data);
+    var pathwaysSize = [];
+    for (let j=0;j<list.length;j++){
+      //console.log(list[j]);
+      let pathway = list[j];
+      for (let i = 0; i< data.length;i++){
+        //console.log(data[i].name);
+        //console.log(data[i]);
+        if (pathway == data[i].name){
+          //console.log(data[i].enzymes);
+          let enzymes = data[i].enzymes;
+          let number = enzymes.length;
+          //console.log(number);
+          pathwaysSize.push({
+            name: pathway,
+            size: number,
+          })
+        }
+      }
+    }
+    return pathwaysSize;
+}
+
+
   
   sortPathways(criteria: string) {
     console.log(`Sorting by ${criteria}`);
-    
+    //console.log(criteria);
+    //console.log(this.pathways);
     // TODO: Code for sorting the pathways
+
+    // Sort A-Z
+    if (criteria == 'name'){
+      // sorting A-Z
+      let list = this.pathways;
+      list = list.sort();
+      console.log(list);
+      this.pathways = list;
+    }
+    // Sort Z-A
+    if (criteria == 'length'){
+      let list = this.pathways;
+      list = list.sort((a, b) => b.localeCompare(a));
+      console.log(list);
+      this.pathways = list;
+    }
+
+    // Sorting High to Low Pathway Size
+    if (criteria == 'highComp'){
+  
+      var pathwaysSize = this.pathwaySize()
+      pathwaysSize.sort((a, b) => b.size - a.size)
+      let sortedNames = pathwaysSize.map(item => item.name);
+      this.pathways = sortedNames;
+      };
+
+    // Sorting Low to High Pathway Size
+    if (criteria == 'lowComp'){
+
+      var pathwaysSize = this.pathwaySize()
+      pathwaysSize.sort((a, b) => a.size - b.size);
+      let sortedNames = pathwaysSize.map(item => item.name);
+      this.pathways = sortedNames;
+    }
     
     this.sortDropdownOpen = false;
   }
