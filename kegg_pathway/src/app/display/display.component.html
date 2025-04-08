@@ -84,6 +84,63 @@
             </li>
           </ul>
         </li>
+
+        <li>
+          <button class="dropdown-btn" (click)="isMenuOpen ? (nodesOpen = !nodesOpen) : null">
+            <div class="icons-container">
+              <div class="icons">
+                <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#482E3C">
+                  <path d="M480-360 280-560h400L480-360Z"/>
+                </svg>
+              </div>
+              <span class="menu-text">Node Categories</span>
+            </div>
+            <svg class="dropdown-arrow" [class.rotate]="nodesOpen" width="24" height="24" viewBox="0 -960 960 960">
+              <path d="M480-360 280-560h400L480-360Z" fill="currentColor"/>
+            </svg>
+          </button>
+        
+          <ul class="sub-menu" [class.show]="nodesOpen" style="overflow-y: auto; max-height: 300px;">
+            
+            <!-- Enzymes section -->
+            <li>
+              <strong>Enzymes</strong>
+              <ul>
+                <li *ngFor="let category of enzymeCategories">
+                  <strong>{{ category }}</strong>
+                  <ul>
+                    <li *ngFor="let enzyme of enzymeCategoryMap[category]">
+                      <a (click)="selectNodeFromDropdown(enzyme.ec, 'enzyme')">{{ enzyme.name }}</a>
+                    </li>
+                  </ul>
+                </li>
+              </ul>
+            </li>
+        
+            <!-- Compounds section -->
+            <li>
+              <strong>Compounds</strong>
+              <ul>
+                <li *ngFor="let compound of compoundList">
+                  <a (click)="selectNodeFromDropdown(compound, 'compound')">{{ compound }}</a>
+                </li>
+              </ul>
+            </li>
+        
+            <!-- Maps/Pathways section -->
+            <li>
+              <strong>Pathways</strong>
+              <ul>
+                <li *ngFor="let map of pathwayList">
+                  <a (click)="selectNodeFromDropdown(map, 'map')">{{ map }}</a>
+                </li>
+              </ul>
+            </li>
+        
+          </ul>
+        </li>
+        
+        
       </ul>
     </aside>
 

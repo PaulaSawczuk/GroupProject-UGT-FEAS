@@ -51,6 +51,22 @@ export class DisplayComponent {
   // to track the number of popups
   private activePopups: { nodeKey: any }[] = [];
 
+  // Toggle for nodes dropdown visibility
+  nodesOpen: boolean = false;
+
+  // List of enzyme categories: e.g., ['Oxidoreductase', 'Transferase']
+  enzymeCategories: string[] = [];
+
+  // Map of category → list of enzymes in the displayed pathway
+  enzymeCategoryMap: { [category: string]: { ec: string, name: string }[] } = {};
+
+
+  // List of compounds in the displayed pathway
+  compoundList: string[] = [];
+
+  // List of pathways in the displayed pathway
+  pathwayList: string[] = [];
+
   // Creating the Back-end API Service 
   constructor(private enzymeApiServicePost: enzymeApiServicePost,
     private fileDataService: FileDataService
@@ -606,12 +622,17 @@ private extractECNumbers2(): void {
     
       // to make the nodes to show a pop up window when clicked
       this.myDiagram!.addDiagramListener("ObjectSingleClicked", (e) => {
-        //const _this = this;
         const part = e.subject.part;
         if (!(part instanceof go.Node)) return;
       
         const node = part;
+
+        
         const data = node.data || {};
+
+        // to check the actual data present in it
+        console.log("🧠 Full node data:", data);
+
         const key = data.key;
         const type = data.type || "unknown";
       
@@ -643,7 +664,14 @@ private extractECNumbers2(): void {
         const emoji = emojiMap[type] || "❓";
         const bgColor = colorMap[type] || colorMap["unknown"];
         const title = `${emoji} ${type.toUpperCase()}`;
-        const contentText = `KEY: ${data.key}\nTEXT: ${data.text ?? "?"}`;
+        const contentText = `
+        KEY: ${data.key}
+        EC: ${data.text ?? "?"}
+        Gene(s): ${Array.isArray(data.gene) ? data.gene.join(", ") : data.gene ?? "N/A"}
+        logFC: ${data.logfc ?? "N/A"}
+        Name: ${data.name ?? "N/A"}
+        `.trim();
+
       
         // Build the full popup box
         const box = go.GraphObject.make(go.Adornment, "Spot",
@@ -654,26 +682,12 @@ private extractECNumbers2(): void {
             zOrder: 10 // higher value to keep the box infront of the blocker
           },
           go.GraphObject.make(go.Panel, "Auto",
-            /*{
-              pickable: true,
-              isActionable: true,
-            },*/
             go.GraphObject.make(go.Shape, "RoundedRectangle", {
               fill: bgColor,
               stroke: "#ccc",
               strokeWidth: 1,
               shadowVisible: true,
             }),
-            
-            /*go.GraphObject.make(go.TextBlock, "", {
-              width: 1,
-              height: 1,
-              opacity: 0,
-              isActionable: true,
-              mouseDown: (e: go.InputEvent, obj: go.GraphObject) => {
-                e.handled = true;
-              }
-            }),*/
 
             go.GraphObject.make(go.Panel, "Vertical",
               go.GraphObject.make(go.Panel, "Horizontal",
@@ -711,15 +725,7 @@ private extractECNumbers2(): void {
                   
                     adorned.removeAdornment("popup");
                     
-                    /*
-                    const popupRecord = this.activePopups.find(p => p.nodeKey === key);
-                      if (popupRecord?.blocker) {
-                        this.myDiagram!.remove(popupRecord.blocker);
-                      }
-                    */
-                    this.activePopups = this.activePopups.filter(p => p.nodeKey !== key);
-
-                    
+                    this.activePopups = this.activePopups.filter(p => p.nodeKey !== key); 
                   }
                   
                 })                
@@ -733,43 +739,13 @@ private extractECNumbers2(): void {
           )
         );        
       
-        node.removeAdornment("popup");
-        /*
-        const blockerShape = go.GraphObject.make(go.Shape, "Rectangle", {
-          width: 160,
-          height: 60,
-          fill: "rgba(255, 0, 0, 0.2)",
-          stroke: null,
-          cursor: "default",
-          isActionable: true,  // Enable interactivity
-          click: (e: go.InputEvent, obj: go.GraphObject) => {
-            e.handled = true;
-            console.log("Blocker clicked, intercepting");
-          }
-        }); */
-        
-        /*
-        const blocker = go.GraphObject.make(go.Part, "Auto",
-          {
-            location: node.getDocumentPoint(go.Spot.Bottom),
-            layerName: "Tool",
-            selectable: false,
-            pickable: false,
-            zOrder: 1 // lower value than in box to keep this behind the box
-          },
-          blockerShape
-        );  */      
+        node.removeAdornment("popup");   
         
 
         box.adornedObject = node; // Link the popup to the node properly
         node.addAdornment("popup", box);
         //this.activePopups.push({ nodeKey: key ,blocker});
         this.activePopups.push({ nodeKey: key });
-
-
-        // for making the popup essentially opaque
-        //this.myDiagram!.add(blocker);
-        //console.log("📍 Blocker added to diagram");
 
 
         const anim = new go.Animation();
@@ -793,6 +769,9 @@ private extractECNumbers2(): void {
     model.linkDataArray = links;
     // Assigning the model to the diagram for visualisation
     this.myDiagram.model = model;
+
+    // for populating the node categories 
+    this.populateNodeCategories();
   }
   
 
@@ -895,6 +874,83 @@ private extractECNumbers2(): void {
     console.log('Selected:', target);
   }
 
+  selectNodeFromDropdown(nodeName: string, nodeType: string): void {
+    if (!this.myDiagram) return;
+  
+    const nodeData = this.myDiagram.model.nodeDataArray.find(
+      (n) => n['text'] === nodeName && n['type'] === nodeType
+    );
+  
+    if (!nodeData) {
+      console.warn(`Node not found: ${nodeType} →`, nodeName);
+      return;
+    }
+  
+    const node = this.myDiagram.findNodeForData(nodeData);
+    if (!node) {
+      console.warn(`Node instance not found for:`, nodeData);
+      return;
+    }
+  
+    this.myDiagram.select(node);
+    this.myDiagram.centerRect(node.actualBounds);
+    node.isSelected = true;
+  }   
+
+  populateNodeCategories(): void {
+    if (!this.myDiagram) return;
+  
+    const nodeDataArray = this.myDiagram.model.nodeDataArray;
+  
+    // Reset all
+    this.enzymeCategories = [];
+    this.enzymeCategoryMap = {};
+    this.compoundList = [];
+    this.pathwayList = [];
+  
+    for (const node of nodeDataArray) {
+      const type = node['type'];
+      const ec = node['text'];
+      const name = node['name'] ?? ec; // fallback to EC number
+      const enzymeType = node['enzymeType'] || 'Uncategorized';
+  
+      if (type === 'enzyme') {
+        if (!this.enzymeCategoryMap[enzymeType]) {
+          this.enzymeCategoryMap[enzymeType] = [];
+          this.enzymeCategories.push(enzymeType);
+        }
+  
+        this.enzymeCategoryMap[enzymeType].push({ ec, name });
+      }
+  
+      else if (type === 'compound') {
+        if (!this.compoundList.includes(name)) {
+          this.compoundList.push(name);
+        }
+      }
+  
+      else if (type === 'map') {
+        if (!this.pathwayList.includes(name)) {
+          this.pathwayList.push(name);
+        }
+      }
+    }
+  
+    // Sort alphabetically
+    this.enzymeCategories.sort();
+    this.compoundList.sort();
+    this.pathwayList.sort();
+  
+    // Sort each enzyme category list by enzyme name
+    for (const category of this.enzymeCategories) {
+      this.enzymeCategoryMap[category].sort((a, b) =>
+        a.name.localeCompare(b.name)
+      );
+    }
+  }
+  
+  
+  
   updateTimeFromClick(event: MouseEvent) {
     if (this.sliderLine) {
       const rect = this.sliderLine.nativeElement.getBoundingClientRect();
