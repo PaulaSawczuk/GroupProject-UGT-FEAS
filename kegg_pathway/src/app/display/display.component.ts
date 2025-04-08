@@ -5,6 +5,7 @@ import { enzymeApiServicePost } from '../services/kegg_enzymepathwaysPost.serice
 import * as go from 'gojs';
 import { FileDataService } from '../services/file-data.service';
 import { filter } from 'rxjs';
+import {MatSliderModule} from '@angular/material/slider';
 
 
 declare var figure: any; 
@@ -12,7 +13,7 @@ declare var figure: any;
 @Component({
   selector: 'app-display',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, MatSliderModule],
   templateUrl: './display.component.html',
   styleUrls: ['./display.component.css']
 })
@@ -1019,31 +1020,28 @@ private compareEnzymes(nodes: any[],timepoint: number): void{
 
   exportOptions = ['PDF', 'CSV', 'JSON'];
   targets = ['Target 1', 'Target 2', 'Target 3'];
-  timepoints = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
   
   selectedPathway: string = this.pathways[0];
-  selectedTimeIndex: number = 0;
   SelectedPathwayName: string = '';
-  sliderLine: ElementRef | undefined;
 
-  @ViewChild('sliderLine') set sliderLineRef(sliderLineRef: ElementRef | undefined) {
-    if (sliderLineRef) {
-      this.sliderLine = sliderLineRef;
-      this.initSliderLineListener();
-    }
-  }
+  // @ViewChild('sliderLine') set sliderLineRef(sliderLineRef: ElementRef | undefined) {
+  //   if (sliderLineRef) {
+  //     this.sliderLine = sliderLineRef;
+  //     this.initSliderLineListener();
+  //   }
+  // }
 
-  get selectedTimepoint() {
-    return this.timepoints[this.selectedTimeIndex];
-  }
+  // get selectedTimepoint() {
+  //   return this.timepoints[this.selectedTimeIndex];
+  // }
 
-  initSliderLineListener() {
-    if (this.sliderLine) {
-      this.sliderLine.nativeElement.addEventListener('click', (event: MouseEvent) => {
-        this.updateTimeFromClick(event);
-      });
-    }
-  }
+  // initSliderLineListener() {
+  //   if (this.sliderLine) {
+  //     this.sliderLine.nativeElement.addEventListener('click', (event: MouseEvent) => {
+  //       this.updateTimeFromClick(event);
+  //     });
+  //   }
+  // }
   // ------------------ PATHWAY SIDE BAR -------------------
   toggleMenu() {
     this.isMenuOpen = !this.isMenuOpen;
@@ -1076,7 +1074,7 @@ private compareEnzymes(nodes: any[],timepoint: number): void{
 
     // Set Time index to defualt value of 0 -- open up on first timepoint 
     //this.selectedTimeIndex = 0;
-    console.log(this.selectedTimepoint);
+    // console.log(this.selectedTimepoint);
     console.log(this.selectedTimeIndex);
     //console.log(this.filteredGenes[this.selectedTimepoint][0]);
 
@@ -1168,19 +1166,19 @@ private compareEnzymes(nodes: any[],timepoint: number): void{
 
 
 
-  updateTimeFromClick(event: MouseEvent) {
-    if (this.sliderLine) {
-      const rect = this.sliderLine.nativeElement.getBoundingClientRect();
-      const clickPosition = event.clientX - rect.left;
-      const sliderWidth = rect.width;
-      const timeIndex = Math.round((clickPosition / sliderWidth) * (this.timepoints.length - 1));
+  // updateTimeFromClick(event: MouseEvent) {
+  //   if (this.sliderLine) {
+  //     const rect = this.sliderLine.nativeElement.getBoundingClientRect();
+  //     const clickPosition = event.clientX - rect.left;
+  //     const sliderWidth = rect.width;
+  //     const timeIndex = Math.round((clickPosition / sliderWidth) * (this.timepoints.length - 1));
 
-      if (timeIndex >= 0 && timeIndex < this.timepoints.length) {
-        this.selectedTimeIndex = timeIndex;
-        console.log(this.selectedTimeIndex);
-      }
-    }
-  }
+  //     if (timeIndex >= 0 && timeIndex < this.timepoints.length) {
+  //       this.selectedTimeIndex = timeIndex;
+  //       console.log(this.selectedTimeIndex);
+  //     }
+  //   }
+  // }
 
 
   //  ------------------ EXPORTING -------------------
@@ -1465,7 +1463,7 @@ private compareEnzymes(nodes: any[],timepoint: number): void{
     console.log('Selected enzyme:', this.selectedEnzyme);
     this.selectedSubcategory = '';
     if (this.selectedEnzyme) {
-    // TO DO: Here logic to populate subcategories box based on chosen enzyme
+    // TODO: Here logic to populate subcategories box based on chosen enzyme
     // something like if this and that then this.subcategoryOptions = [some list];
       if (this.selectedEnzyme === 'Enzyme A') {
         this.subcategoryOptions = ['Subcategory A1', 'Subcategory A2'];
@@ -1486,5 +1484,38 @@ private compareEnzymes(nodes: any[],timepoint: number): void{
     console.log('Selected enzyme:', this.selectedPathwayCustom);
 
   }
+
+  //  ------------------ TIME SLIDER -------------------
+  timepoints = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+  selectedTimeIndex: number = 0;
+  
+  value: number = this.timepoints[this.selectedTimeIndex];
+
+  updateValue(): void {
+    this.value = this.timepoints[this.selectedTimeIndex];
+  }
+
+  // ------------------ ANIMATION ------------------
+
+  isAnimationActive = false;
+
+  toggleAnimation(): void {
+    this.isAnimationActive = !this.isAnimationActive;
+    if (this.isAnimationActive) {
+      this.startAnimation();
+    } else {
+      this.stopAnimation();
+    }
+  }
+
+  startAnimation(): void {
+    console.log("Time lapse started");
+  }
+
+  stopAnimation(): void {
+    console.log("Time lapse stopped");
+  }
+    
+
 } 
 
