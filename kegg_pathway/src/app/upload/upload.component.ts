@@ -181,125 +181,177 @@ export class UploadComponent {
     this.validationMessage = '';
   }
 
+
+  
+
 //=====MABLES=====
+
   // Process the uploaded files
-  // processFiles(): void {
-  //   const validExtensions = ['txt', 'csv'];
-  //   const expressionData: { [filename: string]: string[][] } = {};
-  //   const countMatrixData: { [filename: string]: string[][] } = {};
-  
-  //   const dataLoadPromises = this.uploadedFiles.map(fileObj =>
-  //     new Promise<void>((resolve, reject) => {
-  //       const fileExtension = fileObj.name.split('.').pop()?.toLowerCase();
-  //       if (!fileExtension || !validExtensions.includes(fileExtension)) {
-  //         this.unsupportedFileTypeMessage = `File ${fileObj.name} is not supported.`;
-  //         return reject();
-  //       }
-  
-  //       const fileReader = new FileReader();
-  //       fileReader.onload = (event: any) => {
-  //         const content = event.target.result;
-  //         const parsedData = this.parseFileContent(content, fileObj.name, fileExtension);
-  
-  //         if (!parsedData || parsedData.length === 0) {
-  //           this.warningMessage = `File ${fileObj.name} is empty or invalid.`;
-  //           return reject();
-  //         }
-  
-  //         const fileType = this.identifyFileType(parsedData, fileObj.name);
-  //         const shortName = fileObj.name.replace(/\.[^/.]+$/, "");
-  
-  //         switch (fileType) {
-  //           case 'expression':
-  //             expressionData[shortName] = parsedData;
-  //             break;
-  //           case 'annotation':
-  //             this.fileDataService.setAnnotationData(shortName, parsedData);
-  //             countMatrixData[shortName] = parsedData;
-  //             break;
-  //           case 'countMatrix':
-  //             countMatrixData[shortName] = parsedData;
-  //             break;
-  //           default:
-  //             this.warningMessage = `File ${fileObj.name} could not be identified as a valid input.`;
-  //             return reject();
-  //         }
-  
-  //         resolve();
-  //       };
-  
-  //       fileReader.onerror = () => {
-  //         this.warningMessage = `Error reading file ${fileObj.name}.`;
-  //         reject();
-  //       };
-  
-  //       fileReader.readAsText(fileObj.file);
-  //     })
-  //   );
-  
-  //   Promise.all(dataLoadPromises)
-  //     .then(() => {
-  //       this.fileDataService.setExpressionData(expressionData);
-  //       this.fileDataService.setCountMatrixData(countMatrixData);
-  
-  //       const commonGenes = this.findCommonGenes(expressionData, countMatrixData);
-  //       const combinedData = this.createCombinedDataset(commonGenes, expressionData, countMatrixData);
-  
-  //       if (!combinedData || combinedData.length === 0) {
-  //         this.warningMessage = "No combined data available to extract EC numbers from.";
-  //         return;
-  //       }
-  
-  //       this.fileDataService.setCombinedData(combinedData);
-  //       this.router.navigate(['/display']);
-  //     })
-  //     .catch((err) => {
-  //       console.warn("File processing failed:", err);
-  //     });
-  // }
-  
+  processFiles(): void {
+    const validExtensions = ['txt', 'csv'];
+    const expressionData: { [filename: string]: string[][] } = {};
 
-  // // Contains methods to check file types
-  // identifyFileType(data: string[][], filename: string): string {
-  //   if (data.length === 0 || data[0].length === 0) return 'unknown';
+    const dataLoadPromises = this.uploadedFiles.map(fileObj =>
+      new Promise<void>((resolve, reject) => {
+        const fileExtension = fileObj.name.split('.').pop()?.toLowerCase();
+        if (!fileExtension || !validExtensions.includes(fileExtension)) {
+          this.unsupportedFileTypeMessage = `File ${fileObj.name} is not supported.`;
+          return reject();
+        }
 
-  //   const header = data[0].map(col => col.toLowerCase());
+        const fileReader = new FileReader();
+        fileReader.onload = (event: any) => {
+          const content = event.target.result;
+          const parsedData = this.parseFileContent(content, fileObj.name, fileExtension);
 
-  //   // Check if it's an expression file (gene and log2FoldChange)
-  //   if (header.includes('gene') && header.includes('log2foldchange')) {
-  //     return 'expression';
-  //   }
+          if (!parsedData || parsedData.length === 0) {
+            this.warningMessage = `File ${fileObj.name} is empty or invalid.`;
+            return reject();
+          }
 
-  //   // Check if it's an annotation file (look for specific annotation columns)
-  //   if (header.includes('sequence.name') ||
-  //     header.includes('annotation.go.id') ||
-  //     header.includes('enzyme.code') ||
-  //     (header.includes('go') && header.includes('enzyme'))) {
-  //     return 'annotation';
-  //   }
+          console.log(`Parsed data from ${fileObj.name}:`, parsedData);
 
-  //   // If first column has gene IDs and subsequent columns are numeric, it's likely a count matrix
-  //   if (data.length > 1 && data[1].length > 1) {
-  //     // Check if second column onwards appears to be numeric data
-  //     let hasNumericData = false;
-  //     for (let i = 1; i < Math.min(5, data.length); i++) {
-  //       for (let j = 1; j < data[i].length; j++) {
-  //         // Check if this looks like a number
-  //         if (!isNaN(parseFloat(data[i][j])) && data[i][j].trim() !== '') {
-  //           hasNumericData = true;
-  //           break;
-  //         }
-  //       }
-  //       if (hasNumericData) break;
-  //     }
+          const fileType = this.identifyFileType(parsedData, fileObj.name);
+          const shortName = (fileObj.name || '').replace(/\.[^/.]+$/, '');
 
-  //     if (hasNumericData) {
-  //       return 'countMatrix';
-  //     }
-  //   }
+          switch (fileType) {
+            case 'expression':
+              expressionData[shortName] = parsedData;
+              break;
+            case 'annotation':
+              this.fileDataService.setAnnotationData(shortName, parsedData);
+              break;
+            default:
+              this.warningMessage = `File ${fileObj.name} could not be identified as a valid input.`;
+              return reject();
+          }
 
-  //   return 'unknown';
-  // }
+          resolve();
+        };
+
+        fileReader.onerror = () => {
+          this.warningMessage = `Error reading file ${fileObj.name}.`;
+          reject();
+        };
+
+        fileReader.readAsText(fileObj.file);
+      })
+    );
+
+    Promise.all(dataLoadPromises)
+      .then(() => {
+        this.fileDataService.setExpressionData(expressionData);
+        const annotationData = this.fileDataService.getAnnotationData();
+
+        console.log("Expression data files:", expressionData);
+        console.log("Annotation data files:", annotationData);
+
+        const combinedArrayList: any[][] = [];
+
+        for (const [exprFilename, exprData] of Object.entries(expressionData)) {
+          const headerExpr = exprData[0].map(h => h.toLowerCase());
+          const geneIndexExpr = headerExpr.findIndex(col => col === 'gene');
+          if (geneIndexExpr === -1) continue;
+
+          const mergedGenes: any[] = [];
+
+          for (let i = 1; i < exprData.length; i++) {
+            const row = exprData[i];
+            const gene = row[geneIndexExpr];
+            const geneData: any = { gene };
+
+            // Copy all expression fields
+            for (let j = 0; j < row.length; j++) {
+              if (j !== geneIndexExpr && headerExpr[j]) {
+                geneData[`${exprFilename}_${headerExpr[j]}`] = row[j];
+              }
+            }
+
+            // Try to merge with annotation data
+            for (const [annFile, annData] of Object.entries(annotationData)) {
+              const headerAnn = annData[0].map(h => h.toLowerCase());
+              const geneIndexAnn = headerAnn.findIndex(col => col === 'sequence.name' || col.includes('gene') || col === 'id');
+              if (geneIndexAnn === -1) continue;
+
+              const annRow = annData.find(row => row[geneIndexAnn] === gene);
+              if (annRow) {
+                for (let k = 0; k < annRow.length; k++) {
+                  if (k !== geneIndexAnn && headerAnn[k]) {
+                    geneData[`${annFile}_${headerAnn[k]}`] = annRow[k];
+                  }
+                }
+              }
+            }
+
+            mergedGenes.push(geneData);
+          }
+
+          console.log(`Merged dataset for ${exprFilename}:`, mergedGenes);
+          combinedArrayList.push(mergedGenes);
+        }
+
+        const allCombined = combinedArrayList.flat();
+
+        console.log("All combined data (flattened):", allCombined);
+        console.log("Combined arrays stored separately:", combinedArrayList);
+
+        if (allCombined.length === 0) {
+          this.warningMessage = "No combined data available from any expression file.";
+          return;
+        }
+
+        this.fileDataService.setCombinedData(allCombined);
+        this.fileDataService.setMultipleCombinedArrays(combinedArrayList);
+
+        this.router.navigate(['/display']);
+      })
+      .catch((err) => {
+        console.warn("File processing failed:", err);
+      });
+  }
+
+
+  // Contains methods to check file types
+  identifyFileType(data: string[][], filename: string): string {
+    if (data.length === 0 || data[0].length === 0) return 'unknown';
+
+    const header = data[0].map(col => col.toLowerCase());
+
+    // Check if it's an expression file (gene and log2FoldChange)
+    if (header.includes('gene') && header.includes('log2foldchange')) {
+      return 'expression';
+    }
+
+    // Check if it's an annotation file (look for specific annotation columns)
+    if (header.includes('sequence.name') ||
+      header.includes('annotation.go.id') ||
+      header.includes('enzyme.code') ||
+      (header.includes('go') && header.includes('enzyme'))) {
+      return 'annotation';
+    }
+
+    // If first column has gene IDs and subsequent columns are numeric, it's likely a count matrix
+    if (data.length > 1 && data[1].length > 1) {
+      // Check if second column onwards appears to be numeric data
+      let hasNumericData = false;
+      for (let i = 1; i < Math.min(5, data.length); i++) {
+        for (let j = 1; j < data[i].length; j++) {
+          // Check if this looks like a number
+          if (!isNaN(parseFloat(data[i][j])) && data[i][j].trim() !== '') {
+            hasNumericData = true;
+            break;
+          }
+        }
+        if (hasNumericData) break;
+      }
+
+      if (hasNumericData) {
+        return 'countMatrix';
+      }
+    }
+
+    return 'unknown';
+  }
 
   // // Find common genes across all files
   // private findCommonGenes(expressionData: { [filename: string]: string[][] }, countMatrixData: { [filename: string]: string[][] }): string[] {
@@ -514,275 +566,280 @@ export class UploadComponent {
   // }
 
 
+
+
+//======================================================================
 //====WITHOUT COUNT MATRIX FILE=====
 // Process the uploaded files
-processFiles(): void {
-  const validExtensions = ['txt', 'csv'];
-  const expressionData: { [filename: string]: string[][] } = {};
-  // Removed countMatrixData definition
+// processFiles(): void {
+//   const validExtensions = ['txt', 'csv'];
+//   const expressionData: { [filename: string]: string[][] } = {};
+//   // Removed countMatrixData definition
 
-  const dataLoadPromises = this.uploadedFiles.map(fileObj =>
-    new Promise<void>((resolve, reject) => {
-      const fileExtension = fileObj.name.split('.').pop()?.toLowerCase();
-      if (!fileExtension || !validExtensions.includes(fileExtension)) {
-        this.unsupportedFileTypeMessage = `File ${fileObj.name} is not supported.`;
-        return reject();
-      }
+//   const dataLoadPromises = this.uploadedFiles.map(fileObj =>
+//     new Promise<void>((resolve, reject) => {
+//       const fileExtension = fileObj.name.split('.').pop()?.toLowerCase();
+//       if (!fileExtension || !validExtensions.includes(fileExtension)) {
+//         this.unsupportedFileTypeMessage = `File ${fileObj.name} is not supported.`;
+//         return reject();
+//       }
 
-      const fileReader = new FileReader();
-      fileReader.onload = (event: any) => {
-        const content = event.target.result;
-        const parsedData = this.parseFileContent(content, fileObj.name, fileExtension);
+//       const fileReader = new FileReader();
+//       fileReader.onload = (event: any) => {
+//         const content = event.target.result;
+//         const parsedData = this.parseFileContent(content, fileObj.name, fileExtension);
 
-        if (!parsedData || parsedData.length === 0) {
-          this.warningMessage = `File ${fileObj.name} is empty or invalid.`;
-          return reject();
-        }
+//         if (!parsedData || parsedData.length === 0) {
+//           this.warningMessage = `File ${fileObj.name} is empty or invalid.`;
+//           return reject();
+//         }
 
-        const fileType = this.identifyFileType(parsedData, fileObj.name);
-        const shortName = fileObj.name.replace(/\.[^/.]+$/, "");
+//         const fileType = this.identifyFileType(parsedData, fileObj.name);
+//         const shortName = fileObj.name.replace(/\.[^/.]+$/, "");
 
-        switch (fileType) {
-          case 'expression':
-            expressionData[shortName] = parsedData;
-            break;
-          case 'annotation':
-            this.fileDataService.setAnnotationData(shortName, parsedData);
-            break;
-          // Removed 'countMatrix' case
-          default:
-            this.warningMessage = `File ${fileObj.name} could not be identified as a valid input.`;
-            return reject();
-        }
+//         switch (fileType) {
+//           case 'expression':
+//             expressionData[shortName] = parsedData;
+//             break;
+//           case 'annotation':
+//             this.fileDataService.setAnnotationData(shortName, parsedData);
+//             break;
+//           // Removed 'countMatrix' case
+//           default:
+//             this.warningMessage = `File ${fileObj.name} could not be identified as a valid input.`;
+//             return reject();
+//         }
 
-        resolve();
-      };
+//         resolve();
+//       };
 
-      fileReader.onerror = () => {
-        this.warningMessage = `Error reading file ${fileObj.name}.`;
-        reject();
-      };
+//       fileReader.onerror = () => {
+//         this.warningMessage = `Error reading file ${fileObj.name}.`;
+//         reject();
+//       };
 
-      fileReader.readAsText(fileObj.file);
-    })
-  );
+//       fileReader.readAsText(fileObj.file);
+//     })
+//   );
 
-  Promise.all(dataLoadPromises)
-    .then(() => {
-      this.fileDataService.setExpressionData(expressionData);
-      // Removed setting countMatrixData
+//   Promise.all(dataLoadPromises)
+//     .then(() => {
+//       this.fileDataService.setExpressionData(expressionData);
+//       // Removed setting countMatrixData
 
-      // Modified to only consider expressionData for common genes
-      const annotationData = this.fileDataService.getAnnotationData();
-      const commonGenes = this.findCommonGenes(expressionData, annotationData);
-      const combinedData = this.createCombinedDataset(commonGenes, expressionData, annotationData);
+//       // Modified to only consider expressionData for common genes
+//       const annotationData = this.fileDataService.getAnnotationData();
+//       const commonGenes = this.findCommonGenes(expressionData, annotationData);
+//       const combinedData = this.createCombinedDataset(commonGenes, expressionData, annotationData);
 
-      if (!combinedData || combinedData.length === 0) {
-        this.warningMessage = "No combined data available to extract EC numbers from.";
-        return;
-      }
+//       if (!combinedData || combinedData.length === 0) {
+//         this.warningMessage = "No combined data available to extract EC numbers from.";
+//         return;
+//       }
 
-      this.fileDataService.setCombinedData(combinedData);
-      this.router.navigate(['/display']);
-    })
-    .catch((err) => {
-      console.warn("File processing failed:", err);
-    });
-}
+//       this.fileDataService.setCombinedData(combinedData);
+//       this.router.navigate(['/display']);
+//     })
+//     .catch((err) => {
+//       console.warn("File processing failed:", err);
+//     });
+// }
 
 
-// Find common genes across all files
-private findCommonGenes(expressionData: { [filename: string]: string[][] }, annotationData: { [filename: string]: string[][] }): string[] {
-  const genesByFile: { [filename: string]: Set<string> } = {};
+// // Find common genes across all files
+// private findCommonGenes(expressionData: { [filename: string]: string[][] }, annotationData: { [filename: string]: string[][] }): string[] {
+//   const genesByFile: { [filename: string]: Set<string> } = {};
 
-  // Extract genes from expression data files
-  for (const [filename, data] of Object.entries(expressionData)) {
-    if (data.length < 2) continue; // Skip if no data rows
+//   // Extract genes from expression data files
+//   for (const [filename, data] of Object.entries(expressionData)) {
+//     if (data.length < 2) continue; // Skip if no data rows
 
-    const headerRow = data[0].map(h => h.toLowerCase());
-    const geneColumnIndex = headerRow.findIndex(col => col === 'gene');
+//     const headerRow = data[0].map(h => h.toLowerCase());
+//     const geneColumnIndex = headerRow.findIndex(col => col === 'gene');
 
-    if (geneColumnIndex === -1) continue;
+//     if (geneColumnIndex === -1) continue;
 
-    const geneSet = new Set<string>();
-    for (let i = 1; i < data.length; i++) {
-      const row = data[i];
-      if (row.length > geneColumnIndex && row[geneColumnIndex]) {
-        geneSet.add(row[geneColumnIndex].trim());
-      }
-    }
+//     const geneSet = new Set<string>();
+//     for (let i = 1; i < data.length; i++) {
+//       const row = data[i];
+//       if (row.length > geneColumnIndex && row[geneColumnIndex]) {
+//         geneSet.add(row[geneColumnIndex].trim());
+//       }
+//     }
 
-    genesByFile[filename] = geneSet;
-  }
+//     genesByFile[filename] = geneSet;
+//   }
 
-  // Extract genes from annotation data files
-  for (const [filename, data] of Object.entries(annotationData)) {
-    if (data.length < 2) continue; // Skip if no data rows
+//   // Extract genes from annotation data files
+//   for (const [filename, data] of Object.entries(annotationData)) {
+//     if (data.length < 2) continue; // Skip if no data rows
 
-    const headerRow = data[0].map(h => h.toLowerCase());
+//     const headerRow = data[0].map(h => h.toLowerCase());
 
-    // Determine the gene column name/index
-    const geneColumnIndex = headerRow.findIndex(col =>
-      col === 'sequence.name' || col.includes('gene') || col === 'id'
-    );
+//     // Determine the gene column name/index
+//     const geneColumnIndex = headerRow.findIndex(col =>
+//       col === 'sequence.name' || col.includes('gene') || col === 'id'
+//     );
 
-    if (geneColumnIndex === -1) continue;
+//     if (geneColumnIndex === -1) continue;
 
-    const geneSet = new Set<string>();
-    for (let i = 1; i < data.length; i++) {
-      const row = data[i];
-      if (row.length > geneColumnIndex && row[geneColumnIndex]) {
-        geneSet.add(row[geneColumnIndex].trim());
-      }
-    }
+//     const geneSet = new Set<string>();
+//     for (let i = 1; i < data.length; i++) {
+//       const row = data[i];
+//       if (row.length > geneColumnIndex && row[geneColumnIndex]) {
+//         geneSet.add(row[geneColumnIndex].trim());
+//       }
+//     }
 
-    genesByFile[filename] = geneSet;
-  }
+//     genesByFile[filename] = geneSet;
+//   }
 
-  // Find intersection of gene sets
-  const fileNames = Object.keys(genesByFile);
-  if (fileNames.length === 0) return [];
+//   // Find intersection of gene sets
+//   const fileNames = Object.keys(genesByFile);
+//   if (fileNames.length === 0) return [];
 
-  let commonGenes = [...genesByFile[fileNames[0]] || []];
+//   let commonGenes = [...genesByFile[fileNames[0]] || []];
 
-  for (let i = 1; i < fileNames.length; i++) {
-    const fileGenes = genesByFile[fileNames[i]];
-    commonGenes = commonGenes.filter(gene => fileGenes.has(gene));
-  }
+//   for (let i = 1; i < fileNames.length; i++) {
+//     const fileGenes = genesByFile[fileNames[i]];
+//     commonGenes = commonGenes.filter(gene => fileGenes.has(gene));
+//   }
 
-  return commonGenes;
-}
+//   return commonGenes;
+// }
 
-// Create a combined dataset with all relevant data for common genes
-private createCombinedDataset(
-  commonGenes: string[],
-  expressionData: { [filename: string]: string[][] },
-  annotationData: { [filename: string]: string[][] }
-): any[] {
-  const result: any[] = [];
+// // Create a combined dataset with all relevant data for common genes
+// private createCombinedDataset(
+//   commonGenes: string[],
+//   expressionData: { [filename: string]: string[][] },
+//   annotationData: { [filename: string]: string[][] }
+// ): any[] {
+//   const result: any[] = [];
 
-  // Process each common gene
-  for (const gene of commonGenes) {
-    const geneData: any = { gene };
+//   // Process each common gene
+//   for (const gene of commonGenes) {
+//     const geneData: any = { gene };
 
-    // Extract data from expression files
-    for (const [filename, data] of Object.entries(expressionData)) {
-      const headerRow = data[0].map(h => h.toLowerCase());
-      const geneColumnIndex = headerRow.findIndex(col => col === 'gene');
-      const log2FoldChangeColumnIndex = headerRow.findIndex(col => col === 'log2foldchange');
+//     // Extract data from expression files
+//     for (const [filename, data] of Object.entries(expressionData)) {
+//       const headerRow = data[0].map(h => h.toLowerCase());
+//       const geneColumnIndex = headerRow.findIndex(col => col === 'gene');
+//       const log2FoldChangeColumnIndex = headerRow.findIndex(col => col === 'log2foldchange');
 
-      if (geneColumnIndex === -1 || log2FoldChangeColumnIndex === -1) continue;
+//       if (geneColumnIndex === -1 || log2FoldChangeColumnIndex === -1) continue;
 
-      // Find the row for this gene
-      const geneRow = data.find(row =>
-        row.length > geneColumnIndex &&
-        row[geneColumnIndex].trim() === gene
-      );
+//       // Find the row for this gene
+//       const geneRow = data.find(row =>
+//         row.length > geneColumnIndex &&
+//         row[geneColumnIndex].trim() === gene
+//       );
 
-      if (geneRow && geneRow.length > log2FoldChangeColumnIndex) {
-        const fileKey = filename.replace(/\.[^/.]+$/, ""); // Remove file extension
-        geneData[`${fileKey}_log2FoldChange`] = geneRow[log2FoldChangeColumnIndex];
+//       if (geneRow && geneRow.length > log2FoldChangeColumnIndex) {
+//         const fileKey = filename.replace(/\.[^/.]+$/, ""); // Remove file extension
+//         geneData[`${fileKey}_log2FoldChange`] = geneRow[log2FoldChangeColumnIndex];
 
-        // Also add any other important columns
-        for (let i = 0; i < headerRow.length; i++) {
-          if (i !== geneColumnIndex && i !== log2FoldChangeColumnIndex && geneRow.length > i) {
-            const colName = headerRow[i];
-            if (colName && colName !== 'log2foldchange' && colName !== 'gene') {
-              geneData[`${fileKey}_${colName}`] = geneRow[i];
-            }
-          }
-        }
-      }
-    }
+//         // Also add any other important columns
+//         for (let i = 0; i < headerRow.length; i++) {
+//           if (i !== geneColumnIndex && i !== log2FoldChangeColumnIndex && geneRow.length > i) {
+//             const colName = headerRow[i];
+//             if (colName && colName !== 'log2foldchange' && colName !== 'gene') {
+//               geneData[`${fileKey}_${colName}`] = geneRow[i];
+//             }
+//           }
+//         }
+//       }
+//     }
 
-    // Extract data from annotation files
-    for (const [filename, data] of Object.entries(annotationData)) {
-      const headerRow = data[0].map(h => h.toLowerCase());
+//     // Extract data from annotation files
+//     for (const [filename, data] of Object.entries(annotationData)) {
+//       const headerRow = data[0].map(h => h.toLowerCase());
 
-      // Determine the gene column name/index
-      const geneColumnIndex = headerRow.findIndex(col =>
-        col === 'sequence.name' || col.includes('gene') || col === 'id'
-      );
+//       // Determine the gene column name/index
+//       const geneColumnIndex = headerRow.findIndex(col =>
+//         col === 'sequence.name' || col.includes('gene') || col === 'id'
+//       );
 
-      if (geneColumnIndex === -1) continue;
+//       if (geneColumnIndex === -1) continue;
 
-      // Find the row for this gene
-      let geneRow = data.find(row =>
-        row.length > geneColumnIndex &&
-        row[geneColumnIndex].trim() === gene
-      );
+//       // Find the row for this gene
+//       let geneRow = data.find(row =>
+//         row.length > geneColumnIndex &&
+//         row[geneColumnIndex].trim() === gene
+//       );
 
-      if (geneRow) {
-        const fileKey = filename.replace(/\.[^/.]+$/, ""); // Remove file extension
+//       if (geneRow) {
+//         const fileKey = filename.replace(/\.[^/.]+$/, ""); // Remove file extension
 
-        // Handle specific annotation columns
-        // Look for EC number
-        const enzymeCodeIndex = headerRow.findIndex(col =>
-          col.includes('enzyme.code') || col.includes('ec')
-        );
+//         // Handle specific annotation columns
+//         // Look for EC number
+//         const enzymeCodeIndex = headerRow.findIndex(col =>
+//           col.includes('enzyme.code') || col.includes('ec')
+//         );
 
-        if (enzymeCodeIndex !== -1 && geneRow.length > enzymeCodeIndex) {
-          geneData[`${fileKey}_EC`] = geneRow[enzymeCodeIndex];
-        }
+//         if (enzymeCodeIndex !== -1 && geneRow.length > enzymeCodeIndex) {
+//           geneData[`${fileKey}_EC`] = geneRow[enzymeCodeIndex];
+//         }
 
-        // Look for GO ID
-        const goIdIndex = headerRow.findIndex(col =>
-          col.includes('go.id') || col === 'go'
-        );
+//         // Look for GO ID
+//         const goIdIndex = headerRow.findIndex(col =>
+//           col.includes('go.id') || col === 'go'
+//         );
 
-        if (goIdIndex !== -1 && geneRow.length > goIdIndex) {
-          geneData[`${fileKey}_GO`] = geneRow[goIdIndex];
-        }
+//         if (goIdIndex !== -1 && geneRow.length > goIdIndex) {
+//           geneData[`${fileKey}_GO`] = geneRow[goIdIndex];
+//         }
 
-        // Look for description
-        const descIndex = headerRow.findIndex(col =>
-          col.includes('description') || col.includes('desc')
-        );
+//         // Look for description
+//         const descIndex = headerRow.findIndex(col =>
+//           col.includes('description') || col.includes('desc')
+//         );
 
-        if (descIndex !== -1 && geneRow.length > descIndex) {
-          geneData[`${fileKey}_description`] = geneRow[descIndex];
-        }
+//         if (descIndex !== -1 && geneRow.length > descIndex) {
+//           geneData[`${fileKey}_description`] = geneRow[descIndex];
+//         }
 
-        // Also add enzyme name if available
-        const enzymeNameIndex = headerRow.findIndex(col =>
-          col.includes('enzyme.name')
-        );
+//         // Also add enzyme name if available
+//         const enzymeNameIndex = headerRow.findIndex(col =>
+//           col.includes('enzyme.name')
+//         );
 
-        if (enzymeNameIndex !== -1 && geneRow.length > enzymeNameIndex) {
-          geneData[`${fileKey}_enzyme_name`] = geneRow[enzymeNameIndex];
-        }
-      }
-    }
+//         if (enzymeNameIndex !== -1 && geneRow.length > enzymeNameIndex) {
+//           geneData[`${fileKey}_enzyme_name`] = geneRow[enzymeNameIndex];
+//         }
+//       }
+//     }
 
-    result.push(geneData);
-  }
+//     result.push(geneData);
+//   }
 
-  return result;
-}
+//   return result;
+// }
 
-// Contains methods to check file types
-identifyFileType(data: string[][], filename: string): string {
-  if (data.length === 0 || data[0].length === 0) return 'unknown';
+// // Contains methods to check file types
+// identifyFileType(data: string[][], filename: string): string {
+//   if (data.length === 0 || data[0].length === 0) return 'unknown';
 
-  const header = data[0].map(col => col.toLowerCase());
+//   const header = data[0].map(col => col.toLowerCase());
 
-  // Check if it's an expression file (gene and log2FoldChange)
-  if (header.includes('gene') && header.includes('log2foldchange')) {
-    return 'expression';
-  }
+//   // Check if it's an expression file (gene and log2FoldChange)
+//   if (header.includes('gene') && header.includes('log2foldchange')) {
+//     return 'expression';
+//   }
 
-  // Check if it's an annotation file (look for specific annotation columns)
-  if (header.includes('sequence.name') ||
-    header.includes('annotation.go.id') ||
-    header.includes('enzyme.code') ||
-    (header.includes('go') && header.includes('enzyme'))) {
-    return 'annotation';
-  }
+//   // Check if it's an annotation file (look for specific annotation columns)
+//   if (header.includes('sequence.name') ||
+//     header.includes('annotation.go.id') ||
+//     header.includes('enzyme.code') ||
+//     (header.includes('go') && header.includes('enzyme'))) {
+//     return 'annotation';
+//   }
 
-  // Removed countMatrix detection logic
+//   // Removed countMatrix detection logic
 
-  return 'unknown';
-}
+//   return 'unknown';
+// }
+//======================================================================
+
 
 
 //====PAULAS=====
@@ -888,6 +945,7 @@ identifyFileType(data: string[][], filename: string): string {
       // console.warn('Some files were not processed due to incompatible formats.');
     // });
   //}
+  //==========================================================================
 
 
   parseFileContent(content: string, fileName: string, fileExtension: string): string[][] | null {
