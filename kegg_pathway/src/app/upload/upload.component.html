@@ -19,10 +19,19 @@
 
       <div class="dropdown-section" *ngIf="uniqueKingdoms.length > 0">
         <div class="dropdown-container">
-          
+
           <div class="checkbox-container">
-            <input type="checkbox" id="toggleDropdown" (change)="toggleDropdowns()" [checked]="hideDropdowns"> 
-            <label for="toggleDropdown">No Organism</label>
+
+            <div class="checkbox-item">
+                <input type="checkbox" id="toggleDropdown" (change)="toggleDropdowns()" [checked]="hideDropdowns">  
+                <label for="toggleDropdown">No Organism</label>
+            </div>
+
+            <div class="checkbox-item">
+              <input type="checkbox" id="NoTimeSeries" (change)="onTimeSeriesCheckboxChange()" [checked]="noTimeSeriesChecked">  
+              <label for="NoTimeSeries">No Time Series Data</label>
+            </div>
+
           </div>
 
           <div *ngIf="!hideDropdowns">

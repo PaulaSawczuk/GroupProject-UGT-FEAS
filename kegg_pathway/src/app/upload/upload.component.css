@@ -152,7 +152,7 @@
   font-family: 'DM Sans', sans-serif;
 }
 
-.checkbox-container {
+/* .checkbox-container {
   display: flex;
   align-items: center;
   position: absolute; 
@@ -163,5 +163,25 @@
 }
 
 .checkbox-container input[type="checkbox"] {
+  margin-right: 5px;
+} */
+
+.checkbox-container {
+  display: flex;
+  flex-direction: row; /* Align items vertically */
+  position: absolute;  
+  left: 0;  
+  bottom: 0;
+  margin: 0;  
+  z-index: 10;
+}
+
+.checkbox-item {
+  display: flex;
+  align-items: center;
+  margin-right: 15px; 
+}
+
+.checkbox-item input[type="checkbox"] {
   margin-right: 5px;
 }

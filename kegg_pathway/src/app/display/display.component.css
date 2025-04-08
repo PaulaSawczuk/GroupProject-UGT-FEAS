@@ -853,64 +853,77 @@ button:hover {
 
 /* ------------ TIME SLIDER ------------ */
 
-.custom-slider {
+.slidecontainer {
   width: 100%;
-  margin-top: 20px;
-  margin-bottom: 30px;
 }
 
-.slider-line {
-  position: relative;
-  height: 3px;
+.slidecontainer p {
+  font-family: 'DM Sans', sans-serif; 
+  font-size: 16px; 
+  margin-bottom: 5px;
+  color: #48494B;
+  letter-spacing: 1px;
+}
+
+.slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 300px;
+  height: 10px;
+  border-radius: 25px;
   background: #d3d3d3;
+  outline: none;
+  opacity: 0.7;
+  -webkit-transition: .2s;
+  transition: opacity .2s;
+}
+
+.slider:hover {
+  opacity: 1;
+}
+
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  background: #2E5984;
   cursor: pointer;
+  border-radius: 50%;
 }
 
-.slider-pointer {
-  position: absolute;
-  top: 15px;
-  transform: translateX(-50%);
-  font-size: 2em;
-}
-
-.timepoint-labels {
-  position: relative;
-  display: block;
-}
-
-.timepoint-label {
-  position: absolute;
-  bottom: 20px;
-  font-size: 14px;
-  font-family: 'DM Sans', sans-serif;
-  color: #482E3C;
-}
-
-.slider-line::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 100%;
-  background: #482E3C;
-}
-
-.slider-line span {
-  position: absolute;
-  bottom: -5px; 
-  width: 3px;
-  height: 15px; 
-  background: #482E3C;
-}
+/* ------------ ANIMATION BUTTON ------------ */
 
 .slider-container {
-  position: flex; 
-  left: 0;
-  right: 0;
-  padding: 0 20px; 
+  flex: 1;
 }
 
+.animation-container {
+  flex-shrink: 0;
+  margin-right: 20px;
+}
+
+.animation-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-right: 20px;
+  padding: 8px 16px;
+  background-color: #f0f0f0;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.2s;
+}
+
+.animation-button:hover {
+  background-color: #e0e0e0;
+}
+
+.animation-button svg {
+  vertical-align: middle;
+}
 
 
 
