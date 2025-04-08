@@ -5,7 +5,7 @@ import { enzymeApiServicePost } from '../services/kegg_enzymepathwaysPost.serice
 import * as go from 'gojs';
 import { FileDataService } from '../services/file-data.service';
 import { filter } from 'rxjs';
-
+import { parseFileContent, identifyFileType } from '../helper/file-utils';
 
 declare var figure: any; 
 
@@ -1358,10 +1358,102 @@ private compareEnzymes(nodes: any[],timepoint: number): void{
   addFiles() {
     if (this.uploadedFiles.length > 0) {
       console.log('Files to be added:', this.uploadedFiles);
-      
-      // TODO: Add functionality to add and process more files to already existing ones
 
-      this.closeUploadModal(); // Close the modal after adding
+      const validExtensions = ['txt', 'csv'];
+      const expressionData: { [filename: string]: string[][] } = {};
+
+      const dataLoadPromises = this.uploadedFiles.map(fileObj =>
+        new Promise<void>((resolve, reject) => {
+          const fileExtension = fileObj.name.split('.').pop()?.toLowerCase();
+          if (!fileExtension || !validExtensions.includes(fileExtension)) {
+            this.unsupportedFileTypeMessage = `File ${fileObj.name} is not supported.`;
+            return reject();
+          }
+
+          const reader = new FileReader();
+          reader.onload = (event: any) => {
+            const content = event.target.result;
+            const parsedData = parseFileContent(content, fileObj.name, fileExtension);
+
+            if (!parsedData || parsedData.length === 0) {
+              this.warningMessage = `File ${fileObj.name} is empty or invalid.`;
+              return reject();
+            }
+
+            const fileType = identifyFileType(parsedData, fileObj.name);
+            const shortName = (fileObj.name || '').replace(/\.[^/.]+$/, '');
+
+            if (fileType === 'expression') {
+              expressionData[shortName] = parsedData;
+            } else {
+              this.warningMessage = `File ${fileObj.name} must be an expression file.`;
+              return reject();
+            }
+
+            resolve();
+          };
+
+          reader.onerror = () => {
+            this.warningMessage = `Error reading file ${fileObj.name}.`;
+            reject();
+          };
+
+          reader.readAsText(fileObj.file);
+        })
+      );
+
+      Promise.all(dataLoadPromises).then(() => {
+        const annotationData = this.fileDataService.getAnnotationData();
+        const existingCombined = this.fileDataService.getMultipleCombinedArrays() || [];
+
+        for (const [exprFilename, exprData] of Object.entries(expressionData)) {
+          const headerExpr = exprData[0].map(h => h.toLowerCase());
+          const geneIndexExpr = headerExpr.findIndex(col => col === 'gene');
+          if (geneIndexExpr === -1) continue;
+
+          const mergedGenes: any[] = [];
+
+          for (let i = 1; i < exprData.length; i++) {
+            const row = exprData[i];
+            const gene = row[geneIndexExpr];
+            const geneData: any = { gene };
+
+            for (let j = 0; j < row.length; j++) {
+              if (j !== geneIndexExpr && headerExpr[j]) {
+                geneData[`${exprFilename}_${headerExpr[j]}`] = row[j];
+              }
+            }
+
+            for (const [annFile, annData] of Object.entries(annotationData)) {
+              const headerAnn = annData[0].map(h => h.toLowerCase());
+              const geneIndexAnn = headerAnn.findIndex(col => col === 'sequence.name' || col.includes('gene') || col === 'id');
+              if (geneIndexAnn === -1) continue;
+
+              const annRow = annData.find(row => row[geneIndexAnn] === gene);
+              if (annRow) {
+                for (let k = 0; k < annRow.length; k++) {
+                  if (k !== geneIndexAnn && headerAnn[k]) {
+                    geneData[`${annFile}_${headerAnn[k]}`] = annRow[k];
+                  }
+                }
+              }
+            }
+
+            mergedGenes.push(geneData);
+          }
+
+          console.log(`Appended dataset for ${exprFilename}:`, mergedGenes);
+          existingCombined.push(mergedGenes);
+        }
+
+        const allCombined = existingCombined.flat();
+        this.fileDataService.setCombinedData(allCombined);
+        this.fileDataService.setMultipleCombinedArrays(existingCombined);
+
+        this.closeUploadModal(); // Close modal after merge
+      }).catch(err => {
+        console.warn('Failed to process added files:', err);
+      });
     } else {
       console.error('No files selected!');
     }
