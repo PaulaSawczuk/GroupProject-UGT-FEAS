@@ -49,6 +49,10 @@ export class DisplayComponent {
 
   pathwaySizeData: any[] = [];
 
+  loadedPathwayData: any[] = [];
+
+  colourArray: any[] = [];
+
   // Creating a GoJS Diagram 
   // Initially set as NULL 
   private myDiagram: go.Diagram | null = null;
@@ -363,6 +367,90 @@ private matchGenes(genes: any[], nodes: any[]): void {
     console.log('Enzymes Effected: '+ enzymeSet.size);
   }
 
+
+private matchGenes2(genes: any[], nodes: any[]): any[]|any[] {
+    // Matching Genes to Enzymes in Selected Map Data 
+    console.log('MatchGenes2');
+    var nodes = nodes;
+    var enzymeSet = new Set();
+    //console.log(genes);
+    var GeneSet = new Set();
+    var allGenes = [];
+    var colourArray = [];
+  
+    for (let i=0; i<nodes.length; i++){
+      //console.log(nodes[i].type)
+      if (nodes[i].type == 'enzyme'){
+        var geneList = [];
+        var logfcList = [];
+        //console.log(nodes[i].text);
+        let nodetext = nodes[i].text;
+        //console.log('node: '+nodetext);
+        for (let j=0; j<genes.length; j++){
+          //console.log(genes[j].enzyme[0]);
+          let enzyme = genes[j].enzyme[0];
+          let gene = genes[j].gene;
+          let logfc = genes[j].logfc;
+          if (enzyme == nodetext){
+            //console.log('match');
+            //console.log(enzyme);
+            enzymeSet.add(enzyme);
+            //console.log(nodetext);
+            //console.log(gene);
+            geneList.push(gene);
+    
+            GeneSet.add(gene);
+            allGenes.push(gene);
+            //GeneSet.add(gene);
+            logfcList.push(logfc);
+            //console.log(logfc);
+  
+          }
+          
+        }
+        //console.log(geneList);
+          if (geneList[0]){
+            nodes[i].gene = geneList;
+            //console.log(nodes[i]);
+          }else{
+            continue;
+          }
+          if (logfcList[0]){
+            //console.log(logfcList);
+            let mean = this.findMean(logfcList)
+            //console.log(mean);
+            nodes[i].logfc = mean;
+            let rgb = this.logfcToRGB(mean);
+            //console.log(nodes[i].key);
+            //console.log(rgb);
+            nodes[i].colour = rgb;
+            console.log('colour change');
+            //console.log(nodes[i])
+          }else{
+            continue;
+          }
+          console.log('colour added')
+          colourArray.push({
+            node: nodes[i].key,
+            colour: nodes[i].colour
+          });
+
+      }
+      }
+      //console.log(GeneSet);
+      //console.log('Number of Unique Genes: '+GeneSet.size);
+      //console.log(allGenes);
+      //console.log('Total Number of instances of Genes: '+allGenes.length);
+      //console.log(enzymeSet);
+      //console.log('Enzymes Effected: '+ enzymeSet.size);
+
+      // returning Updates nodes
+      return [nodes, colourArray];
+    }
+    
+
+
+
 // Takes nodes of selected Map 
 // Gets relevant timepoint, retrieves annotated genes
 private compareEnzymes(nodes: any[],timepoint: number): void{
@@ -374,7 +462,80 @@ private compareEnzymes(nodes: any[],timepoint: number): void{
   this.matchGenes(genes, nodes)
 }
 
+// Getting Mapping Data for all the enriched pathways 
+// Updated Nodes and Edges for all the timepoints etc
 
+private loadMapData(){
+  console.log('----------------------');
+  console.log('Loading MapData');
+  console.log('----------------------');
+  var pathwayData = this.ALLpathwayData
+  console.log(pathwayData);
+  var timepointData = this.filteredGenes;
+  console.log(timepointData);
+  console.log('Number of Files: '+timepointData.length);
+
+  var loadedPathwayData = [];
+  var ALLcolourArray = [];
+  // Cycle through number of pathways 
+  for (let i=0;i<pathwayData.length;i++){
+
+    const nodes = pathwayData[i].nodes;
+    var nodesArray = [];
+    var colourArray= [];
+    // Cycle through timepoints
+
+    for (let j=0; j<timepointData.length; j++){
+
+      const genes = timepointData[j];
+      //console.log(genes);
+      var elements = this.matchGenes2(genes, nodes);
+      //console.log(elements);
+      // Extract Colour and Nodes 
+      var updatesNodes = elements[0];
+      var colours = elements[1];
+      console.log(colours);
+      nodesArray.push(updatesNodes);
+      colourArray.push(colours);
+
+    }
+    loadedPathwayData.push({
+      pathway: pathwayData[i].name,
+      nodes: nodesArray
+    });
+    ALLcolourArray.push({
+      pathway: pathwayData[i].name,
+      colours: colourArray,
+    });
+  }
+
+
+  console.log(ALLcolourArray);
+  //console.log(loadedPathwayData); // 
+  //console.log(loadedPathwayData[0].nodes);
+  //console.log(loadedPathwayData[0].nodes[0]); // pathway index 0 timepoint index 0 
+  //console.log(ALLcolourArray[0].colours);
+  //console.log(ALLcolourArray[0].colours[0]);
+
+  let timpoint = 0 // First file
+  // get Nodes for first file and first pathway 
+  console.log('First Pathway, First timepoint');
+  console.log('Name');
+  console.log(loadedPathwayData[0].pathway); 
+  console.log('Nodes');
+  console.log(loadedPathwayData[0].nodes[0]);
+  console.log('Colours');
+  console.log(ALLcolourArray[0].colours[0]);
+  console.log('Edges');
+  console.log(this.ALLpathwayData[0]);
+  console.log(this.ALLpathwayData[0].edges);
+
+  this.colourArray = ALLcolourArray;
+  this.loadedPathwayData = loadedPathwayData;
+
+  console.log('--------- LoadMapData Finished -------')
+
+}
 
   
   /** --------  MAP Data Processing Functions -------- **/
@@ -502,7 +663,7 @@ private compareEnzymes(nodes: any[],timepoint: number): void{
       // Storing all the pathways + data to global attribute 
       // This can used to get data for selected map
       this.ALLpathwayData = response;
-
+      this.loadMapData();
       console.log('Pathway Data Loaded Successfully');
       this.isLoading = false;
       },
@@ -512,25 +673,37 @@ private compareEnzymes(nodes: any[],timepoint: number): void{
       });
   };
 
-  setMap(code: string, timepoint: number): void {
+  setMap(code: string, timepoint: number, name: string): void {
 
     console.log("Getting Map Data: "+code);
     // Finding pathway data by its code in pathway array
     const pathway = this.ALLpathwayData.find((obj => obj.pathway === code));
+    console.log(name);
+    
     //console.log(pathway);
+    console.log('Loading Differential Expression Data')
+
+    console.log(this.loadedPathwayData);
+    const data = this.loadedPathwayData.find(item => item.pathway === name);
+    console.log(data);
+    console.log(timepoint);
 
     // Extracting nodes and edges 
-    var nodes = pathway.nodes;
+    var nodes = data.nodes[timepoint]; // Default is 0
     var links = pathway.edges;
     console.log('Nodes + Edges Retrieved')
     //console.log(nodes);
     //console.log(links);
     console.log('Loading Differential Expression Data')
-    this.compareEnzymes(nodes,timepoint);
+    //this.compareEnzymes(nodes,timepoint);
     this.changeDiagram(nodes, links);
     this.isLoading = false;
+    if(this.myDiagram){
+    this.animateMap(name, 2000, this.myDiagram);
+    }
 
   }
+
 
   // --------------- Creating GO.js Model -------------------
   // Creating the First GoJS MAP
@@ -707,12 +880,12 @@ private compareEnzymes(nodes: any[],timepoint: number): void{
   this.myDiagram.nodeTemplateMap.add("enzyme",  // Custom category for compound nodes
     new go.Node("Auto")  // Use Vertical Panel to place the label above the shape
       .add(
-        new go.Shape("Rectangle").bind("fill","colour")
+        new go.Shape("Rectangle",{name:"SHAPE"}).bind("fill","colour")
       ).add(new go.TextBlock(
         { margin: 2,
           font: "10px sans-serif",
           wrap: go.TextBlock.WrapFit,
-        width: 80 })
+          width: 80 })
         .bind("text"))
         .add(new go.Shape("Square", {
               alignment: go.Spot.TopRight, width: 14, height: 14,
@@ -992,6 +1165,53 @@ private compareEnzymes(nodes: any[],timepoint: number): void{
   }
   
 
+  private animateMap(name: string, interval: number, myDiagram:go.Diagram): void{
+    console.log('Starting Animation');
+    let timePoint = 0; // Starting at timepoint 0
+  
+    const data = this.colourArray.find(item => item.pathway === name);
+    //console.log(data);
+    //console.log(data.colours);
+
+    //const node = this.myDiagram.findNodeForKey(nodeKey);
+    const timeSeries = data.colours;
+
+    const animationInterval = setInterval(() => {
+      if (timePoint < timeSeries.length) {
+      // For the current time point, update each node's color
+      console.log(timeSeries[timePoint]);
+      timeSeries[timePoint].forEach((item: { node: string; colour: string }) => {
+          const node = myDiagram.findNodeForKey(item.node);
+          //console.log(item);
+          if (node) {
+            //diagram.startTransaction("Change Color");
+
+            console.log('node match found');
+            //console.log(node);
+            console.log(item.node);
+            //console.log(item);
+            console.log(item.colour);
+            const key = item.node;
+            const colour = item.colour
+            const nodeColour = node.data.colour;
+            console.log(nodeColour);
+            //const nodeColour = node.findObject("Shape").colour;
+            //console.log(nodeColour);
+            //console.log(item.colour);
+            //console.log(item.colour);
+            const animation = new go.Animation();
+            animation.add(node, "fill", node.data.colour, colour);
+            animation.duration = 1000; // Transition duration of 1 second
+            animation.start();
+          }
+        });timePoint++;
+      }else{
+        clearInterval(animationInterval);
+        }
+      }, interval);
+}
+  
+
   // --------------- Updating GO.js Model -------------------
   // Updates the pre-existing Diagram Model
   updateDiagram(nodes: any[], links: any[]): void{
@@ -1089,7 +1309,7 @@ private compareEnzymes(nodes: any[],timepoint: number): void{
 
     // Retrieving Mapping Data from stored arrays
     // Specifcying the timepoint -- can be set default to 0 (first file)
-    this.setMap(code, this.selectedTimeIndex);
+    this.setMap(code, this.selectedTimeIndex, nameSelected);
   }
 
   // ------------------ SORT BY FUNCTIONALITY -------------------
