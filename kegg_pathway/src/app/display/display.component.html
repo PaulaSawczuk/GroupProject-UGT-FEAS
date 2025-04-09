@@ -51,7 +51,7 @@
             </div>
           </div>
           <hr />
-          <ul class="sub-menu" [class.show]="pathwaysOpen && !customTabOpen">
+          <ul class="sub-menu" [class.show]="pathwaysOpen && !customTabOpen && !searchTabOpen">
             <li *ngFor="let pathway of pathways">
               <a (click)="selectPathway($event, pathway)">{{ pathway }}</a>
             </li>
@@ -283,12 +283,15 @@
 
     <!-- ---------------- MAIN PANEL WITH THE DISPLAY OF PATHWAYS AND TIME SLIDER ---------------- -->
     <main class="main-panel">
-      <div class="pathway-title" *ngIf="selectedPathway">
-        <h2>{{ SelectedPathwayName }}</h2>
-      </div>
-      <!-- ---------------- VISUALISATION ---------------- -->
-      <div class="myDiagramDiv" id="myDiagramDiv"></div>
       
+      <!-- ---------------- VISUALISATION ---------------- -->
+      <div class="myDiagramDiv" id="myDiagramDiv">
+        <div class="pathway-title" *ngIf="selectedPathway">
+          <h2>{{ SelectedPathwayName }}</h2>
+        </div>
+
+      </div>
+
       <div class="slider-animation-wrapper">
         <!-- ---------------- TIME SLIDER ---------------- -->
         <div class="slider-container">

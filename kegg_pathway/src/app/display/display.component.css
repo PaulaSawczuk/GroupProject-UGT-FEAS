@@ -669,6 +669,23 @@ button:hover {
   font-family: 'DM Sans', sans-serif;
 }
 
+.sub-menu li a {
+  display: block;
+  color: #343a40;
+  text-decoration: none;
+  padding: 5px 10px;
+  border-radius: 4px;
+  font-family: 'DM Sans', sans-serif;
+  border-bottom: 1px solid #ddd;
+  margin-left: 20px;
+  margin-right: 20px; 
+}
+
+.sub-menu li a:hover {
+  background-color: rgba(138, 136, 136, 0.185);
+  width: 160px;
+}
+
 
 .sub-menu li select:hover,
 .sub-menu li select:focus {
@@ -966,10 +983,11 @@ button:hover {
 }
 /* TODO: FIX IT */
 /* Title above the pathway visualisation */
-.pathway-title {
+.pathway-title{
   text-align: left; 
   font-size: 0.6em;
-  margin-bottom: 2px; 
+  margin-bottom: 700px; 
+  left: 500px;
   color: #48494B; 
   font-family: 'DM Sans', sans-serif; 
   letter-spacing: 1px;

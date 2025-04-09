@@ -1584,7 +1584,6 @@ private compareEnzymes(nodes: any[],timepoint: number): void{
     return this.selectedColorLow;
   }
 
-  // ------------------ SEARCH TAB -------------------
 
   
 
