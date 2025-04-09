@@ -19,7 +19,7 @@ declare var figure: any;
 })
 
 export class DisplayComponent {
-  
+  LoadingMessage: string = '';
 
 
   // ------------------  MOCK DATA ----------------
@@ -226,6 +226,8 @@ private extractECNumbers(): void {
 // Enzymes are tallied and sorted in descending order 
 // Top 1000 (or can be changed) are selected and submitted to backend to query KEGG
 private tallyStrings(items: string[]): Record<string, number> {
+  console.log('Tallying Enzymes');
+  
   const tally: Record<string, number> = {};
 
   items.forEach(item => {
@@ -237,6 +239,7 @@ private tallyStrings(items: string[]): Record<string, number> {
 
 // Sorting Enzyme Tally 
 private sortTally(tally: Record<string, number>): [string, number][] {
+  this.LoadingMessage = 'Processing Enzyme List...';
   // Convert the tally object into an array of key-value pairs
   const entries = Object.entries(tally);
   // Sort by the count in descending order
@@ -246,6 +249,7 @@ private sortTally(tally: Record<string, number>): [string, number][] {
 
 // Extracting Top enzymes from Tally
 private getTopEnzymes(items: string[]): string[] {
+  console.log('Getting Top Enzymes');
   const tally = this.tallyStrings(items);    
   const sortedTally = this.sortTally(tally);  
 
@@ -374,14 +378,12 @@ private compareEnzymes(nodes: any[],timepoint: number): void{
   // Change enzyme node attributes accordingly 
   this.matchGenes(genes, nodes)
 }
-
-
-
-  
+ 
   /** --------  MAP Data Processing Functions -------- **/
   // Function for loading Names of each pathway that is fetched from the backend
   loadNames(): void {
     console.log('Processing Pathway Names');
+    this.LoadingMessage = 'Processing Pathway Names...';
     this.pathways = this.pathwayData.map(pathway => pathway.name);
   }
   /* --------- JENNYS ------------------
@@ -489,6 +491,7 @@ private compareEnzymes(nodes: any[],timepoint: number): void{
     this.isLoading = true;
     console.log('-----------------------------');
     console.log('Sending Request for Pathway Mapping Data');
+    this.LoadingMessage = 'Loading Pathway Mapping Data...';
     this.enzymeApiServicePost.postALLMapData(data).subscribe(
       (response) =>{
       console.log(response);

@@ -185,12 +185,10 @@ export class UploadComponent {
   
 
 //=====MABLES=====
-
   // Process the uploaded files
   processFiles(): void {
     const validExtensions = ['txt', 'csv'];
     const expressionData: { [filename: string]: string[][] } = {};
-
     const dataLoadPromises = this.uploadedFiles.map(fileObj =>
       new Promise<void>((resolve, reject) => {
         const fileExtension = fileObj.name.split('.').pop()?.toLowerCase();
@@ -235,6 +233,7 @@ export class UploadComponent {
         };
 
         fileReader.readAsText(fileObj.file);
+        
       })
     );
 
