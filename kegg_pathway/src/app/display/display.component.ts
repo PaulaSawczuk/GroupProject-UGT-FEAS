@@ -698,9 +698,9 @@ private loadMapData(){
     //this.compareEnzymes(nodes,timepoint);
     this.changeDiagram(nodes, links);
     this.isLoading = false;
-    if(this.myDiagram){
-    this.animateMap(name, 2000, this.myDiagram);
-    }
+    //if(this.myDiagram){
+    //this.animateMap(name, 2000, this.myDiagram);
+    //}
 
   }
 
