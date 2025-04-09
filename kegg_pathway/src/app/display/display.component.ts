@@ -1387,42 +1387,51 @@ private compareEnzymes(nodes: any[],timepoint: number): void{
   //  ------------------ CUSTOMISATION TAB -------------------
   customTabOpen: boolean = false;
   customTabExists: boolean = false;
+  searchTabOpen: boolean = false;
+  searchTabExists: boolean = false;
 
+  //  ------------------ CUSTOMISE subTAB -------------------
+
+  // If we open customisation tab pathways tab closes and search tab if exists closes
   openCustomTab(): void {
     console.log('customTabOpen True');
     console.log('customTabExists True');
     this.customTabOpen = true;
     this.customTabExists = true;
     this.pathwaysOpen = false;
+    if (this.searchTabExists){
+      this.searchTabOpen = false;
+    }
   }
 
+  // If we close customisation tab pathways tab opens
   closeCustomTab(): void {
-    console.log('closeCustomTab() called');
     this.customTabOpen = false;
     this.customTabExists = false;
-    console.log('customTabOpen False');
-    console.log('customTabExists False');
-
+    this.pathwaysOpen = true;
+    if (this.searchTabExists){
+      this.searchTabOpen = false;
+    }
   }
 
   isPathwaysActive(): boolean {
-    return !this.customTabOpen && this.customTabExists;
+    // If both exist and both are closed then make pathways active
+    // If custom tab is closed and exists and search tab doesnt exist
+    // If search tab closed and exist and custom tab doesnt exist
+    return (!this.customTabOpen && this.customTabExists && !this.searchTabOpen && this.searchTabExists)|| (!this.customTabOpen && this.customTabExists && !this.searchTabExists) || (!this.searchTabOpen && this.searchTabExists && !this.customTabOpen);
   }
 
   showPathwaysFromIcon(event: Event): void {
     event.stopPropagation();
     this.customTabOpen = false;
+    this.searchTabOpen = false;
     this.pathwaysOpen = true;
-
-    console.log('customTabOpen false');
-    console.log('pathwaysOpen true');
-
   }
 
   showCustomiseView(): void {
     this.customTabExists = true;
     this.customTabOpen = true;
-    this.pathwaysOpen = false;
+    this.searchTabOpen = false;
 
     console.log('customTabExists true');
     console.log('customTabOpen true');
@@ -1437,6 +1446,7 @@ private compareEnzymes(nodes: any[],timepoint: number): void{
   
   showPathways() {
     this.customTabOpen = false;
+    this.searchTabOpen = false;
     this.pathwaysOpen = true;
   }
 
@@ -1444,6 +1454,46 @@ private compareEnzymes(nodes: any[],timepoint: number): void{
     console.log('isCustomiseOpen() called');
     console.log('customTabOpen: ', this.customTabOpen);
     return this.customTabOpen;
+  }
+
+
+  //  ------------------ SEARCH subTAB -------------------
+
+  openSearchTab(): void {
+    this.searchTabOpen = true;
+    this.searchTabExists = true;
+    this.customTabOpen = false;
+    this.pathwaysOpen = false;
+  }
+  closeSearchTab(): void {
+    this.searchTabOpen = false;
+    this.searchTabExists = false;
+    this.pathwaysOpen = true;
+  }
+
+  showSearchView(): void {
+    this.searchTabExists = true;
+    this.searchTabOpen = true;
+    this.pathwaysOpen = false;
+    this.customTabOpen = false;
+
+    console.log('customTabExists true');
+    console.log('customTabOpen true');
+    console.log('pathwaysOpen false');
+
+  }
+
+  showTabView(): void {
+    this.searchTabExists = true;
+    this.searchTabOpen = true;
+    this.pathwaysOpen = false;
+    this.customTabOpen = false;
+  }
+
+  isSearchOpen(): boolean {
+    console.log('isSearchOpen() called');
+    console.log('customTabOpen: ', this.searchTabOpen);
+    return this.searchTabOpen;
   }
 
   //  ------------------ POPULATE SELECT BOXES -------------------
@@ -1515,7 +1565,31 @@ private compareEnzymes(nodes: any[],timepoint: number): void{
   stopAnimation(): void {
     console.log("Time lapse stopped");
   }
-    
+
+  // ------------------ COLOUR PICKER -------------------
+  selectedColorHigh: string = '#ff0000'; // Red 
+  selectedColorLow: string = '#0000ff';  // Blue
+
+  onColorChangeHigh(event: Event): string {
+    const input = event.target as HTMLInputElement;
+    this.selectedColorHigh = input.value;
+    console.log('High expression color:', this.selectedColorHigh);
+    return this.selectedColorHigh;
+  }
+
+  onColorChangeLow(event: Event): string {
+    const input = event.target as HTMLInputElement;
+    this.selectedColorLow = input.value;
+    console.log('Low expression color:', this.selectedColorLow);
+    return this.selectedColorLow;
+  }
+
+  // ------------------ SEARCH TAB -------------------
+
+  
+
+
 
 } 
+
 
