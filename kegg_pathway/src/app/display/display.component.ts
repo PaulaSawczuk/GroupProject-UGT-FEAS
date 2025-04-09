@@ -2041,9 +2041,12 @@ private loadMapData(){
     const data = this.loadedPathwayData.find(item => item.pathway === name);
     const pathway = this.ALLpathwayData.find((obj => obj.pathway === code));
     console.log(data);
-    var nodes = data.nodes[this.selectedTimeIndex]; // Default is 0
+    const time = this.selectedTimeIndex;
+    console.log(time);
+    var nodes = data.nodes[time]; // Default is 0
     console.log(nodes);
     var links = pathway.edges;
+    console.log(links);
     const colourData = this.colourArray.find(item => item.pathway === name);
     console.log('Colour Data: ')
     console.log(colourData);
