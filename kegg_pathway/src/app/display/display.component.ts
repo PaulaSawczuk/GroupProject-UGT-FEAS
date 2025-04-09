@@ -290,8 +290,8 @@ private extractECNumbers(): void {
   var enzymeList: any[]=[];
   //const file_number=0; // default to first file
 
-  console.log(this.filteredGenes.length);
-  console.log(this.filteredGenes);
+  //console.log(this.filteredGenes.length);
+  //console.log(this.filteredGenes);
   for (let i=0; i<this.filteredGenes.length;i++){
     const genes = this.filteredGenes[i];
     console.log(genes);
@@ -319,8 +319,8 @@ private updateExtractECNumbers(filteredGenes: any[]): any[] {
   var enzymeList: any[]=[];
   //const file_number=0; // default to first file
 
-  console.log(filteredGenes.length);
-  console.log(filteredGenes);
+  //console.log(filteredGenes.length);
+  //console.log(filteredGenes);
   for (let i=0; i<filteredGenes.length;i++){
     const genes = filteredGenes[i];
     console.log(genes);
@@ -421,7 +421,7 @@ private findMean(arr: any[]): number {
 // Mathing Enzyme Nodes to Enzymes present in Expression file selected 
 // Changing Enzyme node colour based on LogFC if match is found
 // Adding Genes to Enzyme node 
-/* ----------- JENNYS ------------
+// ----------- JENNYS ------------
 private matchGenes(genes: any[], nodes: any[]): void {
   // Matching Genes to Enzymes in Selected Map Data 
   var enzymeSet = new Set();
@@ -487,27 +487,27 @@ private matchGenes(genes: any[], nodes: any[]): void {
     //console.log(enzymeSet);
     console.log('Enzymes Effected: '+ enzymeSet.size);
   }
-*/
+
 
 
 
 private matchGenes2(genes: any[], nodes: any[]): any[]|any[] {
     // Matching Genes to Enzymes in Selected Map Data 
     console.log('MatchGenes2');
-    var nodes = nodes;
+    var newnodes = nodes;
     var enzymeSet = new Set();
-    //console.log(genes);
+    console.log(genes);
     var GeneSet = new Set();
     var allGenes = [];
     var colourArray = [];
   
-    for (let i=0; i<nodes.length; i++){
+    for (let i=0; i<newnodes.length; i++){
       //console.log(nodes[i].type)
-      if (nodes[i].type == 'enzyme'){
+      if (newnodes[i].type == 'enzyme'){
         var geneList = [];
         var logfcList = [];
         //console.log(nodes[i].text);
-        let nodetext = nodes[i].text;
+        let nodetext = newnodes[i].text;
         //console.log('node: '+nodetext);
         for (let j=0; j<genes.length; j++){
           //console.log(genes[j].enzyme[0]);
@@ -533,7 +533,7 @@ private matchGenes2(genes: any[], nodes: any[]): any[]|any[] {
         }
         //console.log(geneList);
           if (geneList[0]){
-            nodes[i].gene = geneList;
+            newnodes[i].gene = geneList;
             //console.log(nodes[i]);
           }else{
             continue;
@@ -546,7 +546,7 @@ private matchGenes2(genes: any[], nodes: any[]): any[]|any[] {
             let rgb = this.logfcToRGB(mean);
             //console.log(nodes[i].key);
             //console.log(rgb);
-            nodes[i].colour = rgb;
+            newnodes[i].colour = rgb;
             console.log('colour change');
             //console.log(nodes[i])
           }else{
@@ -554,21 +554,21 @@ private matchGenes2(genes: any[], nodes: any[]): any[]|any[] {
           }
           console.log('colour added')
           colourArray.push({
-            node: nodes[i].key,
-            colour: nodes[i].colour
+            node: newnodes[i].key,
+            colour: newnodes[i].colour
           });
 
       }
       }
-      //console.log(GeneSet);
-      //console.log('Number of Unique Genes: '+GeneSet.size);
-      //console.log(allGenes);
-      //console.log('Total Number of instances of Genes: '+allGenes.length);
-      //console.log(enzymeSet);
-      //console.log('Enzymes Effected: '+ enzymeSet.size);
-
-      // returning Updates nodes
-      return [nodes, colourArray];
+      console.log(GeneSet);
+      console.log('Number of Unique Genes: '+GeneSet.size);
+      console.log(allGenes);
+      console.log('Total Number of instances of Genes: '+allGenes.length);
+      console.log(enzymeSet);
+      console.log('Enzymes Effected: '+ enzymeSet.size);
+      console.log(newnodes);
+      // returning Updated nodes
+      return [newnodes, colourArray];
     }
     
 
@@ -589,13 +589,17 @@ private compareEnzymes(nodes: any[],timepoint: number): void{
 
 // Getting Mapping Data for all the enriched pathways 
 // Updated Nodes and Edges for all the timepoints etc
-private loadMapData(){
+private loadMapData(response: any[]){
+
   console.log('----------------------');
   console.log('Loading MapData');
   console.log('----------------------');
-  var pathwayData = this.ALLpathwayData
+  console.log('RESPONSE FROM BACKEND');
+
+  console.log(response);
+  const pathwayData = response;
   console.log(pathwayData);
-  var timepointData = this.filteredGenes;
+  const timepointData = this.filteredGenes;
   console.log(timepointData);
   console.log('Number of Files: '+timepointData.length);
 
@@ -605,6 +609,7 @@ private loadMapData(){
   for (let i=0;i<pathwayData.length;i++){
 
     const nodes = pathwayData[i].nodes;
+    console.log(nodes);
     var nodesArray = [];
     var colourArray= [];
     // Cycle through timepoints
@@ -617,6 +622,8 @@ private loadMapData(){
       //console.log(elements);
       // Extract Colour and Nodes 
       var updatesNodes = elements[0];
+      console.log(updatesNodes);
+
       var colours = elements[1];
       console.log(colours);
       nodesArray.push(updatesNodes);
@@ -635,13 +642,7 @@ private loadMapData(){
 
 
   console.log(ALLcolourArray);
-  //console.log(loadedPathwayData); // 
-  //console.log(loadedPathwayData[0].nodes);
-  //console.log(loadedPathwayData[0].nodes[0]); // pathway index 0 timepoint index 0 
-  //console.log(ALLcolourArray[0].colours);
-  //console.log(ALLcolourArray[0].colours[0]);
 
-  let timpoint = 0 // First file
   // get Nodes for first file and first pathway 
   console.log('First Pathway, First timepoint');
   console.log('Name');
@@ -651,11 +652,12 @@ private loadMapData(){
   console.log('Colours');
   console.log(ALLcolourArray[0].colours[0]);
   console.log('Edges');
-  console.log(this.ALLpathwayData[0]);
-  console.log(this.ALLpathwayData[0].edges);
+  //console.log(this.ALLpathwayData[0]);
+  //console.log(this.ALLpathwayData[0].edges);
 
   this.colourArray = ALLcolourArray;
   this.loadedPathwayData = loadedPathwayData;
+  this.ALLpathwayData = response;
 
   console.log('--------- LoadMapData Finished -------')
 
@@ -755,6 +757,7 @@ private loadMapData(){
         console.log('Getting Mapping Data');
         this.getMapData();
 
+
       },
       (error) => {
         // Handle errors
@@ -780,16 +783,19 @@ private loadMapData(){
     this.isLoading = true;
     console.log('-----------------------------');
     console.log('Sending Request for Pathway Mapping Data');
+
     this.enzymeApiServicePost.postALLMapData(data).subscribe(
       (response) =>{
+      console.log("Response from backend:");
       console.log(response);
-
+      
       // Storing all the pathways + data to global attribute 
       // This can used to get data for selected map
-      this.ALLpathwayData = response;
-      this.loadMapData();
+      this.loadMapData(response);
       console.log('Pathway Data Loaded Successfully');
       this.isLoading = false;
+      console.log('------ ALL pathway Data Loaded --------');
+      console.log(this.ALLpathwayData);
       },
       (error) => {
         console.error('Error:', error);
@@ -811,7 +817,7 @@ private loadMapData(){
       // Storing all the pathways + data to global attribute 
       // This can used to get data for selected map
       this.NEWpathwayData = response;
-      this.loadMapData();
+      //this.loadMapData(response);
       console.log('Pathway Data Loaded Successfully');
       this.isLoading = false;
       },
