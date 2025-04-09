@@ -39,6 +39,8 @@ export class DisplayComponent {
 
   ALLpathwayData: any[] = []; // Global attribute for storing all Pathway Data - Name, code, Edges, Nodes and EnzymeList
 
+  NEWpathwayData: any[]= []; // Global attribute for storing NEWLY UPLOADED Pathway Data to update pathway list
+
   enzymePathwayList: string[] = [];
 
   filteredGenes: any[] = []; // Array of Genes, Logfc and EC number of combined Data 
@@ -141,6 +143,50 @@ private getEnzymeGenes(): void{
   this.filterEnzymeGenes(filteredFiles); // pass to 
 }
 
+// Same function as above for Newly Uploaded Files
+private updateEnzymeGenes(file: any[]): any[]{
+
+  //console.log('Combined data:', combinedData); // Add debug logging
+    var geneEnzymes: any[] = []; // Use Set to avoid duplicates
+    //var filteredSet: Set<any> = new Set()
+    
+    if (file && file.length > 0) {
+      // Loop through the combined data to find EC numbers
+      for (const item of file) {
+        //console.log(item.gene);
+        //console.log(item.log)
+        for (const key in item) {
+          //console.log(key);
+          var logfc;
+          var gene;
+          var ec;
+          if (key.includes('_log2foldchange')&& item[key]){
+            logfc = item[key];
+          }
+
+          if (key.includes("_enzyme.code") && item[key]) {
+            ec = item[key];
+            if (ec.startsWith("EC")){
+                //ec = item[key];
+                gene = item.gene
+                //console.log(ec);
+                //console.log(gene);
+                //console.log(logfc);
+                geneEnzymes.push({
+                  gene: gene,
+                  logfc: logfc,
+                  enzyme: ec
+                })
+            };
+          }
+        }
+        
+    }
+  }
+  return geneEnzymes;
+}
+
+
 // Called from getEnzymeGenes()
 // Filters genes to those only with corresponding ec codes and reformats them in the correct order
 private filterEnzymeGenes(filteredFiles:any[]):void{
@@ -185,6 +231,49 @@ private filterEnzymeGenes(filteredFiles:any[]):void{
   this.filteredGenes = filteredFiles_enzymes;
 }
 
+// Same function as above for Newly uploaded files
+private updateFilterEnzymeGenes(filteredFiles:any[]):any[]{
+  var filteredFiles_enzymes = [];
+  for (let j=0; j<filteredFiles.length; j++){
+    console.log(this.fileNames[j]);
+    let geneEnzymes = filteredFiles[j];
+    console.log(geneEnzymes);
+    for (let i=0; i<geneEnzymes.length; i++){
+      //console.log(geneEnzymes[i].enzyme);
+      let ecNumber = geneEnzymes[i].enzyme;
+      if (ecNumber.toUpperCase().startsWith('EC:')) {
+        // Convert to lowercase and remove spaces
+        ecNumber = ecNumber.replace(/\s+/g, '').toLowerCase();
+        ecNumber = ecNumber.split("|");
+
+      } else {
+        // Add lowercase ec: prefix
+        ecNumber = "ec:" + ecNumber;
+      }
+
+      for (let j=0; j<ecNumber.length; j++){
+        var filteredEnzymes = [];
+        //console.log(enzymes[j])
+        //console.log(this.filterString(enzymes[j]));
+        if (this.filterString(ecNumber[j]) == true)
+          filteredEnzymes.push(ecNumber[j]);
+          ecNumber = filteredEnzymes;
+
+        }
+        //console.log(ecNumber);
+        geneEnzymes[i].enzyme = ecNumber;
+    }
+    //console.log(geneEnzymes);
+    const filteredArray = geneEnzymes.filter((item: { enzyme: string | any[]; }) => {
+      return item.enzyme && (!Array.isArray(item.enzyme) || item.enzyme.length > 0);
+    });
+    //console.log(filteredArray);
+    filteredFiles_enzymes.push(filteredArray);
+  }
+  //console.log("Filteref out enzymes: "+ filteredFiles_enzymes[0]);
+  return filteredFiles_enzymes;
+}
+
 
 // ---------------- Extraction of enzymes in filtered Constrast Datasets ---------------------
 // This Gets a processed list of all the enzymes present in the input files that have corresponding DEGs
@@ -218,6 +307,36 @@ private extractECNumbers(): void {
 
 }
 
+// Same function but for new file processing on upload in display component
+private updateExtractECNumbers(filteredGenes: any[]): any[] {
+
+  // Set this up to loop through all files -- total enzymes 
+  console.log('Extracting Enzymes to Search');
+  //console.log(this.filteredGenes);
+  //var enzymeList: Set<any> = new Set()
+  var enzymeList: any[]=[];
+  //const file_number=0; // default to first file
+
+  console.log(filteredGenes.length);
+  console.log(filteredGenes);
+  for (let i=0; i<filteredGenes.length;i++){
+    const genes = filteredGenes[i];
+    console.log(genes);
+    for (let i=0; i<genes.length; i++){
+      let enzyme = genes[i].enzyme[0];
+      //console.log(enzyme);
+      enzymeList.push(enzyme);
+    }
+    //const topEnzymes = this.getTop100Names(enzymeList);
+  }
+  console.log(enzymeList);
+  const topEnzymes = this.getTopEnzymes(enzymeList);
+  //console.log(enzymeList)
+  return Array.from(topEnzymes);
+  //this.enzymeList = Array.from(topEnzymes);
+
+}
+
 
 
 // --------- Enzyme Tally and Processing Functions --------
@@ -234,7 +353,6 @@ private tallyStrings(items: string[]): Record<string, number> {
   items.forEach(item => {
     tally[item] = (tally[item] || 0) + 1;
   });
-
   return tally;
 }
 
@@ -301,6 +419,7 @@ private findMean(arr: any[]): number {
 // Mathing Enzyme Nodes to Enzymes present in Expression file selected 
 // Changing Enzyme node colour based on LogFC if match is found
 // Adding Genes to Enzyme node 
+/* ----------- JENNYS ------------
 private matchGenes(genes: any[], nodes: any[]): void {
   // Matching Genes to Enzymes in Selected Map Data 
   var enzymeSet = new Set();
@@ -366,6 +485,8 @@ private matchGenes(genes: any[], nodes: any[]): void {
     //console.log(enzymeSet);
     console.log('Enzymes Effected: '+ enzymeSet.size);
   }
+*/
+
 
 
 private matchGenes2(genes: any[], nodes: any[]): any[]|any[] {
@@ -449,8 +570,7 @@ private matchGenes2(genes: any[], nodes: any[]): any[]|any[] {
     }
     
 
-
-
+/* ----------- JENNYS -----------------
 // Takes nodes of selected Map 
 // Gets relevant timepoint, retrieves annotated genes
 private compareEnzymes(nodes: any[],timepoint: number): void{
@@ -461,10 +581,12 @@ private compareEnzymes(nodes: any[],timepoint: number): void{
   // Change enzyme node attributes accordingly 
   this.matchGenes(genes, nodes)
 }
+*/
+
+
 
 // Getting Mapping Data for all the enriched pathways 
 // Updated Nodes and Edges for all the timepoints etc
-
 private loadMapData(){
   console.log('----------------------');
   console.log('Loading MapData');
@@ -663,6 +785,30 @@ private loadMapData(){
       // Storing all the pathways + data to global attribute 
       // This can used to get data for selected map
       this.ALLpathwayData = response;
+      this.loadMapData();
+      console.log('Pathway Data Loaded Successfully');
+      this.isLoading = false;
+      },
+      (error) => {
+        console.error('Error:', error);
+        this.isLoading = false;
+      });
+  };
+
+  updateMapData(newPathways: any[]): void {
+
+    // Sending top 10 Pathways to back-end to retrieve Mapping Data 
+    const data = [newPathways];
+    this.isLoading = true;
+    console.log('-----------------------------');
+    console.log('Sending Request for Pathway Mapping Data');
+    this.enzymeApiServicePost.postALLMapData(data).subscribe(
+      (response) =>{
+      console.log(response);
+
+      // Storing all the pathways + data to global attribute 
+      // This can used to get data for selected map
+      this.NEWpathwayData = response;
       this.loadMapData();
       console.log('Pathway Data Loaded Successfully');
       this.isLoading = false;
@@ -1574,6 +1720,111 @@ private loadMapData(){
     this.showFileList = this.uploadedFiles.length > 0;
   }
 
+  processNewFiles(): void{
+
+    console.log('Processing New Files');
+    const originalData = this.filteredGenes;
+    console.log('Original filtered Genes:');
+    console.log(originalData);
+    console.log('Original Number of Expression Files: ' +originalData.length);
+    const allData = this.fileDataService.getMultipleCombinedArrays();
+    console.log('Current Number of Expression Files: ' +allData.length);
+
+    const fileNumber = (allData.length-originalData.length);
+    console.log('Number of New Files: ' +fileNumber);
+    const previousLength = this.filteredGenes.length;
+
+    var filteredFiles = [];
+    for (let i = previousLength; i<allData.length;i++){
+      //console.log("New Data:", allData[i]);
+      console.log('Processing New Data');
+      const file = allData[i];
+      const geneEnzymes = this.updateEnzymeGenes(file);
+      filteredFiles.push(geneEnzymes)
+    }
+
+    const newFilteredGenes = this.updateFilterEnzymeGenes(filteredFiles);
+    //console.log(newFilteredGenes);
+    //var newArray = originalData.push(newFilteredGenes);
+    console.log('Adding New Filtered Data to Array');
+    //console.log(newArray);
+    newFilteredGenes.forEach(item =>{
+      this.filteredGenes.push(item);
+    })
+    //this.filteredGenes.push(newFilteredGenes);
+    //console.log(this.filteredGenes);
+    
+    this.updatePathways(newFilteredGenes);
+  }
+
+
+getNewPathways(arr1: any[], arr2: any[]): any[] {
+    // Filter arr1 to get items that don't exist in arr2
+    const uniqueInArr1 = arr1.filter(item1 => 
+      !arr2.some(item2 => item1.id === item2.id)
+    );
+  
+    // Filter arr2 to get items that don't exist in arr1
+    const uniqueInArr2 = arr2.filter(item2 => 
+      !arr1.some(item1 => item1.id === item2.id)
+    );
+  
+    // Combine both results into one array
+    return [...uniqueInArr1, ...uniqueInArr2];
+  }
+
+  
+
+  updatePathways(newFilteredGenes: any[]): void{
+
+    this.isLoading = true; 
+    
+    console.log('Extracting Enzymes');
+    console.log('-----------------------------');
+    // Extract Enzymes 
+    const enzymes = this.updateExtractECNumbers(newFilteredGenes);
+    //console.log(enzymes);
+    console.log('Updating Pathway List');
+    console.log('-----------------------------');
+
+    // Sending Query to Kegg for new Enzymes
+    const data = [enzymes, this.pathwayNumber];
+    this.enzymeApiServicePost.postEnzymeData(data).subscribe(
+      (response) => {
+        // Handle the successful response
+        const pathways = response;
+
+        console.log('Received from backend:', response);
+        console.log('-----------------------------');
+        console.log(this.pathwayData); // Existing pathways 
+
+        // Comparing Existing to New Pathways 
+        const uniquePathways = this.getNewPathways(pathways, this.pathwayData);
+
+        //console.log(uniquePathways);
+        if (uniquePathways){
+          console.log(uniquePathways);
+          // RE-RUN PATHWAY REQUEST??
+          // COMPLETELY RE-LOAD PATHWAY DATA??
+
+          // LOAD NEW TIMEPOINT DATA
+
+        }else{
+          console.log('No Unique Pathways -- Pathway List Preserved');
+          // LOAD NEW TIMEPOINT DATA
+        }
+        this.isLoading = false; 
+        // Compare New Pathway List to existing pathways 
+      },
+      (error) => {
+        // Handle errors
+        console.error('Error:', error);
+        this.isLoading = false; 
+
+        //this.responseMessage = 'Error sending data';
+      }
+    );
+  }
   // Add files
   addFiles() {
     if (this.uploadedFiles.length > 0) {
@@ -1669,6 +1920,16 @@ private loadMapData(){
         const allCombined = existingCombined.flat();
         this.fileDataService.setCombinedData(allCombined);
         this.fileDataService.setMultipleCombinedArrays(existingCombined);
+        console.log('All-files');
+        const data = this.fileDataService.getMultipleCombinedArrays();
+        console.log(data);
+        console.log("Loaded Files");
+        console.log(this.filteredGenes);
+        
+        
+        // Process Files
+        this.processNewFiles(); // Filter and Extract Enzymes
+        
 
         this.closeUploadModal(); // Close modal after merge
       }).catch(err => {
