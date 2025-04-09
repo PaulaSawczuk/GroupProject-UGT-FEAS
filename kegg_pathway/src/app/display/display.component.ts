@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { enzymeApiServicePost } from '../services/kegg_enzymepathwaysPost.serice';
 import * as go from 'gojs';
 import { FileDataService } from '../services/file-data.service';
-import { filter } from 'rxjs';
+import { filter, interval } from 'rxjs';
 import { parseFileContent, identifyFileType } from '../helper/file-utils';
 import {MatSliderModule} from '@angular/material/slider';
 
@@ -728,6 +728,13 @@ private loadMapData(){
 
     // Loading Screen
     this.isLoading = true;
+
+    
+
+    const numberArray: number[] = Array.from({ length: this.fileDataService.getMultipleCombinedArrays().length }, (_, index) => index);
+    this.timepoints = numberArray;
+
+
     // Processing Input Data - Match Genes and Extracting LogFc + EC numbers
     this.getEnzymeGenes();
     // Getting List of Enzymes from Input Data
@@ -831,6 +838,7 @@ private loadMapData(){
 
     // Extracting nodes and edges 
     var nodes = data.nodes[timepoint]; // Default is 0
+    console.log(nodes);
     var links = pathway.edges;
     console.log('Nodes + Edges Retrieved')
     //console.log(nodes);
@@ -1021,7 +1029,7 @@ private loadMapData(){
   this.myDiagram.nodeTemplateMap.add("enzyme",  // Custom category for compound nodes
     new go.Node("Auto")  // Use Vertical Panel to place the label above the shape
       .add(
-        new go.Shape("Rectangle",{name:"SHAPE"}).bind("fill","colour")
+        new go.Shape("Rectangle").bind("fill","colour")
       ).add(new go.TextBlock(
         { margin: 2,
           font: "10px sans-serif",
@@ -1306,58 +1314,12 @@ private loadMapData(){
   }
   
 
-  private animateMap(name: string, interval: number, myDiagram:go.Diagram): void{
-    console.log('Starting Animation');
-    let timePoint = 0; // Starting at timepoint 0
-  
-    const data = this.colourArray.find(item => item.pathway === name);
-    //console.log(data);
-    //console.log(data.colours);
-
-    //const node = this.myDiagram.findNodeForKey(nodeKey);
-    const timeSeries = data.colours;
-
-    const animationInterval = setInterval(() => {
-      if (timePoint < timeSeries.length) {
-      // For the current time point, update each node's color
-      console.log(timeSeries[timePoint]);
-      timeSeries[timePoint].forEach((item: { node: string; colour: string }) => {
-          const node = myDiagram.findNodeForKey(item.node);
-          //console.log(item);
-          if (node) {
-            //diagram.startTransaction("Change Color");
-
-            console.log('node match found');
-            //console.log(node);
-            console.log(item.node);
-            //console.log(item);
-            console.log(item.colour);
-            const key = item.node;
-            const colour = item.colour
-            const nodeColour = node.data.colour;
-            console.log(nodeColour);
-            //const nodeColour = node.findObject("Shape").colour;
-            //console.log(nodeColour);
-            //console.log(item.colour);
-            //console.log(item.colour);
-            const animation = new go.Animation();
-            animation.add(node, "fill", node.data.colour, colour);
-            animation.duration = 1000; // Transition duration of 1 second
-            animation.start();
-          }
-        });timePoint++;
-      }else{
-        clearInterval(animationInterval);
-        }
-      }, interval);
-}
-  
-
   // --------------- Updating GO.js Model -------------------
   // Updates the pre-existing Diagram Model
   updateDiagram(nodes: any[], links: any[]): void{
     if (this.myDiagram){
-    console.log('Updating Diagram');  
+    console.log('Updating Diagram'); 
+    //console.log(nodes); 
     this.myDiagram.model = new go.GraphLinksModel(nodes, links)}
   }
 
@@ -1501,6 +1463,7 @@ private loadMapData(){
       list = list.sort();
       console.log(list);
       this.pathways = list;
+      this.sortDropdownOpen = false;
     }
     // Sort Z-A
     if (criteria == 'length'){
@@ -1508,6 +1471,7 @@ private loadMapData(){
       list = list.sort((a, b) => b.localeCompare(a));
       console.log(list);
       this.pathways = list;
+      this.sortDropdownOpen = false;
     }
 
     // Sorting High to Low Pathway Size
@@ -1517,6 +1481,7 @@ private loadMapData(){
       pathwaysSize.sort((a, b) => b.size - a.size)
       let sortedNames = pathwaysSize.map(item => item.name);
       this.pathways = sortedNames;
+      this.sortDropdownOpen = false;
       };
 
     // Sorting Low to High Pathway Size
@@ -1526,9 +1491,11 @@ private loadMapData(){
       pathwaysSize.sort((a, b) => a.size - b.size);
       let sortedNames = pathwaysSize.map(item => item.name);
       this.pathways = sortedNames;
-    }
+      this.sortDropdownOpen = false;
+    }else{
     
     this.sortDropdownOpen = false;
+    }
   }
 
 
@@ -1749,7 +1716,7 @@ private loadMapData(){
   }
 
 
-getNewPathways(arr1: any[], arr2: any[]): any[] {
+  getNewPathways(arr1: any[], arr2: any[]): any[] {
     // Filter arr1 to get items that don't exist in arr2
     const uniqueInArr1 = arr1.filter(item1 => 
       !arr2.some(item2 => item1.id === item2.id)
@@ -1765,7 +1732,6 @@ getNewPathways(arr1: any[], arr2: any[]): any[] {
   }
 
   
-
   updatePathways(newFilteredGenes: any[]): void{
 
     this.isLoading = true; 
@@ -1816,6 +1782,7 @@ getNewPathways(arr1: any[], arr2: any[]): any[] {
       }
     );
   }
+
   // Add files
   addFiles() {
     if (this.uploadedFiles.length > 0) {
@@ -2067,7 +2034,25 @@ getNewPathways(arr1: any[], arr2: any[]): any[] {
 
   updateValue(): void {
     this.value = this.timepoints[this.selectedTimeIndex];
+    console.log(this.value);
+    console.log('Time index: '+this.selectedTimeIndex);
+    const code = this.selectedPathway;
+    const name = this.SelectedPathwayName
+    const data = this.loadedPathwayData.find(item => item.pathway === name);
+    const pathway = this.ALLpathwayData.find((obj => obj.pathway === code));
+    console.log(data);
+    var nodes = data.nodes[this.selectedTimeIndex]; // Default is 0
+    console.log(nodes);
+    var links = pathway.edges;
+    const colourData = this.colourArray.find(item => item.pathway === name);
+    console.log('Colour Data: ')
+    console.log(colourData);
+    
+    this.updateDiagram(nodes,links);
+
   }
+
+
 
   // ------------------ ANIMATION ------------------
 
@@ -2084,11 +2069,69 @@ getNewPathways(arr1: any[], arr2: any[]): any[] {
 
   startAnimation(): void {
     console.log("Time lapse started");
+    const name = this.selectedPathway;
+    console.log(name);
+    const interval = 3000;
+    if(this.myDiagram){
+    this.animateMap(name, interval, this.myDiagram);
+    }else{
+      console.log('No Diagram');
+    }
   }
 
   stopAnimation(): void {
     console.log("Time lapse stopped");
+    
   }
+
+
+  private animateMap(name: string, interval: number, myDiagram:go.Diagram): void{
+    console.log('Starting Animation');
+    let timePoint = 0; // Starting at timepoint 0
+  
+    const data = this.colourArray.find(item => item.pathway === name);
+    //console.log(data);
+    //console.log(data.colours);
+
+    //const node = this.myDiagram.findNodeForKey(nodeKey);
+    const timeSeries = data.colours;
+
+    const animationInterval = setInterval(() => {
+      if (timePoint < timeSeries.length) {
+      // For the current time point, update each node's color
+      console.log(timeSeries[timePoint]);
+      timeSeries[timePoint].forEach((item: { node: string; colour: string }) => {
+          const node = myDiagram.findNodeForKey(item.node);
+          //console.log(item);
+          if (node) {
+            //diagram.startTransaction("Change Color");
+
+            console.log('node match found');
+            //console.log(node);
+            console.log(item.node);
+            //console.log(item);
+            console.log(item.colour);
+            const key = item.node;
+            const colour = item.colour
+            const nodeColour = node.data.colour;
+            console.log(nodeColour);
+            //const nodeColour = node.findObject("Shape").colour;
+            //console.log(nodeColour);
+            //console.log(item.colour);
+            //console.log(item.colour);
+            const animation = new go.Animation();
+            animation.add(node, "fill", node.data.colour, colour);
+            animation.duration = 1000; // Transition duration of 1 second
+            animation.start();
+          }
+        });timePoint++;
+      }else{
+        clearInterval(animationInterval);
+        }
+      }, interval);
+}
+  
+
     
 
 } 
