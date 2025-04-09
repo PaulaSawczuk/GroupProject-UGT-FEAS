@@ -6,13 +6,15 @@ import * as go from 'gojs';
 import { FileDataService } from '../services/file-data.service';
 import { filter } from 'rxjs';
 import { parseFileContent, identifyFileType } from '../helper/file-utils';
+import {MatSliderModule} from '@angular/material/slider';
+
 
 declare var figure: any; 
 
 @Component({
   selector: 'app-display',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, MatSliderModule],
   templateUrl: './display.component.html',
   styleUrls: ['./display.component.css']
 })
@@ -724,13 +726,6 @@ private loadMapData(){
 
   ngOnInit(): void {
 
-    // Assinging filenames from ExpressionData 
-    // Can be used to create list to select which to view 
-    // Also good for debugging 
-    const files = this.fileDataService.getExpressionData();
-    const fileNames = Object.keys(files);
-    console.log(fileNames);
-    this.fileNames = fileNames;
     // Loading Screen
     this.isLoading = true;
     // Processing Input Data - Match Genes and Extracting LogFc + EC numbers
@@ -1392,31 +1387,28 @@ private loadMapData(){
 
   exportOptions = ['PDF', 'CSV', 'JSON'];
   targets = ['Target 1', 'Target 2', 'Target 3'];
-  timepoints = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
   
   selectedPathway: string = this.pathways[0];
-  selectedTimeIndex: number = 0;
   SelectedPathwayName: string = '';
-  sliderLine: ElementRef | undefined;
 
-  @ViewChild('sliderLine') set sliderLineRef(sliderLineRef: ElementRef | undefined) {
-    if (sliderLineRef) {
-      this.sliderLine = sliderLineRef;
-      this.initSliderLineListener();
-    }
-  }
+  // @ViewChild('sliderLine') set sliderLineRef(sliderLineRef: ElementRef | undefined) {
+  //   if (sliderLineRef) {
+  //     this.sliderLine = sliderLineRef;
+  //     this.initSliderLineListener();
+  //   }
+  // }
 
-  get selectedTimepoint() {
-    return this.timepoints[this.selectedTimeIndex];
-  }
+  // get selectedTimepoint() {
+  //   return this.timepoints[this.selectedTimeIndex];
+  // }
 
-  initSliderLineListener() {
-    if (this.sliderLine) {
-      this.sliderLine.nativeElement.addEventListener('click', (event: MouseEvent) => {
-        this.updateTimeFromClick(event);
-      });
-    }
-  }
+  // initSliderLineListener() {
+  //   if (this.sliderLine) {
+  //     this.sliderLine.nativeElement.addEventListener('click', (event: MouseEvent) => {
+  //       this.updateTimeFromClick(event);
+  //     });
+  //   }
+  // }
   // ------------------ PATHWAY SIDE BAR -------------------
   toggleMenu() {
     this.isMenuOpen = !this.isMenuOpen;
@@ -1449,7 +1441,7 @@ private loadMapData(){
 
     // Set Time index to defualt value of 0 -- open up on first timepoint 
     //this.selectedTimeIndex = 0;
-    console.log(this.selectedTimepoint);
+    // console.log(this.selectedTimepoint);
     console.log(this.selectedTimeIndex);
     //console.log(this.filteredGenes[this.selectedTimepoint][0]);
 
@@ -1541,19 +1533,19 @@ private loadMapData(){
 
 
 
-  updateTimeFromClick(event: MouseEvent) {
-    if (this.sliderLine) {
-      const rect = this.sliderLine.nativeElement.getBoundingClientRect();
-      const clickPosition = event.clientX - rect.left;
-      const sliderWidth = rect.width;
-      const timeIndex = Math.round((clickPosition / sliderWidth) * (this.timepoints.length - 1));
+  // updateTimeFromClick(event: MouseEvent) {
+  //   if (this.sliderLine) {
+  //     const rect = this.sliderLine.nativeElement.getBoundingClientRect();
+  //     const clickPosition = event.clientX - rect.left;
+  //     const sliderWidth = rect.width;
+  //     const timeIndex = Math.round((clickPosition / sliderWidth) * (this.timepoints.length - 1));
 
-      if (timeIndex >= 0 && timeIndex < this.timepoints.length) {
-        this.selectedTimeIndex = timeIndex;
-        console.log(this.selectedTimeIndex);
-      }
-    }
-  }
+  //     if (timeIndex >= 0 && timeIndex < this.timepoints.length) {
+  //       this.selectedTimeIndex = timeIndex;
+  //       console.log(this.selectedTimeIndex);
+  //     }
+  //   }
+  // }
 
 
   //  ------------------ EXPORTING -------------------
@@ -1585,7 +1577,6 @@ private loadMapData(){
     const diagramWidth = diagramBounds.width;
     const diagramHeight = diagramBounds.height;
   
-    // Max size you want for the exported image
     const maxWidth = 13500; 
     const maxHeight = 2200;
 
@@ -1967,6 +1958,138 @@ getNewPathways(arr1: any[], arr2: any[]): any[] {
     this.closeFilterPathwayModal();
   }
 
+  //  ------------------ CUSTOMISATION TAB -------------------
+  customTabOpen: boolean = false;
+  customTabExists: boolean = false;
+
+  openCustomTab(): void {
+    console.log('customTabOpen True');
+    console.log('customTabExists True');
+    this.customTabOpen = true;
+    this.customTabExists = true;
+    this.pathwaysOpen = false;
+  }
+
+  closeCustomTab(): void {
+    console.log('closeCustomTab() called');
+    this.customTabOpen = false;
+    this.customTabExists = false;
+    console.log('customTabOpen False');
+    console.log('customTabExists False');
+
+  }
+
+  isPathwaysActive(): boolean {
+    return !this.customTabOpen && this.customTabExists;
+  }
+
+  showPathwaysFromIcon(event: Event): void {
+    event.stopPropagation();
+    this.customTabOpen = false;
+    this.pathwaysOpen = true;
+
+    console.log('customTabOpen false');
+    console.log('pathwaysOpen true');
+
+  }
+
+  showCustomiseView(): void {
+    this.customTabExists = true;
+    this.customTabOpen = true;
+    this.pathwaysOpen = false;
+
+    console.log('customTabExists true');
+    console.log('customTabOpen true');
+    console.log('pathwaysOpen false');
+
+  }
+
+  selectCustomOption(): void {
+    console.log('Customisation option selected');
+  }
+
   
-}
+  showPathways() {
+    this.customTabOpen = false;
+    this.pathwaysOpen = true;
+  }
+
+  isCustomiseOpen(): boolean {
+    console.log('isCustomiseOpen() called');
+    console.log('customTabOpen: ', this.customTabOpen);
+    return this.customTabOpen;
+  }
+
+  //  ------------------ POPULATE SELECT BOXES -------------------
+  // MOCK DATA
+  enzymeOptions: string[] = ['Enzyme A', 'Enzyme B', 'Enzyme C'];
+  subcategoryOptions: string[] = [];
+  CompoundOptions: string[] = ['Value 1', 'Value 2', 'Value 3'];
+  PathwayOptions: string[] = ['Pathway A', 'Pathway B', 'Pathway C'];
+  
+  // Selected by the user values - initially empty
+  selectedEnzyme: string = '';
+  selectedSubcategory: string = '';
+  selectedCompound: string = '';
+  selectedPathwayCustom: string = '';
+
+  onEnzymeChange() {
+    console.log('Selected enzyme:', this.selectedEnzyme);
+    this.selectedSubcategory = '';
+    if (this.selectedEnzyme) {
+    // TODO: Here logic to populate subcategories box based on chosen enzyme
+    // something like if this and that then this.subcategoryOptions = [some list];
+      if (this.selectedEnzyme === 'Enzyme A') {
+        this.subcategoryOptions = ['Subcategory A1', 'Subcategory A2'];
+      }
+    }
+  }
+
+  onSubcategoryChange() {
+    console.log('Selected subcategory:', this.selectedSubcategory);
+  }
+
+  onCompoundChange(){
+    console.log('Selected compound:', this.selectedCompound);
+
+  }
+
+  onPathwayChange(){
+    console.log('Selected enzyme:', this.selectedPathwayCustom);
+
+  }
+
+  //  ------------------ TIME SLIDER -------------------
+  timepoints = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+  selectedTimeIndex: number = 0;
+  
+  value: number = this.timepoints[this.selectedTimeIndex];
+
+  updateValue(): void {
+    this.value = this.timepoints[this.selectedTimeIndex];
+  }
+
+  // ------------------ ANIMATION ------------------
+
+  isAnimationActive = false;
+
+  toggleAnimation(): void {
+    this.isAnimationActive = !this.isAnimationActive;
+    if (this.isAnimationActive) {
+      this.startAnimation();
+    } else {
+      this.stopAnimation();
+    }
+  }
+
+  startAnimation(): void {
+    console.log("Time lapse started");
+  }
+
+  stopAnimation(): void {
+    console.log("Time lapse stopped");
+  }
+    
+
+} 
 

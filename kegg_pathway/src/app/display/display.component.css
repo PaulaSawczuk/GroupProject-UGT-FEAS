@@ -501,7 +501,7 @@ button:hover {
   align-items: flex-start;
   width: 100%;
 }
-
+/* ---------- Pathways Header ---------- */
 #sidebar .pathways-header {
   display: flex;
   align-items: center;
@@ -520,18 +520,155 @@ button:hover {
   background-color: var(--hover-clr);
 }
 
+#sidebar .pathways-header.active svg {
+  background-color: #a7adb2ad;
+  border-radius: 5px;
+  fill: #343a40 !important;
+}
+
+/* ---------- Customise Header ---------- */
+#sidebar .customise-header {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 8px;
+  font-family: 'DM Sans', sans-serif;
+  transition: background-color 0.3s;
+  color: #343a40;
+  letter-spacing: 1px;
+  width: 100%;
+  gap: 10px;
+  }
+  
+#sidebar .customise-header:hover {
+  background-color: var(--hover-clr);
+  }
+  
+#sidebar .customise-header.active svg {
+  background-color: #a7adb2ad;
+  border-radius: 5px;
+  fill: #343a40;
+}
+
+/* #sidebar .customise-header .menu-text, */
+#sidebar .customise-header .close-btn,
+#sidebar .customise-header + .sub-menu {
+  transition: opacity 0.3s ease;
+}
+
+#sidebar.pathways-active .customise-header {
+  display: flex !important;
+  justify-content: flex-start !important;
+  margin: 0 !important;
+  padding: 8px !important;
+}
+
+
+/* ---------- Close Button ---------- */
+.close-btn {
+  background: transparent;
+  border: none;
+  color: #343a40;
+  font-size: 14px;
+  cursor: pointer;
+  margin-left: 58px;
+}
+
+.close-btn:hover {
+  color: #115ba9;
+}
+
+/* ---------- Submenus ---------- */
 #sidebar .sub-menu {
   display: none;
+  position: relative;
   flex-direction: column;
-  background-color: var(--base-clr);
   padding: 5px 10px;
-  border-radius: 5px;
 }
 
 #sidebar .sub-menu.show {
   display: flex;
 }
 
+.sub-menu li {
+  width: 100%;
+  margin-bottom: 5px;
+  display: flex;
+  align-items: center;
+}
+
+.sub-menu li label {
+  font-weight: bold;
+  margin-left: 2px;
+  color: #3E424B;
+  font-size: 12px;
+  font-family: 'DM Sans', sans-serif;
+}
+
+.sub-menu li select {
+  width: 200px; 
+  height: 30px; 
+  overflow-y: auto;
+  box-sizing: border-box;
+  padding: 4px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: #dbd6d68e;
+  transition: border-color 0.3s ease;
+  font-family: 'DM Sans', sans-serif;
+}
+
+
+.sub-menu li select:hover,
+.sub-menu li select:focus {
+  border-color: var(--input-focus-border-color);
+}
+
+/* ---------- Utilities ---------- */
+.menu-text {
+  white-space: nowrap;
+}
+
+#sidebar.close .menu-text,
+#sidebar.close .sort-label,
+#sidebar.close .dropdown-arrow {
+  display: none;
+}
+
+#sidebar.close .menu-text,
+#sidebar.close .sub-menu,
+#sidebar.close .close-btn {
+  display: none;
+}
+
+
+#sidebar::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  height: 25px;
+  /* background: linear-gradient(to top, rgb(154, 151, 151, 0.2), transparent); */
+  pointer-events: none;
+}
+
+/* Keeps the icons alligned with the Pathway title */
+.icons-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.icons {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+
+
+/* ------------ SIDEBAR BUTTON ------------ */
 #sidebar button {
   display: flex;
   align-items: center;
@@ -559,80 +696,7 @@ button:hover {
   fill: #48494B;
 }
 
-/* .dropdown-arrow {
-  transition: transform 0.3s ease-in-out;
-  color: #482E3C;
-} */
-
-.dropdown-arrow.rotate {
-  transform: rotate(180deg);
-}
-
-.sub-menu {
-  display: none;
-  flex-direction: column;
-  background-color: var(--base-clr);
-  padding: 5px 10px;
-  border-radius: 5px;
-}
-
-.sub-menu.show {
-  display: flex;
-}
-
-.sub-menu li {
-  width: 100%;
-}
-
-.sub-menu a {
-  display: block;
-  color: #343a40;
-  text-decoration: none;
-  padding: 5px 10px;
-  border-radius: 4px;
-  font-family: 'DM Sans', sans-serif;
-  border-bottom: 1px solid #ddd;
-  margin-left: 20px;
-  margin-right: 20px; 
-}
-
-.sub-menu a:hover {
-  background-color: rgba(126, 76, 76, 0.185);
-  width: 160px;
-}
-
-#sidebar::after {
-  content: "";
-  position: absolute;
-  bottom: 0;
-  width: 100%;
-  height: 25px;
-  background: linear-gradient(to top, rgb(154, 151, 151, 0.2), transparent);
-  pointer-events: none;
-}
-
-.menu-text {
-  white-space: nowrap;
-}
-
-#sidebar.close .menu-text {
-  display: none;
-}
-
-#sidebar.close .sort-label {
-  display: none;
-}
-
-#sidebar.close .dropdown-arrow {
-  display: none;
-}
-
-/* Keeps the icons alligned with the Pathway title */
-.icons-container {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
+/* ---------- Toggle Animations ---------- */
 
 .toggle-container {
   transition: transform 0.3s ease; 
@@ -645,11 +709,11 @@ button:hover {
   justify-content: flex-end; 
 }
 
-.icons {
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
+.hide {
+  display: none !important;
 }
+
+
 
 /* ------------ SORT BY ------------ */
 
@@ -700,7 +764,7 @@ button:hover {
 }
 
 .sort-dropdown li:hover {
-  background-color: #f1f1f1;
+  background-color: #343a4081;
   border-radius: 4px;
 }
 
@@ -749,7 +813,7 @@ button:hover {
   border: 2px solid #3E424B;
   margin-bottom: 80px;
   position: relative;
-  top: 6%;
+  top: 7%;
   z-index:0;
 }
 
@@ -789,64 +853,77 @@ button:hover {
 
 /* ------------ TIME SLIDER ------------ */
 
-.custom-slider {
+.slidecontainer {
   width: 100%;
-  margin-top: 20px;
-  margin-bottom: 30px;
 }
 
-.slider-line {
-  position: relative;
-  height: 3px;
+.slidecontainer p {
+  font-family: 'DM Sans', sans-serif; 
+  font-size: 16px; 
+  margin-bottom: 5px;
+  color: #48494B;
+  letter-spacing: 1px;
+}
+
+.slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 300px;
+  height: 10px;
+  border-radius: 25px;
   background: #d3d3d3;
+  outline: none;
+  opacity: 0.7;
+  -webkit-transition: .2s;
+  transition: opacity .2s;
+}
+
+.slider:hover {
+  opacity: 1;
+}
+
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  background: #2E5984;
   cursor: pointer;
+  border-radius: 50%;
 }
 
-.slider-pointer {
-  position: absolute;
-  top: 15px;
-  transform: translateX(-50%);
-  font-size: 2em;
-}
-
-.timepoint-labels {
-  position: relative;
-  display: block;
-}
-
-.timepoint-label {
-  position: absolute;
-  bottom: 20px;
-  font-size: 14px;
-  font-family: 'DM Sans', sans-serif;
-  color: #482E3C;
-}
-
-.slider-line::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 100%;
-  background: #482E3C;
-}
-
-.slider-line span {
-  position: absolute;
-  bottom: -5px; 
-  width: 3px;
-  height: 15px; 
-  background: #482E3C;
-}
+/* ------------ ANIMATION BUTTON ------------ */
 
 .slider-container {
-  position: flex; 
-  left: 0;
-  right: 0;
-  padding: 0 20px; 
+  flex: 1;
 }
 
+.animation-container {
+  flex-shrink: 0;
+  margin-right: 20px;
+}
+
+.animation-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-right: 20px;
+  padding: 8px 16px;
+  background-color: #f0f0f0;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.2s;
+}
+
+.animation-button:hover {
+  background-color: #e0e0e0;
+}
+
+.animation-button svg {
+  vertical-align: middle;
+}
 
 
 

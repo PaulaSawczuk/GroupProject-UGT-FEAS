@@ -1068,4 +1068,15 @@ export class UploadComponent {
       this.resetDropdowns();
     }
   }
+
+  // ---------------- CHECKBOX TO CHECK IF TIME SERIES DATA ----------------
+  
+  noTimeSeriesChecked: boolean = false;
+  
+  onTimeSeriesCheckboxChange() {
+    this.noTimeSeriesChecked = !this.noTimeSeriesChecked;
+    console.log('Time Series?', this.noTimeSeriesChecked);
+  }
+
+
 }
