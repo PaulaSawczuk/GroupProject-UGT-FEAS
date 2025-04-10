@@ -21,12 +21,14 @@
 - Install Dependencies  
   In the terminal, run the following command to install all required dependencies:  
 
-  ```bash npm install ```
+  ```bash npm install
+  ```
 
 - Start the Application  
   Once the installation is complete, start the application with:  
 
-  ```bash npm start ```
+  ```bash npm start
+  ```
 
   This will launch the app in your default web browser.
   
