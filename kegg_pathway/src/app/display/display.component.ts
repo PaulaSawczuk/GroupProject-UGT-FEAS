@@ -495,85 +495,76 @@ private matchGenes(genes: any[], nodes: any[]): void {
 
 
 
-private matchGenes2(genes: any[], nodes: any[]): any[]|any[] {
+  private matchGenes2(genes: any[], nodes: any[]): any[]|any[] {
     // Matching Genes to Enzymes in Selected Map Data 
     console.log('MatchGenes2');
-    var newnodes = nodes;
+  
+    // Create a deep copy of nodes to avoid mutating the original
+    var newnodes = nodes.map(node => ({ ...node }));
+  
     var enzymeSet = new Set();
     console.log(genes);
+  
     var GeneSet = new Set();
     var allGenes = [];
     var colourArray = [];
   
-    for (let i=0; i<newnodes.length; i++){
-      //console.log(nodes[i].type)
-      if (newnodes[i].type == 'enzyme'){
+    for (let i = 0; i < newnodes.length; i++) {
+      // Only modify nodes of type 'enzyme'
+      if (newnodes[i].type == 'enzyme') {
         var geneList = [];
         var logfcList = [];
-        //console.log(nodes[i].text);
         let nodetext = newnodes[i].text;
-        //console.log('node: '+nodetext);
-        for (let j=0; j<genes.length; j++){
-          //console.log(genes[j].enzyme[0]);
+  
+        // Cycle through genes
+        for (let j = 0; j < genes.length; j++) {
           let enzyme = genes[j].enzyme[0];
           let gene = genes[j].gene;
           let logfc = genes[j].logfc;
-          if (enzyme == nodetext){
-            //console.log('match');
-            //console.log(enzyme);
+  
+          if (enzyme == nodetext) {
             enzymeSet.add(enzyme);
-            //console.log(nodetext);
-            //console.log(gene);
             geneList.push(gene);
-    
             GeneSet.add(gene);
             allGenes.push(gene);
-            //GeneSet.add(gene);
             logfcList.push(logfc);
-            //console.log(logfc);
-  
           }
-          
         }
-        //console.log(geneList);
-          if (geneList[0]){
-            newnodes[i].gene = geneList;
-            //console.log(nodes[i]);
-          }else{
-            continue;
-          }
-          if (logfcList[0]){
-            //console.log(logfcList);
-            let mean = this.findMean(logfcList)
-            //console.log(mean);
-            nodes[i].logfc = mean;
-            let rgb = this.logfcToRGB(mean);
-            //console.log(nodes[i].key);
-            //console.log(rgb);
-            newnodes[i].colour = rgb;
-            console.log('colour change');
-            //console.log(nodes[i])
-          }else{
-            continue;
-          }
-          console.log('colour added')
-          colourArray.push({
-            node: newnodes[i].key,
-            colour: newnodes[i].colour
-          });
-
+  
+        if (geneList[0]) {
+          newnodes[i].gene = geneList;
+        } else {
+          continue;
+        }
+  
+        if (logfcList[0]) {
+          let mean = this.findMean(logfcList);
+          let rgb = this.logfcToRGB(mean);
+          newnodes[i].logfc = mean;
+          newnodes[i].colour = rgb;
+        } else {
+          continue;
+        }
+  
+        // Collect colours
+        colourArray.push({
+          node: newnodes[i].key,
+          colour: newnodes[i].colour
+        });
       }
-      }
-      console.log(GeneSet);
-      console.log('Number of Unique Genes: '+GeneSet.size);
-      console.log(allGenes);
-      console.log('Total Number of instances of Genes: '+allGenes.length);
-      console.log(enzymeSet);
-      console.log('Enzymes Effected: '+ enzymeSet.size);
-      console.log(newnodes);
-      // returning Updated nodes
-      return [newnodes, colourArray];
     }
+  
+    console.log(GeneSet);
+    console.log('Number of Unique Genes: ' + GeneSet.size);
+    console.log(allGenes);
+    console.log('Total Number of instances of Genes: ' + allGenes.length);
+    console.log(enzymeSet);
+    console.log('Enzymes Effected: ' + enzymeSet.size);
+    console.log(newnodes);
+  
+    // Returning updated nodes and colour array
+    return [newnodes, colourArray];
+  }
     
 
 /* ----------- JENNYS -----------------
@@ -593,78 +584,88 @@ private compareEnzymes(nodes: any[],timepoint: number): void{
 
 // Getting Mapping Data for all the enriched pathways 
 // Updated Nodes and Edges for all the timepoints etc
-private loadMapData(response: any[]){
-
+private loadMapData(response: any[]) {
   console.log('----------------------');
   console.log('Loading MapData');
   console.log('----------------------');
   console.log('RESPONSE FROM BACKEND');
 
   console.log(response);
-  const pathwayData = response;
+
+  // Deep clone the pathwayData to avoid mutation of the original response
+  const pathwayData = response.map(item => ({
+    ...item,  // Shallow copy of the top level properties
+    nodes: item.nodes.map((node: any) => ({ ...node })) // Deep copy of nodes to avoid mutation
+  }));
   console.log(pathwayData);
-  const timepointData = this.filteredGenes;
+
+  // Deep clone the timepointData (this.filteredGenes) to avoid mutation of the original array
+  const timepointData = this.filteredGenes.map(item => ({ ...item }));  // Deep copy of timepointData
   console.log(timepointData);
-  console.log('Number of Files: '+timepointData.length);
+
+  console.log('Number of Files: ' + timepointData.length);
 
   var loadedPathwayData = [];
   var ALLcolourArray = [];
-  // Cycle through number of pathways 
-  for (let i=0;i<pathwayData.length;i++){
 
-    const nodes = pathwayData[i].nodes;
+  // Cycle through number of pathways
+  for (let i = 0; i < pathwayData.length; i++) {
+    const nodes = pathwayData[i].nodes; // Already a deep copy
     console.log(nodes);
+
     var nodesArray = [];
-    var colourArray= [];
+    var colourArray = [];
+
     // Cycle through timepoints
-
-    for (let j=0; j<timepointData.length; j++){
-
+    for (let j = 0; j < timepointData.length; j++) {
       const genes = timepointData[j];
-      //console.log(genes);
+
       var elements = this.matchGenes2(genes, nodes);
-      //console.log(elements);
-      // Extract Colour and Nodes 
+      // Extract Colour and Nodes
       var updatesNodes = elements[0];
       console.log(updatesNodes);
 
       var colours = elements[1];
       console.log(colours);
+      
+      // Add updated nodes and colours to respective arrays
       nodesArray.push(updatesNodes);
       colourArray.push(colours);
-
     }
+
+    // Push the processed pathway data into the loadedPathwayData array
     loadedPathwayData.push({
       pathway: pathwayData[i].name,
       nodes: nodesArray
     });
+
+    // Push the colour data into the ALLcolourArray
     ALLcolourArray.push({
       pathway: pathwayData[i].name,
       colours: colourArray,
     });
   }
 
-
+  // Log the result
   console.log(ALLcolourArray);
 
-  // get Nodes for first file and first pathway 
+  // Example of logging the first pathway, first timepoint details
   console.log('First Pathway, First timepoint');
   console.log('Name');
-  console.log(loadedPathwayData[0].pathway); 
+  console.log(loadedPathwayData[0].pathway);
   console.log('Nodes');
   console.log(loadedPathwayData[0].nodes[0]);
   console.log('Colours');
   console.log(ALLcolourArray[0].colours[0]);
   console.log('Edges');
-  //console.log(this.ALLpathwayData[0]);
-  //console.log(this.ALLpathwayData[0].edges);
+  // console.log(this.ALLpathwayData[0].edges);
 
+  // Assign the processed data to component properties
   this.colourArray = ALLcolourArray;
   this.loadedPathwayData = loadedPathwayData;
-  this.ALLpathwayData = response;
+  this.ALLpathwayData = response; // You might still want to keep this for reference
 
-  console.log('--------- LoadMapData Finished -------')
-
+  console.log('--------- LoadMapData Finished -------');
 }
 
   
@@ -738,8 +739,8 @@ private loadMapData(response: any[]){
 
     
 
-    const numberArray: number[] = Array.from({ length: this.fileDataService.getMultipleCombinedArrays().length }, (_, index) => index);
-    this.timepoints = numberArray;
+    //const numberArray: number[] = Array.from({ length: this.fileDataService.getMultipleCombinedArrays().length }, (_, index) => index);
+    //this.timepoints = numberArray;
 
 
     // Processing Input Data - Match Genes and Extracting LogFc + EC numbers
