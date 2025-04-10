@@ -5,6 +5,7 @@ import { enzymeApiServicePost } from '../services/kegg_enzymepathwaysPost.serice
 import * as go from 'gojs';
 import { FileDataService } from '../services/file-data.service';
 import { filter } from 'rxjs';
+import { parseFileContent, identifyFileType } from '../helper/file-utils';
 import {MatSliderModule} from '@angular/material/slider';
 
 
@@ -1272,6 +1273,197 @@ private compareEnzymes(nodes: any[],timepoint: number): void{
 
   //  ------------------ UPLOADING -------------------
 
+  // Same function as above for Newly Uploaded Files
+  private updateEnzymeGenes(file: any[]): any[]{
+
+  //console.log('Combined data:', combinedData); // Add debug logging
+    var geneEnzymes: any[] = []; // Use Set to avoid duplicates
+    //var filteredSet: Set<any> = new Set()
+    
+    if (file && file.length > 0) {
+      // Loop through the combined data to find EC numbers
+      for (const item of file) {
+        //console.log(item.gene);
+        //console.log(item.log)
+        for (const key in item) {
+          //console.log(key);
+          var logfc;
+          var gene;
+          var ec;
+          if (key.includes('_log2foldchange')&& item[key]){
+            logfc = item[key];
+          }
+
+          if (key.includes("_enzyme.code") && item[key]) {
+            ec = item[key];
+            if (ec.startsWith("EC")){
+                //ec = item[key];
+                gene = item.gene
+                //console.log(ec);
+                //console.log(gene);
+                //console.log(logfc);
+                geneEnzymes.push({
+                  gene: gene,
+                  logfc: logfc,
+                  enzyme: ec
+                })
+            };
+          }
+        }
+        
+    }
+  }
+  return geneEnzymes;
+}
+
+  private updateFilterEnzymeGenes(filteredFiles:any[]):any[]{
+  var filteredFiles_enzymes = [];
+  for (let j=0; j<filteredFiles.length; j++){
+    console.log(this.fileNames[j]);
+    let geneEnzymes = filteredFiles[j];
+    console.log(geneEnzymes);
+    for (let i=0; i<geneEnzymes.length; i++){
+      //console.log(geneEnzymes[i].enzyme);
+      let ecNumber = geneEnzymes[i].enzyme;
+      if (ecNumber.toUpperCase().startsWith('EC:')) {
+        // Convert to lowercase and remove spaces
+        ecNumber = ecNumber.replace(/\s+/g, '').toLowerCase();
+        ecNumber = ecNumber.split("|");
+
+      } else {
+        // Add lowercase ec: prefix
+        ecNumber = "ec:" + ecNumber;
+      }
+
+      for (let j=0; j<ecNumber.length; j++){
+        var filteredEnzymes = [];
+        //console.log(enzymes[j])
+        //console.log(this.filterString(enzymes[j]));
+        if (this.filterString(ecNumber[j]) == true)
+          filteredEnzymes.push(ecNumber[j]);
+          ecNumber = filteredEnzymes;
+
+        }
+        //console.log(ecNumber);
+        geneEnzymes[i].enzyme = ecNumber;
+    }
+    //console.log(geneEnzymes);
+    const filteredArray = geneEnzymes.filter((item: { enzyme: string | any[]; }) => {
+      return item.enzyme && (!Array.isArray(item.enzyme) || item.enzyme.length > 0);
+    });
+    //console.log(filteredArray);
+    filteredFiles_enzymes.push(filteredArray);
+  }
+  //console.log("Filteref out enzymes: "+ filteredFiles_enzymes[0]);
+  return filteredFiles_enzymes;
+}
+
+
+/*
+  private updatePathways(newFilteredGenes: any[]): void{
+
+  this.isLoading = true; 
+  
+  console.log('Extracting Enzymes');
+  console.log('-----------------------------');
+  // Extract Enzymes 
+  const enzymes = this.updateExtractECNumbers(newFilteredGenes);
+  //console.log(enzymes);
+  console.log('Updating Pathway List');
+  console.log('-----------------------------');
+
+  // Sending Query to Kegg for new Enzymes
+  const data = [enzymes, this.pathwayNumber];
+  this.enzymeApiServicePost.postEnzymeData(data).subscribe(
+    (response) => {
+      // Handle the successful response
+      const pathways = response;
+
+      console.log('Received from backend:', response);
+      console.log('-----------------------------');
+      console.log(this.pathwayData); // Existing pathways 
+
+      // Comparing Existing to New Pathways 
+      const uniquePathways = this.getNewPathways(pathways, this.pathwayData);
+
+      //console.log(uniquePathways);
+      if (uniquePathways){
+        console.log(uniquePathways);
+        // RE-RUN PATHWAY REQUEST??
+        // COMPLETELY RE-LOAD PATHWAY DATA??
+
+        // LOAD NEW TIMEPOINT DATA
+
+      }else{
+        console.log('No Unique Pathways -- Pathway List Preserved');
+        // LOAD NEW TIMEPOINT DATA
+      }
+      this.isLoading = false; 
+      // Compare New Pathway List to existing pathways 
+    },
+    (error) => {
+      // Handle errors
+      console.error('Error:', error);
+      this.isLoading = false; 
+
+      //this.responseMessage = 'Error sending data';
+    }
+  );
+}*/
+
+
+  private getNewPathways(arr1: any[], arr2: any[]): any[] {
+  // Filter arr1 to get items that don't exist in arr2
+  const uniqueInArr1 = arr1.filter(item1 => 
+    !arr2.some(item2 => item1.id === item2.id)
+  );
+
+  // Filter arr2 to get items that don't exist in arr1
+  const uniqueInArr2 = arr2.filter(item2 => 
+    !arr1.some(item1 => item1.id === item2.id)
+  );
+
+  // Combine both results into one array
+  return [...uniqueInArr1, ...uniqueInArr2];
+}
+
+processNewFiles(): void{
+
+    console.log('Processing New Files');
+    const originalData = this.filteredGenes;
+    console.log('Original filtered Genes:');
+    console.log(originalData);
+    console.log('Original Number of Expression Files: ' +originalData.length);
+    const allData = this.fileDataService.getMultipleCombinedArrays();
+    console.log('Current Number of Expression Files: ' +allData.length);
+
+    const fileNumber = (allData.length-originalData.length);
+    console.log('Number of New Files: ' +fileNumber);
+    const previousLength = this.filteredGenes.length;
+
+    var filteredFiles = [];
+    for (let i = previousLength; i<allData.length;i++){
+      //console.log("New Data:", allData[i]);
+      console.log('Processing New Data');
+      const file = allData[i];
+      const geneEnzymes = this.updateEnzymeGenes(file);
+      filteredFiles.push(geneEnzymes)
+    }
+
+    const newFilteredGenes = this.updateFilterEnzymeGenes(filteredFiles);
+    //console.log(newFilteredGenes);
+    //var newArray = originalData.push(newFilteredGenes);
+    console.log('Adding New Filtered Data to Array');
+    //console.log(newArray);
+    newFilteredGenes.forEach(item =>{
+      this.filteredGenes.push(item);
+    })
+    //this.filteredGenes.push(newFilteredGenes);
+    //console.log(this.filteredGenes);
+    
+    //this.updatePathways(newFilteredGenes);
+  }
+
   isUploadModalOpen: boolean = false;
   uploadedFiles: { name: string; file: File }[] = [];
   unsupportedFileTypeMessage: string = '';
@@ -1348,17 +1540,121 @@ private compareEnzymes(nodes: any[],timepoint: number): void{
   }
 
   // Add files
+    // Add files
   addFiles() {
-    if (this.uploadedFiles.length > 0) {
-      console.log('Files to be added:', this.uploadedFiles);
-      
-      // TODO: Add functionality to add and process more files to already existing ones
-
-      this.closeUploadModal(); // Close the modal after adding
-    } else {
-      console.error('No files selected!');
+      if (this.uploadedFiles.length > 0) {
+        console.log('Files to be added:', this.uploadedFiles);
+  
+        const validExtensions = ['txt', 'csv'];
+        const expressionData: { [filename: string]: string[][] } = {};
+  
+        const dataLoadPromises = this.uploadedFiles.map(fileObj =>
+          new Promise<void>((resolve, reject) => {
+            const fileExtension = fileObj.name.split('.').pop()?.toLowerCase();
+            if (!fileExtension || !validExtensions.includes(fileExtension)) {
+              this.unsupportedFileTypeMessage = `File ${fileObj.name} is not supported.`;
+              return reject();
+            }
+  
+            const reader = new FileReader();
+            reader.onload = (event: any) => {
+              const content = event.target.result;
+              const parsedData = parseFileContent(content, fileObj.name, fileExtension);
+  
+              if (!parsedData || parsedData.length === 0) {
+                this.warningMessage = `File ${fileObj.name} is empty or invalid.`;
+                return reject();
+              }
+  
+              const fileType = identifyFileType(parsedData, fileObj.name);
+              const shortName = (fileObj.name || '').replace(/\.[^/.]+$/, '');
+  
+              if (fileType === 'expression') {
+                expressionData[shortName] = parsedData;
+              } else {
+                this.warningMessage = `File ${fileObj.name} must be an expression file.`;
+                return reject();
+              }
+  
+              resolve();
+            };
+  
+            reader.onerror = () => {
+              this.warningMessage = `Error reading file ${fileObj.name}.`;
+              reject();
+            };
+  
+            reader.readAsText(fileObj.file);
+          })
+        );
+  
+        Promise.all(dataLoadPromises).then(() => {
+          const annotationData = this.fileDataService.getAnnotationData();
+          const existingCombined = this.fileDataService.getMultipleCombinedArrays() || [];
+  
+          for (const [exprFilename, exprData] of Object.entries(expressionData)) {
+            const headerExpr = exprData[0].map(h => h.toLowerCase());
+            const geneIndexExpr = headerExpr.findIndex(col => col === 'gene');
+            if (geneIndexExpr === -1) continue;
+  
+            const mergedGenes: any[] = [];
+  
+            for (let i = 1; i < exprData.length; i++) {
+              const row = exprData[i];
+              const gene = row[geneIndexExpr];
+              const geneData: any = { gene };
+  
+              for (let j = 0; j < row.length; j++) {
+                if (j !== geneIndexExpr && headerExpr[j]) {
+                  geneData[`${exprFilename}_${headerExpr[j]}`] = row[j];
+                }
+              }
+  
+              for (const [annFile, annData] of Object.entries(annotationData)) {
+                const headerAnn = annData[0].map(h => h.toLowerCase());
+                const geneIndexAnn = headerAnn.findIndex(col => col === 'sequence.name' || col.includes('gene') || col === 'id');
+                if (geneIndexAnn === -1) continue;
+  
+                const annRow = annData.find(row => row[geneIndexAnn] === gene);
+                if (annRow) {
+                  for (let k = 0; k < annRow.length; k++) {
+                    if (k !== geneIndexAnn && headerAnn[k]) {
+                      geneData[`${annFile}_${headerAnn[k]}`] = annRow[k];
+                    }
+                  }
+                }
+              }
+  
+              mergedGenes.push(geneData);
+            }
+  
+            console.log(`Appended dataset for ${exprFilename}:`, mergedGenes);
+            existingCombined.push(mergedGenes);
+          }
+  
+          const allCombined = existingCombined.flat();
+          this.fileDataService.setCombinedData(allCombined);
+          this.fileDataService.setMultipleCombinedArrays(existingCombined);
+          console.log('All-files');
+          const data = this.fileDataService.getMultipleCombinedArrays();
+          console.log(data);
+          console.log("Loaded Files");
+          console.log(this.filteredGenes);
+          
+          
+          // Process Files
+          //this.processNewFiles(); // Filter and Extract Enzymes
+          
+  
+          this.closeUploadModal(); // Close modal after merge
+        }).catch(err => {
+          console.warn('Failed to process added files:', err);
+        });
+      } else {
+        console.error('No files selected!');
+      }
     }
-  }
+  
 
   //  ------------------ FILTERING PATHWAYS -------------------
   isFilterPathwayModalOpen: boolean = false;
