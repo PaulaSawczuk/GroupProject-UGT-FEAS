@@ -7,6 +7,7 @@ import { FileDataService } from '../services/file-data.service';
 import { filter } from 'rxjs';
 import { parseFileContent, identifyFileType } from '../helper/file-utils';
 import {MatSliderModule} from '@angular/material/slider';
+import { GlobalDataStore} from '../helper/global-store';
 
 
 declare var figure: any; 
@@ -40,6 +41,10 @@ export class DisplayComponent {
   mapData: any[] = [];
 
   ALLpathwayData: any[] = []; // Global attribute for storing all Pathway Data - Name, code, Edges, Nodes and EnzymeList
+
+
+  
+  pathwayResponse: any[]=[];
 
   enzymePathwayList: string[] = [];
 
@@ -303,81 +308,74 @@ private findMean(arr: any[]): number {
 // Mathing Enzyme Nodes to Enzymes present in Expression file selected 
 // Changing Enzyme node colour based on LogFC if match is found
 // Adding Genes to Enzyme node 
-private matchGenes(genes: any[], nodes: any[]): void {
+private matchGenes(genes: any[], nodes: any[]): any[] {
   // Matching Genes to Enzymes in Selected Map Data 
   var enzymeSet = new Set();
-  //console.log(genes);
   var GeneSet = new Set();
   var allGenes = [];
+  console.log(genes);
 
-  for (let i=0; i<nodes.length; i++){
-    //console.log(nodes[i].type)
-    if (nodes[i].type == 'enzyme'){
+  // Create a deep copy of nodes to prevent mutation of the original array
+  var newNodes = nodes.map(node => ({ ...node }));
+
+  // cycle through nodes
+  for (let i = 0; i < newNodes.length; i++) {
+    if (newNodes[i].type === 'enzyme') {
       var geneList = [];
       var logfcList = [];
-      //console.log(nodes[i].text);
-      let nodetext = nodes[i].text;
-      //console.log('node: '+nodetext);
-      for (let j=0; j<genes.length; j++){
-        //console.log(genes[j].enzyme[0]);
-        let enzyme = genes[j].enzyme[0];
-        let gene = genes[j].gene;
-        let logfc = genes[j].logfc;
-        if (enzyme == nodetext){
-          //console.log('match');
-          //console.log(enzyme);
-          enzymeSet.add(enzyme);
-          //console.log(nodetext);
-          //console.log(gene);
-          geneList.push(gene);
-  
-          GeneSet.add(gene);
-          allGenes.push(gene);
-          //GeneSet.add(gene);
-          logfcList.push(logfc);
-          //console.log(logfc);
+      let nodetext = newNodes[i].text;
 
+      // cycle through genes 
+      for (let j = 0; j < genes.length; j++) {
+        let enzyme = genes[j].enzyme[0]; // Enzyme Name 
+        let gene = genes[j].gene; // Gene Name 
+        let logfc = genes[j].logfc; // Logfc Value 
+
+        if (enzyme === nodetext) { // If they match
+          enzymeSet.add(enzyme); // Add to unique list of enzymes 
+          geneList.push(gene); // Add to list of Genes 
+          GeneSet.add(gene); // Add to unique list of genes 
+          allGenes.push(gene);
+          logfcList.push(logfc);
         }
-        
       }
-      //console.log(geneList);
-        if (geneList[0]){
-          nodes[i].gene = geneList;
-          //console.log(nodes[i]);
-        }else{
-          continue;
-        }
-        if (logfcList[0]){
-          //console.log(logfcList);
-          let mean = this.findMean(logfcList)
-          //console.log(mean);
-          nodes[i].logfc = mean;
-          let rgb = this.logfcToRGB(mean);
-          //console.log(rgb);
-          nodes[i].colour = rgb;
-          //console.log(nodes[i]);
-        }else{
-          continue;
-        }
+
+      if (geneList[0]) { // If there were genes that matched 
+        newNodes[i].gene = geneList; // Add gene attribute to node
+      }
+
+      if (logfcList[0]) {
+        let mean = this.findMean(logfcList);
+        let rgb = this.logfcToRGB(mean);
+        newNodes[i].logfc = mean;
+        newNodes[i].colour = rgb;
+      }
     }
-    }
-    //console.log(GeneSet);
-    console.log('Number of Unique Genes: '+GeneSet.size);
-    //console.log(allGenes);
-    console.log('Total Number of instances of Genes: '+allGenes.length);
-    //console.log(enzymeSet);
-    console.log('Enzymes Effected: '+ enzymeSet.size);
   }
+
+  console.log('Number of Unique Genes: ' + GeneSet.size);
+  console.log('Total Number of instances of Genes: ' + allGenes.length);
+  console.log('Enzymes Effected: ' + enzymeSet.size);
+  console.log('Old Nodes: ' + nodes);
+  console.log('New Nodes: ' + newNodes);
+
+  return newNodes;
+}
 
 // Takes nodes of selected Map 
 // Gets relevant timepoint, retrieves annotated genes
-private compareEnzymes(nodes: any[],timepoint: number): void{
+private compareEnzymes(nodes: any[],timepoint: number): any[]{
   console.log('Extracting Logfc Data - Comparing to Enzymes');
   // Get Genes with logfc for the timepoint  (index this in future)
+  const localNodes = nodes;
+  console.log('Selected Timepoint: '+timepoint);
   const genes = this.filteredGenes[timepoint];
   // Taking Genes from file and matching them to enzyme nodes 
   // Change enzyme node attributes accordingly 
-  this.matchGenes(genes, nodes)
+  //console.log(genes);
+  //console.log(localNodes);
+  const updatedNodes = this.matchGenes(genes, localNodes)
+  return updatedNodes;
 }
  
   /** --------  MAP Data Processing Functions -------- **/
@@ -499,7 +497,16 @@ private compareEnzymes(nodes: any[],timepoint: number): void{
 
       // Storing all the pathways + data to global attribute 
       // This can used to get data for selected map
-      this.ALLpathwayData = response;
+      GlobalDataStore.setALLpathwayDataOnce(response);
+      console.log('ALLpathwayData is now set:', GlobalDataStore.ALLpathwayData);
+      const data = GlobalDataStore.ALLpathwayData;
+      console.log('Global Data: ');
+      console.log(data);
+      //const ALLpathwayData = response;
+      //this.pathwayResponse = response;
+      //this.ALLpathwayData = ALLpathwayData;
+      //console.log(this.ALLpathwayData);
+      //Object.freeze(this.ALLpathwayData);
 
       console.log('Pathway Data Loaded Successfully');
       this.isLoading = false;
@@ -510,22 +517,25 @@ private compareEnzymes(nodes: any[],timepoint: number): void{
       });
   };
 
-  setMap(code: string, timepoint: number): void {
+  setMap(code: string, timepoint: number, pathwayData: {name: string, pathway: string,
+               nodes: any[], edges: any[], enzymes: []}): void {
 
     console.log("Getting Map Data: "+code);
-    // Finding pathway data by its code in pathway array
-    const pathway = this.ALLpathwayData.find((obj => obj.pathway === code));
-    //console.log(pathway);
+    console.log(pathwayData);
+    const pathwayResponse = this.pathwayResponse;
+    console.log('Original Response: '+pathwayResponse);
 
     // Extracting nodes and edges 
-    var nodes = pathway.nodes;
-    var links = pathway.edges;
+    const nodes = pathwayData.nodes;
+    const links = pathwayData.edges;
     console.log('Nodes + Edges Retrieved')
+
     //console.log(nodes);
     //console.log(links);
     console.log('Loading Differential Expression Data')
-    this.compareEnzymes(nodes,timepoint);
-    this.changeDiagram(nodes, links);
+    const updatedNodes = this.compareEnzymes(nodes,timepoint);
+    //console.log(updatedNodes);
+    this.changeDiagram(updatedNodes, links);
     this.isLoading = false;
 
   }
@@ -1081,10 +1091,14 @@ private compareEnzymes(nodes: any[],timepoint: number): void{
     // console.log(this.selectedTimepoint);
     console.log(this.selectedTimeIndex);
     //console.log(this.filteredGenes[this.selectedTimepoint][0]);
+    //th.ALLpathwayData = this.pathwayResponse; // Resetting pathway data 
 
     // Retrieving Mapping Data from stored arrays
     // Specifcying the timepoint -- can be set default to 0 (first file)
-    this.setMap(code, this.selectedTimeIndex);
+    //const Allpathways = GlobalDataStore.ALLpathwayData;
+    const pathwayData = GlobalDataStore.ALLpathwayData.find((obj => obj.pathway === code));
+    console.log(pathwayData);
+    this.setMap(code, this.selectedTimeIndex, pathwayData);
   }
 
   // ------------------ SORT BY FUNCTIONALITY -------------------
@@ -1098,7 +1112,7 @@ private compareEnzymes(nodes: any[],timepoint: number): void{
 
   pathwaySize(): any[]{
     let list = this.pathways;
-    let data = this.ALLpathwayData;
+    let data = GlobalDataStore.ALLpathwayData;
     //console.log(list);
     //console.log(data);
     var pathwaysSize = [];
@@ -1842,6 +1856,16 @@ processNewFiles(): void{
 
   updateValue(): void {
     this.value = this.timepoints[this.selectedTimeIndex];
+    console.log('Timepoint changed');
+    console.log('Getting Map for: ');
+    const code = this.selectedPathway;
+    console.log('Getting Map for: '+code);
+    console.log('Resetting Pathway Data');
+    //this.ALLpathwayData = this.pathwayResponse;
+    const pathwayData = GlobalDataStore.ALLpathwayData.find((obj => obj.pathway === code));
+    console.log(pathwayData);
+    this.setMap(code, this.selectedTimeIndex, pathwayData);
+    //console.log(pathwayData);
   }
 
   // ------------------ ANIMATION ------------------
