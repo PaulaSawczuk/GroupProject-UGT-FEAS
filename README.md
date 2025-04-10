@@ -4,24 +4,24 @@
 
 ## How To Run The Application 
 
-**To get the application up and running on users local machine, follow the steps below:**
-- Clone the Repository
-Open your terminal or command prompt and run:
-git clone <repository-url>
+**To get the application up and running on users local machine, follow the steps below:**  
 
-Replace <repository-url> with the actual URL of the GitHub repository.
+- Clone the Repository  
+  Open your terminal or command prompt and run:  
+  git clone <repository-url>
 
-- Open the Project in Your IDE 
-Navigate to the project folder and open it using your preferred IDE (e.g., VS Code).
+  Replace <repository-url> with the actual URL of the GitHub repository.
 
-- Install Dependencies
-In the terminal, run the following command to install all required dependencies:
+- Open the Project in Your IDE  
+  Navigate to the project folder and open it using your preferred IDE (e.g., VS Code).
 
-npm install
+- Install Dependencies  
+  In the terminal, run the following command to install all required dependencies:  
+  npm install
 
-- Start the Application
-Once the installation is complete, start the application with:
-
-npm start
-This will launch the app in your default web browser.
+- Start the Application  
+  Once the installation is complete, start the application with:  
+  npm start
+  This will launch the app in your default web browser.
+  
 **Note:** Ensure that Node.js and npm are installed on your system.
