@@ -16,7 +16,8 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const { processInput, processPathways } = require('./helper/merge.js');
 const {getEnzymePathways} = require('./helper/getEnzymePathways.js');
-const {getPathwayNames} = require('./helper/getPathwayName.js')
+const {getPathwayNames} = require('./helper/getPathwayName.js');
+const {getAllPathways} = require('./helper/getAllPathways.js');
 
 
 const app = express();
@@ -100,6 +101,35 @@ app.post('/api/getPathways', (req, res) => {
           console.log('------------');
             res.json(result.paths);
         });
+  });
+
+
+
+    //------------ Retrieving Pathway Names -------------
+  // Get request for an Array of pathway names and codes
+  //  - Gets Pathway names and codes (getAllPathways)
+  //  - Returns Array of Pathway Objects with Name and Pathway Code
+
+
+  app.get('/api/getPaths', (req, res) => {
+    // Handling a post request of Enzyme codes?? - list of enzyme code expected
+    console.log('------------');
+    console.log('Getting All Pathway Names');
+    console.log('------------');
+    console.log(new Date());
+    ///console.log(req.body);
+    console.log('------------');
+
+    getAllPathways().then(pathwayData => {
+      console.log('------------');
+      console.log('Sending Pathways to the FrontEnd');
+      console.log('------------');
+      console.log(pathwayData);
+      console.log('------------');
+      console.log(new Date());
+      console.log('------------');
+      res.json(pathwayData);
+    })
   });
 
 

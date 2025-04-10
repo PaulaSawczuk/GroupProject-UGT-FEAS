@@ -43,7 +43,7 @@ export class DisplayComponent {
 
   ALLpathwayData: any[] = []; // Global attribute for storing all Pathway Data - Name, code, Edges, Nodes and EnzymeList
 
-
+  AllKeggPathways: any[] = [];
   
   pathwayResponse: any[]=[];
 
@@ -442,10 +442,12 @@ private compareEnzymes(nodes: any[],timepoint: number): any[]{
 
   /** --------  POST REQUEST Functions -------- **/
 
-  ngOnInit(): void {
+  async ngOnInit(): Promise<void> {
 
     // Loading Screen
     this.isLoading = true;
+
+    await this.getAllPathwayNames();
     // Processing Input Data - Match Genes and Extracting LogFc + EC numbers
     this.getEnzymeGenes();
     // Getting List of Enzymes from Input Data
@@ -476,6 +478,67 @@ private compareEnzymes(nodes: any[],timepoint: number): any[]{
       }
     );
   };
+
+
+// -------------- Get REQUEST for all Pathway Names + Code --------------
+// Does Get request for Pathway Names and asscoiated EC pathway codes
+// Returns list after filtering against blacklist 
+
+  async getAllPathwayNames(): Promise<void>{
+    console.log('------------');
+    console.log('Getting All Pathway Names')
+    console.log('------------');
+    this.isLoading = true;
+    this.LoadingMessage = 'Loading All KEGG Pathway Names and Codes...';
+    this.enzymeApiServicePost.getPathwayNames().subscribe(response => {
+        // Handle the successful response
+        console.log('Response from backend:')
+        console.log(response);
+        this.AllKeggPathways = response;
+        //console.log(this.AllKeggPathways);
+      },
+      (error) => {
+        // Handle errors
+        console.error('Error:', error);
+        this.isLoading = false; 
+
+        //this.responseMessage = 'Error sending data';
+      }
+    );
+  }
+
+ getSpecificPathway(code: string): void{
+  // Function to get specific pathway based on EC Code/name
+  // Will make new post request to fetch KGML and data for that pathway
+
+  // Pathway code 
+    console.log(code);
+    const data = [code];
+    this.isLoading = true;
+    console.log('-----------------------------');
+    console.log('Sending Request for Specific Pathway Data');
+    console.log('-----------------------------');
+
+    this.LoadingMessage = 'Loading Pathway Mapping Data...';
+
+    this.enzymeApiServicePost.postALLMapData(data).subscribe(
+      (response) =>{
+      console.log(response);
+
+      const pathwayData = response;
+      console.log(pathwayData);
+      //Object.freeze(this.ALLpathwayData);
+      console.log('-----------------------------');
+      console.log('Pathway Data Loaded Successfully');
+      console.log('-----------------------------');
+      this.isLoading = false;
+      },
+      (error) => {
+        console.error('Error:', error);
+        this.isLoading = false;
+      });
+
+ }
 
 
   /** --------  Mapping Functions -------- **/

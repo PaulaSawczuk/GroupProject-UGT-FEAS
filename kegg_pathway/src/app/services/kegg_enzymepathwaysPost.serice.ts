@@ -29,6 +29,11 @@ export class enzymeApiServicePost {
 
   constructor(private http: HttpClient) {}
 
+
+  getPathwayNames(): Observable<any>{
+    return this.http.get(this.apiUrl+'getPaths');
+  }
+
   // ------------ Post Request for Enzyme Pathways -------------
   // Sends Enzyme Codes 
   // Returns Array of Pathway Objects (name:, pathway:)
@@ -40,7 +45,7 @@ export class enzymeApiServicePost {
   // ------------ Post Request for Mapping Data -------------
   // Sends selected ec code (e.g. ec00030)
   // Returns Array of Nodes and Array of Links for visulisation
-  postMapData(data: (string|any[])): Observable<any[]>{
+  postMapData(data: (string)): Observable<any[]>{
     return this.http.post<any>(this.apiUrl+'getMap', data);
   }
 
