@@ -595,7 +595,8 @@ private loadMapData(response: any[]) {
   // Deep clone the pathwayData to avoid mutation of the original response
   const pathwayData = response.map(item => ({
     ...item,  // Shallow copy of the top level properties
-    nodes: item.nodes.map((node: any) => ({ ...node })) // Deep copy of nodes to avoid mutation
+    nodes: item.nodes.map((node: any[]) => ({ ...node })), // Deep copy of nodes to avoid mutation
+    edges: item.edges.map((edge: any[]) => ({ ...edge })) // Deep copy of edges if necessary
   }));
   console.log(pathwayData);
 
