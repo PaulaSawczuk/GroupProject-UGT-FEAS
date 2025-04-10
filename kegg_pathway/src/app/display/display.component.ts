@@ -7,10 +7,11 @@ import { FileDataService } from '../services/file-data.service';
 import { filter } from 'rxjs';
 import { parseFileContent, identifyFileType } from '../helper/file-utils';
 import {MatSliderModule} from '@angular/material/slider';
-import { GlobalDataStore} from '../helper/global-store';
+
 
 
 declare var figure: any; 
+
 
 @Component({
   selector: 'app-display',
@@ -497,15 +498,15 @@ private compareEnzymes(nodes: any[],timepoint: number): any[]{
 
       // Storing all the pathways + data to global attribute 
       // This can used to get data for selected map
-      GlobalDataStore.setALLpathwayDataOnce(response);
-      console.log('ALLpathwayData is now set:', GlobalDataStore.ALLpathwayData);
-      const data = GlobalDataStore.ALLpathwayData;
-      console.log('Global Data: ');
-      console.log(data);
-      //const ALLpathwayData = response;
-      //this.pathwayResponse = response;
-      //this.ALLpathwayData = ALLpathwayData;
-      //console.log(this.ALLpathwayData);
+      //GlobalDataStore.setALLpathwayDataOnce(response);
+      //console.log('ALLpathwayData is now set:', GlobalDataStore.ALLpathwayData);
+      //const data = GlobalDataStore.ALLpathwayData;
+      //console.log('Global Data: ');
+      //console.log(data);
+      const ALLpathwayData = response;
+      this.pathwayResponse = response;
+      this.ALLpathwayData = ALLpathwayData;
+      console.log(this.ALLpathwayData);
       //Object.freeze(this.ALLpathwayData);
 
       console.log('Pathway Data Loaded Successfully');
@@ -1096,7 +1097,7 @@ private compareEnzymes(nodes: any[],timepoint: number): any[]{
     // Retrieving Mapping Data from stored arrays
     // Specifcying the timepoint -- can be set default to 0 (first file)
     //const Allpathways = GlobalDataStore.ALLpathwayData;
-    const pathwayData = GlobalDataStore.ALLpathwayData.find((obj => obj.pathway === code));
+    const pathwayData = this.ALLpathwayData.find((obj => obj.pathway === code));
     console.log(pathwayData);
     this.setMap(code, this.selectedTimeIndex, pathwayData);
   }
@@ -1112,7 +1113,7 @@ private compareEnzymes(nodes: any[],timepoint: number): any[]{
 
   pathwaySize(): any[]{
     let list = this.pathways;
-    let data = GlobalDataStore.ALLpathwayData;
+    let data = this.ALLpathwayData;
     //console.log(list);
     //console.log(data);
     var pathwaysSize = [];
@@ -1862,7 +1863,7 @@ processNewFiles(): void{
     console.log('Getting Map for: '+code);
     console.log('Resetting Pathway Data');
     //this.ALLpathwayData = this.pathwayResponse;
-    const pathwayData = GlobalDataStore.ALLpathwayData.find((obj => obj.pathway === code));
+    const pathwayData = this.ALLpathwayData.find((obj => obj.pathway === code));
     console.log(pathwayData);
     this.setMap(code, this.selectedTimeIndex, pathwayData);
     //console.log(pathwayData);
