@@ -10,9 +10,6 @@ import {MatSliderModule} from '@angular/material/slider';
 
 
 
-declare var figure: any; 
-
-
 @Component({
   selector: 'app-display',
   standalone: true,
@@ -290,6 +287,36 @@ private logfcToRGB(logFoldChange: number): string{
   return `rgb(${Math.floor(red * 255)}, ${Math.floor(green * 255)}, ${blue})`;
 }
 
+private newlogfcToRGB(logFoldChange: number, lowColor: string, highColor: string): string {
+  // Normalize log fold change to be between -1 and 1 for smoother gradient mapping
+  const normalized = Math.max(-1, Math.min(1, logFoldChange));
+
+  // Convert hex color to RGB
+  const hexToRgb = (hex: string): { r: number, g: number, b: number } => {
+    // Remove the "#" if it exists
+    hex = hex.replace('#', '');
+
+    // Parse the RGB values from the hex string
+    const r = parseInt(hex.substring(0, 2), 16);
+    const g = parseInt(hex.substring(2, 4), 16);
+    const b = parseInt(hex.substring(4, 6), 16);
+
+    return { r, g, b };
+  };
+
+  // Get the RGB values for the low and high colors
+  const lowRgb = hexToRgb(lowColor);
+  const highRgb = hexToRgb(highColor);
+
+  // Perform linear interpolation for each color channel (red, green, blue)
+  const r = Math.floor(lowRgb.r + (highRgb.r - lowRgb.r) * (normalized + 1) / 2);
+  const g = Math.floor(lowRgb.g + (highRgb.g - lowRgb.g) * (normalized + 1) / 2);
+  const b = Math.floor(lowRgb.b + (highRgb.b - lowRgb.b) * (normalized + 1) / 2);
+
+  // Return the RGB value as a string
+  return `rgb(${r}, ${g}, ${b})`;
+}
+
 // Takes array of logfc and find average value 
 // used when there are multiple genes acting on an enzyme 
 private findMean(arr: any[]): number {
@@ -304,22 +331,6 @@ private findMean(arr: any[]): number {
   // Calculate the mean by dividing the sum by the length of the array
   return sum / arr.length;
 }
-
-/*
-private resizeNodeByLogFC(logfc: number) {
-
-  // Base size (aspect ratio: 50 / 30)
-  const baseWidth = 50;
-  const baseHeight = 30;
-
-  // Use 2^logfc to get the fold change scale
-  const scale = Math.pow(2, logfc);
-
-  // Apply uniform scale to both width and height
-  const newWidth = baseWidth * scale;
-  const newHeight = baseHeight * scale;
-  return [newHeight,newWidth];
-}*/
 
 private resizeNodeByLogFC(logfc: number) {
 
@@ -382,7 +393,7 @@ private matchGenes(genes: any[], nodes: any[]): any[] {
 
       if (logfcList[0]) {
         let mean = this.findMean(logfcList);
-        let rgb = this.logfcToRGB(mean);
+        let rgb = this.newlogfcToRGB(mean, this.selectedColorLow,this.selectedColorHigh);
         let result = this.resizeNodeByLogFC(mean);
         let height = result[0];
         let width = result[1];
@@ -426,6 +437,8 @@ private compareEnzymes(nodes: any[],timepoint: number): any[]{
     this.LoadingMessage = 'Processing Pathway Names...';
     this.pathways = this.pathwayData.map(pathway => pathway.name);
   }
+
+
   /* --------- JENNYS ------------------
   // Loads Nodes from mapData 
   loadNodes(): any[] {
@@ -805,66 +818,6 @@ private compareEnzymes(nodes: any[],timepoint: number): any[]{
           .bind("text")
         )
     );
-
-/*
-      // Enzyme node template with little sqaures as type
-  this.myDiagram.nodeTemplateMap.add("enzyme",  // Custom category for compound nodes
-    new go.Node("Auto")  // Use Vertical Panel to place the label above the shape
-      .add(
-        new go.Shape("Rectangle").bind("fill","colour")
-      ).add(new go.TextBlock(
-        { margin: 2,
-          font: "10px sans-serif",
-          wrap: go.TextBlock.WrapFit,
-        width: 80 })
-        .bind("text"))
-        .add(new go.Shape("Square", {
-              alignment: go.Spot.TopRight, width: 14, height: 14,
-              visible: true,
-              strokeWidth: 1
-      }).bind('fill',"enzymeType",function(enzymeType: string): string {
-      // Map enzymeType to specific shapes
-      switch (enzymeType) {
-        case "Oxidoreductase":
-          return "#ed6d6d";
-        case "Transferase":
-          return "#e7f263";
-        case "Hydrolase":
-          return "#c4a7d6";
-        case "Ligase":
-          return "#00aeb8";
-        case "Lyase":
-          return "#75dd2f"
-        case "Translocase":
-          return "Square";
-        case "Isomerase":
-            return "#3a5ba0";
-        default:
-          return "grey"; // Default shape
-      }
-    }).bind("figure", "enzymeType",function(enzymeType: string): string {
-      // Map enzymeType to specific shapes
-      switch (enzymeType) {
-        case "Oxidoreductase":
-          return "Circle";
-        case "Transferase":
-          return "Rectangle";
-        case "Hydrolase":
-          return "Diamond";
-        case "Ligase":
-          return "Triangle";
-        case "Lyase":
-          return "Rectangle"
-        case "Translocase":
-          return "Capsule";
-        case "Isomerase":
-            return "TriangleDown";
-        default:
-          return "Rectangle"; // Default shape
-      }
-    })
-
-  ));*/
 
     // TEMPLATE FOR MAP NODES
     this.myDiagram.nodeTemplateMap.add("map",  // Custom category for compound nodes
