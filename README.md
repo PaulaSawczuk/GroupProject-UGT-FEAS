@@ -9,9 +9,10 @@
 - Clone the Repository  
   Open your terminal or command prompt and run:  
 
-  *git clone <repository-url>*
+  ```bash  
+  git clone <repository-urlhttps://github.com/PaulaSawczuk/GroupProject-UGT-FEAS.git>```bash
 
-  Replace <repository-url> with the actual URL of the GitHub repository or clone it from VS Code.
+  Alternatively, you can clone the repository directly using VS Code.
 
 - Open the Project in Your IDE  
   Navigate to the project folder and open it using your preferred IDE (e.g., VS Code).
