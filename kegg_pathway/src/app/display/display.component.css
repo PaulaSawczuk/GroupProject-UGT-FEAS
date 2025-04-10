@@ -564,8 +564,58 @@ button:hover {
   padding: 8px !important;
 }
 
+/* ---------- Search Header ---------- */
+#sidebar .search-header {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 8px;
+  font-family: 'DM Sans', sans-serif;
+  transition: background-color 0.3s;
+  color: #343a40;
+  letter-spacing: 1px;
+  width: 100%;
+  gap: 10px;
+  }
+  
+#sidebar .search-header:hover {
+  background-color: var(--hover-clr);
+  }
+  
+#sidebar .search-header.active svg {
+  background-color: #a7adb2ad;
+  border-radius: 5px;
+  fill: #343a40;
+}
 
-/* ---------- Close Button ---------- */
+/* #sidebar .customise-header .menu-text, */
+#sidebar .search-header .close-btn,
+#sidebar .search-header + .sub-menu {
+  transition: opacity 0.3s ease;
+}
+
+#sidebar.pathways-active .search-header {
+  display: flex !important;
+  justify-content: flex-start !important;
+  margin: 0 !important;
+  padding: 8px !important;
+}
+/* ---------- Close Button for Search ---------- */
+#sidebar .search-close-btn {
+  background: transparent;
+  border: none;
+  color: #343a40;
+  font-size: 14px;
+  cursor: pointer;
+  margin-left: 86px;
+}
+
+#sidebar .search-close-btn:hover {
+  color: #115ba9;
+}
+
+/* ---------- Close Button for Custom ---------- */
 .close-btn {
   background: transparent;
   border: none;
@@ -619,10 +669,150 @@ button:hover {
   font-family: 'DM Sans', sans-serif;
 }
 
+.sub-menu li a {
+  display: block;
+  color: #343a40;
+  text-decoration: none;
+  padding: 5px 10px;
+  border-radius: 4px;
+  font-family: 'DM Sans', sans-serif;
+  border-bottom: 1px solid #ddd;
+  margin-left: 20px;
+  margin-right: 20px; 
+}
+
+.sub-menu li a:hover {
+  background-color: rgba(138, 136, 136, 0.185);
+  width: 160px;
+}
+
 
 .sub-menu li select:hover,
 .sub-menu li select:focus {
   border-color: var(--input-focus-border-color);
+}
+
+
+/* ---------- Colour Picker ---------- */
+
+/* ---------- Section Title ---------- */
+.label-row {
+  margin-top: 0px;
+  margin-bottom: 20px;
+}
+.label-row label {
+  font-size: 14px;
+  color: #3E424B;
+  font-family: 'DM Sans', sans-serif;
+  border-bottom: 1px solid #ddd;
+  margin-left: 20px;
+  margin-right: 20px; 
+}
+
+.label-selectDropdown label{
+  font-size: 14px;
+  margin-bottom: 5px;
+  color: #3E424B;
+  font-family: 'DM Sans', sans-serif;
+  border-bottom: 1px solid #ddd;
+  margin-left: 20px;
+  margin-right: 20px; 
+}
+
+/* ---------- Colour Picker Box ---------- */
+/* Alignment */
+.color-picker-row {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0px;
+}
+.color-box-high,
+.color-box-low {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+/* Labels */
+.color-box-high label,
+.color-box-low label {
+  font-size: 12px;
+  color: #3E424B;
+  margin-bottom: 5px;
+  font-family: 'DM Sans', sans-serif;
+  display: block;
+}
+
+.color-box-high {
+  margin-top: 5px;
+  margin-bottom: -5px;
+}
+
+/* Boxes */
+.color-picker-container {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  width: 90px;
+  height: 20px;
+  border: 1px solid #ced4da;
+  border-radius: 3px;
+  background: #ffffff;
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
+  overflow: hidden;
+  margin-top: 0;
+}
+
+.color-picker-container:hover {
+  transform: scale(1.05);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.color-picker {
+  -webkit-appearance: none;
+  border: none;
+  cursor: pointer;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border-radius: 2px 0 0 2px;
+}
+
+.color-picker::-webkit-color-swatch-wrapper {
+  padding: 0;
+  height: 100%;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.color-picker::-webkit-color-swatch {
+  border: none;
+  border-radius: 2px 0 0 2px;
+  height: 100%;
+  width: 100%;
+}
+
+/* Style for the hex code display */
+.color-hex {
+  font-size: 12px;
+  color: #3E424B;
+  margin-left: auto;
+  margin-right: 4px;
+  user-select: none;
+  width: 60px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+  overflow: hidden;
+  font-family: 'DM Sans', sans-serif;
+  border-radius: 0 2px 2px 0;
 }
 
 /* ---------- Utilities ---------- */
@@ -793,10 +983,11 @@ button:hover {
 }
 /* TODO: FIX IT */
 /* Title above the pathway visualisation */
-.pathway-title {
+.pathway-title{
   text-align: left; 
   font-size: 0.6em;
-  margin-bottom: 2px; 
+  margin-bottom: 700px; 
+  left: 500px;
   color: #48494B; 
   font-family: 'DM Sans', sans-serif; 
   letter-spacing: 1px;
@@ -829,10 +1020,11 @@ button:hover {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  background: rgba(255, 255, 255, 0.8);
+  background: transparent;
   padding: 20px;
   border-radius: 10px;
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
   z-index: 1000; 
@@ -849,12 +1041,19 @@ button:hover {
   100% { transform: rotate(360deg); }
 }
 
+.LoadingMessage {
+  margin-top: 10px;
+  font-size: 16px;
+  color: #482E3C;
+  text-align: center;
+  font-family: 'DM Sans', sans-serif; 
+}
 
 
 /* ------------ TIME SLIDER ------------ */
 
 .slidecontainer {
-  width: 100%;
+  width: 50%;
 }
 
 .slidecontainer p {
@@ -894,8 +1093,10 @@ button:hover {
 
 /* ------------ ANIMATION BUTTON ------------ */
 
-.slider-container {
-  flex: 1;
+.slider-animation-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .animation-container {
@@ -909,16 +1110,17 @@ button:hover {
   gap: 8px;
   margin-right: 20px;
   padding: 8px 16px;
-  background-color: #f0f0f0;
+  background-color: #48494B;
   border: none;
   border-radius: 8px;
   cursor: pointer;
   font-weight: bold;
+  font-family: 'DM Sans', sans-serif;
   transition: background-color 0.2s;
 }
 
 .animation-button:hover {
-  background-color: #e0e0e0;
+  background-color: #afacac;
 }
 
 .animation-button svg {

@@ -20,7 +20,7 @@ declare var figure: any;
 })
 
 export class DisplayComponent {
-  
+  LoadingMessage: string = '';
 
 
   // ------------------  MOCK DATA ----------------
@@ -350,6 +350,8 @@ private updateExtractECNumbers(filteredGenes: any[]): any[] {
 // Enzymes are tallied and sorted in descending order 
 // Top 1000 (or can be changed) are selected and submitted to backend to query KEGG
 private tallyStrings(items: string[]): Record<string, number> {
+  console.log('Tallying Enzymes');
+  
   const tally: Record<string, number> = {};
 
   items.forEach(item => {
@@ -360,6 +362,7 @@ private tallyStrings(items: string[]): Record<string, number> {
 
 // Sorting Enzyme Tally 
 private sortTally(tally: Record<string, number>): [string, number][] {
+  this.LoadingMessage = 'Processing Enzyme List...';
   // Convert the tally object into an array of key-value pairs
   const entries = Object.entries(tally);
   // Sort by the count in descending order
@@ -369,6 +372,7 @@ private sortTally(tally: Record<string, number>): [string, number][] {
 
 // Extracting Top enzymes from Tally
 private getTopEnzymes(items: string[]): string[] {
+  console.log('Getting Top Enzymes');
   const tally = this.tallyStrings(items);    
   const sortedTally = this.sortTally(tally);  
 
@@ -668,6 +672,7 @@ private loadMapData(response: any[]){
   // Function for loading Names of each pathway that is fetched from the backend
   loadNames(): void {
     console.log('Processing Pathway Names');
+    this.LoadingMessage = 'Processing Pathway Names...';
     this.pathways = this.pathwayData.map(pathway => pathway.name);
   }
   /* --------- JENNYS ------------------
@@ -1934,42 +1939,51 @@ private loadMapData(response: any[]){
   //  ------------------ CUSTOMISATION TAB -------------------
   customTabOpen: boolean = false;
   customTabExists: boolean = false;
+  searchTabOpen: boolean = false;
+  searchTabExists: boolean = false;
 
+  //  ------------------ CUSTOMISE subTAB -------------------
+
+  // If we open customisation tab pathways tab closes and search tab if exists closes
   openCustomTab(): void {
     console.log('customTabOpen True');
     console.log('customTabExists True');
     this.customTabOpen = true;
     this.customTabExists = true;
     this.pathwaysOpen = false;
+    if (this.searchTabExists){
+      this.searchTabOpen = false;
+    }
   }
 
+  // If we close customisation tab pathways tab opens
   closeCustomTab(): void {
-    console.log('closeCustomTab() called');
     this.customTabOpen = false;
     this.customTabExists = false;
-    console.log('customTabOpen False');
-    console.log('customTabExists False');
-
+    this.pathwaysOpen = true;
+    if (this.searchTabExists){
+      this.searchTabOpen = false;
+    }
   }
 
   isPathwaysActive(): boolean {
-    return !this.customTabOpen && this.customTabExists;
+    // If both exist and both are closed then make pathways active
+    // If custom tab is closed and exists and search tab doesnt exist
+    // If search tab closed and exist and custom tab doesnt exist
+    return (!this.customTabOpen && this.customTabExists && !this.searchTabOpen && this.searchTabExists)|| (!this.customTabOpen && this.customTabExists && !this.searchTabExists) || (!this.searchTabOpen && this.searchTabExists && !this.customTabOpen);
   }
 
   showPathwaysFromIcon(event: Event): void {
     event.stopPropagation();
     this.customTabOpen = false;
+    this.searchTabOpen = false;
     this.pathwaysOpen = true;
-
-    console.log('customTabOpen false');
-    console.log('pathwaysOpen true');
-
   }
 
   showCustomiseView(): void {
     this.customTabExists = true;
     this.customTabOpen = true;
-    this.pathwaysOpen = false;
+    this.searchTabOpen = false;
 
     console.log('customTabExists true');
     console.log('customTabOpen true');
@@ -1984,6 +1998,7 @@ private loadMapData(response: any[]){
   
   showPathways() {
     this.customTabOpen = false;
+    this.searchTabOpen = false;
     this.pathwaysOpen = true;
   }
 
@@ -1991,6 +2006,46 @@ private loadMapData(response: any[]){
     console.log('isCustomiseOpen() called');
     console.log('customTabOpen: ', this.customTabOpen);
     return this.customTabOpen;
+  }
+
+
+  //  ------------------ SEARCH subTAB -------------------
+
+  openSearchTab(): void {
+    this.searchTabOpen = true;
+    this.searchTabExists = true;
+    this.customTabOpen = false;
+    this.pathwaysOpen = false;
+  }
+  closeSearchTab(): void {
+    this.searchTabOpen = false;
+    this.searchTabExists = false;
+    this.pathwaysOpen = true;
+  }
+
+  showSearchView(): void {
+    this.searchTabExists = true;
+    this.searchTabOpen = true;
+    this.pathwaysOpen = false;
+    this.customTabOpen = false;
+
+    console.log('customTabExists true');
+    console.log('customTabOpen true');
+    console.log('pathwaysOpen false');
+
+  }
+
+  showTabView(): void {
+    this.searchTabExists = true;
+    this.searchTabOpen = true;
+    this.pathwaysOpen = false;
+    this.customTabOpen = false;
+  }
+
+  isSearchOpen(): boolean {
+    console.log('isSearchOpen() called');
+    console.log('customTabOpen: ', this.searchTabOpen);
+    return this.searchTabOpen;
   }
 
   //  ------------------ POPULATE SELECT BOXES -------------------
