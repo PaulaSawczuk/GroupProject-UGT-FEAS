@@ -11,7 +11,7 @@
 
   ```bash  
   git clone https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS.git
-  ```bash
+  ```
 
   Alternatively, you can clone the repository directly using VS Code.
 
