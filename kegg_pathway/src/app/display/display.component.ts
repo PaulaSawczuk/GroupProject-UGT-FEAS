@@ -305,6 +305,41 @@ private findMean(arr: any[]): number {
   return sum / arr.length;
 }
 
+/*
+private resizeNodeByLogFC(logfc: number) {
+
+  // Base size (aspect ratio: 50 / 30)
+  const baseWidth = 50;
+  const baseHeight = 30;
+
+  // Use 2^logfc to get the fold change scale
+  const scale = Math.pow(2, logfc);
+
+  // Apply uniform scale to both width and height
+  const newWidth = baseWidth * scale;
+  const newHeight = baseHeight * scale;
+  return [newHeight,newWidth];
+}*/
+
+private resizeNodeByLogFC(logfc: number) {
+
+  const baseWidth = 50;
+  const baseHeight = 30;
+
+  // Increase size proportionally with the *magnitude* of logfc
+  const scale = Math.pow(2, Math.abs(logfc));
+
+  // Optional clamping to avoid extreme sizes
+  const minScale = 1;     // at logfc = 0 → base size
+  const maxScale = 10;     // optional upper bound
+  const Scale = Math.max(minScale, Math.min(scale, maxScale));
+
+  const newWidth = baseWidth * Scale;
+  const newHeight = baseHeight * Scale;
+
+  return [newHeight,newWidth];
+}
+
 
 // Mathing Enzyme Nodes to Enzymes present in Expression file selected 
 // Changing Enzyme node colour based on LogFC if match is found
@@ -348,6 +383,11 @@ private matchGenes(genes: any[], nodes: any[]): any[] {
       if (logfcList[0]) {
         let mean = this.findMean(logfcList);
         let rgb = this.logfcToRGB(mean);
+        let result = this.resizeNodeByLogFC(mean);
+        let height = result[0];
+        let width = result[1];
+        newNodes[i].width = width;
+        newNodes[i].height = height;
         newNodes[i].logfc = mean;
         newNodes[i].colour = rgb;
       }
@@ -559,13 +599,6 @@ private compareEnzymes(nodes: any[],timepoint: number): any[]{
       (response) =>{
       console.log(response);
 
-      // Storing all the pathways + data to global attribute 
-      // This can used to get data for selected map
-      //GlobalDataStore.setALLpathwayDataOnce(response);
-      //console.log('ALLpathwayData is now set:', GlobalDataStore.ALLpathwayData);
-      //const data = GlobalDataStore.ALLpathwayData;
-      //console.log('Global Data: ');
-      //console.log(data);
       const ALLpathwayData = response;
       this.pathwayResponse = response;
       this.ALLpathwayData = ALLpathwayData;
@@ -758,14 +791,12 @@ private compareEnzymes(nodes: any[],timepoint: number): any[]{
         })
     )
   );
-
-  /*
   
   // TEMPLATE FOR ENZYME NODES
     this.myDiagram.nodeTemplateMap.add("enzyme",  // Custom category for compound nodes
       new go.Node("Auto")  // Use Vertical Panel to place the label above the shape
         .add(
-          new go.Shape("Rectangle").bind("fill","colour")
+          new go.Shape("Rectangle").bind("fill","colour").bind("width").bind("height")
         ).add(new go.TextBlock(
           { margin: 2,
             font: "10px sans-serif",
@@ -773,8 +804,9 @@ private compareEnzymes(nodes: any[],timepoint: number): any[]{
           width: 80 })
           .bind("text")
         )
-    );*/
+    );
 
+/*
       // Enzyme node template with little sqaures as type
   this.myDiagram.nodeTemplateMap.add("enzyme",  // Custom category for compound nodes
     new go.Node("Auto")  // Use Vertical Panel to place the label above the shape
@@ -832,7 +864,7 @@ private compareEnzymes(nodes: any[],timepoint: number): any[]{
       }
     })
 
-  ));
+  ));*/
 
     // TEMPLATE FOR MAP NODES
     this.myDiagram.nodeTemplateMap.add("map",  // Custom category for compound nodes
