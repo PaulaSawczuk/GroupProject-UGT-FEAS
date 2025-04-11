@@ -4,7 +4,7 @@
 
 ## How To Run The Application 
 
-**To get the application up and running on users local machine, follow the steps below:**  
+**To get the application up and running on users local machine, follow the steps below:**
 
 - Clone the Repository  
   Open your terminal or command prompt and run:  
@@ -17,6 +17,13 @@
 
 - Open the Project in Your IDE  
   Navigate to the project folder and open it using your preferred IDE (e.g., VS Code).
+
+- Navigate to the kegg_pathway Directory
+  The app must be run from the kegg_pathway directory. Move into this directory by running:
+
+  ```bash
+  cd ./kegg_pathway
+  ```
 
 - Install Dependencies  
   In the terminal, run the following command to install all required dependencies:  
