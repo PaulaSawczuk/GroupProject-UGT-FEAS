@@ -1502,41 +1502,54 @@ private compareEnzymes(nodes: any[],timepoint: number): void{
   //  ------------------ POPULATE SELECT BOXES -------------------
   // MOCK DATA
   enzymeOptions: string[] = ['Enzyme A', 'Enzyme B', 'Enzyme C'];
-  subcategoryOptions: string[] = [];
   CompoundOptions: string[] = ['Value 1', 'Value 2', 'Value 3'];
   PathwayOptions: string[] = ['Pathway A', 'Pathway B', 'Pathway C'];
   
-  // Selected by the user values - initially empty
   selectedEnzyme: string = '';
-  selectedSubcategory: string = '';
   selectedCompound: string = '';
   selectedPathwayCustom: string = '';
-
-  onEnzymeChange() {
-    console.log('Selected enzyme:', this.selectedEnzyme);
-    this.selectedSubcategory = '';
-    if (this.selectedEnzyme) {
-    // TODO: Here logic to populate subcategories box based on chosen enzyme
-    // something like if this and that then this.subcategoryOptions = [some list];
-      if (this.selectedEnzyme === 'Enzyme A') {
-        this.subcategoryOptions = ['Subcategory A1', 'Subcategory A2'];
-      }
+  
+  showEnzymeDropdown: boolean = false;
+  showCompoundDropdown: boolean = false;
+  showPathwayDropdown: boolean = false;
+  
+  onCheckboxChange(checkboxName: 'enzyme' | 'compound' | 'pathway') {
+    this.showEnzymeDropdown = false;
+    this.showCompoundDropdown = false;
+    this.showPathwayDropdown = false;
+    
+    if (checkboxName === 'enzyme') {
+      this.showEnzymeDropdown = !this.showEnzymeDropdown;
+    } else if (checkboxName === 'compound') {
+      this.showCompoundDropdown = !this.showCompoundDropdown;
+    } else if (checkboxName === 'pathway') {
+      this.showPathwayDropdown = !this.showPathwayDropdown;
+    }
+    
+    // Reset selected values when a different checkbox is selected
+    if (!this.showEnzymeDropdown && checkboxName !== 'enzyme') {
+      this.selectedEnzyme = '';
+    }
+    if (!this.showCompoundDropdown && checkboxName !== 'compound') {
+      this.selectedCompound = '';
+    }
+    if (!this.showPathwayDropdown && checkboxName !== 'pathway') {
+      this.selectedPathwayCustom = '';
     }
   }
 
-  onSubcategoryChange() {
-    console.log('Selected subcategory:', this.selectedSubcategory);
+  onEnzymeChange() {
+    console.log('Selected enzyme:', this.selectedEnzyme);
   }
 
-  onCompoundChange(){
+  onCompoundChange() {
     console.log('Selected compound:', this.selectedCompound);
-
   }
 
-  onPathwayChange(){
-    console.log('Selected enzyme:', this.selectedPathwayCustom);
-
+  onPathwayChange() {
+    console.log('Selected pathway:', this.selectedPathwayCustom);
   }
+
 
   //  ------------------ TIME SLIDER -------------------
   timepoints = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
