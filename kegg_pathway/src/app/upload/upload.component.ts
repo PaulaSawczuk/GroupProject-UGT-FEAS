@@ -1077,5 +1077,16 @@ export class UploadComponent {
     console.log('Time Series?', this.noTimeSeriesChecked);
   }
 
+  // ---------------- INPUT NUMBER OF PATHWAYS ----------------
+
+  pathwayCount: number = 10;
+
+  onPathwayInputChange(event: Event): void {
+    const value = (event.target as HTMLInputElement).valueAsNumber;
+    if (!isNaN(value) && value > 0) {
+      this.pathwayCount = value;
+      console.log('Pathway count:', this.pathwayCount);
+    }
+}
 
 }
