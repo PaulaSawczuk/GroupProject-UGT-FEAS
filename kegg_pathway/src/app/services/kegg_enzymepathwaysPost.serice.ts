@@ -30,6 +30,10 @@ export class enzymeApiServicePost {
   constructor(private http: HttpClient) {}
 
 
+  // ------------- Get Request for All EC Pathway Names and Codes ---------------
+  // Sends request to backend to query KEGG
+  // Returns Array of Pathway Names and Codes to store as Display Component Attributre for querying
+
   getPathwayNames(): Observable<any>{
     return this.http.get(this.apiUrl+'getPaths');
   }
@@ -43,14 +47,16 @@ export class enzymeApiServicePost {
   }
 
   // ------------ Post Request for Mapping Data -------------
-  // Sends selected ec code (e.g. ec00030)
+  // Sends single selected ec code (e.g. ec00030)
   // Returns Array of Nodes and Array of Links for visulisation
   postMapData(data: (string)): Observable<any[]>{
     return this.http.post<any>(this.apiUrl+'getMap', data);
   }
 
 
-
+   // ------------ Multi Post Request for Mapping Data -------------
+  // Sends list of pathways to get KGML for -- top 10 
+  // Returns Array of Nodes and Array of Links for visulisation
   postALLMapData(data: (any[])): Observable<any[]>{
     return this.http.post<any>(this.apiUrl+'getMap2', data);
   }

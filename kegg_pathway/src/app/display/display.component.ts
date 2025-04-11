@@ -54,6 +54,10 @@ export class DisplayComponent {
 
   pathwaySizeData: any[] = [];
 
+  loadedPathwayData: any[] = [];
+
+  colourArray: any[] = [];
+
   // Creating a GoJS Diagram 
   // Initially set as NULL 
   private myDiagram: go.Diagram | null = null;
@@ -219,7 +223,7 @@ private extractECNumbers(): void {
 
 }
 
-
+/** --------  ENZYME PROCESSING  -------- **/
 
 // --------- Enzyme Tally and Processing Functions --------
 // Called from extractECNumbers()
@@ -263,60 +267,60 @@ private getTopEnzymes(items: string[]): string[] {
 }
 
 
-
+/** --------  DGE PROCESSING  -------- **/
 
 // ----------- Differential Gene Expression Data Functions ----------------
 // Called when changing Node information when map is selected/ timepoint changes 
 
 // LogFC to RGB conversion function 
 // Takes Logfc value -- returns rgb value to change enzyme node colour
-private logfcToRGB(logFoldChange: number): string{
-  // Normalize log fold change to be between -1 and 1 for smoother gradient mapping
-  const normalized = Math.max(-1, Math.min(1, logFoldChange));
 
-  // Red decreases as the value goes from negative to positive
-  const red = normalized < 0 ? 1 : 1 - normalized;
+private newlogfcToRGB(
+  logFoldChange: number,
+  lowColor: string,
+  highColor: string,
+  maxFC: number = 5 // Max absolute logFC expected
+): string {
+  // Clamp logFC between -maxFC and +maxFC
+  const clamped = Math.max(-maxFC, Math.min(maxFC, logFoldChange));
 
-  // Green increases as the value goes from negative to positive
-  const green = normalized > 0 ? 1 : -normalized;
+  // Normalize: -maxFC → 0, 0 → 0.5, +maxFC → 1
+  const t = (clamped + maxFC) / (2 * maxFC);
 
-  // Blue stays at 0 (we are only using red and green for the gradient)
-  const blue = 0;
-
-  // Return the RGB value as a string
-  return `rgb(${Math.floor(red * 255)}, ${Math.floor(green * 255)}, ${blue})`;
-}
-
-private newlogfcToRGB(logFoldChange: number, lowColor: string, highColor: string): string {
-  // Normalize log fold change to be between -1 and 1 for smoother gradient mapping
-  const normalized = Math.max(-1, Math.min(1, logFoldChange));
-
-  // Convert hex color to RGB
+  // Convert hex to RGB
   const hexToRgb = (hex: string): { r: number, g: number, b: number } => {
-    // Remove the "#" if it exists
     hex = hex.replace('#', '');
-
-    // Parse the RGB values from the hex string
-    const r = parseInt(hex.substring(0, 2), 16);
-    const g = parseInt(hex.substring(2, 4), 16);
-    const b = parseInt(hex.substring(4, 6), 16);
-
+    const r = parseInt(hex.slice(0, 2), 16);
+    const g = parseInt(hex.slice(2, 4), 16);
+    const b = parseInt(hex.slice(4, 6), 16);
     return { r, g, b };
   };
 
-  // Get the RGB values for the low and high colors
-  const lowRgb = hexToRgb(lowColor);
-  const highRgb = hexToRgb(highColor);
+  const interpolate = (
+    color1: { r: number, g: number, b: number },
+    color2: { r: number, g: number, b: number },
+    factor: number
+  ) => ({
+    r: Math.round(color1.r + (color2.r - color1.r) * factor),
+    g: Math.round(color1.g + (color2.g - color1.g) * factor),
+    b: Math.round(color1.b + (color2.b - color1.b) * factor),
+  });
 
-  // Perform linear interpolation for each color channel (red, green, blue)
-  const r = Math.floor(lowRgb.r + (highRgb.r - lowRgb.r) * (normalized + 1) / 2);
-  const g = Math.floor(lowRgb.g + (highRgb.g - lowRgb.g) * (normalized + 1) / 2);
-  const b = Math.floor(lowRgb.b + (highRgb.b - lowRgb.b) * (normalized + 1) / 2);
+  const low = hexToRgb(lowColor);
+  const mid = hexToRgb('#D3D3D3');
+  const high = hexToRgb(highColor);
 
-  // Return the RGB value as a string
-  return `rgb(${r}, ${g}, ${b})`;
+  let color;
+  if (t < 0.5) {
+    // Interpolate between low and mid
+    color = interpolate(low, mid, t * 2); // t * 2 maps [0, 0.5] → [0, 1]
+  } else {
+    // Interpolate between mid and high
+    color = interpolate(mid, high, (t - 0.5) * 2); // (t - 0.5) * 2 maps [0.5, 1] → [0, 1]
+  }
+
+  return `rgb(${color.r}, ${color.g}, ${color.b})`;
 }
-
 // Takes array of logfc and find average value 
 // used when there are multiple genes acting on an enzyme 
 private findMean(arr: any[]): number {
@@ -332,6 +336,8 @@ private findMean(arr: any[]): number {
   return sum / arr.length;
 }
 
+// Resizing nodes relative to LogFc size
+// Makes nodes more visible to user 
 private resizeNodeByLogFC(logfc: number) {
 
   const baseWidth = 50;
@@ -342,7 +348,7 @@ private resizeNodeByLogFC(logfc: number) {
 
   // Optional clamping to avoid extreme sizes
   const minScale = 1;     // at logfc = 0 → base size
-  const maxScale = 10;     // optional upper bound
+  const maxScale = 3;     // optional upper bound
   const Scale = Math.max(minScale, Math.min(scale, maxScale));
 
   const newWidth = baseWidth * Scale;
@@ -350,7 +356,6 @@ private resizeNodeByLogFC(logfc: number) {
 
   return [newHeight,newWidth];
 }
-
 
 // Mathing Enzyme Nodes to Enzymes present in Expression file selected 
 // Changing Enzyme node colour based on LogFC if match is found
@@ -360,7 +365,8 @@ private matchGenes(genes: any[], nodes: any[]): any[] {
   var enzymeSet = new Set();
   var GeneSet = new Set();
   var allGenes = [];
-  console.log(genes);
+  var colourArray = [];
+  //console.log(genes);
 
   // Create a deep copy of nodes to prevent mutation of the original array
   var newNodes = nodes.map(node => ({ ...node }));
@@ -402,16 +408,96 @@ private matchGenes(genes: any[], nodes: any[]): any[] {
         newNodes[i].logfc = mean;
         newNodes[i].colour = rgb;
       }
+      console.log('adding colour');
+      colourArray.push({
+        node: newNodes[i].key,
+        colour: newNodes[i].colour
+    });
     }
   }
 
   console.log('Number of Unique Genes: ' + GeneSet.size);
   console.log('Total Number of instances of Genes: ' + allGenes.length);
   console.log('Enzymes Effected: ' + enzymeSet.size);
-  console.log('Old Nodes: ' + nodes);
-  console.log('New Nodes: ' + newNodes);
+  //console.log('Old Nodes: ' + nodes);
+  //console.log('New Nodes: ' + newNodes);
 
-  return newNodes;
+  return [newNodes,colourArray];
+}
+
+private matchGenes2(genes: any[], nodes: any[]): any[] {
+  // Matching Genes to Enzymes in Selected Map Data 
+  var enzymeSet = new Set();
+  var GeneSet = new Set();
+  var allGenes = [];
+  var colourArray = [];
+  //console.log(genes);
+
+  // Create a deep copy of nodes to prevent mutation of the original array
+  var newNodes = nodes.map(node => ({ ...node }));
+  //console.log(genes);
+  //var newNodes = nodes;
+  //console.log(newNodes);
+  // cycle through nodes
+  for (let i = 0; i < newNodes.length; i++) {
+    if (newNodes[i].type === 'enzyme') {
+      var geneList = [];
+      var logfcList = [];
+      let nodetext = newNodes[i].text;
+      //console.log(nodetext);
+
+      // cycle through genes 
+      for (let j = 0; j < genes.length; j++) {
+        let enzyme = genes[j].enzyme[0]; // Enzyme Name 
+        console.log(enzyme);
+        let gene = genes[j].gene; // Gene Name 
+        let logfc = genes[j].logfc; // Logfc Value 
+
+        if (enzyme === nodetext) { // If they match
+          console.log('match');
+          console.log(enzyme);
+          enzymeSet.add(enzyme); // Add to unique list of enzymes 
+          geneList.push(gene); // Add to list of Genes 
+          GeneSet.add(gene); // Add to unique list of genes 
+          allGenes.push(gene);
+          logfcList.push(logfc);
+        }
+      }
+      if (geneList[0]) { // If there were genes that matched 
+        newNodes[i].gene = geneList; 
+        console.log(geneList);// Add gene attribute to node
+      }
+
+      if (logfcList[0]) {
+        let mean = this.findMean(logfcList);
+        let rgb = this.newlogfcToRGB(mean, this.selectedColorLow,this.selectedColorHigh);
+        let result = this.resizeNodeByLogFC(mean);
+        let height = result[0];
+        let width = result[1];
+        newNodes[i].width = width;
+        newNodes[i].height = height;
+        newNodes[i].logfc = mean;
+        newNodes[i].colour = rgb;
+      }else{
+        continue;
+      }
+      console.log('adding colour');
+      colourArray.push({
+        node: newNodes[i].key,
+        colour: newNodes[i].colour
+    });
+    }
+  }
+
+
+  console.log('Number of Unique Genes: ' + GeneSet.size);
+  console.log('Total Number of instances of Genes: ' + allGenes.length);
+  console.log('Enzymes Effected: ' + enzymeSet.size);
+  //console.log('Old Nodes: ' + nodes);
+  //console.log('New Nodes: ' + newNodes);
+
+  return [newNodes,colourArray];
+  
 }
 
 // Takes nodes of selected Map 
@@ -426,35 +512,101 @@ private compareEnzymes(nodes: any[],timepoint: number): any[]{
   // Change enzyme node attributes accordingly 
   //console.log(genes);
   //console.log(localNodes);
-  const updatedNodes = this.matchGenes(genes, localNodes)
-  return updatedNodes;
+  const elements = this.matchGenes(genes, localNodes)
+  const updatedNodes = elements[0];
+  const colourArray = elements[1];
+  return [updatedNodes, colourArray];
 }
  
-  /** --------  MAP Data Processing Functions -------- **/
+
+
+// Function to load all the pathways into a Stored Array for Accessing on demand
+
+private getLoadedPathways(): void{
+
+  const timepointData = this.filteredGenes.map(item => ({ ...item }));  // Deep copy of timepointData
+  var loadedPathwayData = [];
+  var ALLcolourArray = [];
+  // Cycling through filtered genes 
+
+  const pathwayData = this.ALLpathwayData.map(item => ({
+    ...item,  // Shallow copy of the top level properties
+    nodes: item.nodes.map((node: any[]) => ({ ...node })), // Deep copy of nodes to avoid mutation
+    edges: item.edges.map((edge: any[]) => ({ ...edge })) // Deep copy of edges if necessary
+  }));
+
+  console.log(pathwayData);
+
+  for (let i = 0; i < pathwayData.length; i++) {
+    const nodes = pathwayData[i].nodes; // Already a deep copy
+    console.log(nodes);
+
+    var nodesArray = [];
+    var colourArray = [];
+
+    // Cycle through timepoints
+    for (let j = 0; j < timepointData.length; j++) {
+      //const genes = timepointData[j];
+      //console.log('Genes to match: ');
+      //console.log(genes);
+
+      var elements = this.compareEnzymes(nodes,j);
+      // Extract Colour and Nodes
+      console.log(elements)
+      var updatedNodes = elements[0];
+      console.log(updatedNodes);
+
+      var colours = elements[1];
+      console.log(colours);
+      
+      // Add updated nodes and colours to respective arrays
+      nodesArray.push(updatedNodes);
+      colourArray.push(colours);
+    }
+     // Push the processed pathway data into the loadedPathwayData array
+     loadedPathwayData.push({
+      pathway: pathwayData[i].name,
+      nodes: nodesArray
+    });
+
+    // Push the colour data into the ALLcolourArray
+    ALLcolourArray.push({
+      pathway: pathwayData[i].name,
+      colours: colourArray,
+    });
+  }
+
+  // Log the result
+  console.log(ALLcolourArray);
+  console.log(loadedPathwayData);
+
+  // Example of logging the first pathway, first timepoint details
+  console.log('First Pathway, First timepoint');
+  console.log('Name');
+  console.log(loadedPathwayData[0].pathway);
+  console.log('Nodes');
+  console.log(loadedPathwayData[0].nodes[0]);
+  console.log('Colours');
+  console.log(ALLcolourArray[0].colours[0]);
+  console.log('Edges');
+  // console.log(this.ALLpathwayData[0].edges);
+
+  // Assign the processed data to component properties
+  this.colourArray = ALLcolourArray;
+  this.loadedPathwayData = loadedPathwayData;
+  //this.ALLpathwayData = response; // You might still want to keep this for reference
+
+  console.log('--------- LoadMapData Finished -------');
+}
+
+  /** -------- Data Processing Functions -------- **/
+
   // Function for loading Names of each pathway that is fetched from the backend
   loadNames(): void {
     console.log('Processing Pathway Names');
     this.LoadingMessage = 'Processing Pathway Names...';
     this.pathways = this.pathwayData.map(pathway => pathway.name);
   }
-
-
-  /* --------- JENNYS ------------------
-  // Loads Nodes from mapData 
-  loadNodes(): any[] {
-    var nodeData=[];
-    console.log('Getting Nodes');
-    const entries: [string, string][] = Object.entries(this.mapData);
-    //this.nodeData = this.mapData.
-    const firstEntry: [string, string] = entries[0]; 
-    //console.log(firstEntry);
-    const nodes = firstEntry[1];
-    for (let i=0; i<nodes.length;i++){
-      nodeData.push(nodes[i])
-    }
-    console.log(nodeData);
-    return nodeData;
-  }*/
 
   loadEnzymes(): any[] {
     var enzymeData=[];
@@ -470,23 +622,6 @@ private compareEnzymes(nodes: any[],timepoint: number): any[]{
     }
     return enzymeData;
   }
-  /* ---------- JENNYS ----------------
-  // Loads Links from mapData 
-  loadLinks(): any[] {
-    console.log('Getting Links');
-    var linkData=[];
-    const entries: [string, string][] = Object.entries(this.mapData);
-    const secondEntry: [string, string] = entries[1]; 
-    //console.log(secondEntry);
-    const links = secondEntry[1];
-    //console.log(links);
-    for (let i=0; i<links.length;i++){
-      //console.log(links[i]);
-      linkData.push(links[i])
-    }
-    console.log(linkData);
-    return linkData;
-  }*/
 
   isLoading: boolean = false;
   
@@ -495,11 +630,24 @@ private compareEnzymes(nodes: any[],timepoint: number): any[]{
 
   /** --------  POST REQUEST Functions -------- **/
 
+
+  rangeFromOne(arr: any[]): number[] {
+    return Array.from({ length: arr.length }, (_, i) => i + 1);
+  }
+
   async ngOnInit(): Promise<void> {
+
+    // Updating TimeSlider for the length of the expression files 
+    const allData = this.fileDataService.getMultipleCombinedArrays();
+    const timepoints = this.rangeFromOne(allData);
+    console.log('Timepoints: '+timepoints);
+    this.timepoints = timepoints;
+
 
     // Loading Screen
     this.isLoading = true;
 
+    // Fetching a list of the enzyme pathways from KEGG
     await this.getAllPathwayNames();
     // Processing Input Data - Match Genes and Extracting LogFc + EC numbers
     this.getEnzymeGenes();
@@ -617,6 +765,9 @@ private compareEnzymes(nodes: any[],timepoint: number): any[]{
       this.ALLpathwayData = ALLpathwayData;
       console.log(this.ALLpathwayData);
       //Object.freeze(this.ALLpathwayData);
+      this.getLoadedPathways();
+      const loadedData = this.loadedPathwayData;
+      console.log(loadedData);
 
       console.log('Pathway Data Loaded Successfully');
       this.isLoading = false;
@@ -643,7 +794,8 @@ private compareEnzymes(nodes: any[],timepoint: number): any[]{
     //console.log(nodes);
     //console.log(links);
     console.log('Loading Differential Expression Data')
-    const updatedNodes = this.compareEnzymes(nodes,timepoint);
+    const elements = this.compareEnzymes(nodes,timepoint);
+    const updatedNodes = elements[0];
     //console.log(updatedNodes);
     this.changeDiagram(updatedNodes, links);
     this.isLoading = false;
@@ -1051,10 +1203,12 @@ private compareEnzymes(nodes: any[],timepoint: number): any[]{
 
   // --------------- Updating GO.js Model -------------------
   // Updates the pre-existing Diagram Model
+  
   updateDiagram(nodes: any[], links: any[]): void{
     if (this.myDiagram){
     console.log('Updating Diagram');  
-    this.myDiagram.model = new go.GraphLinksModel(nodes, links)}
+    this.myDiagram.model = new go.GraphLinksModel(nodes, links);
+    }
   }
 
   // ----------- Changing Diagram Upon Selection -------------------
@@ -1075,7 +1229,6 @@ private compareEnzymes(nodes: any[],timepoint: number): any[]{
     // Create a new a Diagram with template
       this.createGoJSMap(nodes, links);}
   }
-
 
   isMenuOpen = true;
   pathwaysOpen = true;
@@ -1707,7 +1860,9 @@ processNewFiles(): void{
           
           // Process Files
           //this.processNewFiles(); // Filter and Extract Enzymes
-          
+          // Update timepoint
+          // Update Pathway List 
+
   
           this.closeUploadModal(); // Close modal after merge
         }).catch(err => {
@@ -1909,12 +2064,12 @@ processNewFiles(): void{
     console.log('Getting Map for: ');
     const code = this.selectedPathway;
     console.log('Getting Map for: '+code);
+
     console.log('Resetting Pathway Data');
-    //this.ALLpathwayData = this.pathwayResponse;
     const pathwayData = this.ALLpathwayData.find((obj => obj.pathway === code));
     console.log(pathwayData);
     this.setMap(code, this.selectedTimeIndex, pathwayData);
-    //console.log(pathwayData);
+
   }
 
   // ------------------ ANIMATION ------------------
@@ -1930,12 +2085,45 @@ processNewFiles(): void{
     }
   }
 
+  delay(ms: number) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
+
+  async loopWithDelay( links: any[], nodes: any[]): Promise<void> {
+    for (let i=0; i<this.timepoints.length;i++){
+      const timeNodes = nodes[i];
+      this.updateDiagram(timeNodes,links)
+
+      await this.delay(500);
+
+  }
+}
+
   startAnimation(): void {
     console.log("Time lapse started");
+
+    const name = this.SelectedPathwayName;
+    const code = this.selectedPathway;
+    console.log(name);
+    const data = this.loadedPathwayData.find((obj => obj.pathway === name));
+    console.log(data);
+    
+    const nodes = data.nodes;
+    console.log(nodes);
+    const pathwayData = this.ALLpathwayData.find((obj => obj.pathway === code));
+    const links = pathwayData.edges;
+    this.loopWithDelay(links, nodes)
+    this.isAnimationActive = false;
+
   }
 
   stopAnimation(): void {
     console.log("Time lapse stopped");
+
+    const code = this.selectedPathway;
+    const pathwayData = this.ALLpathwayData.find((obj => obj.pathway === code));
+    this.setMap(code, this.selectedTimeIndex, pathwayData);
+    
   }
 
   // ------------------ COLOUR PICKER -------------------
@@ -1955,12 +2143,6 @@ processNewFiles(): void{
     console.log('Low expression color:', this.selectedColorLow);
     return this.selectedColorLow;
   }
-
-
-  
-
-
-
 } 
 
 
