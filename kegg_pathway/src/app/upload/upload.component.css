@@ -27,7 +27,7 @@
   font-family: 'DM Sans', sans-serif;
   font-weight: 300;
 }
-
+/* -------------- UPLOAD BUTTON -------------- */
 .upload-button {
   padding: 12px 25px;
   background-color: #083B61;
@@ -56,6 +56,7 @@
   width: 100%; 
 }
 
+/* -------------- FILE LIST -------------- */
 .file-list {
   width: 90%;
   margin-top: 20px;
@@ -79,6 +80,7 @@
   color: #888;
 }
 
+/* -------------- PROCESS BUTTON -------------- */
 .process-button {
   padding: 10px 20px;
   background-color: #083B61;
@@ -96,7 +98,7 @@
   margin-top: 20px;
 }
 
-/* Add this style for the dropdown container */
+/* -------------- DROPDOWNS -------------- */
 .dropdown-container {
   display: flex;
   flex-direction: column;
@@ -107,7 +109,6 @@
   font-size: 12px;
 }
 
-/* Title above the dropdown */
 .dropdown-title {
   font-size: 16px;
   color: #4A4459;
@@ -116,7 +117,6 @@
   font-weight: 500; 
 }
 
-/* Style for the dropdown select */
 .dropdown-select {
   padding: 6px;
   border-radius: 2px;
@@ -143,6 +143,7 @@
   margin-bottom: 10px;
 }
 
+/* -------------- WARNING MESSAGES -------------- */
 .warning-message {
   background-color: #f8d7da;
   color: #721c24;
@@ -166,22 +167,47 @@
   margin-right: 5px;
 } */
 
+/* -------------- CHECK BOXES -------------- */
 .checkbox-container {
   display: flex;
-  flex-direction: row; /* Align items vertically */
-  position: absolute;  
-  left: 0;  
-  bottom: 0;
-  margin: 0;  
-  z-index: 10;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 20px;
+  align-items: center;
+  justify-content: flex-start;
+  margin-top: 15px;
+  margin-bottom: 10px;
+  position: relative; 
+  z-index: auto; 
 }
 
 .checkbox-item {
   display: flex;
   align-items: center;
-  margin-right: 15px; 
 }
 
 .checkbox-item input[type="checkbox"] {
   margin-right: 5px;
+}
+
+/* -------------- NUMERIC INPUT BOX -------------- */
+.numeric-input-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.numeric-input-label {
+  font-size: 12px;
+  color: #482E3C;
+  font-weight: bold;
+  font-family: 'DM Sans', sans-serif;
+}
+
+.numeric-input {
+  width: 60px;
+  padding: 4px;
+  border-radius: 2px;
+  border: 1px solid #482E3C;
+  font-size: 14px;
 }
