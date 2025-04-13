@@ -692,6 +692,17 @@ button:hover {
   border-color: var(--input-focus-border-color);
 }
 
+.sub-menu li label.checkbox-label {
+  font-weight: normal; 
+  color: #3E424B;
+  font-size: 12px;
+  font-family: 'DM Sans', sans-serif;
+  margin-bottom: 10px; 
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
 
 /* ---------- Colour Picker ---------- */
 

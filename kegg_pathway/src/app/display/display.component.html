@@ -118,48 +118,49 @@
             <button *ngIf="searchTabOpen" class="search-close-btn" (click)="closeSearchTab(); $event.stopPropagation()">x</button>
           </div>
           
-          <!-- ---------------- DROP DOWN BOXES ---------------- -->
+          <!-- ---------------- CHECKBOXES FOR SEARCH FUNCTION ---------------- -->
           <ng-container *ngIf="searchTabOpen">
             <ul class="sub-menu show">
-
+          
               <li class="label-selectDropdown">
-                <label class="main-label">Find Component: </label>
+                <label class="main-label">Look for: </label>
               </li>
-
-              <!-- ---------------- ENZYME DROP DOWN BOX ---------------- -->
+          
               <li>
-                <label for="enzymeSelect">Enzyme Name:</label>
-                <select id="enzymeSelect" [(ngModel)]="selectedEnzyme" (change)="onEnzymeChange()">
-                  <option *ngFor="let enzyme of enzymeOptions" [value]="enzyme">{{ enzyme }}</option>
-                  <option value="">-- Select Enzyme --</option>
-                </select>
+                <label class="checkbox-label">
+                  <input type="checkbox" id="enzymeCheckbox" [(ngModel)]="showEnzymeDropdown" (change)="onCheckboxChange('enzyme')">
+                  Enzyme
+                </label>
+                <label class="checkbox-label">
+                  <input type="checkbox" id="compoundCheckbox" [(ngModel)]="showCompoundDropdown" (change)="onCheckboxChange('compound')">
+                  Compound
+                </label>
+                <label class="checkbox-label">
+                  <input type="checkbox" id="pathwayCheckbox" [(ngModel)]="showPathwayDropdown" (change)="onCheckboxChange('pathway')">
+                  Pathway
+                </label>
               </li>
-
-              <!-- ---------------- SUBCATEGORY DROP DOWN BOX ---------------- -->
-              <li *ngIf="selectedEnzyme">
-                <label for="subcategorySelect">Subcategory:</label>
-                <select id="subcategorySelect" [(ngModel)]="selectedSubcategory" (change)="onSubcategoryChange()">
-                  <option *ngFor="let subcategory of subcategoryOptions" [value]="subcategory">{{ subcategory }}</option>
-                  <option value="">-- Select Subcategory --</option>
-                </select>
-              </li>
-              
-              <!-- ---------------- COMPOUND DROP DOWN BOX ---------------- -->
+              <!-- ---------------- DROP DOWN BOXES FOR SEARCH FUNCTION ----------------  -->
               <li>
-                <label for="CompoundSelect">Compound:</label>
-                <select id="CompoundSelect" [(ngModel)]="selectedCompound" (change)="onCompoundChange()">
-                  <option *ngFor="let option of CompoundOptions" [value]="option">{{ option }}</option>
-                  <option value="">-- Select Compound --</option>
-                </select>
-              </li>
-
-              <!-- ---------------- PATHWAY DROP DOWN BOX ---------------- -->
-              <li>
-                <label for="pathwaySelect">Pathway:</label>
-                <select id="pathwaySelect" [(ngModel)]="selectedPathwayCustom" (change)="onPathwayChange()">
-                  <option *ngFor="let option of PathwayOptions" [value]="option">{{ option }}</option>
-                  <option value="">-- Select Pathway --</option>
-                </select>
+                <ng-container *ngIf="showEnzymeDropdown">
+                  <select id="enzymeSelect" [(ngModel)]="selectedEnzyme" (change)="onEnzymeChange()">
+                    <option value="">-- Select Enzyme --</option>
+                    <option *ngFor="let enzyme of enzymeOptions" [value]="enzyme">{{ enzyme }}</option>
+                  </select>
+                </ng-container>
+                
+                <ng-container *ngIf="showCompoundDropdown">
+                  <select id="CompoundSelect" [(ngModel)]="selectedCompound" (change)="onCompoundChange()">
+                    <option value="">-- Select Compound --</option>
+                    <option *ngFor="let option of CompoundOptions" [value]="option">{{ option }}</option>
+                  </select>
+                </ng-container>
+                <ng-container *ngIf="showPathwayDropdown">
+                  <select id="pathwaySelect" [(ngModel)]="selectedPathwayCustom" (change)="onPathwayChange()">
+                    <option value="">-- Select Pathway --</option>
+                    <option *ngFor="let option of PathwayOptions" [value]="option">{{ option }}</option>
+                  </select>
+                </ng-container>
               </li>
             </ul>
           </ng-container>
