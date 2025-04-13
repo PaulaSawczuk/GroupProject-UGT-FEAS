@@ -89,7 +89,7 @@ app.post('/api/getPathways', (req, res) => {
     console.log(req.body);
     console.log('------------');
     var number= req.body[1];
-    //console.log(number);
+    console.log(number);
     var enzymes = req.body[0];
     console.log(enzymes);
     //console.log(enzymes);

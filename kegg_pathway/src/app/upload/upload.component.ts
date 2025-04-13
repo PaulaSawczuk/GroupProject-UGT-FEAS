@@ -1086,7 +1086,11 @@ export class UploadComponent {
     if (!isNaN(value) && value > 0) {
       this.pathwayCount = value;
       console.log('Pathway count:', this.pathwayCount);
+      console.log('Sending pathway Count to File Service')
+      this.fileDataService.setPathwayCount(value);
+    }else{
       this.fileDataService.setPathwayCount(this.pathwayCount);
+
     }
   }
 }
