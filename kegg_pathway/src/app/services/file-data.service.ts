@@ -10,6 +10,16 @@ private expressionData: { [fileName: string]: string[][] } = {};
 private combinedData: any[] = []; // Added for combined data
 private annotationData: { [filename: string]: string[][] } = {}; // Added for annotation data
 private multipleCombinedArrays: any[][] = [];
+private pathwayCount: number = 0;
+
+
+setPathwayCount(numberEntered: number): void{
+  this.pathwayCount = numberEntered;
+}
+
+getPathwayCount(): number{
+  return this.pathwayCount;
+}
 
 
 setFileData(fileName: string, data: string[][]): void {
@@ -88,6 +98,9 @@ getAnnotationData(): { [filename: string]: string[][] } {
 clearAnnotationData(): void {
   this.annotationData = {};
 }
+
+
+
 
 getAnnotationForGene(geneName: string): any {
   // Find annotation information for a specific gene

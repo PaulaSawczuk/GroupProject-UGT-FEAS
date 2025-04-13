@@ -369,6 +369,7 @@ private matchGenes(genes: any[], nodes: any[]): any[] {
   var GeneSet = new Set();
   var allGenes = [];
   var colourArray = [];
+  var stats = [];
   //console.log(genes);
 
   // Create a deep copy of nodes to prevent mutation of the original array
@@ -418,14 +419,19 @@ private matchGenes(genes: any[], nodes: any[]): any[] {
     });
     }
   }
-
   console.log('Number of Unique Genes: ' + GeneSet.size);
   console.log('Total Number of instances of Genes: ' + allGenes.length);
   console.log('Enzymes Effected: ' + enzymeSet.size);
+  stats.push({
+    totalGenes: allGenes.length,
+    uniqueGenes: GeneSet.size,
+    enzymesEffected: enzymeSet.size
+  })
+
   //console.log('Old Nodes: ' + nodes);
   //console.log('New Nodes: ' + newNodes);
 
-  return [newNodes,colourArray];
+  return [newNodes,colourArray, stats];
 }
 
 private matchGenes2(genes: any[], nodes: any[]): any[] {
@@ -518,7 +524,8 @@ private compareEnzymes(nodes: any[],timepoint: number): any[]{
   const elements = this.matchGenes(genes, localNodes)
   const updatedNodes = elements[0];
   const colourArray = elements[1];
-  return [updatedNodes, colourArray];
+  const stats = elements[2];
+  return [updatedNodes, colourArray, stats];
 }
  
 
@@ -546,6 +553,7 @@ private getLoadedPathways(): void{
 
     var nodesArray = [];
     var colourArray = [];
+    var statsArray: never[] = [];
 
     // Cycle through timepoints
     for (let j = 0; j < timepointData.length; j++) {
@@ -561,6 +569,9 @@ private getLoadedPathways(): void{
 
       var colours = elements[1];
       console.log(colours);
+
+      var stats = elements[2];
+      console.log(stats);
       
       // Add updated nodes and colours to respective arrays
       nodesArray.push(updatedNodes);
@@ -569,7 +580,8 @@ private getLoadedPathways(): void{
      // Push the processed pathway data into the loadedPathwayData array
      loadedPathwayData.push({
       pathway: pathwayData[i].name,
-      nodes: nodesArray
+      nodes: nodesArray,
+      stats: statsArray
     });
 
     // Push the colour data into the ALLcolourArray
@@ -590,6 +602,7 @@ private getLoadedPathways(): void{
   console.log('Nodes');
   console.log(loadedPathwayData[0].nodes[0]);
   console.log('Colours');
+  console.log(loadedPathwayData[0].stats[0]);
   console.log(ALLcolourArray[0].colours[0]);
   console.log('Edges');
   // console.log(this.ALLpathwayData[0].edges);
@@ -656,6 +669,12 @@ private getLoadedPathways(): void{
     this.getEnzymeGenes();
     // Getting List of Enzymes from Input Data
     this.extractECNumbers();
+
+
+    // Retrieving the Pathway number from the User
+    this.pathwayNumber = this.fileDataService.getPathwayCount();
+    console.log("Number of enriched pathways to return:")
+    console.log(this.pathwayNumber);
 
     // Setting up Data Array to send to back-end API
     // Sending list of enzymes (from ExtractECNUmber()) and Number of top pathways to get (e.g. 10))
@@ -2227,20 +2246,29 @@ processNewFiles(): void{
     const nodes = data.nodes;
     console.log(nodes);
     const pathwayData = this.ALLpathwayData.find((obj => obj.pathway === code));
+
+    if (this.isAnimationActive){
     const links = pathwayData.edges;
     this.loopWithDelay(links, nodes, 10) // setting up to loop 10 times before stopping 
     //this.isAnimationActive = false;
 
-    this.stopAnimation();
+    this.stopAnimation();}
+    else{
+      this.stopAnimation();
+    }
 
   }
 
   stopAnimation(): void {
+    this.isAnimationActive = false;
     console.log("Time lapse stopped");
-
+    if(this.myDiagram){
+    this.myDiagram.model = new go.GraphLinksModel([], []);
+  }
     const code = this.selectedPathway;
     const pathwayData = this.ALLpathwayData.find((obj => obj.pathway === code));
     this.setMap(code, this.selectedTimeIndex, pathwayData);
+
     
   }
 
