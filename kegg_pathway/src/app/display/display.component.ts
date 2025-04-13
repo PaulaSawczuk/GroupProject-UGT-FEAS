@@ -91,6 +91,7 @@ private filterString(input: string): boolean {
 // Filters to only get Genes that have corresponding full EC codes (filterEnzymeGenes)
 
 private getEnzymeGenes(): void{
+  this.isLoading = true;
   const combinedData = this.fileDataService.getMultipleCombinedArrays();
   //console.log('MultiCombined: '+combinedData);
   //console.log('First File: '+combinedData[0]);
@@ -149,6 +150,8 @@ private getEnzymeGenes(): void{
 // Called from getEnzymeGenes()
 // Filters genes to those only with corresponding ec codes and reformats them in the correct order
 private filterEnzymeGenes(filteredFiles:any[]):void{
+
+  this.isLoading = true;
   var filteredFiles_enzymes = [];
   for (let j=0; j<filteredFiles.length; j++){
     console.log(this.fileNames[j]);
@@ -196,7 +199,7 @@ private filterEnzymeGenes(filteredFiles:any[]):void{
 // Returns the top 1000 (or otherwise specified) list of enzymes to be queried to KEGG to get paths
 
 private extractECNumbers(): void {
-
+  this.isLoading = true;
   // Set this up to loop through all files -- total enzymes 
   console.log('Extracting Enzymes to Search');
   //console.log(this.filteredGenes);
@@ -856,7 +859,6 @@ private getLoadedPathways(): void{
     new go.Link({
         routing: go.Routing.AvoidsNodes,
         //routing: go.Link.Bezier,
-        //corner: 5    // rounded corners
       })
       .add(
         new go.Shape(),
@@ -964,10 +966,16 @@ private getLoadedPathways(): void{
           new go.Shape("Rectangle").bind("fill","colour").bind("width").bind("height")
         ).add(new go.TextBlock(
           { margin: 2,
-            font: "10px sans-serif",
+            //font: "10px sans-serif",
             wrap: go.TextBlock.WrapFit,
           width: 80 })
           .bind("text")
+          .bind("font", "", (node) => {
+            const size = node.width; // Get the width of the node
+            const result = Math.max(10, size * 0.1);
+            const output = `${result}px sans-serif`;
+            return output;  // Adjust the font size as 10% of the node's width (minimum size of 10)
+        })
         )
     );
 
@@ -1644,6 +1652,8 @@ private getLoadedPathways(): void{
 }
 
 processNewFiles(): void{
+    this.isLoading = true;
+    this.LoadingMessage = 'Processing New Files...'
 
     console.log('Processing New Files');
     const originalData = this.filteredGenes;
@@ -1675,7 +1685,7 @@ processNewFiles(): void{
       this.filteredGenes.push(item);
     })
     //this.filteredGenes.push(newFilteredGenes);
-    //console.log(this.filteredGenes);
+    console.log(this.filteredGenes);
     
     //this.updatePathways(newFilteredGenes);
   }
@@ -1701,6 +1711,28 @@ processNewFiles(): void{
     this.warningMessage = '';
     this.showFileList = false;
   }
+
+
+  // Function to compare new and old list of pathways on upload of new files
+  private compareArrays(arr1: string[], arr2: string[]) {
+    const set1 = new Set(arr1);
+    const set2 = new Set(arr2);
+  
+    // Similar elements
+    const similar = [...set1].filter(item => set2.has(item));
+  
+    // Different elements
+    const different = [
+      ...arr1.filter(item => !set2.has(item)),
+      ...arr2.filter(item => !set1.has(item))
+    ];
+  
+    return {
+      similar,
+      different
+    };
+  }
+
 
   // Trigger file input click
   onUploadClick(): void {
@@ -1847,24 +1879,93 @@ processNewFiles(): void{
             console.log(`Appended dataset for ${exprFilename}:`, mergedGenes);
             existingCombined.push(mergedGenes);
           }
-  
+
+          this.isLoading = true;
+          this.LoadingMessage = 'Loading New File Data...' // Updating the User 
+
+
           const allCombined = existingCombined.flat();
           this.fileDataService.setCombinedData(allCombined);
           this.fileDataService.setMultipleCombinedArrays(existingCombined);
           console.log('All-files');
           const data = this.fileDataService.getMultipleCombinedArrays();
+
+          // Updating timeslider 
+          const timepoints = this.rangeFromOne(data);
+          console.log('Timepoints: '+timepoints);
+          this.timepoints = timepoints;
+          
           console.log(data);
-          console.log("Loaded Files");
+          console.log("Already Loaded Files");
           console.log(this.filteredGenes);
           
+          console.log("Loading New Files")
           
-          // Process Files
-          //this.processNewFiles(); // Filter and Extract Enzymes
-          // Update timepoint
-          // Update Pathway List 
+          // Process Files -- update filteres Genes Array
+          this.processNewFiles(); // Filter and Extract Enzymes
 
-  
+          const currentPaths = this.pathways;
+          //console.log('Current Pathways: '+currentPaths);
+
+          // REPROCESSING FILES TO GET ENZYMESS + PATHWAYS 
+          // Processing Input Data - Match Genes and Extracting LogFc + EC numbers
+          // This overrides all the processing done initally to update the pathway list + enzyme list 
+          this.getEnzymeGenes();
+          // Getting List of Enzymes from Input Data
+          this.extractECNumbers();
+
+          // Processing all enzymes:
+          const postData = [this.enzymeList, this.pathwayNumber];
+          this.enzymeApiServicePost.postEnzymeData(postData).subscribe(
+            (response) => {
+              // Overriding / updating lit of pathways including newly uploaded pathways 
+              this.pathwayData = response;
+
+              console.log('Current Pathways:');
+              console.log(currentPaths)
+
+              //console.log('New pathway list:')
+              //console.log(this.pathwayData);
+
+
+              // Loading Pathway names -- for displaying to user
+              this.loadNames();
+
+              // Comparing pathways to inform the user 
+              console.log('Updated Pathways:');
+              console.log(this.pathways)
+
+              const result = this.compareArrays(currentPaths,this.pathways);
+              const similar = result.similar;
+              const different = result.different;
+
+              console.log('Similar Pathways: ');
+              console.log(similar)
+              console.log('Different Pathways: ');
+              console.log(different)
+
+              console.log('Received from backend:', response);
+              console.log('-----------------------------');
+              console.log('Getting Mapping Data');
+              this.getMapData();
+
+              console.log('-------- NEW PATHWAYS LOADED -------');
+
+            },
+            (error) => {
+              // Handle errors
+              console.error('Error:', error);
+              this.isLoading = false; 
+
+              //this.responseMessage = 'Error sending data';
+            }
+          );
+
+          //console.log('-------- NEW PATHWAYS LOADED -------');
+
           this.closeUploadModal(); // Close modal after merge
+
+          //this.isLoading = false;
         }).catch(err => {
           console.warn('Failed to process added files:', err);
         });
@@ -2089,15 +2190,17 @@ processNewFiles(): void{
     return new Promise(resolve => setTimeout(resolve, ms));
   }
 
-  async loopWithDelay( links: any[], nodes: any[]): Promise<void> {
-    for (let i=0; i<this.timepoints.length;i++){
-      const timeNodes = nodes[i];
-      this.updateDiagram(timeNodes,links)
+  async loopWithDelay( links: any[], nodes: any[], number: number): Promise<void> {
+    
+    for (let j=0; j<number; j++){
+      for (let i=0; i<this.timepoints.length;i++){
+        const timeNodes = nodes[i];
+        this.updateDiagram(timeNodes,links)
 
-      await this.delay(500);
-
+        await this.delay(1000);// 1 Second between pathway refresh (large pathays take a while to load)
+        }
+    }
   }
-}
 
   startAnimation(): void {
     console.log("Time lapse started");
@@ -2112,8 +2215,10 @@ processNewFiles(): void{
     console.log(nodes);
     const pathwayData = this.ALLpathwayData.find((obj => obj.pathway === code));
     const links = pathwayData.edges;
-    this.loopWithDelay(links, nodes)
-    this.isAnimationActive = false;
+    this.loopWithDelay(links, nodes, 10) // setting up to loop 10 times before stopping 
+    //this.isAnimationActive = false;
+
+    this.stopAnimation();
 
   }
 
@@ -2134,6 +2239,10 @@ processNewFiles(): void{
     const input = event.target as HTMLInputElement;
     this.selectedColorHigh = input.value;
     console.log('High expression color:', this.selectedColorHigh);
+    this.isLoading = true;
+    this.LoadingMessage = 'Updating High Expression colour ...';
+    this.getLoadedPathways();
+    this.isLoading = false;
     return this.selectedColorHigh;
   }
 
@@ -2141,6 +2250,10 @@ processNewFiles(): void{
     const input = event.target as HTMLInputElement;
     this.selectedColorLow = input.value;
     console.log('Low expression color:', this.selectedColorLow);
+    this.isLoading = true;
+    this.LoadingMessage = 'Updating Low Expression colour ...';
+    this.getLoadedPathways();
+    this.isLoading = false;
     return this.selectedColorLow;
   }
 } 
