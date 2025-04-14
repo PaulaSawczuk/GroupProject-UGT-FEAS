@@ -351,6 +351,25 @@ private resizeNodeByLogFC(logfc: number) {
   return [newHeight,newWidth];
 }
 
+private getLineWidth(logfc: number, baseline = 3) {
+  const difference = Math.abs(logfc - baseline);
+
+  // Set min and max width values
+  const minWidth = 3;
+  const maxWidth = 20;
+
+  // You can tweak this multiplier for scaling effect
+  const scaleFactor = 2;
+
+  let width = minWidth + difference * scaleFactor;
+
+  // Clamp the width so it doesn't go beyond max
+  width = Math.min(width, maxWidth);
+
+  return width;
+}
+
+
 // ----------- Matching Genes to Enzyme Ndoes ----------------
 // Called when changing Node information when map is selected/ timepoint changes 
 
@@ -470,6 +489,7 @@ private matchGenes(genes: any[], nodes: any[]): any[] {
       }
 
       if (logfcList[0]) {
+        console.log(logfcList);
         let mean = this.findMean(logfcList); // Calculating mean of Genes logfc
         let rgb = this.newlogfcToRGB(mean, this.selectedColorLow,this.selectedColorHigh); // Getting colout relative to logfc
         let result = this.resizeNodeByLogFC(mean); // resizing node
@@ -523,7 +543,8 @@ private compareEnzymes(nodes: any[],timepoint: number): any[]{
   const updatedNodes = elements[0];
   const colourArray = elements[1];
   const stats = elements[2];
-  return [updatedNodes, colourArray, stats];
+  const finalNodes = this.getMultipleGenes(updatedNodes);
+  return [finalNodes, colourArray, stats];
 }
 // No size change - called from getLoadedPathways
 private compareEnzymesNoSize(nodes: any[],timepoint: number): any[]{
@@ -542,8 +563,8 @@ private compareEnzymesNoSize(nodes: any[],timepoint: number): any[]{
   const updatedNodes = elements[0];
   const colourArray = elements[1];
   const stats = elements[2];
-  //this.getIsoforms(updatedNodes);
-  return [updatedNodes, colourArray, stats];
+  const finalNodes = this.getMultipleGenes(updatedNodes);
+  return [finalNodes, colourArray, stats];
 }
 
 
@@ -605,17 +626,51 @@ private getIsoforms(nodes: any[]): any[]{
 }
 
 
+
+
+
+
+// Identification of enzyme Nodes that have multiple differentially regualted genes 
+
+private getMultipleGenes(nodes: any[]): any[]{
+
+  console.log('Finding Isoforms/Multiple Genes...')
+
+  var newNodes = nodes.map(node => ({ ...node }));
+  //console.log(newNodes);
+  // Looping through all the nodes
+  for (let i = 0; i < newNodes.length; i++) {
+    if (newNodes[i].type === 'enzyme' && (newNodes[i].gene)){
+      const firstGenes = newNodes[i].gene;
+      if (firstGenes.length>1){
+        const key1 = newNodes[i].key;
+        console.log('Changing Colour - multiple Genes');
+        newNodes[i].colour = '#FFF44F';
+
+      }
+    }
+  }    
+  return newNodes;
+
+}
+
+
+
+
+
+
 private getMetabolicFlux(nodes: any[], links: any[]){
 
 
   var newNodes = nodes.map(node => ({ ...node }));
   var newLinks = links.map(link => ({ ...link}));
   for (let i = 0; i < newNodes.length; i++) {
-    // Get all enzyme nodes that have been effected 
-    if (newNodes[i].type === 'enzyme' && (newNodes[i].gene)){
+    // Get all enzyme nodes that have been effected but not by isoforms (coloured yellow)
+    if (newNodes[i].type === 'enzyme' && (newNodes[i].gene) && newNodes[i].colour != '#FFF44F'){
 
       const key = newNodes[i].key;
       const colour = newNodes[i].colour;
+      const logfc = newNodes[i].logfc;
       const rIndex = key.indexOf("R");
       if (rIndex !== -1) {
         const reactKey = key.substring(rIndex);
@@ -634,8 +689,9 @@ private getMetabolicFlux(nodes: any[], links: any[]){
           let category = newLinks[j].category;
           console.log(category);
           newLinks[j].colour = colour;
+          const width = this.getLineWidth(logfc);
+          newLinks[j].size = width;
           
-
         }else{
           continue;
         }
@@ -1092,7 +1148,7 @@ private getLoadedPathways(): void{
           //stroke: "black",  // Set the color of the link (line) to black
           strokeWidth: 3,
           strokeDashArray: [10, 5]  // Set the line to be dashed (10px dashes, 5px gaps)
-        }).bind('stroke','colour'),
+        }).bind('stroke','colour').bind('strokeWidth','size'),
   
       // Arrowhead at the "to" end of the link (one-way arrow)
       $(go.Shape, 
@@ -1123,7 +1179,7 @@ private getLoadedPathways(): void{
           stroke: "black",  // Set the color of the link (line) to black
           strokeWidth: 3,
           //strokeDashArray: [10, 5]  // Set the line to be dashed (10px dashes, 5px gaps)
-        }).bind('stroke','colour'),
+        }).bind('stroke','colour').bind('strokeWidth','size'),
   
       // Arrowhead at the "to" end of the link (one-way arrow)
       $(go.Shape, 
