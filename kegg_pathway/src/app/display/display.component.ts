@@ -7,6 +7,7 @@ import { FileDataService } from '../services/file-data.service';
 import { filter, first } from 'rxjs';
 import { parseFileContent, identifyFileType } from '../helper/file-utils';
 import {MatSliderModule} from '@angular/material/slider';
+import { match } from 'assert';
 
 
 
@@ -965,13 +966,15 @@ private getLoadedPathways(): void{
 
 // -------------- Get REQUEST for Specific Pahtway Data--------------
 // Called when users want to get information for a specific pathway not in the pathway list 
- getSpecificPathway(code: string): void{
+ getSpecificPathway(code: string, name: string): void{
   // Function to get specific pathway based on EC Code/name
   // Will make new post request to fetch KGML and data for that pathway
 
   // Pathway code 
+    console.log('Getting Specific Pathway Request');
     console.log(code);
-    const data = [code];
+    const data = code;
+    //console.log(data);
     this.isLoading = true;
     console.log("--------------------")
     console.log('Sending Request for Specific Pathway Data');
@@ -979,13 +982,15 @@ private getLoadedPathways(): void{
 
     this.LoadingMessage = 'Loading Pathway Mapping Data...';
 
-    this.enzymeApiServicePost.postALLMapData(data).subscribe(
+    this.enzymeApiServicePost.postMapData(data).subscribe(
       (response) =>{
       console.log(response);
 
       const pathwayData = response;
       console.log(pathwayData);
-      //Object.freeze(this.ALLpathwayData);
+      pathwayData[0].name= name;
+      console.log(pathwayData);
+
       console.log("--------------------")
       console.log('Pathway Data Loaded Successfully');
       console.log("--------------------")
@@ -1057,6 +1062,7 @@ private getLoadedPathways(): void{
   });
 
   // TEMPLATE FOR LAYOUT
+
   this.myDiagram.layout = new go.LayeredDigraphLayout({
     // Set optional parameters for the layout
     direction: 90,
@@ -1065,6 +1071,17 @@ private getLoadedPathways(): void{
     setsPortSpots: true,  // Don't automatically adjust port spots (ports can be manually set)
   });
 
+  /*
+  const legend =
+  new go.Part({
+      layerName: "ViewportBackground",
+      alignment: new go.Spot(0, 0, 10, 10)
+    })
+    .add(
+      new go.TextBlock("A Legend", { font: "bold 24pt sans-serif", stroke: "green" })
+    );
+  
+  this.myDiagram.add(legend);*/
 
   // TEMPLATE FOR COMPOUNDS 
     this.myDiagram.nodeTemplateMap.add("compound",  // Custom category for compound nodes
@@ -1213,7 +1230,15 @@ private getLoadedPathways(): void{
 
     // TEMPLATE FOR MAP NODES
     this.myDiagram.nodeTemplateMap.add("map",  // Custom category for compound nodes
-      new go.Node("Auto")  // Use Vertical Panel to place the label above the shape
+      new go.Node("Auto",
+        {
+          click: (e: go.InputEvent, obj: go.GraphObject) => {
+            const node = obj.part as go.Node;
+            const data = node.data;
+            this.handleMapNodeClick(data);
+        }
+      }
+      ) 
         .add(
           new go.Shape("RoundedRectangle", {
             fill: "lightblue",
@@ -1248,7 +1273,9 @@ private getLoadedPathways(): void{
           })
           .bind("text")
       );
-    
+
+
+
       // to make the nodes to show a pop up window when clicked
       this.myDiagram!.addDiagramListener("ObjectSingleClicked", (e) => {
         //const _this = this;
@@ -1438,6 +1465,7 @@ private getLoadedPathways(): void{
     model.linkDataArray = links;
     // Assigning the model to the diagram for visualisation
     this.myDiagram.model = model;
+    //this.setLegend(this.myDiagram);
   }
   
 
@@ -1466,11 +1494,93 @@ private getLoadedPathways(): void{
       this.myDiagram.model = new go.GraphLinksModel([], []);
       console.log('Diagram Data Cleared')
       this.updateDiagram(nodes,links);
+      this.setLegend(this.myDiagram);
 
     }else{
     // Create a new a Diagram with template
       this.createGoJSMap(nodes, links);}
+      
   }
+
+
+
+  private handleMapNodeClick(data: any): void {
+    console.log("Clicked map node:", data);
+    const pathCode = data.text;
+    const code = pathCode.replace("path:", "");
+    console.log(code);
+
+    const matchingItems = this.ALLpathwayData.find((obj => obj.pathway === code));
+    console.log(matchingItems);
+    if (matchingItems){
+      console.log('Match Found');
+      console.log(matchingItems);
+      this.setMap(code, this.selectedTimeIndex,matchingItems)
+    }else{
+      console.log('Searching all Kegg Pathways');
+      const allMatch = this.AllKeggPathways.find((obj => obj.pathway === code));
+      if (allMatch){
+        console.log('Match found in All Kegg Pathways');
+        console.log(allMatch);
+        const code = allMatch.pathway;
+        const name = allMatch.pathway.name
+        this.getSpecificPathway(code, name);
+
+      }else{
+      console.log('No Match Found');
+
+    }}
+  }
+
+
+
+
+  private setLegend(myDiagram: go.Diagram): void{
+    const $ = go.GraphObject.make;
+
+    const legend = $(
+      go.Part, "Table", 
+      {
+        position: new go.Point(10, 10),
+        selectable: false,
+        layerName: "Foreground"  // keeps it on top
+      },
+      $(go.TextBlock, "Legend", 
+        { row: 0, font: "bold 12pt sans-serif", stroke: "#333", margin: 4, columnSpan: 2 }
+      ),
+
+      // Node Type: Person
+      $(go.Panel, "Horizontal", { row: 1 },
+        $(go.Shape, "Circle", { width: 15, height: 15, fill: "lightblue", margin: 2 }),
+        $(go.TextBlock, "Person", { margin: 2 })
+      ),
+
+      // Node Type: Department
+      $(go.Panel, "Horizontal", { row: 2 },
+        $(go.Shape, "Rectangle", { width: 15, height: 15, fill: "lightgreen", margin: 2 }),
+        $(go.TextBlock, "Department", { margin: 2 })
+      ),
+
+      // Edge: Reports To
+      $(go.Panel, "Horizontal", { row: 3 },
+        $(go.Shape, { geometryString: "M0 0 L30 0", stroke: "black", strokeWidth: 2, margin: 2 }),
+        $(go.TextBlock, "Reports To", { margin: 2 })
+      ),
+
+      // Edge: Supports
+      $(go.Panel, "Horizontal", { row: 4 },
+        $(go.Shape, { geometryString: "M0 0 L30 0", stroke: "orange", strokeWidth: 2, margin: 2, strokeDashArray: [4, 2] }),
+        $(go.TextBlock, "Supports", { margin: 2 })
+      )
+    );
+
+// Add legend to the diagram
+myDiagram.add(legend);
+     
+
+  }
+
+
 
   isMenuOpen = true;
   pathwaysOpen = true;
@@ -2519,6 +2629,8 @@ processNewFiles(): void{
     this.isLoading = false;
     return this.selectedColorLow;
   }
+
+  
 } 
 
 
