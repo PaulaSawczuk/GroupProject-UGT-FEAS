@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { enzymeApiServicePost } from '../services/kegg_enzymepathwaysPost.serice';
 import * as go from 'gojs';
 import { FileDataService } from '../services/file-data.service';
-import { filter } from 'rxjs';
+import { filter, first } from 'rxjs';
 import { parseFileContent, identifyFileType } from '../helper/file-utils';
 import {MatSliderModule} from '@angular/material/slider';
 
@@ -542,9 +542,114 @@ private compareEnzymesNoSize(nodes: any[],timepoint: number): any[]{
   const updatedNodes = elements[0];
   const colourArray = elements[1];
   const stats = elements[2];
+  //this.getIsoforms(updatedNodes);
   return [updatedNodes, colourArray, stats];
 }
 
+
+private getIsoforms(nodes: any[]): any[]{
+
+  console.log('Finding Isoforms')
+
+  var newNodes = nodes.map(node => ({ ...node }));
+  //console.log(newNodes);
+  // Looping through all the nodes
+  for (let i = 0; i < newNodes.length; i++) {
+    if (newNodes[i].type === 'enzyme' && (newNodes[i].gene)){
+      const firstGenes = newNodes[i].gene;
+      //console.log('First Genes:')
+      //console.log(firstGenes);
+      const key1 = newNodes[i].key;
+      
+
+      // Looping through list again to find matching gene entries 
+      for (let j = 0; j < newNodes.length; j++) {
+        if (newNodes[j].type === 'enzyme'&&(newNodes[j].gene) ) {
+          const secondGenes = newNodes[j].gene;
+          const key2 = newNodes[j].key;
+          
+          //console.log(firstGenes);
+          //console.log('Second Genes:')
+          //console.log(secondGenes);
+          // Making sure that the nodes dont match to themselves 
+          if (key1 != key2){
+            /*
+            for (const gene1 of firstGenes) {
+              for (const gene2 of secondGenes) {
+                if (gene1 === gene2) {
+                  console.log("match:", gene1);
+                  console.log(key1);
+                  console.log(key2);
+                  //matchFound = true;
+                  }
+                }
+              }*/
+             if (firstGenes==secondGenes){
+              console.log("match:");
+              console.log(key1);
+              console.log(key2);
+              console.log(firstGenes);
+              console.log(secondGenes);
+             }
+            }
+
+
+          }
+          
+
+        }
+      }
+  }
+  return [];
+
+}
+
+
+private getMetabolicFlux(nodes: any[], links: any[]){
+
+
+  var newNodes = nodes.map(node => ({ ...node }));
+  var newLinks = links.map(link => ({ ...link}));
+  for (let i = 0; i < newNodes.length; i++) {
+    // Get all enzyme nodes that have been effected 
+    if (newNodes[i].type === 'enzyme' && (newNodes[i].gene)){
+
+      const key = newNodes[i].key;
+      const colour = newNodes[i].colour;
+      const rIndex = key.indexOf("R");
+      if (rIndex !== -1) {
+        const reactKey = key.substring(rIndex);
+        console.log(reactKey); 
+
+        // Loop through links to get any that match with that reaction key
+      for (let j = 0; j < newLinks.length; j++) {
+        if (newLinks[j].to == reactKey){
+          //console.log('Match Found: (Link to) ');
+          let category = newLinks[j].category;
+          //console.log(category);
+
+        }
+        if (newLinks[j].from == reactKey){
+          console.log('Match Found: (Link from) ');
+          let category = newLinks[j].category;
+          console.log(category);
+          newLinks[j].colour = colour;
+          
+
+        }else{
+          continue;
+        }
+      }
+
+      } else {
+        console.log("No 'R' found in the string");
+        continue;
+      }
+    }
+  }
+  console.log(newLinks);
+  return newLinks;
+}
 
 // ----------- Loading Pathway Function ----------------
 // Function to load all the pathways into a Stored Array for Accessing on demand
@@ -567,14 +672,16 @@ private getLoadedPathways(): void{
   console.log('Pathway Data to load:')
   console.log(pathwayData);
   
-
+  
   for (let i = 0; i < pathwayData.length; i++) {
     const nodes = pathwayData[i].nodes; // Already a deep copy
+    var edges = pathwayData[i].edges;
     //console.log(nodes);
 
     var nodesArray = [];
+    var edgesArray = [];
     var colourArray = [];
-    var statsArray: never[] = [];
+    var statsArray = [];
 
     // Cycle through timepoints
     for (let j = 0; j < timepointData.length; j++) {
@@ -586,7 +693,8 @@ private getLoadedPathways(): void{
       // Extract Colour and Nodes
       //console.log(elements)
       var updatedNodes = elements[0];
-      //console.log(updatedNodes);
+      var updatedEdges = this.getMetabolicFlux(updatedNodes,edges);
+      console.log(updatedEdges);
 
       var colours = elements[1];
       //console.log(colours);
@@ -595,13 +703,16 @@ private getLoadedPathways(): void{
       //console.log(stats);
       
       // Add updated nodes and colours to respective arrays
+      edgesArray.push(updatedEdges);
       nodesArray.push(updatedNodes);
       colourArray.push(colours);
+      statsArray.push(stats);
     }
      // Push the processed pathway data into the loadedPathwayData array
      loadedPathwayData.push({
       pathway: pathwayData[i].name,
       nodes: nodesArray,
+      edges: edgesArray,
       stats: statsArray
     });
 
@@ -617,18 +728,6 @@ private getLoadedPathways(): void{
   console.log(ALLcolourArray);
   console.log(loadedPathwayData);
   console.log("--------------------")
-
-  // Example of logging the first pathway, first timepoint details
-  //console.log('First Pathway, First timepoint');
-  //console.log('Name');
-  //console.log(loadedPathwayData[0].pathway);
-  //console.log('Nodes');
-  //console.log(loadedPathwayData[0].nodes[0]);
-  //console.log('Colours');
-  //console.log(loadedPathwayData[0].stats[0]);
-  //console.log(ALLcolourArray[0].colours[0]);
-  //console.log('Edges');
-  // console.log(this.ALLpathwayData[0].edges);
 
   // Assign the processed data to component properties
   this.colourArray = ALLcolourArray;
@@ -868,13 +967,15 @@ private getLoadedPathways(): void{
     console.log("--------------------");
     console.log('Loading Differential Expression Data')
     const elements = this.compareEnzymes(nodes,timepoint);
+    
     const updatedNodes = elements[0];
+    const updatedEdges = this.getMetabolicFlux(updatedNodes,links)
     console.log("--------------------");
     console.log('Stats Recieved');
     const stats = elements[2];
     console.log(stats);
     //console.log(updatedNodes);
-    this.changeDiagram(updatedNodes, links);
+    this.changeDiagram(updatedNodes, updatedEdges);
     this.isLoading = false;
 
   }
@@ -988,18 +1089,18 @@ private getLoadedPathways(): void{
       // Shape of the link (the line itself)
       $(go.Shape, 
         {
-          stroke: "black",  // Set the color of the link (line) to black
+          //stroke: "black",  // Set the color of the link (line) to black
           strokeWidth: 3,
           strokeDashArray: [10, 5]  // Set the line to be dashed (10px dashes, 5px gaps)
-        }),
+        }).bind('stroke','colour'),
   
       // Arrowhead at the "to" end of the link (one-way arrow)
       $(go.Shape, 
         {
           toArrow: "Standard",  // Standard arrowhead at the end of the link
-          fill: "black",  // Set the color of the arrow to black
+          //fill: "black",  // Set the color of the arrow to black
           stroke: null  // No border around the arrow
-        })
+        }).bind('fill','colour'),
     )
   );
 
@@ -1022,7 +1123,7 @@ private getLoadedPathways(): void{
           stroke: "black",  // Set the color of the link (line) to black
           strokeWidth: 3,
           //strokeDashArray: [10, 5]  // Set the line to be dashed (10px dashes, 5px gaps)
-        }),
+        }).bind('stroke','colour'),
   
       // Arrowhead at the "to" end of the link (one-way arrow)
       $(go.Shape, 
@@ -1030,7 +1131,7 @@ private getLoadedPathways(): void{
           toArrow: "Standard",  // Standard arrowhead at the end of the link
           fill: "black",  // Set the color of the arrow to black
           stroke: null  // No border around the arrow
-        })
+        }).bind('fill','colour'),
     )
   );
   
@@ -2281,18 +2382,18 @@ processNewFiles(): void{
   }
 
 
-  async loopWithDelay( links: any[], nodes: any[], number: number): Promise<void> {
+  async loopWithDelay( links: any[], nodes: any[]): Promise<void> {
     // Number of loops to cycle through before stopping 
-    for (let j=0; j<number; j++){
+    
       // Looping through the maps (one for each timepoint)
       for (let i=0; i<this.timepoints.length;i++){
         const timeNodes = nodes[i];
         // Updating the Diagram 
         this.updateDiagram(timeNodes,links)
         
-        await this.delay(1000);// 1 Second between pathway refresh (large pathays take a while to load)
+        await this.delay(750);// 1 Second between pathway refresh (large pathays take a while to load)
         }
-    }
+    
   }
 
   startAnimation(): void {
@@ -2310,10 +2411,11 @@ processNewFiles(): void{
 
     if (this.isAnimationActive==true){
     const links = pathwayData.edges;
-    this.loopWithDelay(links, nodes, 10) // setting up to loop 10 times before stopping 
+    this.loopWithDelay(links, nodes); // setting up to loop 10 times before stopping 
     //this.isAnimationActive = false;
 
-    this.stopAnimation();}
+    this.stopAnimation();
+  }
     else{
       this.stopAnimation();
     }
