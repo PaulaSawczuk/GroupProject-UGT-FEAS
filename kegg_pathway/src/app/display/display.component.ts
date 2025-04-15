@@ -74,6 +74,8 @@ export class DisplayComponent {
 
   /** --------  INPUT Data Processing Functions -------- **/
 
+// Filtering function that only selects enzyme codes that are in the correct
+// full format ec:_._._._
 private filterString(input: string): boolean {
     // Define the regular expression
     const pattern = /^ec:(\d+\.\d+\.\d+\.\d+)$/;
@@ -352,6 +354,9 @@ private resizeNodeByLogFC(logfc: number) {
   return [newHeight,newWidth];
 }
 
+
+// Getting line width realtive to logfc value of the enzyme ndoe
+// Used to highlight metabolix flux
 private getLineWidth(logfc: number, baseline = 3) {
   const difference = Math.abs(logfc - baseline);
 
@@ -544,7 +549,7 @@ private compareEnzymes(nodes: any[],timepoint: number): any[]{
   const updatedNodes = elements[0];
   const colourArray = elements[1];
   const stats = elements[2];
-  const finalNodes = this.getMultipleGenes(updatedNodes);
+  const finalNodes = this.getMultipleGenes2(updatedNodes);
   return [finalNodes, colourArray, stats];
 }
 // No size change - called from getLoadedPathways
@@ -564,7 +569,7 @@ private compareEnzymesNoSize(nodes: any[],timepoint: number): any[]{
   const updatedNodes = elements[0];
   const colourArray = elements[1];
   const stats = elements[2];
-  const finalNodes = this.getMultipleGenes(updatedNodes);
+  const finalNodes = this.getMultipleGenes2(updatedNodes);
   return [finalNodes, colourArray, stats];
 }
 
@@ -654,6 +659,32 @@ private getMultipleGenes(nodes: any[]): any[]{
   return newNodes;
 
 }
+
+
+private getMultipleGenes2(nodes: any[]): any[]{
+
+  console.log('Finding Isoforms/Multiple Genes...')
+
+  var newNodes = nodes.map(node => ({ ...node }));
+  //console.log(newNodes);
+  // Looping through all the nodes
+  for (let i = 0; i < newNodes.length; i++) {
+    if (newNodes[i].type === 'enzyme' && (newNodes[i].gene)){
+      const firstGenes = newNodes[i].gene;
+      if (firstGenes.length>1){
+        const key1 = newNodes[i].key;
+        console.log('Changing Colour - multiple Genes');
+        newNodes[i].stroke = '#FFF44F';
+        newNodes[i].border = 6;
+
+      }
+    }
+  }    
+  return newNodes;
+
+}
+
+
 
 
 
@@ -1214,7 +1245,7 @@ private getLoadedPathways(): void{
     this.myDiagram.nodeTemplateMap.add("enzyme",  // Custom category for compound nodes
       new go.Node("Auto")  // Use Vertical Panel to place the label above the shape
         .add(
-          new go.Shape("Rectangle").bind("fill","colour").bind("width").bind("height")
+          new go.Shape("Rectangle").bind("fill","colour").bind("width").bind("height").bind('stroke').bind('strokeWidth','border')
         ).add(new go.TextBlock(
           { margin: 2,
             //font: "10px sans-serif",
@@ -1505,6 +1536,11 @@ private getLoadedPathways(): void{
   }
 
 
+// ------------- Linked Map retrieval Function ----------------
+// Handles clicking of map node of pathway data that is not already generated
+// Makes new post request to backend with selected pathway code 
+// Appends new pathway data to pathway list and data arrays 
+// Pathway is added to end of list displayed to user and rendered on the screen
 
   private handleMapNodeClick(data: any): void {
     console.log("Clicked map node:", data);
@@ -1533,7 +1569,10 @@ private getLoadedPathways(): void{
   }
 
 
-
+// ----------- CREATING LEGEND for each map retrieval -------------
+// Called each time a map is intialised / changed 
+// Legend is updated with user-selected colours 
+// Rendered in bottom left-hand corner of the Display Div
 
   private setLegend(myDiagram: go.Diagram): void{
     const $ = go.GraphObject.make;
@@ -1555,7 +1594,7 @@ private getLoadedPathways(): void{
       $(go.TextBlock, "Legend",
         {
           row: 0,
-          font: "bold 12pt sans-serif",
+          font: "bold 10pt sans-serif",
           stroke: "#333",
           margin: new go.Margin(0, 0, 6, 0),
           columnSpan: 2
@@ -1565,37 +1604,37 @@ private getLoadedPathways(): void{
       // Node Type: Compound
       $(go.Panel, "Horizontal", { row: 1 },
         $(go.Shape, "Circle", { width: 15, height: 15, fill: "#ccc", margin: 2 }),
-        $(go.TextBlock, "Compound", { margin: 2 })
+        $(go.TextBlock, "Compound", { margin: 2,font: "8pt sans-serif" })
       ),
     
       // Node Type: Linked Pathway
       $(go.Panel, "Horizontal", { row: 2 },
         $(go.Shape, "RoundedRectangle", { width: 15, height: 15, fill: "lightblue", margin: 2 }),
-        $(go.TextBlock, "Linked Pathway", { margin: 2 })
+        $(go.TextBlock, "Linked Pathway", { margin: 2 ,font: "8pt sans-serif"})
       ),
 
       // Node Type: Enzyme - No change 
       $(go.Panel, "Horizontal", { row: 3 },
         $(go.Shape, "Rectangle", { width: 15, height: 15, fill: 'lightgrey', margin: 2 }),
-        $(go.TextBlock, "Enzyme", { margin: 2 })
+        $(go.TextBlock, "Enzyme - No change", { margin: 2,font: "8pt sans-serif"})
       ),
 
       // Node Type: Selected Upregulated Colour
       $(go.Panel, "Horizontal", { row: 4 },
         $(go.Shape, "Rectangle", { width: 15, height: 15, fill: this.selectedColorHigh, margin: 2 }),
-        $(go.TextBlock, "Upregulated", { margin: 2 })
+        $(go.TextBlock, "High Expression", { margin: 2 ,font: "8pt sans-serif"})
       ),
 
       // Node Type: Selected Downregulated Colour
       $(go.Panel, "Horizontal", { row: 5 },
         $(go.Shape, "Rectangle", { width: 15, height: 15, fill: this.selectedColorLow, margin: 2 }),
-        $(go.TextBlock, "Downregulated", { margin: 2 })
+        $(go.TextBlock, "Low Expression", { margin: 2,font: "8pt sans-serif"})
       ),
 
       // Node Type: Selected Isoform Colour
       $(go.Panel, "Horizontal", { row: 6 },
         $(go.Shape, "Rectangle", { width: 15, height: 15, fill: '#FFF44F', margin: 2 }),
-        $(go.TextBlock, "Isoform", { margin: 2 })
+        $(go.TextBlock, "Isoform", { margin: 2,font: "8pt sans-serif"})
       ),
     
       // Link: Reversible
@@ -1607,7 +1646,7 @@ private getLoadedPathways(): void{
           strokeDashArray: [10, 5] ,
           margin: 2
         }),
-        $(go.TextBlock, "Reversible", { margin: 2 })
+        $(go.TextBlock, "Reversible", { margin: 2,font: "8pt sans-serif"})
       ),
     
       // Link: Irreversible
@@ -1618,7 +1657,7 @@ private getLoadedPathways(): void{
           strokeWidth: 2,
           margin: 2
         }),
-        $(go.TextBlock, "Irreversible", { margin: 2 })
+        $(go.TextBlock, "Irreversible", { margin: 2,font: "8pt sans-serif"})
       )
     );
     
