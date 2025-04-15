@@ -966,14 +966,15 @@ private getLoadedPathways(): void{
 
 // -------------- Get REQUEST for Specific Pahtway Data--------------
 // Called when users want to get information for a specific pathway not in the pathway list 
- getSpecificPathway(code: string, name: string): void{
+ getSpecificPathway(pathwayData: { name: string; pathway: string }): void{
   // Function to get specific pathway based on EC Code/name
   // Will make new post request to fetch KGML and data for that pathway
 
   // Pathway code 
     console.log('Getting Specific Pathway Request');
-    console.log(code);
-    const data = code;
+    console.log(pathwayData.pathway);
+    const code = pathwayData.pathway;
+    const pathwayName = pathwayData.name;
     //console.log(data);
     this.isLoading = true;
     console.log("--------------------")
@@ -982,18 +983,33 @@ private getLoadedPathways(): void{
 
     this.LoadingMessage = 'Loading Pathway Mapping Data...';
 
-    this.enzymeApiServicePost.postMapData(data).subscribe(
+    this.enzymeApiServicePost.postMapData(code).subscribe(
       (response) =>{
       console.log(response);
 
       const pathwayData = response;
       console.log(pathwayData);
-      pathwayData[0].name= name;
+      pathwayData[0].name= pathwayName;
       console.log(pathwayData);
-
+      this.ALLpathwayData.push(pathwayData[0]);
+      console.log(this.ALLpathwayData);
       console.log("--------------------")
       console.log('Pathway Data Loaded Successfully');
       console.log("--------------------")
+
+      //console.log(this.pathways);
+      this.pathways.push(pathwayName);
+      //console.log(this.pathways);
+      //console.log(this.pathwayData);
+      this.pathwayData.push(pathwayData[0]);
+      console.log(this.pathwayData);
+
+      this.getLoadedPathways();
+      
+      const data = this.ALLpathwayData.find((obj => obj.pathway === code));
+      this.selectedPathway = code;
+      this.setMap(code,this.selectedTimeIndex, data);
+
       this.isLoading = false;
       },
       (error) => {
@@ -1070,18 +1086,6 @@ private getLoadedPathways(): void{
     columnSpacing: 50,  // Space between columns (nodes within the same layer)
     setsPortSpots: true,  // Don't automatically adjust port spots (ports can be manually set)
   });
-
-  /*
-  const legend =
-  new go.Part({
-      layerName: "ViewportBackground",
-      alignment: new go.Spot(0, 0, 10, 10)
-    })
-    .add(
-      new go.TextBlock("A Legend", { font: "bold 24pt sans-serif", stroke: "green" })
-    );
-  
-  this.myDiagram.add(legend);*/
 
   // TEMPLATE FOR COMPOUNDS 
     this.myDiagram.nodeTemplateMap.add("compound",  // Custom category for compound nodes
@@ -1171,7 +1175,6 @@ private getLoadedPathways(): void{
       $(go.Shape, 
         {
           toArrow: "Standard",  // Standard arrowhead at the end of the link
-          //fill: "black",  // Set the color of the arrow to black
           stroke: null  // No border around the arrow
         }).bind('fill','colour'),
     )
@@ -1195,7 +1198,6 @@ private getLoadedPathways(): void{
         {
           stroke: "black",  // Set the color of the link (line) to black
           strokeWidth: 3,
-          //strokeDashArray: [10, 5]  // Set the line to be dashed (10px dashes, 5px gaps)
         }).bind('stroke','colour').bind('strokeWidth','size'),
   
       // Arrowhead at the "to" end of the link (one-way arrow)
@@ -1465,7 +1467,7 @@ private getLoadedPathways(): void{
     model.linkDataArray = links;
     // Assigning the model to the diagram for visualisation
     this.myDiagram.model = model;
-    //this.setLegend(this.myDiagram);
+    this.setLegend(this.myDiagram);
   }
   
 
@@ -1522,9 +1524,7 @@ private getLoadedPathways(): void{
       if (allMatch){
         console.log('Match found in All Kegg Pathways');
         console.log(allMatch);
-        const code = allMatch.pathway;
-        const name = allMatch.pathway.name
-        this.getSpecificPathway(code, name);
+        this.getSpecificPathway(allMatch);
 
       }else{
       console.log('No Match Found');
@@ -1538,45 +1538,92 @@ private getLoadedPathways(): void{
   private setLegend(myDiagram: go.Diagram): void{
     const $ = go.GraphObject.make;
 
+
     const legend = $(
-      go.Part, "Table", 
+      go.Part, "Table",
       {
-        position: new go.Point(10, 10),
+        name: "Legend",
+        layerName: "ViewportForeground",  // Ensures it's in the foreground and fixed in the viewport
+        isLayoutPositioned: false,        // Prevents layout from affecting its position
         selectable: false,
-        layerName: "Foreground"  // keeps it on top
+        alignment: go.Spot.BottomLeft,    // Aligns to the bottom-left of the viewport
+        alignmentFocus: go.Spot.BottomLeft,
+        margin: new go.Margin(10, 10, 10, 10) // Adds padding from the viewport edges
       },
-      $(go.TextBlock, "Legend", 
-        { row: 0, font: "bold 12pt sans-serif", stroke: "#333", margin: 4, columnSpan: 2 }
+    
+      // Title
+      $(go.TextBlock, "Legend",
+        {
+          row: 0,
+          font: "bold 12pt sans-serif",
+          stroke: "#333",
+          margin: new go.Margin(0, 0, 6, 0),
+          columnSpan: 2
+        }
       ),
-
-      // Node Type: Person
+    
+      // Node Type: Compound
       $(go.Panel, "Horizontal", { row: 1 },
-        $(go.Shape, "Circle", { width: 15, height: 15, fill: "lightblue", margin: 2 }),
-        $(go.TextBlock, "Person", { margin: 2 })
+        $(go.Shape, "Circle", { width: 15, height: 15, fill: "#ccc", margin: 2 }),
+        $(go.TextBlock, "Compound", { margin: 2 })
       ),
-
-      // Node Type: Department
+    
+      // Node Type: Linked Pathway
       $(go.Panel, "Horizontal", { row: 2 },
-        $(go.Shape, "Rectangle", { width: 15, height: 15, fill: "lightgreen", margin: 2 }),
-        $(go.TextBlock, "Department", { margin: 2 })
+        $(go.Shape, "RoundedRectangle", { width: 15, height: 15, fill: "lightblue", margin: 2 }),
+        $(go.TextBlock, "Linked Pathway", { margin: 2 })
       ),
 
-      // Edge: Reports To
+      // Node Type: Enzyme - No change 
       $(go.Panel, "Horizontal", { row: 3 },
-        $(go.Shape, { geometryString: "M0 0 L30 0", stroke: "black", strokeWidth: 2, margin: 2 }),
-        $(go.TextBlock, "Reports To", { margin: 2 })
+        $(go.Shape, "Rectangle", { width: 15, height: 15, fill: 'lightgrey', margin: 2 }),
+        $(go.TextBlock, "Enzyme", { margin: 2 })
       ),
 
-      // Edge: Supports
+      // Node Type: Selected Upregulated Colour
       $(go.Panel, "Horizontal", { row: 4 },
-        $(go.Shape, { geometryString: "M0 0 L30 0", stroke: "orange", strokeWidth: 2, margin: 2, strokeDashArray: [4, 2] }),
-        $(go.TextBlock, "Supports", { margin: 2 })
+        $(go.Shape, "Rectangle", { width: 15, height: 15, fill: this.selectedColorHigh, margin: 2 }),
+        $(go.TextBlock, "Upregulated", { margin: 2 })
+      ),
+
+      // Node Type: Selected Downregulated Colour
+      $(go.Panel, "Horizontal", { row: 5 },
+        $(go.Shape, "Rectangle", { width: 15, height: 15, fill: this.selectedColorLow, margin: 2 }),
+        $(go.TextBlock, "Downregulated", { margin: 2 })
+      ),
+
+      // Node Type: Selected Isoform Colour
+      $(go.Panel, "Horizontal", { row: 6 },
+        $(go.Shape, "Rectangle", { width: 15, height: 15, fill: '#FFF44F', margin: 2 }),
+        $(go.TextBlock, "Isoform", { margin: 2 })
+      ),
+    
+      // Link: Reversible
+      $(go.Panel, "Horizontal", { row: 7 },
+        $(go.Shape, {
+          geometryString: "M0 0 L30 0",
+          stroke: "black",
+          strokeWidth: 3,
+          strokeDashArray: [10, 5] ,
+          margin: 2
+        }),
+        $(go.TextBlock, "Reversible", { margin: 2 })
+      ),
+    
+      // Link: Irreversible
+      $(go.Panel, "Horizontal", { row: 8 },
+        $(go.Shape, {
+          geometryString: "M0 0 L30 0",
+          stroke: "black",
+          strokeWidth: 2,
+          margin: 2
+        }),
+        $(go.TextBlock, "Irreversible", { margin: 2 })
       )
     );
-
-// Add legend to the diagram
-myDiagram.add(legend);
-     
+    
+    // Add the legend to the diagram
+    myDiagram.add(legend);
 
   }
 
