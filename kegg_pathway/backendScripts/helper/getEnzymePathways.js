@@ -74,7 +74,7 @@ function getTally(paths, number){
 //  - These are parsed to getPathwayNames() to retireve their corresponding name
 
 async function getEnzymePathways(enzymeIDs,number){
-
+  //console.log(enzymeIDs);
   console.log("Getting Enzyme Pathways");
   console.log("----------------------");
   var all_paths=[];
@@ -82,6 +82,7 @@ async function getEnzymePathways(enzymeIDs,number){
   //const number = 10;
 
   for (const id of enzymeIDs) {
+    //console.log(id);
     var url = 'https://rest.kegg.jp/link/pathway/'+id
     //console.log(url);
     try {

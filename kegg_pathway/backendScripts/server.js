@@ -14,7 +14,7 @@
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
-const { processInput } = require('./helper/merge.js');
+const { processInput, processPathways } = require('./helper/merge.js');
 const {getEnzymePathways} = require('./helper/getEnzymePathways.js');
 const {getPathwayNames} = require('./helper/getPathwayName.js')
 
@@ -38,16 +38,37 @@ app.post('/api/getMap', (req, res) => {
     console.log('------------');
     var response = req.body;
     var pathway = response[0];
-    var genes = response[1];
+
     //console.log(genes);
     //console.log(pathway);
-    processInput(pathway,genes).then((elements) => {
+    processInput(pathway).then((elements) => {
         console.log('------------');
         console.log('Sending to FrontEnd');
         console.log('------------');
         console.log(new Date());
         console.log('------------');
         res.json(elements)});
+
+  });
+
+
+  app.post('/api/getMap2', (req, res) => {
+    console.log('------------');
+    console.log('Getting Diagram Model');
+    console.log('------------');
+    console.log(new Date());
+    console.log('------------');
+    var response = req.body;
+    var pathway = response[0];
+    //console.log(genes);
+    //console.log(pathway);
+    processPathways(pathway).then((pathwayData) => {
+        console.log('------------');
+        console.log('Sending to FrontEnd');
+        console.log('------------');
+        console.log(new Date());
+        console.log('------------');
+        res.json(pathwayData)});
 
   });
 
@@ -69,6 +90,7 @@ app.post('/api/getPathways', (req, res) => {
     var number= req.body[1];
     //console.log(number);
     var enzymes = req.body[0];
+    console.log(enzymes);
     //console.log(enzymes);
     getEnzymePathways(enzymes,number).then(pathways => getPathwayNames(pathways))
         .then((result)=>{

@@ -292,7 +292,7 @@ function removeDuplicateEnzymeNodes(myDiagram) {
 // Returns Processed Nodes and Edges for Mapping 
 
 function getMapNodes(inputNodes,inputEdges){
-  console.log('Initialising Map');
+  //console.log('Initialising Map');
 
   var $ = go.GraphObject.make;
   
@@ -329,7 +329,7 @@ function getMapNodes(inputNodes,inputEdges){
       if (seenNames.has(nodeName)&& seenReactions.has(reaction)) {
 
         myDiagram.remove(node);
-        console.log("Node Removed: "+nodeName)
+        //console.log("Node Removed: "+nodeName)
         } else {
         seenNames.add(nodeName);
         seenReactions.add(reaction);
