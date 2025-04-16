@@ -10,9 +10,6 @@ import {MatSliderModule} from '@angular/material/slider';
 
 
 
-declare var figure: any; 
-
-
 @Component({
   selector: 'app-display',
   standalone: true,
@@ -25,27 +22,21 @@ export class DisplayComponent {
   LoadingMessage: string = '';
 
 
-  // ------------------  MOCK DATA ----------------
-  // Random list of enzymes to get Pathways to display in menu 
-  enzymeList = [
-      "ec:1.1.1.1",  // Alcohol dehydrogenase
-      "ec:1.1.1.2"// Aldehyde dehydrogenase
-    ];
+  /** --------  INITIALISING GLOBAL ATTRIBUTES -------- **/
 
-  //enzymeList: string[] = [];
-  // Array for the Fetch Data - contains Pathway Objects - Name and Pathway (ec No.)
-  pathwayData: any[] = [];
-  // Array of only names in the same order as pathwayData but for display purposes
-  pathways: any[] = [];
+  pathwayData: any[] = []; // Array for the Fetch Data - contains Pathway Objects - Name and Pathway (ec No.)
 
-  // Array for storing response of getMapData
-  mapData: any[] = [];
+  pathways: any[] = []; // Array of only names in the same order as pathwayData but for display purposes
 
-  ALLpathwayData: any[] = []; // Global attribute for storing all Pathway Data - Name, code, Edges, Nodes and EnzymeList
+  mapData: any[] = []; // Array for storing response of getMapData
 
+  ALLpathwayData: any[] = []; // Array for storing all Pathway Data - Name, code, Edges, Nodes and EnzymeList
+                                              // This is recieved from the back-end
 
+  AllKeggPathways: any[] = []; // Array for storing list of all Kegg Enzyme Pathways
   
-  pathwayResponse: any[]=[];
+  pathwayResponse: any[]=[]; // Array for temporarily storing response when newly updated pathway list 
+                                        // Allows for comparison of pathway list before overwriting 
 
   enzymePathwayList: string[] = [];
 
@@ -55,12 +46,17 @@ export class DisplayComponent {
 
   fileNames: any[] = [];
 
-  pathwaySizeData: any[] = [];
+  pathwaySizeData: any[] = []; // Stores sorted files size data 
+
+  loadedPathwayData: any[] = []; // Array for Storing Loaded Pathways (name, nodes (parallel to filtered Genes))
+
+  colourArray: any[] = []; // Array for storing only the colours of nodes and corresponding key
+
+  enzymeList: any[] = []; // Array for storing list of Enzymes filtered from input expression files
 
   // Creating a GoJS Diagram 
-  // Initially set as NULL 
   private myDiagram: go.Diagram | null = null;
-  //@ViewChild('myDiagramDiv') private diagramDiv!: ElementRef;
+
 
   // the below is a part of blocker logic to make the popup not transparent
   // private activePopups: { nodeKey: any, blocker: go.Part }[] = [];
@@ -90,25 +86,19 @@ private filterString(input: string): boolean {
 // Filters to only get Genes that have corresponding full EC codes (filterEnzymeGenes)
 
 private getEnzymeGenes(): void{
+  this.isLoading = true;
   const combinedData = this.fileDataService.getMultipleCombinedArrays();
   //console.log('MultiCombined: '+combinedData);
-  //console.log('First File: '+combinedData[0]);
   console.log('Number of Files: '+combinedData.length);
-  //const firstFile = combinedData[0];
   var filteredFiles = [];
   //console.log('First File: '+firstFile);
   for (let i=0; i<combinedData.length; i++){
     const file = combinedData[i];
-    console.log(file);
-  //console.log('Combined data:', combinedData); // Add debug logging
+
     var geneEnzymes: any[] = []; // Use Set to avoid duplicates
-    //var filteredSet: Set<any> = new Set()
     
     if (file && file.length > 0) {
-      // Loop through the combined data to find EC numbers
       for (const item of file) {
-        //console.log(item.gene);
-        //console.log(item.log)
         for (const key in item) {
           //console.log(key);
           var logfc;
@@ -148,11 +138,16 @@ private getEnzymeGenes(): void{
 // Called from getEnzymeGenes()
 // Filters genes to those only with corresponding ec codes and reformats them in the correct order
 private filterEnzymeGenes(filteredFiles:any[]):void{
+
+  this.isLoading = true;
+  console.log("------------------");
+  console.log("Filtering Genes from Files...");
+  console.log("------------------");
   var filteredFiles_enzymes = [];
   for (let j=0; j<filteredFiles.length; j++){
-    console.log(this.fileNames[j]);
+    //console.log(this.fileNames[j]);
     let geneEnzymes = filteredFiles[j];
-    console.log(geneEnzymes);
+    //console.log(geneEnzymes);
     for (let i=0; i<geneEnzymes.length; i++){
       //console.log(geneEnzymes[i].enzyme);
       let ecNumber = geneEnzymes[i].enzyme;
@@ -168,8 +163,6 @@ private filterEnzymeGenes(filteredFiles:any[]):void{
 
       for (let j=0; j<ecNumber.length; j++){
         var filteredEnzymes = [];
-        //console.log(enzymes[j])
-        //console.log(this.filterString(enzymes[j]));
         if (this.filterString(ecNumber[j]) == true)
           filteredEnzymes.push(ecNumber[j]);
           ecNumber = filteredEnzymes;
@@ -195,7 +188,7 @@ private filterEnzymeGenes(filteredFiles:any[]):void{
 // Returns the top 1000 (or otherwise specified) list of enzymes to be queried to KEGG to get paths
 
 private extractECNumbers(): void {
-
+  this.isLoading = true;
   // Set this up to loop through all files -- total enzymes 
   console.log('Extracting Enzymes to Search');
   //console.log(this.filteredGenes);
@@ -203,8 +196,9 @@ private extractECNumbers(): void {
   var enzymeList: any[]=[];
   //const file_number=0; // default to first file
 
+  console.log('Number of files to filter:')
   console.log(this.filteredGenes.length);
-  console.log(this.filteredGenes);
+  //console.log(this.filteredGenes);
   for (let i=0; i<this.filteredGenes.length;i++){
     const genes = this.filteredGenes[i];
     console.log(genes);
@@ -213,16 +207,14 @@ private extractECNumbers(): void {
       //console.log(enzyme);
       enzymeList.push(enzyme);
     }
-    //const topEnzymes = this.getTop100Names(enzymeList);
   }
+  console.log('Enzymes List:')
   console.log(enzymeList);
   const topEnzymes = this.getTopEnzymes(enzymeList);
-  //console.log(enzymeList)
   this.enzymeList = Array.from(topEnzymes);
-
 }
 
-
+/** --------  ENZYME PROCESSING  -------- **/
 
 // --------- Enzyme Tally and Processing Functions --------
 // Called from extractECNumbers()
@@ -233,6 +225,7 @@ private extractECNumbers(): void {
 // Enzymes are tallied and sorted in descending order 
 // Top 1000 (or can be changed) are selected and submitted to backend to query KEGG
 private tallyStrings(items: string[]): Record<string, number> {
+  console.log("--------------------")
   console.log('Tallying Enzymes');
   
   const tally: Record<string, number> = {};
@@ -246,6 +239,7 @@ private tallyStrings(items: string[]): Record<string, number> {
 
 // Sorting Enzyme Tally 
 private sortTally(tally: Record<string, number>): [string, number][] {
+  console.log("--------------------")
   this.LoadingMessage = 'Processing Enzyme List...';
   // Convert the tally object into an array of key-value pairs
   const entries = Object.entries(tally);
@@ -256,6 +250,7 @@ private sortTally(tally: Record<string, number>): [string, number][] {
 
 // Extracting Top enzymes from Tally
 private getTopEnzymes(items: string[]): string[] {
+  console.log("--------------------")
   console.log('Getting Top Enzymes');
   const tally = this.tallyStrings(items);    
   const sortedTally = this.sortTally(tally);  
@@ -266,30 +261,60 @@ private getTopEnzymes(items: string[]): string[] {
 }
 
 
-
+/** --------  DGE PROCESSING  -------- **/
 
 // ----------- Differential Gene Expression Data Functions ----------------
 // Called when changing Node information when map is selected/ timepoint changes 
 
 // LogFC to RGB conversion function 
 // Takes Logfc value -- returns rgb value to change enzyme node colour
-private logfcToRGB(logFoldChange: number): string{
-  // Normalize log fold change to be between -1 and 1 for smoother gradient mapping
-  const normalized = Math.max(-1, Math.min(1, logFoldChange));
 
-  // Red decreases as the value goes from negative to positive
-  const red = normalized < 0 ? 1 : 1 - normalized;
+private newlogfcToRGB(
+  logFoldChange: number,
+  lowColor: string,
+  highColor: string,
+  maxFC: number = 5 // Max absolute logFC expected
+): string {
+  // Clamp logFC between -maxFC and +maxFC
+  const clamped = Math.max(-maxFC, Math.min(maxFC, logFoldChange));
 
-  // Green increases as the value goes from negative to positive
-  const green = normalized > 0 ? 1 : -normalized;
+  // Normalize: -maxFC → 0, 0 → 0.5, +maxFC → 1
+  const t = (clamped + maxFC) / (2 * maxFC);
 
-  // Blue stays at 0 (we are only using red and green for the gradient)
-  const blue = 0;
+  // Convert hex to RGB
+  const hexToRgb = (hex: string): { r: number, g: number, b: number } => {
+    hex = hex.replace('#', '');
+    const r = parseInt(hex.slice(0, 2), 16);
+    const g = parseInt(hex.slice(2, 4), 16);
+    const b = parseInt(hex.slice(4, 6), 16);
+    return { r, g, b };
+  };
 
-  // Return the RGB value as a string
-  return `rgb(${Math.floor(red * 255)}, ${Math.floor(green * 255)}, ${blue})`;
+  const interpolate = (
+    color1: { r: number, g: number, b: number },
+    color2: { r: number, g: number, b: number },
+    factor: number
+  ) => ({
+    r: Math.round(color1.r + (color2.r - color1.r) * factor),
+    g: Math.round(color1.g + (color2.g - color1.g) * factor),
+    b: Math.round(color1.b + (color2.b - color1.b) * factor),
+  });
+
+  const low = hexToRgb(lowColor);
+  const mid = hexToRgb('#D3D3D3');
+  const high = hexToRgb(highColor);
+
+  let color;
+  if (t < 0.5) {
+    // Interpolate between low and mid
+    color = interpolate(low, mid, t * 2); // t * 2 maps [0, 0.5] → [0, 1]
+  } else {
+    // Interpolate between mid and high
+    color = interpolate(mid, high, (t - 0.5) * 2); // (t - 0.5) * 2 maps [0.5, 1] → [0, 1]
+  }
+
+  return `rgb(${color.r}, ${color.g}, ${color.b})`;
 }
-
 // Takes array of logfc and find average value 
 // used when there are multiple genes acting on an enzyme 
 private findMean(arr: any[]): number {
@@ -305,16 +330,49 @@ private findMean(arr: any[]): number {
   return sum / arr.length;
 }
 
+// Resizing nodes relative to LogFc size
+// Makes nodes more visible to user 
+private resizeNodeByLogFC(logfc: number) {
+
+  const baseWidth = 50;
+  const baseHeight = 30;
+
+  // Increase size proportionally with the *magnitude* of logfc
+  const scale = Math.pow(2, Math.abs(logfc));
+
+  // Optional clamping to avoid extreme sizes
+  const minScale = 1;     // at logfc = 0 → base size
+  const maxScale = 3;     // optional upper bound
+  const Scale = Math.max(minScale, Math.min(scale, maxScale));
+
+  const newWidth = baseWidth * Scale;
+  const newHeight = baseHeight * Scale;
+
+  return [newHeight,newWidth];
+}
+
+// ----------- Matching Genes to Enzyme Ndoes ----------------
+// Called when changing Node information when map is selected/ timepoint changes 
 
 // Mathing Enzyme Nodes to Enzymes present in Expression file selected 
 // Changing Enzyme node colour based on LogFC if match is found
 // Adding Genes to Enzyme node 
-private matchGenes(genes: any[], nodes: any[]): any[] {
+
+// TWO BRACNHES
+// - 'No Size' - This does not changes node size -- required for Animation functionality (links dont move)
+// - Other branch includes size change - this is called on demand when the user selects individual timepoints/ maps
+//        Enhances node size for easier viewing -- Map link move in response 
+
+// No Size Change
+private matchGenesNoSize(genes: any[], nodes: any[]): any[] {
   // Matching Genes to Enzymes in Selected Map Data 
+
   var enzymeSet = new Set();
   var GeneSet = new Set();
   var allGenes = [];
-  console.log(genes);
+  var colourArray = [];
+  var stats = [];
+  //console.log(genes);
 
   // Create a deep copy of nodes to prevent mutation of the original array
   var newNodes = nodes.map(node => ({ ...node }));
@@ -336,8 +394,8 @@ private matchGenes(genes: any[], nodes: any[]): any[] {
           enzymeSet.add(enzyme); // Add to unique list of enzymes 
           geneList.push(gene); // Add to list of Genes 
           GeneSet.add(gene); // Add to unique list of genes 
-          allGenes.push(gene);
-          logfcList.push(logfc);
+          allGenes.push(gene); // Add to list of all genes
+          logfcList.push(logfc); // Add to list of logfc 
         }
       }
 
@@ -346,65 +404,254 @@ private matchGenes(genes: any[], nodes: any[]): any[] {
       }
 
       if (logfcList[0]) {
-        let mean = this.findMean(logfcList);
-        let rgb = this.logfcToRGB(mean);
+        let mean = this.findMean(logfcList); // Calculating mean of Genes logfc
+        let rgb = this.newlogfcToRGB(mean, this.selectedColorLow,this.selectedColorHigh); // Getting colout relative to logfc
+        //let result = this.resizeNodeByLogFC(mean); // resizing node
+        //let height = result[0];
+        //let width = result[1];
+        //newNodes[i].width = width; // Assign node attributes 
+        //newNodes[i].height = height;
         newNodes[i].logfc = mean;
         newNodes[i].colour = rgb;
       }
+      //console.log('adding colour');
+      colourArray.push({
+        node: newNodes[i].key,
+        colour: newNodes[i].colour
+    });
     }
   }
-
-  console.log('Number of Unique Genes: ' + GeneSet.size);
-  console.log('Total Number of instances of Genes: ' + allGenes.length);
-  console.log('Enzymes Effected: ' + enzymeSet.size);
-  console.log('Old Nodes: ' + nodes);
-  console.log('New Nodes: ' + newNodes);
-
-  return newNodes;
+  stats.push({
+    totalGenes: allGenes.length,
+    uniqueGenes: GeneSet.size,
+    enzymesEffected: enzymeSet.size
+  })
+  return [newNodes,colourArray, stats];
 }
 
+// With Size Change 
+private matchGenes(genes: any[], nodes: any[]): any[] {
+  // Matching Genes to Enzymes in Selected Map Data 
+  console.log("--------------------");
+  console.log('Matching Genes...');
+  var enzymeSet = new Set();
+  var GeneSet = new Set();
+  var allGenes = [];
+  var colourArray = [];
+  var stats = [];
+
+  // Create a deep copy of nodes to prevent mutation of the original array
+  var newNodes = nodes.map(node => ({ ...node }));
+
+  // cycle through nodes
+  for (let i = 0; i < newNodes.length; i++) {
+    if (newNodes[i].type === 'enzyme') {
+      var geneList = [];
+      var logfcList = [];
+      let nodetext = newNodes[i].text;
+
+      // cycle through genes 
+      for (let j = 0; j < genes.length; j++) {
+        let enzyme = genes[j].enzyme[0]; // Enzyme Name 
+        let gene = genes[j].gene; // Gene Name 
+        let logfc = genes[j].logfc; // Logfc Value 
+
+        if (enzyme === nodetext) { // If they match
+          enzymeSet.add(enzyme); // Add to unique list of enzymes 
+          geneList.push(gene); // Add to list of Genes 
+          GeneSet.add(gene); // Add to unique list of genes 
+          allGenes.push(gene); // Add to list of all genes
+          logfcList.push(logfc); // Add to list of logfc 
+        }
+      }
+
+      if (geneList[0]) { // If there were genes that matched 
+        newNodes[i].gene = geneList; // Add gene attribute to node
+      }
+
+      if (logfcList[0]) {
+        let mean = this.findMean(logfcList); // Calculating mean of Genes logfc
+        let rgb = this.newlogfcToRGB(mean, this.selectedColorLow,this.selectedColorHigh); // Getting colout relative to logfc
+        let result = this.resizeNodeByLogFC(mean); // resizing node
+        let height = result[0];
+        let width = result[1];
+        newNodes[i].width = width; // Assign node attributes 
+        newNodes[i].height = height;
+        newNodes[i].logfc = mean;
+        newNodes[i].colour = rgb;
+      }
+      //console.log('adding colour');
+      colourArray.push({
+        node: newNodes[i].key,
+        colour: newNodes[i].colour
+    });
+    }
+  }
+  //console.log('Number of Unique Genes: ' + GeneSet.size);
+  //console.log('Total Number of instances of Genes: ' + allGenes.length);
+  //console.log('Enzymes Effected: ' + enzymeSet.size);
+  stats.push({
+    totalGenes: allGenes.length,
+    uniqueGenes: GeneSet.size,
+    enzymesEffected: enzymeSet.size
+  })
+
+  return [newNodes,colourArray, stats];
+}
+
+
+// ----------- Processing Function Before Matching Nodes ----------------
 // Takes nodes of selected Map 
 // Gets relevant timepoint, retrieves annotated genes
+// Both function indentical but call variations in matchGenes(NoSize) 
+// Dependent on User interaction
+
+// With Size Change - called when user selects individual pathways/timepoints
 private compareEnzymes(nodes: any[],timepoint: number): any[]{
+  console.log("--------------------")
   console.log('Extracting Logfc Data - Comparing to Enzymes');
   // Get Genes with logfc for the timepoint  (index this in future)
   const localNodes = nodes;
+  console.log("--------------------")
   console.log('Selected Timepoint: '+timepoint);
   const genes = this.filteredGenes[timepoint];
   // Taking Genes from file and matching them to enzyme nodes 
   // Change enzyme node attributes accordingly 
   //console.log(genes);
   //console.log(localNodes);
-  const updatedNodes = this.matchGenes(genes, localNodes)
-  return updatedNodes;
+  const elements = this.matchGenes(genes, localNodes)
+  const updatedNodes = elements[0];
+  const colourArray = elements[1];
+  const stats = elements[2];
+  return [updatedNodes, colourArray, stats];
 }
- 
-  /** --------  MAP Data Processing Functions -------- **/
+// No size change - called from getLoadedPathways
+private compareEnzymesNoSize(nodes: any[],timepoint: number): any[]{
+  console.log("--------------------")
+  console.log('Extracting Logfc Data - Comparing to Enzymes');
+  // Get Genes with logfc for the timepoint  (index this in future)
+  const localNodes = nodes;
+  console.log("--------------------")
+  console.log('Selected Timepoint: '+timepoint);
+  const genes = this.filteredGenes[timepoint];
+  // Taking Genes from file and matching them to enzyme nodes 
+  // Change enzyme node attributes accordingly 
+  //console.log(genes);
+  //console.log(localNodes);
+  const elements = this.matchGenesNoSize(genes, localNodes)
+  const updatedNodes = elements[0];
+  const colourArray = elements[1];
+  const stats = elements[2];
+  return [updatedNodes, colourArray, stats];
+}
+
+
+// ----------- Loading Pathway Function ----------------
+// Function to load all the pathways into a Stored Array for Accessing on demand
+// Called when inital Map data is recieved + when colour are updated
+// This loads the Nodes WITHOUT size changes --> accessed for animation
+
+private getLoadedPathways(): void{
+  console.log("--------------------")
+
+  const timepointData = this.filteredGenes.map(item => ({ ...item }));  // Deep copy of timepointData
+  var loadedPathwayData = [];
+  var ALLcolourArray = [];
+  // Cycling through filtered genes 
+
+  const pathwayData = this.ALLpathwayData.map(item => ({
+    ...item,  // Shallow copy of the top level properties
+    nodes: item.nodes.map((node: any[]) => ({ ...node })), // Deep copy of nodes to avoid mutation
+    edges: item.edges.map((edge: any[]) => ({ ...edge })) // Deep copy of edges if necessary
+  }));
+  console.log('Pathway Data to load:')
+  console.log(pathwayData);
+  
+
+  for (let i = 0; i < pathwayData.length; i++) {
+    const nodes = pathwayData[i].nodes; // Already a deep copy
+    //console.log(nodes);
+
+    var nodesArray = [];
+    var colourArray = [];
+    var statsArray: never[] = [];
+
+    // Cycle through timepoints
+    for (let j = 0; j < timepointData.length; j++) {
+      //const genes = timepointData[j];
+      //console.log('Genes to match: ');
+      //console.log(genes);
+
+      var elements = this.compareEnzymesNoSize(nodes,j);
+      // Extract Colour and Nodes
+      //console.log(elements)
+      var updatedNodes = elements[0];
+      //console.log(updatedNodes);
+
+      var colours = elements[1];
+      //console.log(colours);
+
+      var stats = elements[2];
+      //console.log(stats);
+      
+      // Add updated nodes and colours to respective arrays
+      nodesArray.push(updatedNodes);
+      colourArray.push(colours);
+    }
+     // Push the processed pathway data into the loadedPathwayData array
+     loadedPathwayData.push({
+      pathway: pathwayData[i].name,
+      nodes: nodesArray,
+      stats: statsArray
+    });
+
+    // Push the colour data into the ALLcolourArray
+    ALLcolourArray.push({
+      pathway: pathwayData[i].name,
+      colours: colourArray,
+    });
+  }
+
+  // Log the result
+  console.log("--------------------")
+  console.log(ALLcolourArray);
+  console.log(loadedPathwayData);
+  console.log("--------------------")
+
+  // Example of logging the first pathway, first timepoint details
+  //console.log('First Pathway, First timepoint');
+  //console.log('Name');
+  //console.log(loadedPathwayData[0].pathway);
+  //console.log('Nodes');
+  //console.log(loadedPathwayData[0].nodes[0]);
+  //console.log('Colours');
+  //console.log(loadedPathwayData[0].stats[0]);
+  //console.log(ALLcolourArray[0].colours[0]);
+  //console.log('Edges');
+  // console.log(this.ALLpathwayData[0].edges);
+
+  // Assign the processed data to component properties
+  this.colourArray = ALLcolourArray;
+  this.loadedPathwayData = loadedPathwayData;
+  //this.ALLpathwayData = response; // You might still want to keep this for reference
+
+  console.log('--------- LoadMapData Finished -------');
+}
+
+  /** -------- Data Processing Functions -------- **/
+
   // Function for loading Names of each pathway that is fetched from the backend
+  // Produces a list of pathway names to display in the menu
   loadNames(): void {
+    console.log("--------------------")
     console.log('Processing Pathway Names');
     this.LoadingMessage = 'Processing Pathway Names...';
     this.pathways = this.pathwayData.map(pathway => pathway.name);
   }
-  /* --------- JENNYS ------------------
-  // Loads Nodes from mapData 
-  loadNodes(): any[] {
-    var nodeData=[];
-    console.log('Getting Nodes');
-    const entries: [string, string][] = Object.entries(this.mapData);
-    //this.nodeData = this.mapData.
-    const firstEntry: [string, string] = entries[0]; 
-    //console.log(firstEntry);
-    const nodes = firstEntry[1];
-    for (let i=0; i<nodes.length;i++){
-      nodeData.push(nodes[i])
-    }
-    console.log(nodeData);
-    return nodeData;
-  }*/
 
   loadEnzymes(): any[] {
     var enzymeData=[];
+    console.log("--------------------")
     console.log('Getting Enzymes');
     const entries: [string, string,][] = Object.entries(this.mapData);
     //console.log(entries);
@@ -417,39 +664,51 @@ private compareEnzymes(nodes: any[],timepoint: number): any[]{
     }
     return enzymeData;
   }
-  /* ---------- JENNYS ----------------
-  // Loads Links from mapData 
-  loadLinks(): any[] {
-    console.log('Getting Links');
-    var linkData=[];
-    const entries: [string, string][] = Object.entries(this.mapData);
-    const secondEntry: [string, string] = entries[1]; 
-    //console.log(secondEntry);
-    const links = secondEntry[1];
-    //console.log(links);
-    for (let i=0; i<links.length;i++){
-      //console.log(links[i]);
-      linkData.push(links[i])
-    }
-    console.log(linkData);
-    return linkData;
-  }*/
 
   isLoading: boolean = false;
-  
-  // -------------- Sending Pathway Request to Back-end ---------------------
-  // Fetches relevant pathways when the Display component is initialised
+
+  // Function for getting a range of number for 1 with the same length of a selected Array
+  // Used to get timepoints the same length as file storage array
+  rangeFromOne(arr: any[]): number[] {
+    return Array.from({ length: arr.length }, (_, i) => i + 1);
+  }
+
 
   /** --------  POST REQUEST Functions -------- **/
 
-  ngOnInit(): void {
+  // -------------- Sending Pathway Request to Back-end ---------------------
+  // Fetches relevant pathways when the Display component is initialised
+
+
+
+// --------------- INITIAL FUNCTION - PROCESSING + POSTING -------------------
+  // Display Initalisation Function - First Function called when Display.component is opened
+  async ngOnInit(): Promise<void> {
+
+    // Updating TimeSlider for the length of the expression files 
+    const allData = this.fileDataService.getMultipleCombinedArrays();
+    const timepoints = this.rangeFromOne(allData);
+    console.log("--------------------")
+    console.log('Timepoints: '+timepoints);
+    this.timepoints = timepoints;
+
 
     // Loading Screen
     this.isLoading = true;
+
+    // Fetching a list of the enzyme pathways from KEGG
+    await this.getAllPathwayNames();
+
     // Processing Input Data - Match Genes and Extracting LogFc + EC numbers
     this.getEnzymeGenes();
     // Getting List of Enzymes from Input Data
     this.extractECNumbers();
+
+    // Retrieving the Pathway number from the User
+    this.pathwayNumber = this.fileDataService.getPathwayCount();
+    console.log("--------------------")
+    console.log("Number of enriched pathways to return:")
+    console.log(this.pathwayNumber);
 
     // Setting up Data Array to send to back-end API
     // Sending list of enzymes (from ExtractECNUmber()) and Number of top pathways to get (e.g. 10))
@@ -461,8 +720,9 @@ private compareEnzymes(nodes: any[],timepoint: number): any[]{
 
         // Loading Pathway names -- for displaying to user
         this.loadNames();
+        console.log("--------------------")
         console.log('Received from backend:', response);
-        console.log('-----------------------------');
+        console.log("--------------------")
         console.log('Getting Mapping Data');
         this.getMapData();
 
@@ -478,68 +738,147 @@ private compareEnzymes(nodes: any[],timepoint: number): any[]{
   };
 
 
-  /** --------  Mapping Functions -------- **/
 
-  // --------------- Retrieving Mapping Data -------------------
-  // Sends Map code (Post Request)(e.g. ec:00030)
-  // Returns Mapping Data for relevant pathways (Nodes and Links)
-  // Calls Data Processing functions (loadNodes, loadLinks)
+// --------------- Retrieving Mapping Data -------------------
+// Sends Map code (Post Request)(e.g. ec:00030)
+// Returns Mapping Data for relevant pathways (Nodes and Links)
+// Calls Data Processing functions (loadNodes, loadLinks)
   getMapData(): void {
 
-    // Sending top 10 Pathways to back-end to retrieve Mapping Data 
-    const data = [this.pathwayData];
+  // Sending top 10 Pathways to back-end to retrieve Mapping Data 
+  const data = [this.pathwayData];
+  this.isLoading = true;
+  console.log("--------------------")
+  console.log('Sending Request for Pathway Mapping Data');
+  this.LoadingMessage = 'Loading Pathway Mapping Data...';
+  this.enzymeApiServicePost.postALLMapData(data).subscribe(
+    (response) =>{
+    console.log(response);
+    
+    const ALLpathwayData = response;
+    this.pathwayResponse = response;
+    this.ALLpathwayData = ALLpathwayData;
+    console.log(this.ALLpathwayData);
+
+    // Loading Pathway Data to Loaded Pathway Array
+    // Loads edited Nodes (logfc, genes, colour)
+    this.getLoadedPathways();
+    const loadedData = this.loadedPathwayData;
+    console.log(loadedData);
+    console.log("--------------------")
+    console.log('Pathway Data Loaded Successfully');
+    this.isLoading = false;
+    },
+    (error) => {
+      console.error('Error:', error);
+      this.isLoading = false;
+    });
+  };
+
+
+
+  /** --------  GET REQUEST Functions -------- **/
+
+
+// -------------- Get REQUEST for all Pathway Names + Code --------------
+// Does Get request for Pathway Names and asscoiated EC pathway codes
+// Returns list after filtering against blacklist 
+
+  async getAllPathwayNames(): Promise<void>{
+    console.log("--------------------")
+    console.log('Getting All Pathway Names')
+    console.log("--------------------")
     this.isLoading = true;
-    console.log('-----------------------------');
-    console.log('Sending Request for Pathway Mapping Data');
+    this.LoadingMessage = 'Loading All KEGG Pathway Names and Codes...';
+    this.enzymeApiServicePost.getPathwayNames().subscribe(response => {
+        // Handle the successful response
+        
+        console.log('Response from backend:')
+        console.log(response);
+        this.AllKeggPathways = response;
+        //console.log(this.AllKeggPathways);
+      },
+      (error) => {
+        // Handle errors
+        console.error('Error:', error);
+        this.isLoading = false; 
+
+        //this.responseMessage = 'Error sending data';
+      }
+    );
+  }
+
+// -------------- Get REQUEST for Specific Pahtway Data--------------
+// Called when users want to get information for a specific pathway not in the pathway list 
+ getSpecificPathway(code: string): void{
+  // Function to get specific pathway based on EC Code/name
+  // Will make new post request to fetch KGML and data for that pathway
+
+  // Pathway code 
+    console.log(code);
+    const data = [code];
+    this.isLoading = true;
+    console.log("--------------------")
+    console.log('Sending Request for Specific Pathway Data');
+    console.log("--------------------")
+
     this.LoadingMessage = 'Loading Pathway Mapping Data...';
+
     this.enzymeApiServicePost.postALLMapData(data).subscribe(
       (response) =>{
       console.log(response);
 
-      // Storing all the pathways + data to global attribute 
-      // This can used to get data for selected map
-      //GlobalDataStore.setALLpathwayDataOnce(response);
-      //console.log('ALLpathwayData is now set:', GlobalDataStore.ALLpathwayData);
-      //const data = GlobalDataStore.ALLpathwayData;
-      //console.log('Global Data: ');
-      //console.log(data);
-      const ALLpathwayData = response;
-      this.pathwayResponse = response;
-      this.ALLpathwayData = ALLpathwayData;
-      console.log(this.ALLpathwayData);
+      const pathwayData = response;
+      console.log(pathwayData);
       //Object.freeze(this.ALLpathwayData);
-
+      console.log("--------------------")
       console.log('Pathway Data Loaded Successfully');
+      console.log("--------------------")
       this.isLoading = false;
       },
       (error) => {
         console.error('Error:', error);
         this.isLoading = false;
       });
-  };
 
+ }
+
+
+    /** --------  Mapping Functions -------- **/
+
+  // --------------- Retrieving Data and Calling Mapping Functions-------------------
+  // Gets correct Mapping Data before calling the Diagram Updating Functions
   setMap(code: string, timepoint: number, pathwayData: {name: string, pathway: string,
                nodes: any[], edges: any[], enzymes: []}): void {
-
+    console.log("--------------------");
     console.log("Getting Map Data: "+code);
     console.log(pathwayData);
     const pathwayResponse = this.pathwayResponse;
+    console.log("--------------------");
     console.log('Original Response: '+pathwayResponse);
 
     // Extracting nodes and edges 
     const nodes = pathwayData.nodes;
     const links = pathwayData.edges;
-    console.log('Nodes + Edges Retrieved')
+    console.log("--------------------");
+    console.log('Nodes + Edges Retrieved');
 
     //console.log(nodes);
     //console.log(links);
+    console.log("--------------------");
     console.log('Loading Differential Expression Data')
-    const updatedNodes = this.compareEnzymes(nodes,timepoint);
+    const elements = this.compareEnzymes(nodes,timepoint);
+    const updatedNodes = elements[0];
+    console.log("--------------------");
+    console.log('Stats Recieved');
+    const stats = elements[2];
+    console.log(stats);
     //console.log(updatedNodes);
     this.changeDiagram(updatedNodes, links);
     this.isLoading = false;
 
   }
+
 
   // --------------- Creating GO.js Model -------------------
   // Creating the First GoJS MAP
@@ -548,7 +887,7 @@ private compareEnzymes(nodes: any[],timepoint: number): any[]{
 
     this.activePopups = []; // resetting popup tracker for new diagram
 
-
+    console.log("--------------------");
     console.log('Initialising Map');
 
     var $ = go.GraphObject.make;
@@ -595,7 +934,6 @@ private compareEnzymes(nodes: any[],timepoint: number): any[]{
     new go.Link({
         routing: go.Routing.AvoidsNodes,
         //routing: go.Link.Bezier,
-        //corner: 5    // rounded corners
       })
       .add(
         new go.Shape(),
@@ -695,81 +1033,26 @@ private compareEnzymes(nodes: any[],timepoint: number): any[]{
         })
     )
   );
-
-  /*
   
   // TEMPLATE FOR ENZYME NODES
     this.myDiagram.nodeTemplateMap.add("enzyme",  // Custom category for compound nodes
       new go.Node("Auto")  // Use Vertical Panel to place the label above the shape
         .add(
-          new go.Shape("Rectangle").bind("fill","colour")
+          new go.Shape("Rectangle").bind("fill","colour").bind("width").bind("height")
         ).add(new go.TextBlock(
           { margin: 2,
-            font: "10px sans-serif",
+            //font: "10px sans-serif",
             wrap: go.TextBlock.WrapFit,
           width: 80 })
           .bind("text")
+          .bind("font", "", (node) => {
+            const size = node.width; // Get the width of the node
+            const result = Math.max(10, size * 0.1);
+            const output = `${result}px sans-serif`;
+            return output;  // Adjust the font size as 10% of the node's width (minimum size of 10)
+        })
         )
-    );*/
-
-      // Enzyme node template with little sqaures as type
-  this.myDiagram.nodeTemplateMap.add("enzyme",  // Custom category for compound nodes
-    new go.Node("Auto")  // Use Vertical Panel to place the label above the shape
-      .add(
-        new go.Shape("Rectangle").bind("fill","colour")
-      ).add(new go.TextBlock(
-        { margin: 2,
-          font: "10px sans-serif",
-          wrap: go.TextBlock.WrapFit,
-        width: 80 })
-        .bind("text"))
-        .add(new go.Shape("Square", {
-              alignment: go.Spot.TopRight, width: 14, height: 14,
-              visible: true,
-              strokeWidth: 1
-      }).bind('fill',"enzymeType",function(enzymeType: string): string {
-      // Map enzymeType to specific shapes
-      switch (enzymeType) {
-        case "Oxidoreductase":
-          return "#ed6d6d";
-        case "Transferase":
-          return "#e7f263";
-        case "Hydrolase":
-          return "#c4a7d6";
-        case "Ligase":
-          return "#00aeb8";
-        case "Lyase":
-          return "#75dd2f"
-        case "Translocase":
-          return "Square";
-        case "Isomerase":
-            return "#3a5ba0";
-        default:
-          return "grey"; // Default shape
-      }
-    }).bind("figure", "enzymeType",function(enzymeType: string): string {
-      // Map enzymeType to specific shapes
-      switch (enzymeType) {
-        case "Oxidoreductase":
-          return "Circle";
-        case "Transferase":
-          return "Rectangle";
-        case "Hydrolase":
-          return "Diamond";
-        case "Ligase":
-          return "Triangle";
-        case "Lyase":
-          return "Rectangle"
-        case "Translocase":
-          return "Capsule";
-        case "Isomerase":
-            return "TriangleDown";
-        default:
-          return "Rectangle"; // Default shape
-      }
-    })
-
-  ));
+    );
 
     // TEMPLATE FOR MAP NODES
     this.myDiagram.nodeTemplateMap.add("map",  // Custom category for compound nodes
@@ -1006,8 +1289,10 @@ private compareEnzymes(nodes: any[],timepoint: number): any[]{
   updateDiagram(nodes: any[], links: any[]): void{
     if (this.myDiagram){
     console.log('Updating Diagram');  
-    this.myDiagram.model = new go.GraphLinksModel(nodes, links)}
+    this.myDiagram.model = new go.GraphLinksModel(nodes, links);
+    }
   }
+
 
   // ----------- Changing Diagram Upon Selection -------------------
   // Checks for an existing Diagram 
@@ -1015,9 +1300,11 @@ private compareEnzymes(nodes: any[],timepoint: number): any[]{
   // If doesnt exist - Creates first Diagram Model (createGOJSMap())
   changeDiagram(nodes: any[], links: any[]): void {
     // If diagram exists, clear it first
+    console.log("--------------------");
     console.log('Changing Diagram');
     if (this.myDiagram) {
       // Diagram Exists - update the current one 
+      console.log("--------------------");
       console.log('Diagram Exists')
       this.myDiagram.model = new go.GraphLinksModel([], []);
       console.log('Diagram Data Cleared')
@@ -1027,7 +1314,6 @@ private compareEnzymes(nodes: any[],timepoint: number): any[]{
     // Create a new a Diagram with template
       this.createGoJSMap(nodes, links);}
   }
-
 
   isMenuOpen = true;
   pathwaysOpen = true;
@@ -1057,6 +1343,9 @@ private compareEnzymes(nodes: any[],timepoint: number): any[]{
   //     });
   //   }
   // }
+
+  /** --------  USER INTERACTION FUNCTIONS -------- **/
+
   // ------------------ PATHWAY SIDE BAR -------------------
   toggleMenu() {
     this.isMenuOpen = !this.isMenuOpen;
@@ -1075,6 +1364,7 @@ private compareEnzymes(nodes: any[],timepoint: number): any[]{
   selectPathway(event: Event, pathway: string) {
     event.stopPropagation();
     this.SelectedPathwayName = pathway;
+    console.log("--------------------");
     console.log(this.SelectedPathwayName);
     console.log('Selected:', pathway);
     const nameSelected = pathway;
@@ -1085,20 +1375,15 @@ private compareEnzymes(nodes: any[],timepoint: number): any[]{
     // Assinging code of pathway selected 
     this.selectedPathway = path.pathway;
     const code = path.pathway
-    console.log(code);
+    //console.log(code);
 
     // Set Time index to defualt value of 0 -- open up on first timepoint 
-    //this.selectedTimeIndex = 0;
-    // console.log(this.selectedTimepoint);
-    console.log(this.selectedTimeIndex);
-    //console.log(this.filteredGenes[this.selectedTimepoint][0]);
-    //th.ALLpathwayData = this.pathwayResponse; // Resetting pathway data 
+    //console.log(this.selectedTimeIndex);
 
     // Retrieving Mapping Data from stored arrays
     // Specifcying the timepoint -- can be set default to 0 (first file)
-    //const Allpathways = GlobalDataStore.ALLpathwayData;
     const pathwayData = this.ALLpathwayData.find((obj => obj.pathway === code));
-    console.log(pathwayData);
+    //console.log(pathwayData);
     this.setMap(code, this.selectedTimeIndex, pathwayData);
   }
 
@@ -1110,7 +1395,10 @@ private compareEnzymes(nodes: any[],timepoint: number): any[]{
     this.sortDropdownOpen = !this.sortDropdownOpen;
   }
 
+  // -------  PATHWAY SORTING FUNCTIONS -----------
 
+  // Determining Pathway Size - Ranking complexity 
+  // Called from sortPathways 
   pathwaySize(): any[]{
     let list = this.pathways;
     let data = this.ALLpathwayData;
@@ -1138,13 +1426,10 @@ private compareEnzymes(nodes: any[],timepoint: number): any[]{
     return pathwaysSize;
 }
 
-
-  
+  // ------ SORTING PATHWAYS--------
+  // Takes Criteria Selected from User (Drop Down Menu)
   sortPathways(criteria: string) {
     console.log(`Sorting by ${criteria}`);
-    //console.log(criteria);
-    //console.log(this.pathways);
-    // TODO: Code for sorting the pathways
 
     // Sort A-Z
     if (criteria == 'name'){
@@ -1182,7 +1467,6 @@ private compareEnzymes(nodes: any[],timepoint: number): any[]{
     
     this.sortDropdownOpen = false;
   }
-
 
 
   // updateTimeFromClick(event: MouseEvent) {
@@ -1443,6 +1727,8 @@ private compareEnzymes(nodes: any[],timepoint: number): any[]{
 }
 
 processNewFiles(): void{
+    this.isLoading = true;
+    this.LoadingMessage = 'Processing New Files...'
 
     console.log('Processing New Files');
     const originalData = this.filteredGenes;
@@ -1474,7 +1760,7 @@ processNewFiles(): void{
       this.filteredGenes.push(item);
     })
     //this.filteredGenes.push(newFilteredGenes);
-    //console.log(this.filteredGenes);
+    console.log(this.filteredGenes);
     
     //this.updatePathways(newFilteredGenes);
   }
@@ -1500,6 +1786,28 @@ processNewFiles(): void{
     this.warningMessage = '';
     this.showFileList = false;
   }
+
+
+  // Function to compare new and old list of pathways on upload of new files
+  private compareArrays(arr1: string[], arr2: string[]) {
+    const set1 = new Set(arr1);
+    const set2 = new Set(arr2);
+  
+    // Similar elements
+    const similar = [...set1].filter(item => set2.has(item));
+  
+    // Different elements
+    const different = [
+      ...arr1.filter(item => !set2.has(item)),
+      ...arr2.filter(item => !set1.has(item))
+    ];
+  
+    return {
+      similar,
+      different
+    };
+  }
+
 
   // Trigger file input click
   onUploadClick(): void {
@@ -1646,22 +1954,93 @@ processNewFiles(): void{
             console.log(`Appended dataset for ${exprFilename}:`, mergedGenes);
             existingCombined.push(mergedGenes);
           }
-  
+
+          this.isLoading = true;
+          this.LoadingMessage = 'Loading New File Data...' // Updating the User 
+
+
           const allCombined = existingCombined.flat();
           this.fileDataService.setCombinedData(allCombined);
           this.fileDataService.setMultipleCombinedArrays(existingCombined);
           console.log('All-files');
           const data = this.fileDataService.getMultipleCombinedArrays();
+
+          // Updating timeslider 
+          const timepoints = this.rangeFromOne(data);
+          console.log('Timepoints: '+timepoints);
+          this.timepoints = timepoints;
+          
           console.log(data);
-          console.log("Loaded Files");
+          console.log("Already Loaded Files");
           console.log(this.filteredGenes);
           
+          console.log("Loading New Files")
           
-          // Process Files
-          //this.processNewFiles(); // Filter and Extract Enzymes
-          
-  
+          // Process Files -- update filteres Genes Array
+          this.processNewFiles(); // Filter and Extract Enzymes
+
+          const currentPaths = this.pathways;
+          //console.log('Current Pathways: '+currentPaths);
+
+          // REPROCESSING FILES TO GET ENZYMESS + PATHWAYS 
+          // Processing Input Data - Match Genes and Extracting LogFc + EC numbers
+          // This overrides all the processing done initally to update the pathway list + enzyme list 
+          this.getEnzymeGenes();
+          // Getting List of Enzymes from Input Data
+          this.extractECNumbers();
+
+          // Processing all enzymes:
+          const postData = [this.enzymeList, this.pathwayNumber];
+          this.enzymeApiServicePost.postEnzymeData(postData).subscribe(
+            (response) => {
+              // Overriding / updating lit of pathways including newly uploaded pathways 
+              this.pathwayData = response;
+
+              console.log('Current Pathways:');
+              console.log(currentPaths)
+
+              //console.log('New pathway list:')
+              //console.log(this.pathwayData);
+
+
+              // Loading Pathway names -- for displaying to user
+              this.loadNames();
+
+              // Comparing pathways to inform the user 
+              console.log('Updated Pathways:');
+              console.log(this.pathways)
+
+              const result = this.compareArrays(currentPaths,this.pathways);
+              const similar = result.similar;
+              const different = result.different;
+
+              console.log('Similar Pathways: ');
+              console.log(similar)
+              console.log('Different Pathways: ');
+              console.log(different)
+
+              console.log('Received from backend:', response);
+              console.log('-----------------------------');
+              console.log('Getting Mapping Data');
+              this.getMapData();
+
+              console.log('-------- NEW PATHWAYS LOADED -------');
+
+            },
+            (error) => {
+              // Handle errors
+              console.error('Error:', error);
+              this.isLoading = false; 
+
+              //this.responseMessage = 'Error sending data';
+            }
+          );
+
+          //console.log('-------- NEW PATHWAYS LOADED -------');
+
           this.closeUploadModal(); // Close modal after merge
+
+          //this.isLoading = false;
         }).catch(err => {
           console.warn('Failed to process added files:', err);
         });
@@ -1874,12 +2253,12 @@ processNewFiles(): void{
     console.log('Getting Map for: ');
     const code = this.selectedPathway;
     console.log('Getting Map for: '+code);
+
     console.log('Resetting Pathway Data');
-    //this.ALLpathwayData = this.pathwayResponse;
     const pathwayData = this.ALLpathwayData.find((obj => obj.pathway === code));
     console.log(pathwayData);
     this.setMap(code, this.selectedTimeIndex, pathwayData);
-    //console.log(pathwayData);
+
   }
 
   // ------------------ ANIMATION ------------------
@@ -1895,37 +2274,93 @@ processNewFiles(): void{
     }
   }
 
+  // Delay between each element in the loop 
+  // Allows for pathway rendering 
+  delay(ms: number) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
+
+
+  async loopWithDelay( links: any[], nodes: any[], number: number): Promise<void> {
+    // Number of loops to cycle through before stopping 
+    for (let j=0; j<number; j++){
+      // Looping through the maps (one for each timepoint)
+      for (let i=0; i<this.timepoints.length;i++){
+        const timeNodes = nodes[i];
+        // Updating the Diagram 
+        this.updateDiagram(timeNodes,links)
+        
+        await this.delay(1000);// 1 Second between pathway refresh (large pathays take a while to load)
+        }
+    }
+  }
+
   startAnimation(): void {
     console.log("Time lapse started");
+
+    const name = this.SelectedPathwayName;
+    const code = this.selectedPathway;
+    console.log(name);
+    const data = this.loadedPathwayData.find((obj => obj.pathway === name));
+    console.log(data);
+    
+    const nodes = data.nodes;
+    console.log(nodes);
+    const pathwayData = this.ALLpathwayData.find((obj => obj.pathway === code));
+
+    if (this.isAnimationActive==true){
+    const links = pathwayData.edges;
+    this.loopWithDelay(links, nodes, 10) // setting up to loop 10 times before stopping 
+    //this.isAnimationActive = false;
+
+    this.stopAnimation();}
+    else{
+      this.stopAnimation();
+    }
+
   }
 
   stopAnimation(): void {
+    this.isAnimationActive = false;
     console.log("Time lapse stopped");
+    const code = this.selectedPathway;
+    const pathwayData = this.ALLpathwayData.find((obj => obj.pathway === code));
+    this.setMap(code, this.selectedTimeIndex, pathwayData);
+
+    
   }
 
   // ------------------ COLOUR PICKER -------------------
   selectedColorHigh: string = '#ff0000'; // Red 
   selectedColorLow: string = '#0000ff';  // Blue
 
+  // Taking High Expression Colour from User 
+  // Reassiging the global variable
+  // Reloading Pathway Data for animation
   onColorChangeHigh(event: Event): string {
     const input = event.target as HTMLInputElement;
     this.selectedColorHigh = input.value;
     console.log('High expression color:', this.selectedColorHigh);
+    this.isLoading = true;
+    this.LoadingMessage = 'Updating High Expression colour ...';
+    this.getLoadedPathways(); // Reloading data with changed colours
+    this.isLoading = false;
     return this.selectedColorHigh;
   }
 
+  // Taking Low Expression Colour from User 
+  // Reassiging the global variable
+  // Reloading Pathway Data for animation
   onColorChangeLow(event: Event): string {
     const input = event.target as HTMLInputElement;
     this.selectedColorLow = input.value;
     console.log('Low expression color:', this.selectedColorLow);
+    this.isLoading = true;
+    this.LoadingMessage = 'Updating Low Expression colour ...';
+    this.getLoadedPathways(); // Reloading data with changed colours
+    this.isLoading = false;
     return this.selectedColorLow;
   }
-
-
-  
-
-
-
 } 
 
 
