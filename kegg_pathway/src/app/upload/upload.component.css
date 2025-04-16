@@ -45,7 +45,78 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  position: relative;
 }
+
+/* -------------- INFORMATION -------------- */
+
+.information-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  margin-left: 605px;
+  margin-top: -15px;
+  display: flex;
+  align-items: center;
+}
+
+.info-popout {
+  position: absolute;
+  top: -150px;
+  right: -200px;
+  z-index: 1000;
+  width: 280px;
+  background-color: #ddddddb9;
+  border: 1px solid #ccc;
+  border-radius: 12px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
+  padding: 16px;
+  animation: fadeIn 0.2s ease-in-out;
+}
+
+.info-content h3 {
+  margin-top: 0;
+  font-size: 18px;
+  color: #48494B;
+  font-family: 'DM Sans', sans-serif;
+
+}
+
+.info-content p {
+  font-size: 14px;
+  margin: 8px 0;
+  color: #48494B;
+  font-family: 'DM Sans', sans-serif;
+
+}
+
+.close-info {
+  margin-top: 12px;
+  padding: 8px 12px;
+  font-size: 14px;
+  background-color: #48494B;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.close-info:hover {
+  background-color: #646566;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 /* -------------- TITLE -------------- */
 .upload-title {
   font-size: 48px;

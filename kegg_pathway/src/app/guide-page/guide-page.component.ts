@@ -27,7 +27,7 @@ export class GuidePageComponent {
       fullContent:`To upload a file, click the Upload button and select your file.
 - Supported formats include .csv and .txt.
 - Make sure your file is formatted correctly - tab separated.
-- Uploaded files should at least include one expression matrix and one count matrix.
+- Uploaded files should at least include one expression and one annotation file.
 - Pick the number of the top expressed pathways you want to be displayed.
 - Pick if you want to specify and organism and if you have a time series data.
 
