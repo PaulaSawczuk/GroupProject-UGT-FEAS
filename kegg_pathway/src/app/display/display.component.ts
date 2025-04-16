@@ -656,7 +656,7 @@ private getMultipleGenes(nodes: any[]): any[]{
       if (firstGenes.length>1){
         const key1 = newNodes[i].key;
         console.log('Changing Colour - multiple Genes');
-        newNodes[i].colour = '#FFF44F';
+        newNodes[i].colour = this.selectedColorIsoform;
 
       }
     }
@@ -679,7 +679,7 @@ private getMultipleGenes2(nodes: any[]): any[]{
       if (firstGenes.length>1){
         const key1 = newNodes[i].key;
         console.log('Changing Colour - multiple Genes');
-        newNodes[i].stroke = '#FFF44F';
+        newNodes[i].stroke = this.selectedColorIsoform;
         newNodes[i].border = 6;
 
       }
@@ -703,7 +703,7 @@ private getMetabolicFlux(nodes: any[], links: any[]){
   var newLinks = links.map(link => ({ ...link}));
   for (let i = 0; i < newNodes.length; i++) {
     // Get all enzyme nodes that have been effected but not by isoforms (coloured yellow)
-    if (newNodes[i].type === 'enzyme' && (newNodes[i].gene) && newNodes[i].colour != '#FFF44F'){
+    if (newNodes[i].type === 'enzyme' && (newNodes[i].gene) && newNodes[i].colour != this.selectedColorIsoform){
 
       const key = newNodes[i].key;
       const colour = newNodes[i].colour;
@@ -2768,7 +2768,7 @@ Once all the steps are completed, click the Process button to move to get visual
   // ------------------ COLOUR PICKER -------------------
   selectedColorHigh: string = '#ff0000'; // Red 
   selectedColorLow: string = '#0000ff';  // Blue
-  selectedColorIsoform: string = '#00ff00'; // Green
+  selectedColorIsoform: string = '#fff44f'; // Yellow
   
   // Taking High Expression Colour from User 
   // Reassiging the global variable
