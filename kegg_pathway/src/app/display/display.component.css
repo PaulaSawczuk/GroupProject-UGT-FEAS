@@ -52,6 +52,13 @@ html {
   align-items: center;
 }
 
+
+
+.app-logo {
+  width: 30px;
+  height: 30px;
+}
+/*
 .app-logo {
   width: 30px;
   height: 30px;
@@ -63,7 +70,7 @@ html {
   align-items: center;
   font-weight: bold;
   margin-right: 10px;
-}
+}*/
 
 .app-name {
   font-size: 18px;
