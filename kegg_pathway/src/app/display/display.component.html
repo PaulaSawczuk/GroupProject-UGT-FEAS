@@ -52,19 +52,6 @@
             </div>
           </div>
           <hr />
-          <div class="pathway-search" *ngIf="pathwaysOpen && !customTabOpen && !searchTabOpen">
-            <div class="search-input-wrapper">
-              <svg xmlns="http://www.w3.org/2000/svg" height="16px" viewBox="0 -960 960 960" width="16px" fill="#6c757d">
-                <path d="M796-120 560-356q-35 28-79.5 44T392-296q-109 0-184.5-75.5T132-556q0-109 75.5-184.5T392-816q109 0 184.5 75.5T652-556q0 49-16 93t-44 79l236 236-32 28ZM392-356q83 0 141.5-58.5T592-556q0-83-58.5-141.5T392-756q-83 0-141.5 58.5T192-556q0 83 58.5 141.5T392-356Z"/>
-              </svg>
-              <input
-                type="text"
-                placeholder="Search pathways..."
-                [(ngModel)]="searchTerm"
-                (input)="filterPathways()"
-              />
-            </div>
-          </div>
           <ul class="sub-menu" [class.show]="pathwaysOpen && !customTabOpen && !searchTabOpen">
             <li *ngFor="let pathway of pathways">
               <a (click)="selectPathway($event, pathway)">{{ pathway }}</a>
@@ -113,6 +100,22 @@
                 </div>
               </li>
 
+              <li class="label-row">
+                <label class="main-label">Customise colour for Isoforms:</label>
+              </li>
+
+              <li>
+                <div class="color-picker-row">
+                  <div class="color-box-isoform">
+                    <label for="colorPickerIsoform">Isoforms:</label>
+                    <div class="color-picker-container">
+                      <input type="color" id="colorPickerIsoform" value="#00ff00" class="color-picker" (change)="onColorChangeIsoform($event)"/>
+                      <span class="color-hex">{{ selectedColorIsoform }}</span>
+                    </div>
+                  </div>
+                </div>
+              </li>
+
             </ul>
           </ng-container>
         </li>
@@ -136,7 +139,7 @@
             <ul class="sub-menu show">
           
               <li class="label-selectDropdown">
-                <label class="main-label">Look for: </label>
+                <label class="main-label">In a current pathway look for: </label>
               </li>
           
               <li>
@@ -174,7 +177,14 @@
                     <option *ngFor="let option of PathwayOptions" [value]="option">{{ option }}</option>
                   </select>
                 </ng-container>
+                <ng-container *ngIf="showPathwayDropdown">
+                  <select id="pathwaySelect" [(ngModel)]="selectedPathwayCustom" (change)="onPathwayChange()">
+                    <option value="">-- Select Pathway --</option>
+                    <option *ngFor="let option of PathwayOptions" [value]="option">{{ option }}</option>
+                  </select>
+                </ng-container>
               </li>
+              
             </ul>
           </ng-container>
         </li>
@@ -188,7 +198,7 @@
     <aside class="top-bar">
       <div class="top-bar-left">
         <div class="app-logo">X</div>
-        <span class="app-name">Enstrap.int</span>
+        <span class="app-name">EnStrap</span>
         <div class="separator"></div>
         <div class="top-bar-menu">
           <div class="dropdown">
@@ -219,7 +229,17 @@
               <button class="dropdown-button">View</button>
               <div class="dropdown-content">
                 <a href="#" (click)="openCustomTab(); $event.preventDefault() ">Customise</a>
-                <a href="#" (click)="openSearchTab(); $event.preventDefault() ">Search</a>
+
+                <div class="submenu" (click)="onSubmenuClick($event)">
+                  <a href="#" (click)="toggleSearchSubmenu($event)" class="submenu-trigger">
+                    <span>Search...</span>
+                    <span class="submenu-icon">›</span>
+                  </a>
+                  <div class="submenu-content" *ngIf="searchSubmenuOpen">
+                    <a href="#" (click)="openSearchTab(); $event.preventDefault()">Pathway Elements</a>
+                    <a href="#" (click)="openSearchPathwayModal(); $event.preventDefault()">For Pathway</a>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -269,7 +289,7 @@
       </div>
     </div>
 
-    <!-- ---------------- FILTER PATHWAYS POP-OUT ---------------- -->
+    <!-- ---------------- GUIDE PATHWAYS POP-OUT ---------------- -->
     <div class="pathway-filter-modal" *ngIf="isFilterPathwayModalOpen">
       <div class="pathway-filter-modal-content">
         <div class="pathway-filter-modal-header">
@@ -304,6 +324,34 @@
         </div>
         <div class="pathway-filter-modal-footer">
           <button class="filter-button-modal-footer" (click)="closeGuideDetail()">Close</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ---------------- SEARCH FOR PATHWAY MODAL ---------------- -->
+    <div class="Search-Pathway-modal" *ngIf="isSearchPathwayModalOpen">
+      <div class="Search-Pathway-modal-content">
+        <div class="Search-Pathway-modal-header">
+          <h2>Search for Pathway</h2>
+          <span class="Search-Pathway-modal-close-btn" (click)="closeSearchPathwayModal()">×</span>
+        </div>
+        <div class="Search-Pathway-modal-body">
+          <div class="pathway-search">
+            <div class="search-input-wrapper">
+              <svg xmlns="http://www.w3.org/2000/svg" height="16px" viewBox="0 -960 960 960" width="16px" fill="#6c757d">
+                <path d="M796-120 560-356q-35 28-79.5 44T392-296q-109 0-184.5-75.5T132-556q0-109 75.5-184.5T392-816q109 0 184.5 75.5T652-556q0 49-16 93t-44 79l236 236-32 28ZM392-356q83 0 141.5-58.5T592-556q0-83-58.5-141.5T392-756q-83 0-141.5 58.5T192-556q0 83 58.5 141.5T392-356Z"/>
+              </svg>
+              <input
+                type="text"
+                placeholder="Search pathways..."
+                [(ngModel)]="searchTerm"
+                (input)="filterPathways()"
+              />
+            </div>
+          </div>
+        </div>
+        <div class="Search-Pathway-modal-footer">
+          <button class="add-button" (click)="SearchForPathway()">Search</button>
         </div>
       </div>
     </div>

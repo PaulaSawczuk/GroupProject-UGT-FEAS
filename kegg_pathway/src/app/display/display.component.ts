@@ -1881,6 +1881,10 @@ private getLoadedPathways(): void{
     if (this.exportSubmenuOpen) {
       this.exportSubmenuOpen = false;
     }
+
+    if (this.searchSubmenuOpen) {
+      this.searchSubmenuOpen = false;
+    }
   }
 
   exportImage(format: string) {
@@ -2494,7 +2498,7 @@ Once all the steps are completed, click the Process button to move to get visual
     this.isFilterPathwayModalOpen = false;
   }
 
-  //  ------------------ CUSTOMISATION TAB -------------------
+  //  ------------------ VIEW TAB -------------------
   customTabOpen: boolean = false;
   customTabExists: boolean = false;
   searchTabOpen: boolean = false;
@@ -2605,6 +2609,19 @@ Once all the steps are completed, click the Process button to move to get visual
     console.log('customTabOpen: ', this.searchTabOpen);
     return this.searchTabOpen;
   }
+
+  //  ------------------ SEARCH SUBSECTIONS -------------------
+  
+  searchSubmenuOpen = false;
+
+  toggleSearchSubmenu(event: MouseEvent) {
+    event.preventDefault();
+    event.stopPropagation(); 
+    this.searchSubmenuOpen = !this.searchSubmenuOpen;
+  }
+
+
+
 
   //  ------------------ POPULATE SELECT BOXES -------------------
   // MOCK DATA
@@ -2751,7 +2768,8 @@ Once all the steps are completed, click the Process button to move to get visual
   // ------------------ COLOUR PICKER -------------------
   selectedColorHigh: string = '#ff0000'; // Red 
   selectedColorLow: string = '#0000ff';  // Blue
-
+  selectedColorIsoform: string = '#00ff00'; // Green
+  
   // Taking High Expression Colour from User 
   // Reassiging the global variable
   // Reloading Pathway Data for animation
@@ -2780,15 +2798,45 @@ Once all the steps are completed, click the Process button to move to get visual
     return this.selectedColorLow;
   }
 
+  onColorChangeIsoform(event: Event): string {
+    const input = event.target as HTMLInputElement;
+    this.selectedColorIsoform = input.value;
+    console.log('Isoform color:', this.selectedColorIsoform);
+    this.isLoading = true;
+    this.LoadingMessage = 'Updating Isoform colour ...';
+    this.getLoadedPathways(); // Reloading data with changed colours
+    this.isLoading = false;
+    return this.selectedColorIsoform;
+  }
+
    // ------------------ SEARCH BAR FOR PATHWAYS -------------------
 
-   searchTerm: string = '';
-   filteredPathways: string[] = [];
- 
-   filterPathways() {
-     const term = this.searchTerm.toLowerCase();
-     this.filteredPathways = this.pathways.filter(p => p.toLowerCase().includes(term));
-   }
+  searchTerm: string = '';
+  filteredPathways: string[] = [];
+
+  // Function to handle search
+  filterPathways() {
+    const term = this.searchTerm.toLowerCase();
+    this.filteredPathways = this.pathways.filter(p => p.toLowerCase().includes(term));
+  }
+
+  // Functions to handle open and close of the modal
+  isSearchPathwayModalOpen = false;
+
+  openSearchPathwayModal() {
+    this.isSearchPathwayModalOpen = true;
+  }
+
+  closeSearchPathwayModal() {
+    this.isSearchPathwayModalOpen = false;
+  }
+
+  // Once search button is clicked
+  SearchForPathway(){
+    this.filterPathways();
+    console.log('Searching for Pathway');
+    this.isSearchPathwayModalOpen = false;
+  }
 } 
 
 
