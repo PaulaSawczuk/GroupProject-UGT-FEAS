@@ -305,10 +305,29 @@ async function processPathways(pathways){
     return pathwayData;
 }
 
+async function processIndividualPathway(code){
 
+    console.log(code);
+    console.log('------------');
+    //var codes = [];
+    pathwayData = [];
+    let elements = await processInput(code);
+    pathwayData.push({
+        //name: name,
+        pathway: code,
+        nodes: elements.nodeData,
+        edges: elements.linkData,
+        enzymes: elements.enzymeList
+    });
+    console.log('------------');
+    console.log('Pathway Added')
+    console.log('------------');
+    return pathwayData;
+}
 
 
 module.exports = {
     processInput,
-    processPathways
+    processPathways,
+    processIndividualPathway
   };

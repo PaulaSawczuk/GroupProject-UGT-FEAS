@@ -4,9 +4,10 @@ import { FormsModule } from '@angular/forms';
 import { enzymeApiServicePost } from '../services/kegg_enzymepathwaysPost.serice';
 import * as go from 'gojs';
 import { FileDataService } from '../services/file-data.service';
-import { filter } from 'rxjs';
+import { filter, first } from 'rxjs';
 import { parseFileContent, identifyFileType } from '../helper/file-utils';
 import {MatSliderModule} from '@angular/material/slider';
+import { match } from 'assert';
 
 interface GuideElement {
   title: string;
@@ -76,6 +77,8 @@ export class DisplayComponent {
 
   /** --------  INPUT Data Processing Functions -------- **/
 
+// Filtering function that only selects enzyme codes that are in the correct
+// full format ec:_._._._
 private filterString(input: string): boolean {
     // Define the regular expression
     const pattern = /^ec:(\d+\.\d+\.\d+\.\d+)$/;
@@ -354,6 +357,28 @@ private resizeNodeByLogFC(logfc: number) {
   return [newHeight,newWidth];
 }
 
+
+// Getting line width realtive to logfc value of the enzyme ndoe
+// Used to highlight metabolix flux
+private getLineWidth(logfc: number, baseline = 3) {
+  const difference = Math.abs(logfc - baseline);
+
+  // Set min and max width values
+  const minWidth = 3;
+  const maxWidth = 20;
+
+  // You can tweak this multiplier for scaling effect
+  const scaleFactor = 2;
+
+  let width = minWidth + difference * scaleFactor;
+
+  // Clamp the width so it doesn't go beyond max
+  width = Math.min(width, maxWidth);
+
+  return width;
+}
+
+
 // ----------- Matching Genes to Enzyme Ndoes ----------------
 // Called when changing Node information when map is selected/ timepoint changes 
 
@@ -416,6 +441,7 @@ private matchGenesNoSize(genes: any[], nodes: any[]): any[] {
         //newNodes[i].height = height;
         newNodes[i].logfc = mean;
         newNodes[i].colour = rgb;
+        newNodes[i].logfcList = logfcList;
       }
       //console.log('adding colour');
       colourArray.push({
@@ -473,6 +499,7 @@ private matchGenes(genes: any[], nodes: any[]): any[] {
       }
 
       if (logfcList[0]) {
+        console.log(logfcList);
         let mean = this.findMean(logfcList); // Calculating mean of Genes logfc
         let rgb = this.newlogfcToRGB(mean, this.selectedColorLow,this.selectedColorHigh); // Getting colout relative to logfc
         let result = this.resizeNodeByLogFC(mean); // resizing node
@@ -482,6 +509,7 @@ private matchGenes(genes: any[], nodes: any[]): any[] {
         newNodes[i].height = height;
         newNodes[i].logfc = mean;
         newNodes[i].colour = rgb;
+        newNodes[i].logfcList = logfcList;
       }
       //console.log('adding colour');
       colourArray.push({
@@ -526,7 +554,8 @@ private compareEnzymes(nodes: any[],timepoint: number): any[]{
   const updatedNodes = elements[0];
   const colourArray = elements[1];
   const stats = elements[2];
-  return [updatedNodes, colourArray, stats];
+  const finalNodes = this.getMultipleGenes2(updatedNodes);
+  return [finalNodes, colourArray, stats];
 }
 // No size change - called from getLoadedPathways
 private compareEnzymesNoSize(nodes: any[],timepoint: number): any[]{
@@ -545,9 +574,175 @@ private compareEnzymesNoSize(nodes: any[],timepoint: number): any[]{
   const updatedNodes = elements[0];
   const colourArray = elements[1];
   const stats = elements[2];
-  return [updatedNodes, colourArray, stats];
+  const finalNodes = this.getMultipleGenes2(updatedNodes);
+  return [finalNodes, colourArray, stats];
 }
 
+
+private getIsoforms(nodes: any[]): any[]{
+
+  console.log('Finding Isoforms')
+
+  var newNodes = nodes.map(node => ({ ...node }));
+  //console.log(newNodes);
+  // Looping through all the nodes
+  for (let i = 0; i < newNodes.length; i++) {
+    if (newNodes[i].type === 'enzyme' && (newNodes[i].gene)){
+      const firstGenes = newNodes[i].gene;
+      //console.log('First Genes:')
+      //console.log(firstGenes);
+      const key1 = newNodes[i].key;
+      
+
+      // Looping through list again to find matching gene entries 
+      for (let j = 0; j < newNodes.length; j++) {
+        if (newNodes[j].type === 'enzyme'&&(newNodes[j].gene) ) {
+          const secondGenes = newNodes[j].gene;
+          const key2 = newNodes[j].key;
+          
+          //console.log(firstGenes);
+          //console.log('Second Genes:')
+          //console.log(secondGenes);
+          // Making sure that the nodes dont match to themselves 
+          if (key1 != key2){
+            /*
+            for (const gene1 of firstGenes) {
+              for (const gene2 of secondGenes) {
+                if (gene1 === gene2) {
+                  console.log("match:", gene1);
+                  console.log(key1);
+                  console.log(key2);
+                  //matchFound = true;
+                  }
+                }
+              }*/
+             if (firstGenes==secondGenes){
+              console.log("match:");
+              console.log(key1);
+              console.log(key2);
+              console.log(firstGenes);
+              console.log(secondGenes);
+             }
+            }
+
+
+          }
+          
+
+        }
+      }
+  }
+  return [];
+
+}
+
+
+
+
+
+
+// Identification of enzyme Nodes that have multiple differentially regualted genes 
+
+private getMultipleGenes(nodes: any[]): any[]{
+
+  console.log('Finding Isoforms/Multiple Genes...')
+
+  var newNodes = nodes.map(node => ({ ...node }));
+  //console.log(newNodes);
+  // Looping through all the nodes
+  for (let i = 0; i < newNodes.length; i++) {
+    if (newNodes[i].type === 'enzyme' && (newNodes[i].gene)){
+      const firstGenes = newNodes[i].gene;
+      if (firstGenes.length>1){
+        const key1 = newNodes[i].key;
+        console.log('Changing Colour - multiple Genes');
+        newNodes[i].colour = '#FFF44F';
+
+      }
+    }
+  }    
+  return newNodes;
+
+}
+
+
+private getMultipleGenes2(nodes: any[]): any[]{
+
+  console.log('Finding Isoforms/Multiple Genes...')
+
+  var newNodes = nodes.map(node => ({ ...node }));
+  //console.log(newNodes);
+  // Looping through all the nodes
+  for (let i = 0; i < newNodes.length; i++) {
+    if (newNodes[i].type === 'enzyme' && (newNodes[i].gene)){
+      const firstGenes = newNodes[i].gene;
+      if (firstGenes.length>1){
+        const key1 = newNodes[i].key;
+        console.log('Changing Colour - multiple Genes');
+        newNodes[i].stroke = '#FFF44F';
+        newNodes[i].border = 6;
+
+      }
+    }
+  }    
+  return newNodes;
+
+}
+
+
+
+
+
+
+
+
+private getMetabolicFlux(nodes: any[], links: any[]){
+
+
+  var newNodes = nodes.map(node => ({ ...node }));
+  var newLinks = links.map(link => ({ ...link}));
+  for (let i = 0; i < newNodes.length; i++) {
+    // Get all enzyme nodes that have been effected but not by isoforms (coloured yellow)
+    if (newNodes[i].type === 'enzyme' && (newNodes[i].gene) && newNodes[i].colour != '#FFF44F'){
+
+      const key = newNodes[i].key;
+      const colour = newNodes[i].colour;
+      const logfc = newNodes[i].logfc;
+      const rIndex = key.indexOf("R");
+      if (rIndex !== -1) {
+        const reactKey = key.substring(rIndex);
+        console.log(reactKey); 
+
+        // Loop through links to get any that match with that reaction key
+      for (let j = 0; j < newLinks.length; j++) {
+        if (newLinks[j].to == reactKey){
+          //console.log('Match Found: (Link to) ');
+          let category = newLinks[j].category;
+          //console.log(category);
+
+        }
+        if (newLinks[j].from == reactKey){
+          console.log('Match Found: (Link from) ');
+          let category = newLinks[j].category;
+          console.log(category);
+          newLinks[j].colour = colour;
+          const width = this.getLineWidth(logfc);
+          newLinks[j].size = width;
+          
+        }else{
+          continue;
+        }
+      }
+
+      } else {
+        console.log("No 'R' found in the string");
+        continue;
+      }
+    }
+  }
+  console.log(newLinks);
+  return newLinks;
+}
 
 // ----------- Loading Pathway Function ----------------
 // Function to load all the pathways into a Stored Array for Accessing on demand
@@ -570,14 +765,16 @@ private getLoadedPathways(): void{
   console.log('Pathway Data to load:')
   console.log(pathwayData);
   
-
+  
   for (let i = 0; i < pathwayData.length; i++) {
     const nodes = pathwayData[i].nodes; // Already a deep copy
+    var edges = pathwayData[i].edges;
     //console.log(nodes);
 
     var nodesArray = [];
+    var edgesArray = [];
     var colourArray = [];
-    var statsArray: never[] = [];
+    var statsArray = [];
 
     // Cycle through timepoints
     for (let j = 0; j < timepointData.length; j++) {
@@ -589,7 +786,8 @@ private getLoadedPathways(): void{
       // Extract Colour and Nodes
       //console.log(elements)
       var updatedNodes = elements[0];
-      //console.log(updatedNodes);
+      var updatedEdges = this.getMetabolicFlux(updatedNodes,edges);
+      console.log(updatedEdges);
 
       var colours = elements[1];
       //console.log(colours);
@@ -598,13 +796,16 @@ private getLoadedPathways(): void{
       //console.log(stats);
       
       // Add updated nodes and colours to respective arrays
+      edgesArray.push(updatedEdges);
       nodesArray.push(updatedNodes);
       colourArray.push(colours);
+      statsArray.push(stats);
     }
      // Push the processed pathway data into the loadedPathwayData array
      loadedPathwayData.push({
       pathway: pathwayData[i].name,
       nodes: nodesArray,
+      edges: edgesArray,
       stats: statsArray
     });
 
@@ -620,18 +821,6 @@ private getLoadedPathways(): void{
   console.log(ALLcolourArray);
   console.log(loadedPathwayData);
   console.log("--------------------")
-
-  // Example of logging the first pathway, first timepoint details
-  //console.log('First Pathway, First timepoint');
-  //console.log('Name');
-  //console.log(loadedPathwayData[0].pathway);
-  //console.log('Nodes');
-  //console.log(loadedPathwayData[0].nodes[0]);
-  //console.log('Colours');
-  //console.log(loadedPathwayData[0].stats[0]);
-  //console.log(ALLcolourArray[0].colours[0]);
-  //console.log('Edges');
-  // console.log(this.ALLpathwayData[0].edges);
 
   // Assign the processed data to component properties
   this.colourArray = ALLcolourArray;
@@ -817,13 +1006,16 @@ private getLoadedPathways(): void{
 
 // -------------- Get REQUEST for Specific Pahtway Data--------------
 // Called when users want to get information for a specific pathway not in the pathway list 
- getSpecificPathway(code: string): void{
+ getSpecificPathway(pathwayData: { name: string; pathway: string }): void{
   // Function to get specific pathway based on EC Code/name
   // Will make new post request to fetch KGML and data for that pathway
 
   // Pathway code 
-    console.log(code);
-    const data = [code];
+    console.log('Getting Specific Pathway Request');
+    console.log(pathwayData.pathway);
+    const code = pathwayData.pathway;
+    const pathwayName = pathwayData.name;
+    //console.log(data);
     this.isLoading = true;
     console.log("--------------------")
     console.log('Sending Request for Specific Pathway Data');
@@ -831,16 +1023,33 @@ private getLoadedPathways(): void{
 
     this.LoadingMessage = 'Loading Pathway Mapping Data...';
 
-    this.enzymeApiServicePost.postALLMapData(data).subscribe(
+    this.enzymeApiServicePost.postMapData(code).subscribe(
       (response) =>{
       console.log(response);
 
       const pathwayData = response;
       console.log(pathwayData);
-      //Object.freeze(this.ALLpathwayData);
+      pathwayData[0].name= pathwayName;
+      console.log(pathwayData);
+      this.ALLpathwayData.push(pathwayData[0]);
+      console.log(this.ALLpathwayData);
       console.log("--------------------")
       console.log('Pathway Data Loaded Successfully');
       console.log("--------------------")
+
+      //console.log(this.pathways);
+      this.pathways.push(pathwayName);
+      //console.log(this.pathways);
+      //console.log(this.pathwayData);
+      this.pathwayData.push(pathwayData[0]);
+      console.log(this.pathwayData);
+
+      this.getLoadedPathways();
+      
+      const data = this.ALLpathwayData.find((obj => obj.pathway === code));
+      this.selectedPathway = code;
+      this.setMap(code,this.selectedTimeIndex, data);
+
       this.isLoading = false;
       },
       (error) => {
@@ -875,13 +1084,15 @@ private getLoadedPathways(): void{
     console.log("--------------------");
     console.log('Loading Differential Expression Data')
     const elements = this.compareEnzymes(nodes,timepoint);
+    
     const updatedNodes = elements[0];
+    const updatedEdges = this.getMetabolicFlux(updatedNodes,links)
     console.log("--------------------");
     console.log('Stats Recieved');
     const stats = elements[2];
     console.log(stats);
     //console.log(updatedNodes);
-    this.changeDiagram(updatedNodes, links);
+    this.changeDiagram(updatedNodes, updatedEdges);
     this.isLoading = false;
 
   }
@@ -907,14 +1118,16 @@ private getLoadedPathways(): void{
   });
 
   // TEMPLATE FOR LAYOUT
+
   this.myDiagram.layout = new go.LayeredDigraphLayout({
     // Set optional parameters for the layout
     direction: 90,
     layerSpacing: 70,  // Space between layers (nodes grouped in layers)
     columnSpacing: 50,  // Space between columns (nodes within the same layer)
     setsPortSpots: true,  // Don't automatically adjust port spots (ports can be manually set)
+    packOption: go.LayeredDigraphLayout.PackMedian, // Helps with tight packing
+    aggressiveOption: go.LayeredDigraphLayout.AggressiveMore,
   });
-
 
   // TEMPLATE FOR COMPOUNDS 
     this.myDiagram.nodeTemplateMap.add("compound",  // Custom category for compound nodes
@@ -995,18 +1208,17 @@ private getLoadedPathways(): void{
       // Shape of the link (the line itself)
       $(go.Shape, 
         {
-          stroke: "black",  // Set the color of the link (line) to black
+          //stroke: "black",  // Set the color of the link (line) to black
           strokeWidth: 3,
           strokeDashArray: [10, 5]  // Set the line to be dashed (10px dashes, 5px gaps)
-        }),
+        }).bind('stroke','colour').bind('strokeWidth','size'),
   
       // Arrowhead at the "to" end of the link (one-way arrow)
       $(go.Shape, 
         {
           toArrow: "Standard",  // Standard arrowhead at the end of the link
-          fill: "black",  // Set the color of the arrow to black
           stroke: null  // No border around the arrow
-        })
+        }).bind('fill','colour'),
     )
   );
 
@@ -1028,8 +1240,7 @@ private getLoadedPathways(): void{
         {
           stroke: "black",  // Set the color of the link (line) to black
           strokeWidth: 3,
-          //strokeDashArray: [10, 5]  // Set the line to be dashed (10px dashes, 5px gaps)
-        }),
+        }).bind('stroke','colour').bind('strokeWidth','size'),
   
       // Arrowhead at the "to" end of the link (one-way arrow)
       $(go.Shape, 
@@ -1037,7 +1248,7 @@ private getLoadedPathways(): void{
           toArrow: "Standard",  // Standard arrowhead at the end of the link
           fill: "black",  // Set the color of the arrow to black
           stroke: null  // No border around the arrow
-        })
+        }).bind('fill','colour'),
     )
   );
   
@@ -1045,7 +1256,7 @@ private getLoadedPathways(): void{
     this.myDiagram.nodeTemplateMap.add("enzyme",  // Custom category for compound nodes
       new go.Node("Auto")  // Use Vertical Panel to place the label above the shape
         .add(
-          new go.Shape("Rectangle").bind("fill","colour").bind("width").bind("height")
+          new go.Shape("Rectangle").bind("fill","colour").bind("width").bind("height").bind('stroke').bind('strokeWidth','border')
         ).add(new go.TextBlock(
           { margin: 2,
             //font: "10px sans-serif",
@@ -1063,7 +1274,15 @@ private getLoadedPathways(): void{
 
     // TEMPLATE FOR MAP NODES
     this.myDiagram.nodeTemplateMap.add("map",  // Custom category for compound nodes
-      new go.Node("Auto")  // Use Vertical Panel to place the label above the shape
+      new go.Node("Auto",
+        {
+          click: (e: go.InputEvent, obj: go.GraphObject) => {
+            const node = obj.part as go.Node;
+            const data = node.data;
+            this.handleMapNodeClick(data);
+        }
+      }
+      ) 
         .add(
           new go.Shape("RoundedRectangle", {
             fill: "lightblue",
@@ -1098,7 +1317,9 @@ private getLoadedPathways(): void{
           })
           .bind("text")
       );
-    
+
+
+
       // to make the nodes to show a pop up window when clicked
       this.myDiagram!.addDiagramListener("ObjectSingleClicked", (e) => {
         //const _this = this;
@@ -1288,6 +1509,7 @@ private getLoadedPathways(): void{
     model.linkDataArray = links;
     // Assigning the model to the diagram for visualisation
     this.myDiagram.model = model;
+    this.setLegend(this.myDiagram);
   }
   
 
@@ -1316,11 +1538,146 @@ private getLoadedPathways(): void{
       this.myDiagram.model = new go.GraphLinksModel([], []);
       console.log('Diagram Data Cleared')
       this.updateDiagram(nodes,links);
+      this.setLegend(this.myDiagram);
 
     }else{
     // Create a new a Diagram with template
       this.createGoJSMap(nodes, links);}
+      
   }
+
+
+// ------------- Linked Map retrieval Function ----------------
+// Handles clicking of map node of pathway data that is not already generated
+// Makes new post request to backend with selected pathway code 
+// Appends new pathway data to pathway list and data arrays 
+// Pathway is added to end of list displayed to user and rendered on the screen
+
+  private handleMapNodeClick(data: any): void {
+    console.log("Clicked map node:", data);
+    const pathCode = data.text;
+    const code = pathCode.replace("path:", "");
+    console.log(code);
+
+    const matchingItems = this.ALLpathwayData.find((obj => obj.pathway === code));
+    console.log(matchingItems);
+    if (matchingItems){
+      console.log('Match Found');
+      console.log(matchingItems);
+      this.setMap(code, this.selectedTimeIndex,matchingItems)
+    }else{
+      console.log('Searching all Kegg Pathways');
+      const allMatch = this.AllKeggPathways.find((obj => obj.pathway === code));
+      if (allMatch){
+        console.log('Match found in All Kegg Pathways');
+        console.log(allMatch);
+        this.getSpecificPathway(allMatch);
+
+      }else{
+      console.log('No Match Found');
+
+    }}
+  }
+
+
+// ----------- CREATING LEGEND for each map retrieval -------------
+// Called each time a map is intialised / changed 
+// Legend is updated with user-selected colours 
+// Rendered in bottom left-hand corner of the Display Div
+
+  private setLegend(myDiagram: go.Diagram): void{
+    const $ = go.GraphObject.make;
+
+
+    const legend = $(
+      go.Part, "Table",
+      {
+        name: "Legend",
+        layerName: "ViewportForeground",  // Ensures it's in the foreground and fixed in the viewport
+        isLayoutPositioned: false,        // Prevents layout from affecting its position
+        selectable: false,
+        alignment: go.Spot.BottomRight,    // Aligns to the bottom-left of the viewport
+        alignmentFocus: go.Spot.BottomRight,
+        margin: new go.Margin(10, 10, 10, 10) // Adds padding from the viewport edges
+      },
+    
+      // Title
+      $(go.TextBlock, "Legend",
+        {
+          row: 0,
+          font: "bold 10pt sans-serif",
+          stroke: "#333",
+          margin: new go.Margin(0, 0, 6, 0),
+          columnSpan: 2
+        }
+      ),
+    
+      // Node Type: Compound
+      $(go.Panel, "Horizontal", { row: 1 },
+        $(go.Shape, "Circle", { width: 15, height: 15, fill: "#ccc", margin: 2 }),
+        $(go.TextBlock, "Compound", { margin: 2,font: "8pt sans-serif" })
+      ),
+    
+      // Node Type: Linked Pathway
+      $(go.Panel, "Horizontal", { row: 2 },
+        $(go.Shape, "RoundedRectangle", { width: 15, height: 15, fill: "lightblue", margin: 2 }),
+        $(go.TextBlock, "Linked Pathway", { margin: 2 ,font: "8pt sans-serif"})
+      ),
+
+      // Node Type: Enzyme - No change 
+      $(go.Panel, "Horizontal", { row: 3 },
+        $(go.Shape, "Rectangle", { width: 15, height: 15, fill: 'lightgrey', margin: 2 }),
+        $(go.TextBlock, "Enzyme - No change", { margin: 2,font: "8pt sans-serif"})
+      ),
+
+      // Node Type: Selected Upregulated Colour
+      $(go.Panel, "Horizontal", { row: 4 },
+        $(go.Shape, "Rectangle", { width: 15, height: 15, fill: this.selectedColorHigh, margin: 2 }),
+        $(go.TextBlock, "High Expression", { margin: 2 ,font: "8pt sans-serif"})
+      ),
+
+      // Node Type: Selected Downregulated Colour
+      $(go.Panel, "Horizontal", { row: 5 },
+        $(go.Shape, "Rectangle", { width: 15, height: 15, fill: this.selectedColorLow, margin: 2 }),
+        $(go.TextBlock, "Low Expression", { margin: 2,font: "8pt sans-serif"})
+      ),
+
+      // Node Type: Selected Isoform Colour
+      $(go.Panel, "Horizontal", { row: 6 },
+        $(go.Shape, "Rectangle", { width: 15, height: 15, fill: '#FFF44F', margin: 2 }),
+        $(go.TextBlock, "Isoform", { margin: 2,font: "8pt sans-serif"})
+      ),
+    
+      // Link: Reversible
+      $(go.Panel, "Horizontal", { row: 7 },
+        $(go.Shape, {
+          geometryString: "M0 0 L30 0",
+          stroke: "black",
+          strokeWidth: 3,
+          strokeDashArray: [10, 5] ,
+          margin: 2
+        }),
+        $(go.TextBlock, "Reversible", { margin: 2,font: "8pt sans-serif"})
+      ),
+    
+      // Link: Irreversible
+      $(go.Panel, "Horizontal", { row: 8 },
+        $(go.Shape, {
+          geometryString: "M0 0 L30 0",
+          stroke: "black",
+          strokeWidth: 2,
+          margin: 2
+        }),
+        $(go.TextBlock, "Irreversible", { margin: 2,font: "8pt sans-serif"})
+      )
+    );
+    
+    // Add the legend to the diagram
+    myDiagram.add(legend);
+
+  }
+
+
 
   isMenuOpen = true;
   pathwaysOpen = true;
@@ -2341,18 +2698,18 @@ Once all the steps are completed, click the Process button to move to get visual
   }
 
 
-  async loopWithDelay( links: any[], nodes: any[], number: number): Promise<void> {
+  async loopWithDelay( links: any[], nodes: any[]): Promise<void> {
     // Number of loops to cycle through before stopping 
-    for (let j=0; j<number; j++){
+    
       // Looping through the maps (one for each timepoint)
       for (let i=0; i<this.timepoints.length;i++){
         const timeNodes = nodes[i];
         // Updating the Diagram 
         this.updateDiagram(timeNodes,links)
         
-        await this.delay(1000);// 1 Second between pathway refresh (large pathays take a while to load)
+        await this.delay(750);// 1 Second between pathway refresh (large pathays take a while to load)
         }
-    }
+    
   }
 
   startAnimation(): void {
@@ -2370,10 +2727,11 @@ Once all the steps are completed, click the Process button to move to get visual
 
     if (this.isAnimationActive==true){
     const links = pathwayData.edges;
-    this.loopWithDelay(links, nodes, 10) // setting up to loop 10 times before stopping 
+    this.loopWithDelay(links, nodes); // setting up to loop 10 times before stopping 
     //this.isAnimationActive = false;
 
-    this.stopAnimation();}
+    this.stopAnimation();
+  }
     else{
       this.stopAnimation();
     }
@@ -2422,18 +2780,15 @@ Once all the steps are completed, click the Process button to move to get visual
     return this.selectedColorLow;
   }
 
-  // ------------------ SEARCH BAR FOR PATHWAYS -------------------
+   // ------------------ SEARCH BAR FOR PATHWAYS -------------------
 
-  searchTerm: string = '';
-  filteredPathways: string[] = [];
-
-  filterPathways() {
-    const term = this.searchTerm.toLowerCase();
-    this.filteredPathways = this.pathways.filter(p => p.toLowerCase().includes(term));
-  }
-
-
-
+   searchTerm: string = '';
+   filteredPathways: string[] = [];
+ 
+   filterPathways() {
+     const term = this.searchTerm.toLowerCase();
+     this.filteredPathways = this.pathways.filter(p => p.toLowerCase().includes(term));
+   }
 } 
 
 
