@@ -9,7 +9,10 @@ import { parseFileContent, identifyFileType } from '../helper/file-utils';
 import {MatSliderModule} from '@angular/material/slider';
 import { match } from 'assert';
 
-
+interface GuideElement {
+  title: string;
+  fullContent: string;
+}
 
 @Component({
   selector: 'app-display',
@@ -68,7 +71,7 @@ export class DisplayComponent {
   // Creating the Back-end API Service 
   constructor(private enzymeApiServicePost: enzymeApiServicePost,
     private fileDataService: FileDataService
-  ) {};
+  ) {document.addEventListener('click', this.handleClickOutside.bind(this));};
 
   // ------------- SETTING UP PROCESSING FUNCTIONS -------------------------
 
@@ -924,6 +927,10 @@ private getLoadedPathways(): void{
         //this.responseMessage = 'Error sending data';
       }
     );
+
+    this.filteredPathways = [...this.pathways];
+    
+
   };
 
 
@@ -1752,6 +1759,19 @@ private getLoadedPathways(): void{
     this.sortDropdownOpen = !this.sortDropdownOpen;
   }
 
+  onSortClick(sortType: string) {
+    console.log('onSortClick called with:', sortType); // Added console log
+    this.sortPathways(sortType);
+    this.sortDropdownOpen = false;
+  }
+
+  handleClickOutside = (event: Event) => {
+    const target = event.target as HTMLElement;
+    if (this.sortDropdownOpen && !target.closest('.sort-container')) {
+      this.sortDropdownOpen = false;
+    }
+  }
+
   // -------  PATHWAY SORTING FUNCTIONS -----------
 
   // Determining Pathway Size - Ranking complexity 
@@ -2407,9 +2427,64 @@ processNewFiles(): void{
     }
   
 
-  //  ------------------ FILTERING PATHWAYS -------------------
-  isFilterPathwayModalOpen: boolean = false;
-  selectedFilters: string[] = [];
+  //  ------------------ HELP - GUIDE -------------------
+  isFilterPathwayModalOpen = false;
+  selectedGuideElement: GuideElement | null = null;
+  maxTitleHeight = 0;
+
+  guideElements: GuideElement[] = [
+    {
+      title: 'File Upload',
+      fullContent: `To upload a file, click the Upload button and select your file.
+- Supported formats include .csv and .txt.
+- Make sure your file is formatted correctly - tab separated.
+- Uploaded files should at least include one expression matrix and one count matrix.
+- Pick the number of the top expressed pathways you want to be displayed.
+- Pick if you want to specify and organism and if you have a time series data.
+
+(You will be able to add more files later on.)
+Once all the steps are completed, click the Process button to move to get visualisation of the KEGG pathways.`,
+    },
+    {
+      title: 'Interactivity',
+      fullContent: `The pathway display offers various interactivity for the user:
+- Click on nodes to see detailed information.
+- Use the zoom feature to navigate through the pathways.
+- Use the search feature to find specific enzymes, compounds or pathways.
+- Customise the colours of the gene expression levels.
+- The download feature allows you to save the current view as an image.
+- If you have a time series data, you can see the changes in the expression levels over time.`,
+    },
+    {
+      title: 'Files',
+      fullContent: `At the top of the page in the File section, you will be able to:
+- Upload more files.
+- Export the current view as an image in svg or png formats.`,
+    },
+    {
+      title: 'View',
+      fullContent: `At the top of the page in the View section, you will be able to:
+- In Search: Find specific enzymes, compounds or pathways by picking it from a drop down list.
+- In Customise: Change the colour of expression of the genes by picking them from a colour picker.`,
+    },
+    {
+      title: 'Time Series',
+      fullContent: '',
+    },
+  ];
+
+  openGuideDetail(element: GuideElement) {
+    this.selectedGuideElement = element;
+  }
+
+  closeGuideDetail() {
+    this.selectedGuideElement = null;
+  }
+
+  applyGuide() {
+    console.log('Guide Applied');
+    this.closeFilterPathwayModal();
+  }
 
   openFilterPathwayModal() {
     this.isFilterPathwayModalOpen = true;
@@ -2417,21 +2492,6 @@ processNewFiles(): void{
 
   closeFilterPathwayModal() {
     this.isFilterPathwayModalOpen = false;
-  }
-
-  updateFilter(event: any) {
-    const filterValue = event.target.id;
-    if (event.target.checked) {
-      this.selectedFilters = [...this.selectedFilters, filterValue];
-    } else {
-      this.selectedFilters = this.selectedFilters.filter(filter => filter !== filterValue);
-    }
-    console.log('Selected Filters:', this.selectedFilters);
-  }
-
-  FilterPathways() {
-  // TODO: Add Filtering of pathways functionality
-    this.closeFilterPathwayModal();
   }
 
   //  ------------------ CUSTOMISATION TAB -------------------
@@ -2720,7 +2780,15 @@ processNewFiles(): void{
     return this.selectedColorLow;
   }
 
-  
+   // ------------------ SEARCH BAR FOR PATHWAYS -------------------
+
+   searchTerm: string = '';
+   filteredPathways: string[] = [];
+ 
+   filterPathways() {
+     const term = this.searchTerm.toLowerCase();
+     this.filteredPathways = this.pathways.filter(p => p.toLowerCase().includes(term));
+   }
 } 
 
 

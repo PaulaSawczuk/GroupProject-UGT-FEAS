@@ -41,7 +41,7 @@ html {
   top: 5px;
   left: 15px;
   right: 15px;
-  z-index: 1;
+  z-index: 30;
   border-radius: 100px;
   font-family: 'DM Sans', sans-serif;
 
@@ -347,7 +347,7 @@ button:hover {
 
 /* ------------ FILTER ------------ */
 
-/* ------------ PATHWAYS FILTER MODAL ---------- */
+/* ------------ PATHWAYS GUIDE MODAL ---------- */
 .pathway-filter-modal {
   display: flex;
   justify-content: center;
@@ -400,24 +400,46 @@ button:hover {
   overflow-y: auto;
 }
 
-.pathway-filter-modal-footer {
-  display: flex;
-  justify-content: flex-end;
-  padding-top: 20px;
-  border-top: 1px solid #ddd;
+.card {
+  background-color: white;
+  padding: 10px;
+  margin-bottom: 10px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
-.filter-button-modal-footer button {
-  padding: 10px 20px;
-  background-color: #343a40;
-  color: #e9ecef;
+.card-title {
+  font-weight: bold;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: #343a40;
+  font-size: 16px;
+  font-family: 'DM Sans', sans-serif;
+}
+
+.read-more-button {
+  background: none;
   border: none;
-  border-radius: 5px;
+  color: #343a40;
+  text-decoration: underline;
   cursor: pointer;
+  font-size: 12px;
+  font-family: 'DM Sans', sans-serif;
 }
-.pathway-filter-modal-footer button:hover {
-  background-color: #115ba9;
+
+.read-more-button:hover {
+  background-color: #64656634;
 }
+
+.guide-description {
+  white-space: pre-wrap;
+  font-size: 13px;
+  color: #343a40;
+  font-family: 'DM Sans', sans-serif;
+}
+
+
 /* ------------ CHECBOXES FOR FILTERS ---------- */
 .checkbox-container {
   display: flex;
@@ -472,7 +494,8 @@ button:hover {
   width: 240px;
   background-color: var(--base-clr);
   color: var(--text-clr);
-  position: fixed;
+  /* position: fixed; */
+  position: relative;
   height: 75vh;
   left: 10px;
   top: 85px;
@@ -482,8 +505,10 @@ button:hover {
   border-radius: 8px;
   box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
   overflow-y: auto;
+  overflow: visible;
   scrollbar-width: thin;
   scrollbar-color: #c0c0c0 transparent;
+  z-index: 10;
 }
 
 #sidebar.close {
@@ -701,6 +726,38 @@ button:hover {
   display: flex;
   align-items: center;
   gap: 5px;
+}
+
+/* ---------- SEARCH BAR FOR PATHWAYS ------------ */
+
+.pathway-search {
+  padding: 0 15px 5px 15px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.search-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.search-input-wrapper svg {
+  position: absolute;
+  left: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.search-input-wrapper input {
+  width: 100%;
+  padding: 6px 10px 6px 28px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-family: 'DM Sans', sans-serif;
+  background-color: #f2f2f2;
+  color: #333;
+  font-size: 13px;
 }
 
 
@@ -926,6 +983,7 @@ button:hover {
   align-items: center;
   gap: 6px;
   position: relative;
+  z-index: 20;
   cursor: pointer;
   font-family: 'DM Sans', sans-serif;
   color: #5e6265;
@@ -947,7 +1005,7 @@ button:hover {
 .sort-dropdown {
   position: absolute;
   top: 24px;
-  right: 0;
+  right: -40px;
   background-color: #fff;
   box-shadow: 0 2px 6px rgba(0,0,0,0.1);
   border-radius: 6px;
@@ -965,16 +1023,15 @@ button:hover {
 }
 
 .sort-dropdown li:hover {
-  background-color: #343a4081;
+  background-color: #64656634;
   border-radius: 4px;
 }
 
 /* ------------ MAIN-PANEL - PANEL ON WHICH WE HAVE DISPLAY AND TIME SLIDER  ------------ */
-/* TODO: make it expand when sidemenu is closed  */
 
 .main-panel {
   flex-grow: 1;
-  margin-left: 250px;
+  margin-left: 20px;
   transition: margin-left 0.3s ease-in-out;
   background-color: transparent;
 }
