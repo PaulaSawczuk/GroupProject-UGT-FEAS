@@ -438,6 +438,7 @@ private matchGenesNoSize(genes: any[], nodes: any[]): any[] {
         //newNodes[i].height = height;
         newNodes[i].logfc = mean;
         newNodes[i].colour = rgb;
+        newNodes[i].logfcList = logfcList;
       }
       //console.log('adding colour');
       colourArray.push({
@@ -505,6 +506,7 @@ private matchGenes(genes: any[], nodes: any[]): any[] {
         newNodes[i].height = height;
         newNodes[i].logfc = mean;
         newNodes[i].colour = rgb;
+        newNodes[i].logfcList = logfcList;
       }
       //console.log('adding colour');
       colourArray.push({
@@ -1116,6 +1118,8 @@ private getLoadedPathways(): void{
     layerSpacing: 70,  // Space between layers (nodes grouped in layers)
     columnSpacing: 50,  // Space between columns (nodes within the same layer)
     setsPortSpots: true,  // Don't automatically adjust port spots (ports can be manually set)
+    packOption: go.LayeredDigraphLayout.PackMedian, // Helps with tight packing
+    aggressiveOption: go.LayeredDigraphLayout.AggressiveMore,
   });
 
   // TEMPLATE FOR COMPOUNDS 
@@ -1585,8 +1589,8 @@ private getLoadedPathways(): void{
         layerName: "ViewportForeground",  // Ensures it's in the foreground and fixed in the viewport
         isLayoutPositioned: false,        // Prevents layout from affecting its position
         selectable: false,
-        alignment: go.Spot.BottomLeft,    // Aligns to the bottom-left of the viewport
-        alignmentFocus: go.Spot.BottomLeft,
+        alignment: go.Spot.BottomRight,    // Aligns to the bottom-left of the viewport
+        alignmentFocus: go.Spot.BottomRight,
         margin: new go.Margin(10, 10, 10, 10) // Adds padding from the viewport edges
       },
     
