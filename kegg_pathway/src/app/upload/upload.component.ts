@@ -1089,4 +1089,8 @@ export class UploadComponent {
     }
 }
 
+goBackToLanding(): void {
+  this.router.navigate(['/']);
+}
+
 }

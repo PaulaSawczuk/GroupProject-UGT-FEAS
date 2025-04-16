@@ -10,4 +10,12 @@
   <div class="right-section">
     <img src="https://images.pexels.com/photos/3825527/pexels-photo-3825527.jpeg" alt="Landing Image">
   </div>
+  <div class="guide">
+    <p>Guide</p>
+    <button id="guide-btn" (click)="openGuide()" [class.animate]="!isGuideClicked">
+      <svg xmlns="http://www.w3.org/2000/svg" height="48px" viewBox="0 -960 960 960" width="48px" fill="#48494B">
+        <path d="M480-344 240-584l43-43 197 197 197-197 43 43-240 240Z"/>
+      </svg>
+    </button>
+  </div>
 </div>
