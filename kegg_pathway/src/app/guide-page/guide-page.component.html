@@ -1,0 +1,55 @@
+<div [@routeAnimations]>
+  <div class="faded-background"></div>
+  <div class="guide-wrapper">
+    <header class="header">
+      <div class="header-content">
+        <a class="back-button" (click)="goBackToLanding()">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="15 18 9 12 15 6" />
+          </svg>
+        </a>
+        <h1 class="title">Getting Started</h1>
+        <p class="subtitle">
+          Welcome to our website! This guide will help you get started and understand the basics.
+        </p>
+      </div>
+    </header>
+  
+    <main class="main">
+      <div class="card-grid">
+        <div class="card" *ngFor="let section of guideSections">
+          <div class="card-header">
+            <h2 class="card-title">{{ section.title }}</h2>
+          </div>
+          <div class="card-content">
+            <p class="card-description">{{ section.preview }}</p>
+  
+            <button class="read-more" (click)="openModal(section)">Read More</button>
+  
+  
+          </div>
+        </div>
+      </div>
+  
+      <div class="modal-overlay" *ngIf="selectedSection" (click)="closeModal()">
+        <div class="modal" (click)="$event.stopPropagation()">
+          <h2>{{ selectedSection?.title }}</h2>
+          <p style="white-space: pre-wrap;">{{ selectedSection?.fullContent }}</p>
+          <button class="close-button" (click)="closeModal()">Close</button>
+        </div>
+      </div>
+  
+      <div class="start-button-container">
+        <button class="start-button" (click)="getStarted()">
+          Get Started
+          <svg class="arrow-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="5" y1="12" x2="19" y2="12" />
+            <polyline points="12 5 19 12 12 19" />
+          </svg>
+        </button>
+      </div>
+    </main>
+  </div>
+  </div>
