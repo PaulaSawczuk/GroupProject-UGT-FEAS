@@ -37,21 +37,34 @@
               </div>
               <span class="menu-text">Pathways</span>
             </div>
-            <div class="sort-container" (click)="toggleSortDropdown($event)">
-              <!-- ---------------- SORT BY ---------------- -->
+            <!-- ---------------- SORT BY ---------------- -->
+            <div class="sort-container" (click)="toggleSortDropdown($event)"> 
               <span class="sort-label">Sort</span>
               <svg [class.rotate]="sortDropdownOpen" class="dropdown-arrow" xmlns="http://www.w3.org/2000/svg" height="16" viewBox="0 -960 960 960" width="16" fill="#48494B">
                 <path d="M480-360 280-560h400L480-360Z"/>
               </svg>
               <ul *ngIf="sortDropdownOpen" class="sort-dropdown">
-                <li (click)="sortPathways('name')">Name: A to Z</li>
-                <li (click)="sortPathways('length')">Name: Z to A</li>
-                <li (click)="sortPathways('highComp')">Complexity: High to Low</li>
-                <li (click)="sortPathways('lowComp')">Complexity: Low to High</li>
+                <li (click)="onSortClick('name')">Name: A to Z</li>
+                <li (click)="onSortClick('length')">Name: Z to A</li>
+                <li (click)="onSortClick('highComp')">Complexity: High to Low</li>
+                <li (click)="onSortClick('lowComp')">Complexity: Low to High</li>
               </ul>
             </div>
           </div>
           <hr />
+          <div class="pathway-search" *ngIf="pathwaysOpen && !customTabOpen && !searchTabOpen">
+            <div class="search-input-wrapper">
+              <svg xmlns="http://www.w3.org/2000/svg" height="16px" viewBox="0 -960 960 960" width="16px" fill="#6c757d">
+                <path d="M796-120 560-356q-35 28-79.5 44T392-296q-109 0-184.5-75.5T132-556q0-109 75.5-184.5T392-816q109 0 184.5 75.5T652-556q0 49-16 93t-44 79l236 236-32 28ZM392-356q83 0 141.5-58.5T592-556q0-83-58.5-141.5T392-756q-83 0-141.5 58.5T192-556q0 83 58.5 141.5T392-356Z"/>
+              </svg>
+              <input
+                type="text"
+                placeholder="Search pathways..."
+                [(ngModel)]="searchTerm"
+                (input)="filterPathways()"
+              />
+            </div>
+          </div>
           <ul class="sub-menu" [class.show]="pathwaysOpen && !customTabOpen && !searchTabOpen">
             <li *ngFor="let pathway of pathways">
               <a (click)="selectPathway($event, pathway)">{{ pathway }}</a>
@@ -198,31 +211,32 @@
               </div>
             </div>
           </div>
-          <!-- ---------------- FILTER TAB ---------------- -->
-          <div class="separator-vertical"></div>
-          <div class="dropdown">
-            <button class="dropdown-button">Filter</button>
-            <div class="dropdown-content">
-              <!-- ---------------- FILTER PATHWAYS ---------------- -->
-              <a href="#" (click)="openFilterPathwayModal(); $event.preventDefault()">Pathways</a>
-              
-              <!-- ---------------- MAYBE OPTION 2 IDK ---------------- -->
-              <a href="#">Option 2</a>
-
-            </div>
-          </div>
+          
 
           <!-- ---------------- VIEW TAB ---------------- -->
           <div class="separator-vertical"></div>
-          <div class="dropdown">
-            <button class="dropdown-button">View</button>
-            <div class="dropdown-content">
-              <a href="#" (click)="openCustomTab(); $event.preventDefault() ">Customise</a>
-              <a href="#" (click)="openSearchTab(); $event.preventDefault() ">Search</a>
+            <div class="dropdown">
+              <button class="dropdown-button">View</button>
+              <div class="dropdown-content">
+                <a href="#" (click)="openCustomTab(); $event.preventDefault() ">Customise</a>
+                <a href="#" (click)="openSearchTab(); $event.preventDefault() ">Search</a>
+              </div>
             </div>
           </div>
-        </div>
+
+          <!-- ---------------- HELP TAB ---------------- -->
+          <div class="separator-vertical"></div>
+          <div class="dropdown">
+            <button class="dropdown-button">Help</button>
+            <div class="dropdown-content">
+              <!-- ---------------- GUIDE ---------------- -->
+              <a href="#" (click)="openFilterPathwayModal(); $event.preventDefault()">Guide</a>
+            </div>
+          </div>
       </div>
+
+
+
     </aside>
 
     <!-- ---------------- UPLOAD EXTRA FILES POP-OUT ---------------- -->
@@ -259,28 +273,40 @@
     <div class="pathway-filter-modal" *ngIf="isFilterPathwayModalOpen">
       <div class="pathway-filter-modal-content">
         <div class="pathway-filter-modal-header">
-          <h2>Filter Pathways</h2>
+          <h2>Guide</h2>
           <span class="pathway-filter-close-btn" (click)="closeFilterPathwayModal()">×</span>
-          </div>
-          <div class="pathway-filter-modal-body">
-            <div class="checkbox-container">
-              <label for="filterOption1">Filter 1</label>
-              <input type="checkbox" id="filterOption1" name="filterOption1" (change)="updateFilter($event)">
+        </div>
+    
+        <div class="pathway-filter-modal-body">
+          <div *ngFor="let element of guideElements; let i = index" class="card">
+            <div class="card-header" [style.min-height.px]="maxTitleHeight">
+              <div class="card-title">
+                {{ element.title }}
+                <button class="read-more-button" (click)="openGuideDetail(element)">
+                  Read More
+                </button>
+              </div>
             </div>
-            <div class="checkbox-container">
-              <label for="filterOption2">Filter 2</label>
-              <input type="checkbox" id="filterOption2" name="filterOption2" (change)="updateFilter($event)">
-            </div>
-            <div class="checkbox-container">
-              <label for="filterOption3">Filter 3</label>
-              <input type="checkbox" id="filterOption3" name="filterOption3" (change)="updateFilter($event)">
-            </div>
-          </div>
-          <div class="pathway-filter-modal-footer">
-            <button class="filter-button-modal-footer" (click)="FilterPathways()">Filter</button>
           </div>
         </div>
       </div>
+    </div>
+    
+    <!-- ---------------- SUB MODALS FOR READ MORE IN A GUIDE ---------------- -->
+    <div class="pathway-filter-modal" *ngIf="selectedGuideElement">
+      <div class="pathway-filter-modal-content">
+        <div class="pathway-filter-modal-header">
+          <h2>{{ selectedGuideElement.title }}</h2>
+          <span class="pathway-filter-close-btn" (click)="closeGuideDetail()">×</span>
+        </div>
+        <div class="pathway-filter-modal-body">
+          <pre class="guide-description">{{ selectedGuideElement.fullContent }}</pre>
+        </div>
+        <div class="pathway-filter-modal-footer">
+          <button class="filter-button-modal-footer" (click)="closeGuideDetail()">Close</button>
+        </div>
+      </div>
+    </div>
 
 
     <!-- ---------------- MAIN PANEL WITH THE DISPLAY OF PATHWAYS AND TIME SLIDER ---------------- -->
