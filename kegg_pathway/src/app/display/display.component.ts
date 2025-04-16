@@ -1885,6 +1885,7 @@ private getLoadedPathways(): void{
     if (this.searchSubmenuOpen) {
       this.searchSubmenuOpen = false;
     }
+
   }
 
   exportImage(format: string) {
@@ -2838,7 +2839,6 @@ Once all the steps are completed, click the Process button to move to get visual
     this.isSearchPathwayModalOpen = false;
   }
 
-  
 } 
 
 

@@ -52,24 +52,6 @@ html {
   align-items: center;
 }
 
-
-/* .app-logo {
-  width: 30px;
-  height: 30px;
-} */
-
-/* .app-logo {
-  width: 30px;
-  height: 30px;
-  background-color: #e9ecef; 
-  color: #343a40;
-  border-radius: 50%; 
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-weight: bold;
-  margin-right: 10px;
-} */
 .app-logo {
   position: relative; 
   z-index: 2; 
