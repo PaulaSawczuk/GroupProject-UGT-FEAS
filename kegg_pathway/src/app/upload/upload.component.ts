@@ -1092,5 +1092,10 @@ export class UploadComponent {
       this.fileDataService.setPathwayCount(this.pathwayCount);
 
     }
-  }
+}
+
+goBackToLanding(): void {
+  this.router.navigate(['/']);
+}
+
 }

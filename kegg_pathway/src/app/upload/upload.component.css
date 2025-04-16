@@ -3,7 +3,35 @@
   justify-content: center;
   align-items: center;
   height: 100vh;
-  background-color: #E8ECEB;
+  background: linear-gradient(to bottom, rgba(62, 66, 75, 0.2) 0%, rgba(62, 66, 75, 0) 100%);
+  position: relative;
+}
+
+/* ------------- GO BACK TO LANDING PAGE BUTTON ------------- */
+.back-button {
+  position: absolute;
+  top: 16px; 
+  left: 16px; 
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 50%;
+  transition: background-color 0.3s ease;
+  z-index: 10; 
+}
+
+.back-button:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.back-button svg {
+  width: 24px;
+  height: 24px;
+  stroke: #48494B; 
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
 .upload-box {
@@ -18,11 +46,11 @@
   flex-direction: column;
   align-items: center;
 }
-
+/* -------------- TITLE -------------- */
 .upload-title {
   font-size: 48px;
   margin-bottom: 30px;
-  color: #083B61;
+  color: #48494B;
   letter-spacing: 4px;
   font-family: 'DM Sans', sans-serif;
   font-weight: 300;
@@ -30,7 +58,7 @@
 /* -------------- UPLOAD BUTTON -------------- */
 .upload-button {
   padding: 12px 25px;
-  background-color: #083B61;
+  background-color: #48494B;
   color: #fff;
   border: none;
   border-radius: 8px;
@@ -38,6 +66,10 @@
   font-size: 18px;
   display: flex;
   align-items: center;
+}
+
+.upload-button:hover {
+  background-color: #646566;
 }
 
 .arrow {
@@ -83,11 +115,15 @@
 /* -------------- PROCESS BUTTON -------------- */
 .process-button {
   padding: 10px 20px;
-  background-color: #083B61;
+  background-color: #2E5984;
   color: #fff;
   border: none;
   border-radius: 8px;
   cursor: pointer;
+}
+
+.process-button:hover {
+  background-color: #646566;
 }
 
 .process-container {
@@ -211,3 +247,6 @@
   border: 1px solid #482E3C;
   font-size: 14px;
 }
+
+
+
