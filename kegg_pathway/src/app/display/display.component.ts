@@ -2707,7 +2707,7 @@ Once all the steps are completed, click the Process button to move to get visual
         // Updating the Diagram 
         this.updateDiagram(timeNodes,links)
         
-        await this.delay(750);// 1 Second between pathway refresh (large pathays take a while to load)
+        await this.delay(1000);// 1 Second between pathway refresh (large pathays take a while to load)
         }
     
   }
