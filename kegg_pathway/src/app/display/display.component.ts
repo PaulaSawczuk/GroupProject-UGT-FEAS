@@ -1739,15 +1739,8 @@ private getLoadedPathways(): void{
     // Assinging code of pathway selected 
     this.selectedPathway = path.pathway;
     const code = path.pathway
-    //console.log(code);
 
-    // Set Time index to defualt value of 0 -- open up on first timepoint 
-    //console.log(this.selectedTimeIndex);
-
-    // Retrieving Mapping Data from stored arrays
-    // Specifcying the timepoint -- can be set default to 0 (first file)
     const pathwayData = this.ALLpathwayData.find((obj => obj.pathway === code));
-    //console.log(pathwayData);
     this.setMap(code, this.selectedTimeIndex, pathwayData);
   }
 
@@ -1779,8 +1772,7 @@ private getLoadedPathways(): void{
   pathwaySize(): any[]{
     let list = this.pathways;
     let data = this.ALLpathwayData;
-    //console.log(list);
-    //console.log(data);
+
     var pathwaysSize = [];
     for (let j=0;j<list.length;j++){
       //console.log(list[j]);
@@ -1957,15 +1949,12 @@ private getLoadedPathways(): void{
   // Same function as above for Newly Uploaded Files
   private updateEnzymeGenes(file: any[]): any[]{
 
-  //console.log('Combined data:', combinedData); // Add debug logging
     var geneEnzymes: any[] = []; // Use Set to avoid duplicates
     //var filteredSet: Set<any> = new Set()
     
     if (file && file.length > 0) {
       // Loop through the combined data to find EC numbers
       for (const item of file) {
-        //console.log(item.gene);
-        //console.log(item.log)
         for (const key in item) {
           //console.log(key);
           var logfc;
@@ -1980,9 +1969,6 @@ private getLoadedPathways(): void{
             if (ec.startsWith("EC")){
                 //ec = item[key];
                 gene = item.gene
-                //console.log(ec);
-                //console.log(gene);
-                //console.log(logfc);
                 geneEnzymes.push({
                   gene: gene,
                   logfc: logfc,
@@ -2818,7 +2804,10 @@ Once all the steps are completed, click the Process button to move to get visual
   // Function to handle search
   filterPathways() {
     const term = this.searchTerm.toLowerCase();
-    this.filteredPathways = this.pathways.filter(p => p.toLowerCase().includes(term));
+    const pathways = this.AllKeggPathways.map(pathway => pathway.name);
+    //console.log(pathways);
+    this.filteredPathways = pathways.filter(p => p.toLowerCase().includes(term));
+    //console.log(this.filteredPathways);
   }
 
   // Functions to handle open and close of the modal
@@ -2835,8 +2824,10 @@ Once all the steps are completed, click the Process button to move to get visual
   // Once search button is clicked
   SearchForPathway(){
     this.filterPathways();
+    console.log(this.searchTerm);
+    console.log(this.filteredPathways);
     console.log('Searching for Pathway');
-    this.isSearchPathwayModalOpen = false;
+    this.isSearchPathwayModalOpen = true;
   }
 
 } 
