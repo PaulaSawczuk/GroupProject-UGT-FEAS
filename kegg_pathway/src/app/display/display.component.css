@@ -52,25 +52,16 @@ html {
   align-items: center;
 }
 
-
-
 .app-logo {
-  width: 30px;
-  height: 30px;
+  position: relative; 
+  z-index: 2; 
+  width: 30px; 
+  height: 30px; 
+  margin: 0; 
+  margin-bottom: 4px;
+  padding: 0; 
+  pointer-events: none; 
 }
-/*
-.app-logo {
-  width: 30px;
-  height: 30px;
-  background-color: #e9ecef; 
-  color: #343a40;
-  border-radius: 50%; 
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-weight: bold;
-  margin-right: 10px;
-}*/
 
 .app-name {
   font-size: 18px;
@@ -352,9 +343,9 @@ button:hover {
   background-color: #115ba9;
 }
 
-/* ------------ FILTER ------------ */
+/* ------------ GUIDE ------------ */
 
-/* ------------ PATHWAYS GUIDE MODAL ---------- */
+/* ------------ GUIDE MODAL ---------- */
 .pathway-filter-modal {
   display: flex;
   justify-content: center;
@@ -578,6 +569,7 @@ button:hover {
   scrollbar-width: thin;
   scrollbar-color: #c0c0c0 transparent;
   z-index: 10;
+  display: flex;
 }
 
 #sidebar.close {
@@ -864,6 +856,7 @@ button:hover {
   align-items: flex-start;
   gap: 0px;
 }
+
 .color-box-high,
 .color-box-low,
 .color-box-isoform {
@@ -1052,8 +1045,8 @@ button:hover {
 /* ------------ SORT BY ------------ */
 
 .sort-container {
-  margin-left: auto;
-  padding-right: -20px;
+  margin-left: 50px;
+  padding-right: 0px;
   padding-top: 5px;
   display: flex;
   align-items: center;
@@ -1110,6 +1103,8 @@ button:hover {
   margin-left: 20px;
   transition: margin-left 0.3s ease-in-out;
   background-color: transparent;
+  display: fixed;
+  position: relative;
 }
 
 #sidebar.close + .main-panel {
@@ -1130,8 +1125,8 @@ button:hover {
 .pathway-title{
   text-align: left; 
   font-size: 0.6em;
-  margin-bottom: 700px; 
-  left: 500px;
+  /* margin-bottom: 700px;  */
+  /* left: 500px; */
   color: #48494B; 
   font-family: 'DM Sans', sans-serif; 
   letter-spacing: 1px;
@@ -1270,105 +1265,3 @@ button:hover {
 .animation-button svg {
   vertical-align: middle;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/* .dropdown-btn {
-  display: flex;
-  align-items: center;
-  justify-content: space-between; 
-  width: 100%;
-  background: none;
-  border: none;
-  color: var(--text-clr);
-  padding: 15px;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: background-color 0.3s;
-  font-size: 18px;
-  font-family: 'DM Sans', sans-serif;
-} */
-
-/* .dropdown-btn:hover {
-  background-color: var(--hover-clr);
-} */
-
-
-
-
-
-
-
-
-/* #customisation-panel {
-  width: 250px;
-  background-color: var(--base-clr);
-  color: var(--text-clr);
-  position: fixed;
-  right: 0;
-  top: 8px;
-  height: 100vh;
-  transition: transform 0.3s ease-in-out;
-  padding: 10px;
-  background-color: #482e3c43;
-  border-radius: 8px;
-  box-shadow: -2px 0px 5px rgba(0, 0, 0, 0.2);
-  font-family: 'DM Sans', sans-serif;
-}
-
-#customisation-panel.close {
-  transform: translateX(100%);
-}
-
-.customisation-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10px;
-  font-size: 14px;
-  border-bottom: 1px solid var(--line-clr);
-  font-family: 'DM Sans', sans-serif;
-}
-
-.customisation-header button {
-  background: none;
-  border: none;
-  color: var(--text-clr);
-  cursor: pointer;
-  font-size: 20px;
-  color: #b66791;
-}
-
-.customisation-content {
-  padding: 10px;
-}
-
-#customisation-toggle-btn {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  background: var(--accent-clr);
-  color: white;
-  border: none;
-  border-radius: 50%;
-  width: 40px;
-  height: 40px;
-  font-size: 20px;
-  cursor: pointer;
-  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
-}
-
-#customisation-toggle-btn:hover {
-  background-color: #b66791;
-} */
