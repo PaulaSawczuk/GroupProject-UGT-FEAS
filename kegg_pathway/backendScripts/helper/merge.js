@@ -22,10 +22,6 @@ function getCompoundNames(compounds, nodes){
     console.log('------------');
     console.log('Matching Entry Names to Nodes');
     console.log('------------');
-    //console.log(compounds);
-    //console.log(nodes)
-
-    //console.log(compounds[0]['id'])
 
     for (let i = 0; i< nodes.length; i++){
         if (nodes[i].type == 'compound'){
@@ -56,30 +52,6 @@ function getCompoundNames(compounds, nodes){
     console.log('ALL DONE - getCompound Names');
 }
 
-
-
-/*
-function matchEnzymes(data, nodes) {
-        //console.log('matching nodes')
-        // Check if the values for the given kesy match in both objects
-        for (let i=0;i<data.length;i++){
-            //console.log(data[i]);
-            for (let j=0;j<nodes.length;j++){
-                //console.log(data[i].enzyme);
-                //console.log(nodes[j].text);
-                if (data[i].enzyme === nodes[j].text){
-                //console.log('match');
-                // If they match, update the specified attribute in object1
-                nodes[j].colour = data[i].value;
-                }else{
-                    continue
-                }
-            }
-        }
-    }
-*/
-
-
 function matchEnzymeNames(enzymeNames, nodes){
     console.log('------------');
     console.log('Matching Enzyme Names to Nodes');
@@ -105,8 +77,6 @@ function matchEnzymeNames(enzymeNames, nodes){
                     enzyme = enzyme.replace('EC', 'ec');
                     //console.log(enzyme);
                     if (name == enzyme){
-                        //console.log('match');
-                        //console.log(enzymeNames[j].name);
                         nodes[i].name = enzymeNames[j].name;
 
                     } else {
@@ -125,61 +95,6 @@ function matchEnzymeNames(enzymeNames, nodes){
     console.log('ALL DONE - getEnzymeNames');
     console.log('------------');
 }
-
-
-/*
-function getLogFCColor(data) {
-        /**
-         * Maps a log fold change (logfc) value to a color where:
-         * - Positive logfc is a shade of green.
-         * - Negative logfc is a shade of red.
-         * - Zero logfc is white.
-         
-        data.forEach(logfc=>{
-            let color;
-            if (logfc.value > 0) {
-                // If logfc is positive, we create a green color (0, g, 0)
-                const greenValue = Math.min(1, logfc.value);  // Scale the green intensity
-                color = `rgb(0, ${Math.round(greenValue * 255)}, 0)`; // RGB for green
-            } else if (logfc.value < 0) {
-                // If logfc is negative, we create a red color (r, 0, 0)
-                const redValue = Math.min(1, -logfc.value);  // Scale the red intensity
-                color = `rgb(${Math.round(redValue * 255)}, 0, 0)`; // RGB for red
-            } else {
-                // If logfc is zero, return white
-                color = "rgb(255, 255, 255)"; // RGB for white
-            }
-            logfc.value = color;
-        });
-        return data;
-    }
-    
-    const enzymes = [
-        'ec:1.1.1.360',
-        'ec:1.1.1.359',
-        'ec:4.3.1.29',
-        'ec:5.3.1.27',
-        'ec:5.3.1.29',
-        'ec:2.7.1.212',
-        'ec:1.2.1.90']
-    
-    const values =[
-        -0.580737821,
-        -1.255226049,
-        1.019565292,
-        -0.524723441,
-        -0.74399641,
-        -6.096992804,
-        1.040871759,]
-    
-    var data = [];
-    for (let i=0; i<enzymes.length;i++){
-        data.push({
-            enzyme: enzymes[i],
-            value: values[i]
-        })
-    }
-*/
 
 
 async function processInput(code) {
@@ -251,11 +166,6 @@ async function processInput(code) {
     // Removing duplicate nodes and enzymes
     const processedElements = getMapNodes(map_elements.uniqueNodes,finalEdges);
 
-
-    // ----------------------Matching Enzymes to Nodes - change colour -------------------------
-    // Matching enzyme names of data to nodes
-
-    //matchGenes(genes,processedElements.finalNodes);
 
     // ----------------------Matching Enzymes Enzyme Type  -------------------------
     // Matching enzyme types to nodes - based on EC Brite Hierarchy Number 

@@ -321,6 +321,7 @@ private newlogfcToRGB(
 
   return `rgb(${color.r}, ${color.g}, ${color.b})`;
 }
+
 // Takes array of logfc and find average value 
 // used when there are multiple genes acting on an enzyme 
 private findMean(arr: any[]): number {
@@ -499,7 +500,7 @@ private matchGenes(genes: any[], nodes: any[]): any[] {
       }
 
       if (logfcList[0]) {
-        console.log(logfcList);
+        //console.log(logfcList);
         let mean = this.findMean(logfcList); // Calculating mean of Genes logfc
         let rgb = this.newlogfcToRGB(mean, this.selectedColorLow,this.selectedColorHigh); // Getting colout relative to logfc
         let result = this.resizeNodeByLogFC(mean); // resizing node
@@ -580,7 +581,7 @@ private compareEnzymesNoSize(nodes: any[],timepoint: number): any[]{
 
 
 private getIsoforms(nodes: any[]): any[]{
-
+  console.log("--------------------")
   console.log('Finding Isoforms')
 
   var newNodes = nodes.map(node => ({ ...node }));
@@ -639,10 +640,10 @@ private getIsoforms(nodes: any[]): any[]{
 
 
 
-
+// ------------ ISOFORM IDENTIFCATION ---------------------
 
 // Identification of enzyme Nodes that have multiple differentially regualted genes 
-
+// Colour the FULL NODE with selected colour 
 private getMultipleGenes(nodes: any[]): any[]{
 
   console.log('Finding Isoforms/Multiple Genes...')
@@ -665,7 +666,8 @@ private getMultipleGenes(nodes: any[]): any[]{
 
 }
 
-
+// Identification of enzyme Nodes that have multiple differentially regualted genes 
+// Colours the NODE MARGIN with selected colour 
 private getMultipleGenes2(nodes: any[]): any[]{
 
   console.log('Finding Isoforms/Multiple Genes...')
@@ -694,40 +696,45 @@ private getMultipleGenes2(nodes: any[]): any[]{
 
 
 
-
+// ------------- METABOLIC FLUX - LINE WIDTHS -----------------
+// Gets enzyme nodes that are impacted by genes and are not due to isoforms (by colour)
+// Gets the node group key and finds 'from' links by match the key to the link key (e.g. Group: 76, Link 37R76)
+// Ensures that 
+// Extracts the logfc for that 
 
 private getMetabolicFlux(nodes: any[], links: any[]){
 
 
-  var newNodes = nodes.map(node => ({ ...node }));
+  var newNodes = nodes.map(node => ({ ...node }));// Deep cloning Nodes and Links 
   var newLinks = links.map(link => ({ ...link}));
   for (let i = 0; i < newNodes.length; i++) {
+
     // Get all enzyme nodes that have been effected but not by isoforms (coloured yellow)
     if (newNodes[i].type === 'enzyme' && (newNodes[i].gene) && newNodes[i].colour != this.selectedColorIsoform){
 
       const key = newNodes[i].key;
       const colour = newNodes[i].colour;
       const logfc = newNodes[i].logfc;
-      const rIndex = key.indexOf("R");
+      const rIndex = key.indexOf("R"); // Finding 'R' character in link key 
       if (rIndex !== -1) {
         const reactKey = key.substring(rIndex);
-        console.log(reactKey); 
+        //console.log(reactKey); 
 
         // Loop through links to get any that match with that reaction key
-      for (let j = 0; j < newLinks.length; j++) {
+      for (let j = 0; j < newLinks.length; j++) { // Matching 'to' links
         if (newLinks[j].to == reactKey){
           //console.log('Match Found: (Link to) ');
           let category = newLinks[j].category;
           //console.log(category);
 
         }
-        if (newLinks[j].from == reactKey){
-          console.log('Match Found: (Link from) ');
+        if (newLinks[j].from == reactKey){ // Matching 'from' links
+          //console.log('Match Found: (Link from) ');
           let category = newLinks[j].category;
-          console.log(category);
-          newLinks[j].colour = colour;
-          const width = this.getLineWidth(logfc);
-          newLinks[j].size = width;
+          //console.log(category);
+          newLinks[j].colour = colour; // Adding new colour attribute to link 
+          const width = this.getLineWidth(logfc); // Calculating line width realtive to logFc
+          newLinks[j].size = width; // Assinging caluclated width to the link 
           
         }else{
           continue;
@@ -740,7 +747,8 @@ private getMetabolicFlux(nodes: any[], links: any[]){
       }
     }
   }
-  console.log(newLinks);
+  //console.log(newLinks);
+  // Returns new links to 
   return newLinks;
 }
 
@@ -763,7 +771,7 @@ private getLoadedPathways(): void{
     edges: item.edges.map((edge: any[]) => ({ ...edge })) // Deep copy of edges if necessary
   }));
   console.log('Pathway Data to load:')
-  console.log(pathwayData);
+  //console.log(pathwayData);
   
   
   for (let i = 0; i < pathwayData.length; i++) {
@@ -787,7 +795,7 @@ private getLoadedPathways(): void{
       //console.log(elements)
       var updatedNodes = elements[0];
       var updatedEdges = this.getMetabolicFlux(updatedNodes,edges);
-      console.log(updatedEdges);
+      //console.log(updatedEdges);
 
       var colours = elements[1];
       //console.log(colours);
@@ -900,7 +908,7 @@ private getLoadedPathways(): void{
     this.pathwayNumber = this.fileDataService.getPathwayCount();
     console.log("--------------------")
     console.log("Number of enriched pathways to return:")
-    console.log(this.pathwayNumber);
+    //console.log(this.pathwayNumber);
 
     // Setting up Data Array to send to back-end API
     // Sending list of enzymes (from ExtractECNUmber()) and Number of top pathways to get (e.g. 10))
@@ -949,18 +957,18 @@ private getLoadedPathways(): void{
   this.LoadingMessage = 'Loading Pathway Mapping Data...';
   this.enzymeApiServicePost.postALLMapData(data).subscribe(
     (response) =>{
-    console.log(response);
+    //console.log(response);
     
     const ALLpathwayData = response;
     this.pathwayResponse = response;
     this.ALLpathwayData = ALLpathwayData;
-    console.log(this.ALLpathwayData);
+    //console.log(this.ALLpathwayData);
 
     // Loading Pathway Data to Loaded Pathway Array
     // Loads edited Nodes (logfc, genes, colour)
     this.getLoadedPathways();
     const loadedData = this.loadedPathwayData;
-    console.log(loadedData);
+    //console.log(loadedData);
     console.log("--------------------")
     console.log('Pathway Data Loaded Successfully');
     this.isLoading = false;
@@ -1012,7 +1020,7 @@ private getLoadedPathways(): void{
 
   // Pathway code 
     console.log('Getting Specific Pathway Request');
-    console.log(pathwayData.pathway);
+    //console.log(pathwayData.pathway);
     const code = pathwayData.pathway;
     const pathwayName = pathwayData.name;
     //console.log(data);
@@ -1028,11 +1036,11 @@ private getLoadedPathways(): void{
       console.log(response);
 
       const pathwayData = response;
-      console.log(pathwayData);
+      //console.log(pathwayData);
       pathwayData[0].name= pathwayName;
-      console.log(pathwayData);
+      //console.log(pathwayData);
       this.ALLpathwayData.push(pathwayData[0]);
-      console.log(this.ALLpathwayData);
+      //console.log(this.ALLpathwayData);
       console.log("--------------------")
       console.log('Pathway Data Loaded Successfully');
       console.log("--------------------")
@@ -1042,7 +1050,7 @@ private getLoadedPathways(): void{
       //console.log(this.pathways);
       //console.log(this.pathwayData);
       this.pathwayData.push(pathwayData[0]);
-      console.log(this.pathwayData);
+      //console.log(this.pathwayData);
 
       this.getLoadedPathways();
       
@@ -1068,7 +1076,7 @@ private getLoadedPathways(): void{
                nodes: any[], edges: any[], enzymes: []}): void {
     console.log("--------------------");
     console.log("Getting Map Data: "+code);
-    console.log(pathwayData);
+    //console.log(pathwayData);
     const pathwayResponse = this.pathwayResponse;
     console.log("--------------------");
     console.log('Original Response: '+pathwayResponse);
@@ -1091,7 +1099,9 @@ private getLoadedPathways(): void{
     console.log('Stats Recieved');
     const stats = elements[2];
     console.log(stats);
-    //console.log(updatedNodes);
+
+    // TO DO:  ADD STATS TO DISPLAY COMPONENT 
+
     this.changeDiagram(updatedNodes, updatedEdges);
     this.isLoading = false;
 
@@ -1644,7 +1654,7 @@ private getLoadedPathways(): void{
 
       // Node Type: Selected Isoform Colour
       $(go.Panel, "Horizontal", { row: 6 },
-        $(go.Shape, "Rectangle", { width: 15, height: 15, fill: '#FFF44F', margin: 2 }),
+        $(go.Shape, "Rectangle", { width: 15, height: 15, fill: this.selectedColorIsoform, margin: 2 }),
         $(go.TextBlock, "Isoform", { margin: 2,font: "8pt sans-serif"})
       ),
     
@@ -2025,7 +2035,6 @@ private getLoadedPathways(): void{
   return filteredFiles_enzymes;
 }
 
-
 /*
   private updatePathways(newFilteredGenes: any[]): void{
 
@@ -2078,22 +2087,6 @@ private getLoadedPathways(): void{
   );
 }*/
 
-
-  private getNewPathways(arr1: any[], arr2: any[]): any[] {
-  // Filter arr1 to get items that don't exist in arr2
-  const uniqueInArr1 = arr1.filter(item1 => 
-    !arr2.some(item2 => item1.id === item2.id)
-  );
-
-  // Filter arr2 to get items that don't exist in arr1
-  const uniqueInArr2 = arr2.filter(item2 => 
-    !arr1.some(item1 => item1.id === item2.id)
-  );
-
-  // Combine both results into one array
-  return [...uniqueInArr1, ...uniqueInArr2];
-}
-
 processNewFiles(): void{
     this.isLoading = true;
     this.LoadingMessage = 'Processing New Files...'
@@ -2120,17 +2113,14 @@ processNewFiles(): void{
     }
 
     const newFilteredGenes = this.updateFilterEnzymeGenes(filteredFiles);
-    //console.log(newFilteredGenes);
     //var newArray = originalData.push(newFilteredGenes);
     console.log('Adding New Filtered Data to Array');
     //console.log(newArray);
     newFilteredGenes.forEach(item =>{
       this.filteredGenes.push(item);
     })
-    //this.filteredGenes.push(newFilteredGenes);
-    console.log(this.filteredGenes);
+    //console.log(this.filteredGenes);
     
-    //this.updatePathways(newFilteredGenes);
   }
 
   isUploadModalOpen: boolean = false;
@@ -2157,22 +2147,17 @@ processNewFiles(): void{
 
 
   // Function to compare new and old list of pathways on upload of new files
-  private compareArrays(arr1: string[], arr2: string[]) {
-    const set1 = new Set(arr1);
-    const set2 = new Set(arr2);
-  
-    // Similar elements
-    const similar = [...set1].filter(item => set2.has(item));
-  
-    // Different elements
-    const different = [
-      ...arr1.filter(item => !set2.has(item)),
-      ...arr2.filter(item => !set1.has(item))
-    ];
+  // Returns Simiar pathways, Removed Pathways, and Added Pathways 
+  // Used to inform user of changed 
+  comparePathways(oldPathways: string[], newPathways: string[]) {
+    const similarities = oldPathways.filter(item => newPathways.includes(item));
+    const oldItems = oldPathways.filter(item => !newPathways.includes(item));
+    const newItems = newPathways.filter(item => !oldPathways.includes(item));
   
     return {
-      similar,
-      different
+      similarities,
+      oldItems,
+      newItems
     };
   }
 
@@ -2364,12 +2349,9 @@ processNewFiles(): void{
               // Overriding / updating lit of pathways including newly uploaded pathways 
               this.pathwayData = response;
 
+              // Current Pathways before processing new files 
               console.log('Current Pathways:');
               console.log(currentPaths)
-
-              //console.log('New pathway list:')
-              //console.log(this.pathwayData);
-
 
               // Loading Pathway names -- for displaying to user
               this.loadNames();
@@ -2378,21 +2360,25 @@ processNewFiles(): void{
               console.log('Updated Pathways:');
               console.log(this.pathways)
 
-              const result = this.compareArrays(currentPaths,this.pathways);
-              const similar = result.similar;
-              const different = result.different;
+              // Comparing pathway arrays to get the different pathways 
+              const result = this.comparePathways(currentPaths,this.pathways);
+              const similar = result.similarities; // Similar pathways 
+              const oldItems = result.oldItems; // Pathways that have been removed
+              const newItems = result.newItems; // Pathways that have been added
 
               console.log('Similar Pathways: ');
               console.log(similar)
-              console.log('Different Pathways: ');
-              console.log(different)
+
+              console.log('Pathways Removed: ');
+              console.log(oldItems);
+
+              console.log('Pathways Added: ');
+              console.log(newItems);
 
               console.log('Received from backend:', response);
               console.log('-----------------------------');
               console.log('Getting Mapping Data');
               this.getMapData();
-
-              console.log('-------- NEW PATHWAYS LOADED -------');
 
             },
             (error) => {
@@ -2403,9 +2389,6 @@ processNewFiles(): void{
               //this.responseMessage = 'Error sending data';
             }
           );
-
-          //console.log('-------- NEW PATHWAYS LOADED -------');
-
           this.closeUploadModal(); // Close modal after merge
 
           //this.isLoading = false;
