@@ -73,9 +73,13 @@ export class DisplayComponent {
   private activePopups: { nodeKey: any }[] = [];
 
   // Creating the Back-end API Service 
-  constructor(private enzymeApiServicePost: enzymeApiServicePost,
+  constructor(
+    private enzymeApiServicePost: enzymeApiServicePost,
     private fileDataService: FileDataService
-  ) {document.addEventListener('click', this.handleClickOutside.bind(this));};
+  ) {
+    document.addEventListener('click', this.handleClickOutside.bind(this));
+    document.addEventListener('click', this.onOutsideClick.bind(this));
+  }
 
   // ------------- SETTING UP PROCESSING FUNCTIONS -------------------------
 
@@ -1792,6 +1796,12 @@ private getLoadedPathways(): void{
     if (this.sortDropdownOpen && !target.closest('.sort-container')) {
       this.sortDropdownOpen = false;
     }
+  
+    // Close sort dropdown
+    if (this.sortDropdownOpen && !target.closest('.sort-container')) {
+      this.sortDropdownOpen = false;
+    }
+  
   }
 
   // -------  PATHWAY SORTING FUNCTIONS -----------
@@ -2808,41 +2818,102 @@ Once all the steps are completed, click the Process button to move to get visual
     return this.selectedColorIsoform;
   }
 
-   // ------------------ SEARCH BAR FOR PATHWAYS -------------------
+  // ------------------ SEARCH BAR FOR PATHWAYS -------------------
 
   searchTerm: string = '';
   filteredPathways: string[] = [];
+  selectedPathways: string[] = [];
+  selectedPathwaysKEGG: string[] = [];
+  isDropdownOpen = false;
 
-  // Function to handle search
-  filterPathways() {
-    const term = this.searchTerm.toLowerCase();
-    const pathways = this.AllKeggPathways.map(pathway => pathway.name);
-    //console.log(pathways);
-    this.filteredPathways = pathways.filter(p => p.toLowerCase().includes(term));
-    //console.log(this.filteredPathways);
-  }
-
-  // Functions to handle open and close of the modal
+  // to handle open and close of the modal
   isSearchPathwayModalOpen = false;
 
   openSearchPathwayModal() {
     this.isSearchPathwayModalOpen = true;
+    this.searchTerm = '';
+    this.selectedPathways = [];
+    this.selectedPathwaysKEGG = [];
+    this.isDropdownOpen = false;
   }
 
   closeSearchPathwayModal() {
     this.isSearchPathwayModalOpen = false;
   }
 
-  // Once search button is clicked
-  SearchForPathway(){
+  // ----- KEEG ALL ----
+  
+  openDropdown() {
+    this.isDropdownOpen = true;
     this.filterPathways();
-    console.log(this.searchTerm);
-    console.log(this.filteredPathways);
-    console.log('Searching for Pathway');
-    this.isSearchPathwayModalOpen = true;
   }
 
+  // Function to handle search
+  filterPathways() {
+    if(this.searchTerm == ''){
+      this.filteredPathways = this.AllKeggPathways;
+    }else{
+      const term = this.searchTerm.toLowerCase();
+      this.filteredPathways = this.AllKeggPathways.map(p => p.name).filter(name => name.toLowerCase().includes(term) && !this.selectedPathways.includes(name));
+    }
+  }
 
+  addPathway(pathway: string) {
+    if (!this.selectedPathwaysKEGG.includes(pathway)) {
+      this.selectedPathwaysKEGG.push(pathway);
+    }
+      this.searchTerm = '';
+      this.isDropdownOpen = false;
+      this.filterPathways();
+  }
+
+  removePathway(pathway: string) {
+    this.selectedPathwaysKEGG = this.selectedPathwaysKEGG.filter(p => p !== pathway);
+    this.filterPathways(); 
+  }
+
+  onOutsideClick = (event: Event) => {
+    const target = event.target as HTMLElement;
+    const clickedInside = target.closest('.search-input-wrapper');
+  
+    if (!clickedInside && this.isDropdownOpen) {
+      this.isDropdownOpen = false;
+    }
+  }
+  
+  // when search button is clicked
+  SearchForPathway() {
+    const selectedPathways = this.highlightedPathways.filter(p => p.selected);
+    console.log('Selected pathways:', selectedPathways);
+    console.log('KEGG ALL: ', this.selectedPathwaysKEGG);
+    this.isSearchPathwayModalOpen = false; // close the modal
+  }
+
+  // ---- To deal with the Highlighted Pathways selection in a Table ----
+  activeTab: 'highlight' | 'all' = 'highlight';
+
+  selectedHighlightPathway: any = null;
+
+  onHighlightRowClick(pathway: any) {
+    this.selectedHighlightPathway = pathway;
+    console.log('Clicked Pathway:', pathway);
+  }
+
+  // Clear All ticked pathways
+  clearAllSelections() {
+    this.highlightedPathways.forEach(p => p.selected = false);
+  }
+
+  // Select All pathways
+  selectAll(): void {
+    this.highlightedPathways.forEach(pathway => pathway.selected = true);
+  }
+
+  // Get the count of selected pathways from the table
+  get selectedHighlightedCount(): number {
+    return this.highlightedPathways.filter(p => p.selected).length;
+  }
+  
   
 
   

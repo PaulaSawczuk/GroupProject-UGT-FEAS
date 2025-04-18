@@ -439,6 +439,7 @@ button:hover {
 
 /* ------------ Submenu - SEARCH FOR PATHWAY ------------  */
 
+/* ------- MODAL ---------- */
 .Search-Pathway-modal {
   display: flex;
   justify-content: center;
@@ -453,15 +454,21 @@ button:hover {
 }
 
 .Search-Pathway-modal-content {
-  background-color: #e9ecef;
+  resize: both;
+  overflow: auto;
+  min-width: 300px;
+  min-height: 300px;
+  max-width: 100%;
+  max-height: 90vh;
+  width: 500px;
+  height: 600px;
   padding: 20px;
   border-radius: 15px;
-  width: 400px;
-  height: 500px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  max-width: 100%;
+  background-color: #e9ecef;
   display: flex;
   flex-direction: column;
+
 }
 
 .Search-Pathway-modal-header {
@@ -486,9 +493,20 @@ button:hover {
 }
 
 .Search-Pathway-modal-body {
-  margin-top: 10px;
-  flex-grow: 1;
+  flex: 1;
   overflow-y: auto;
+  min-height: 0;
+}
+
+.Search-Pathway-modal-content:after {
+  content: "";
+  position: absolute;
+  right: 8px;
+  bottom: 8px;
+  width: 16px;
+  height: 16px;
+  background: url("data:image/svg+xml;utf8,<svg fill='%236c757d' height='16' width='16' xmlns='http://www.w3.org/2000/svg'><path d='M0 14h2v2H0v-2zm4 0h2v2H4v-2zm4 0h2v2H8v-2zM0 10h2v2H0v-2zm4 0h2v2H4v-2zm4 0h2v2H8v-2zM0 6h2v2H0V6zm4 0h2v2H4V6zm4 0h2v2H8V6z'/></svg>") no-repeat center center;
+  pointer-events: none;
 }
 
 
@@ -499,6 +517,192 @@ button:hover {
   border-top: 1px solid #ddd;
 }
 
+/* ------- TABS FOR MODAL ---------- */
+.Search-Pathway-tabs {
+  display: flex;
+  /* justify-content: space-around; */
+  margin-top: 10px;
+  margin-bottom: 5px;
+}
+
+.Search-Pathway-tabs button {
+  background-color: #dee2e6;
+  border: none;
+  padding: 10px 20px;
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  border-radius: 10px 10px 0 0;
+  font-weight: bold;
+  color: #495057;
+}
+
+.Search-Pathway-tabs button.active {
+  background-color: #ffffff;
+  border-bottom: 2px solid transparent;
+}
+
+/* ------- TABLE FOR MODAL ---------- */
+.highlight-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  table-layout: auto;
+}
+
+.highlight-table th,
+.highlight-table td {
+  border: 1px solid #ced4da;
+  padding: 8px;
+  text-align: left;
+}
+
+.highlight-table thead {
+  background-color: #bcbcbcab;
+  color: #3e4247;
+}
+
+.clickable-row {
+  cursor: pointer;
+}
+
+.clickable-row:hover {
+  background-color: #dee2e6;
+}
+
+
+/* ---------- CLEAR ALL BUTTON ----------- */
+
+.select-all-button, .clear-all-button {
+  /* margin-left: 2px; */
+  padding: 4px 10px;
+  font-size: 13px;
+  background-color: #3e4247;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.select-all-button{
+  margin-right: 2px;
+}
+
+.select-all-button:hover, .clear-all-button:hover {
+  background-color: #acadae;
+}
+
+.search-input-wrapper input {
+  width: 100%;
+  padding: 6px;
+  box-sizing: border-box;
+}
+
+/* ------------ PATHWAY COUNT LABELS --------------- */
+
+.PathwayCount{
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  color: #3e4247;
+}
+
+/* ---------- SEARCH BAR FOR PATHWAYS ------------ */
+
+.pathway-search {
+  padding: 0 15px 5px 15px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.search-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.search-input-wrapper svg {
+  position: absolute;
+  left: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.search-input-wrapper input {
+  width: 100%;
+  padding: 6px 10px 6px 28px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-family: 'DM Sans', sans-serif;
+  background-color: #f2f2f2;
+  color: #333;
+  font-size: 13px;
+  box-sizing: border-box;
+}
+
+/* ----- DROPDOWN FOR PATHWAY SEARCH ----- */
+
+/* Dropdown */
+.dropdown-results {
+  position: absolute;
+  flex-direction: column;
+  background-color: #ffffff;
+  border: 1px solid #ccc;
+  width: 100%;
+  top: 100%;
+  max-height: 300px;
+  overflow-y: auto;
+  list-style-type: none;
+  padding-left: 0;
+  margin: 0 10px 0 0;
+  border-radius: 4px;
+  z-index: 1000;
+}
+
+.dropdown-results li {
+  padding: 8px 12px;
+  cursor: pointer;
+  font-size: 13px;
+  font-family: 'DM Sans', sans-serif;
+}
+
+.dropdown-results li:hover {
+  background-color: #f1f1f1;
+}
+
+/* Chips for selected items */
+.selected-pathways {
+  margin-top: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.selected-chip {
+  background-color: #adb5bd89;
+  color: #343a40;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  font-family: 'DM Sans', sans-serif;
+}
+
+.remove-chip {
+  background: none;
+  border: none;
+  color: #343a40;
+  font-size: 16px;
+  margin-left: 16px;
+  cursor: pointer;
+  line-height: 1;
+  padding: 7px 7px;
+}
+
+.remove-chip:hover {
+  background-color: #8c9397; /* Change this to the desired hover color */
+  padding: 7px 7px;
+}
 
 /* ------------ CHECBOXES FOR FILTERS ---------- */
 .checkbox-container {
@@ -809,39 +1013,6 @@ button:hover {
   box-shadow: inset 0 -12px 10px -10px rgba(0, 0, 0, 0.1);
   border-radius: 4px;
 }
-
-/* ---------- SEARCH BAR FOR PATHWAYS ------------ */
-
-.pathway-search {
-  padding: 0 15px 5px 15px;
-  width: 100%;
-  box-sizing: border-box;
-}
-
-.search-input-wrapper {
-  position: relative;
-  display: flex;
-  align-items: center;
-}
-
-.search-input-wrapper svg {
-  position: absolute;
-  left: 8px;
-  top: 50%;
-  transform: translateY(-50%);
-}
-
-.search-input-wrapper input {
-  width: 100%;
-  padding: 6px 10px 6px 28px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  font-family: 'DM Sans', sans-serif;
-  background-color: #f2f2f2;
-  color: #333;
-  font-size: 13px;
-}
-
 
 /* ---------- Colour Picker ---------- */
 
