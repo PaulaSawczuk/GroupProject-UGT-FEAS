@@ -337,14 +337,22 @@
 
     <!-- ---------------- SEARCH FOR PATHWAY MODAL ---------------- -->
     <div class="Search-Pathway-modal" *ngIf="isSearchPathwayModalOpen">
-      <div class="Search-Pathway-modal-content">
+      <div class="Search-Pathway-modal-content" style="position: relative;">
         <div class="Search-Pathway-modal-header">
           <h2>Search for Pathway</h2>
           <span class="Search-Pathway-modal-close-btn" (click)="closeSearchPathwayModal()">×</span>
         </div>
+
+        <!-- ---------------- TABS ---------------- -->
+        <div class="Search-Pathway-tabs">
+          <button [class.active]="activeTab === 'highlight'" (click)="activeTab = 'highlight'">Highlighted</button>
+          <button [class.active]="activeTab === 'all'" (click)="activeTab = 'all'">All KEGG</button>
+        </div>
+
+        <!-- ---------------- SEARCH FOR PATHWAY ---------------- -->
         <div class="Search-Pathway-modal-body">
-          <div class="pathway-search">
-            <div class="search-input-wrapper">
+          <div class="pathway-search" *ngIf="activeTab === 'all'" >
+            <div class="search-input-wrapper" (click)="openDropdown()">
               <svg xmlns="http://www.w3.org/2000/svg" height="16px" viewBox="0 -960 960 960" width="16px" fill="#6c757d">
                 <path d="M796-120 560-356q-35 28-79.5 44T392-296q-109 0-184.5-75.5T132-556q0-109 75.5-184.5T392-816q109 0 184.5 75.5T652-556q0 49-16 93t-44 79l236 236-32 28ZM392-356q83 0 141.5-58.5T592-556q0-83-58.5-141.5T392-756q-83 0-141.5 58.5T192-556q0 83 58.5 141.5T392-356Z"/>
               </svg>
@@ -354,9 +362,75 @@
                 [(ngModel)]="searchTerm"
                 (input)="filterPathways()"
               />
+
+              <!-- Dropdown results -->
+              <ul class="dropdown-results" *ngIf="filteredPathways.length && searchTerm && isDropdownOpen">
+                <li *ngFor="let suggestion of filteredPathways" (click)="addPathway(suggestion)">
+                  {{ suggestion }}
+                </li>
+              </ul>
+            </div>
+
+            <!-- Selected tags below -->
+            <div class="selected-pathways">
+              <span class="selected-chip" *ngFor="let pathway of selectedPathwaysKEGG">
+                {{ pathway }}
+                <button (click)="removePathway(pathway)" class="remove-chip">&times;</button>
+              </span>
             </div>
           </div>
+          <!-- ---------------- ALL KEGG TAB ---------------- -->
+          <div *ngIf="activeTab === 'all'">
+            <ul>
+              <!-- <li *ngFor="let pathway of filteredPathways">{{ pathway }}</li> -->
+            </ul>
+          </div>
+
+          <!-- ---------------- HIGHLIGHTES PATHWAYS TAB---------------- -->
+          <div *ngIf="activeTab === 'highlight'">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+              <div class="PathwayCount">
+                <strong>Total:</strong> {{ highlightedPathways.length }} |
+                <strong>Selected:</strong> {{ selectedHighlightedCount }}
+              </div>
+              <div class="SelectClearButtons">
+                <button (click)="selectAll()" class="select-all-button">Select All</button>
+                <button (click)="clearAllSelections()" class="clear-all-button">Clear All</button>    
+              </div>
+            </div>
+            <table class="highlight-table">
+              <thead>
+                <tr>
+                  <th>Select</th>
+                  <th>Name</th>
+                  <th>Pathway</th>
+                  <th>Enzymes</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr 
+                  *ngFor="let pathway of highlightedPathways; let i = index" 
+                  class="clickable-row"
+                >
+                  <td>
+                    <input 
+                      type="checkbox" 
+                      [(ngModel)]="highlightedPathways[i].selected"
+                      (click)="$event.stopPropagation()" 
+                    />
+                  </td>
+                  <td (click)="onHighlightRowClick(pathway)">{{ pathway.name }}</td>
+                  <td (click)="onHighlightRowClick(pathway)">{{ pathway.pathway }}</td>
+                  <td (click)="onHighlightRowClick(pathway)">{{ pathway.Enzymes }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
         </div>
+
+
+
         <div class="Search-Pathway-modal-footer">
           <button class="add-button" (click)="SearchForPathway()">Search</button>
         </div>
