@@ -16,59 +16,73 @@
     
     <!-- ---------------- SIDE BAR WITH PATHWAYS ---------------- -->
     <aside id="sidebar" [class.close]="!isMenuOpen">
-      <ul>
-        <li>
-          <div class="toggle-container" [class.right]="isMenuOpen" >
-            <button id="toggle-btn" (click)="toggleMenu()" [class.rotate]="isMenuOpen">
-              <svg xmlns="http://www.w3.org/2000/svg" height="20" viewBox="0 -960 960 960" width="20" fill="#48494B">
-                <path d="m240-240 172-240-172-240h96l172 240-172 240h-96Zm212 0 172-240-172-240h97l171 240-171 240h-97Z"/>
-              </svg>
-            </button>
-          </div>
-        </li>
+      <div class="sidebar-content">
+        <ul>
+          <li>
+            <div class="toggle-container" [class.right]="isMenuOpen" >
+              <button id="toggle-btn" (click)="toggleMenu()" [class.rotate]="isMenuOpen">
+                <svg xmlns="http://www.w3.org/2000/svg" height="20" viewBox="0 -960 960 960" width="20" fill="#48494B">
+                  <path d="m240-240 172-240-172-240h96l172 240-172 240h-96Zm212 0 172-240-172-240h97l171 240-171 240h-97Z"/>
+                </svg>
+              </button>
+            </div>
+          </li>
 
-        <li>
-          <div class="pathways-header" [class.active]="isPathwaysActive()" >
-            <div class="icons-container" (click)="showPathwaysFromIcon($event)">
-              <div class="icons">
-                <!-- Pathway Icon -->
-                <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#48494B">
-                  <path d="M744-144q-41 0-72-24t-42-60H396q-55 0-93.5-38.5T264-360q0-55 38.5-93.5T396-492h120q34.65 0 59.33-24.75Q600-541.5 600-576.25t-24.67-59.25Q550.65-660 516-660H330q-11 36-42 60t-72 24q-50 0-85-35t-35-85q0-50 35-85t85-35q41 0 72 24t42 60h186q65 0 110.5 45.5T672-576q0 65-45.5 110.5T516-420H396q-24.75 0-42.37 17.68Q336-384.65 336-359.82q0 24.82 17.63 42.32Q371.25-300 396-300h234q11-36 42-60t72-24q50 0 85 35t35 85q0 50-35 85t-85 35ZM216-648q20.4 0 34.2-13.8Q264-675.6 264-696q0-20.4-13.8-34.2Q236.4-744 216-744q-20.4 0-34.2 13.8Q168-716.4 168-696q0 20.4 13.8 34.2Q195.6-648 216-648Z" />
+          <li>
+            <div class="pathways-header" [class.active]="isPathwaysActive()" >
+              
+              <div class="icons-container" (click)="showPathwaysFromIcon($event)">
+                <div class="icons">
+                  <!-- Pathway Icon -->
+                  <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#48494B">
+                    <path d="M744-144q-41 0-72-24t-42-60H396q-55 0-93.5-38.5T264-360q0-55 38.5-93.5T396-492h120q34.65 0 59.33-24.75Q600-541.5 600-576.25t-24.67-59.25Q550.65-660 516-660H330q-11 36-42 60t-72 24q-50 0-85-35t-35-85q0-50 35-85t85-35q41 0 72 24t42 60h186q65 0 110.5 45.5T672-576q0 65-45.5 110.5T516-420H396q-24.75 0-42.37 17.68Q336-384.65 336-359.82q0 24.82 17.63 42.32Q371.25-300 396-300h234q11-36 42-60t72-24q50 0 85 35t35 85q0 50-35 85t-85 35ZM216-648q20.4 0 34.2-13.8Q264-675.6 264-696q0-20.4-13.8-34.2Q236.4-744 216-744q-20.4 0-34.2 13.8Q168-716.4 168-696q0 20.4 13.8 34.2Q195.6-648 216-648Z" />
+                  </svg>
+                </div>
+                <span class="menu-text">Pathways</span>
+              </div>
+              
+              <!-- ---------------- SORT BY ---------------- -->
+              <div class="sort-container" (click)="toggleSortDropdown($event)"> 
+                <span class="sort-label">Sort</span>
+                <svg [class.rotate]="sortDropdownOpen" class="dropdown-arrow" xmlns="http://www.w3.org/2000/svg" height="16" viewBox="0 -960 960 960" width="16" fill="#48494B">
+                  <path d="M480-360 280-560h400L480-360Z"/>
                 </svg>
               </div>
-              <span class="menu-text">Pathways</span>
-            </div>
-            <!-- ---------------- SORT BY ---------------- -->
-            <div class="sort-container" (click)="toggleSortDropdown($event)"> 
-              <span class="sort-label">Sort</span>
-              <svg [class.rotate]="sortDropdownOpen" class="dropdown-arrow" xmlns="http://www.w3.org/2000/svg" height="16" viewBox="0 -960 960 960" width="16" fill="#48494B">
-                <path d="M480-360 280-560h400L480-360Z"/>
-              </svg>
+
               <ul *ngIf="sortDropdownOpen" class="sort-dropdown">
                 <li (click)="onSortClick('name')">Name: A to Z</li>
                 <li (click)="onSortClick('length')">Name: Z to A</li>
                 <li (click)="onSortClick('highComp')">Complexity: High to Low</li>
                 <li (click)="onSortClick('lowComp')">Complexity: Low to High</li>
               </ul>
-            </div>
-          </div>
-          <hr />
-          <ul class="sub-menu" [class.show]="pathwaysOpen && !customTabOpen && !searchTabOpen">
-            <li *ngFor="let pathway of pathways">
-              <a (click)="selectPathway($event, pathway)">{{ pathway }}</a>
-            </li>
-          </ul>
-        </li>
 
-        <!-- ---------------- CUSTOMISE ---------------- -->
-        <li *ngIf="customTabExists">
-          <div class="customise-header" [class.active]="customTabOpen" (click)="showCustomiseView()">
-            <div class="icons-container">
-              <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#48494B">
-                <path d="m216-909 51-51 338 338q20 20 19.5 47T605-529L431-355q-20 20-47 20t-47-20L163-530q-19-19-20-46t20-47l170-169-117-117Zm168 168L219-576h1-1 330L384-741Zm348 453q-35 0-59.5-24.5T648-372q0-20 10.5-42.5T692-469q8-11 18.5-24t21.5-26q10 13 20.5 25.5T772-469q16 23 30 47t14 50q0 35-24.5 59.5T732-288ZM96 0v-192h768V0H96Z"/>
-              </svg>
             </div>
+            <hr />
+            <div class="scrollable-pathways">
+              <ul class="sub-menu" [class.show]="pathwaysOpen && !customTabOpen && !searchTabOpen">
+                <li *ngFor="let pathway of pathways">
+                  <a (click)="selectPathway($event, pathway)">{{ pathway }}</a>
+                </li>
+              </ul>
+            </div> 
+          </li>
+
+          <!-- ---------------- CUSTOMISE ---------------- -->
+          <li *ngIf="customTabExists">
+            <div class="customise-header" [class.active]="customTabOpen" (click)="showCustomiseView()">
+              <div class="icons-container">
+                <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#48494B">
+                  <path d="m216-909 51-51 338 338q20 20 19.5 47T605-529L431-355q-20 20-47 20t-47-20L163-530q-19-19-20-46t20-47l170-169-117-117Zm168 168L219-576h1-1 330L384-741Zm348 453q-35 0-59.5-24.5T648-372q0-20 10.5-42.5T692-469q8-11 18.5-24t21.5-26q10 13 20.5 25.5T772-469q16 23 30 47t14 50q0 35-24.5 59.5T732-288ZM96 0v-192h768V0H96Z"/>
+                </svg>
+              </div>
         
+<<<<<<< HEAD
+              <span class="menu-text">Customise</span>
+            
+              <!-- ---------------- CUSTOMISE CLOSE BUTTON---------------- -->
+              <button *ngIf="customTabOpen" class="close-btn" (click)="closeCustomTab(); $event.stopPropagation()">x</button>
+            
+=======
             <span class="menu-text">Customise</span>
             <!-- ---------------- CUSTOMISE CLOSE BUTTON---------------- -->
             <button *ngIf="customTabOpen" class="close-btn" (click)="closeCustomTab(); $event.stopPropagation()">x</button>
@@ -128,71 +142,127 @@
               <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#48494B">
                 <path d="M765-144 526-383q-30 22-65.79 34.5-35.79 12.5-76.18 12.5Q284-336 214-406t-70-170q0-100 70-170t170-70q100 0 170 70t70 170.03q0 40.39-12.5 76.18Q599-464 577-434l239 239-51 51ZM384-408q70 0 119-49t49-119q0-70-49-119t-119-49q-70 0-119 49t-49 119q0 70 49 119t119 49Z"/>
               </svg>
+>>>>>>> origin/main
             </div>
-        
-            <span class="menu-text">Search</span>
-            <!-- ---------------- CUSTOMISE CLOSE BUTTON---------------- -->
-            <button *ngIf="searchTabOpen" class="search-close-btn" (click)="closeSearchTab(); $event.stopPropagation()">x</button>
-          </div>
           
-          <!-- ---------------- CHECKBOXES FOR SEARCH FUNCTION ---------------- -->
-          <ng-container *ngIf="searchTabOpen">
-            <ul class="sub-menu show">
-          
-              <li class="label-selectDropdown">
-                <label class="main-label">In a current pathway look for: </label>
-              </li>
-          
-              <li>
-                <label class="checkbox-label">
-                  <input type="checkbox" id="enzymeCheckbox" [(ngModel)]="showEnzymeDropdown" (change)="onCheckboxChange('enzyme')">
-                  Enzyme
-                </label>
-                <label class="checkbox-label">
-                  <input type="checkbox" id="compoundCheckbox" [(ngModel)]="showCompoundDropdown" (change)="onCheckboxChange('compound')">
-                  Compound
-                </label>
-                <label class="checkbox-label">
-                  <input type="checkbox" id="pathwayCheckbox" [(ngModel)]="showPathwayDropdown" (change)="onCheckboxChange('pathway')">
-                  Pathway
-                </label>
-              </li>
-              <!-- ---------------- DROP DOWN BOXES FOR SEARCH FUNCTION ----------------  -->
-              <li>
-                <ng-container *ngIf="showEnzymeDropdown">
-                  <select id="enzymeSelect" [(ngModel)]="selectedEnzyme" (change)="onEnzymeChange()">
-                    <option value="">-- Select Enzyme --</option>
-                    <option *ngFor="let enzyme of enzymeOptions" [value]="enzyme">{{ enzyme }}</option>
-                  </select>
-                </ng-container>
+            <ng-container *ngIf="customTabOpen">
+              <ul class="sub-menu show">
+
+                <!-- ---------------- COLOUR PICKER ---------------- -->
+                <li class="label-row">
+                  <label class="main-label">Customise colour for data expression:</label>
+                </li>
                 
-                <ng-container *ngIf="showCompoundDropdown">
-                  <select id="CompoundSelect" [(ngModel)]="selectedCompound" (change)="onCompoundChange()">
-                    <option value="">-- Select Compound --</option>
-                    <option *ngFor="let option of CompoundOptions" [value]="option">{{ option }}</option>
-                  </select>
-                </ng-container>
-                <ng-container *ngIf="showPathwayDropdown">
-                  <select id="pathwaySelect" [(ngModel)]="selectedPathwayCustom" (change)="onPathwayChange()">
-                    <option value="">-- Select Pathway --</option>
-                    <option *ngFor="let option of PathwayOptions" [value]="option">{{ option }}</option>
-                  </select>
-                </ng-container>
-                <ng-container *ngIf="showPathwayDropdown">
-                  <select id="pathwaySelect" [(ngModel)]="selectedPathwayCustom" (change)="onPathwayChange()">
-                    <option value="">-- Select Pathway --</option>
-                    <option *ngFor="let option of PathwayOptions" [value]="option">{{ option }}</option>
-                  </select>
-                </ng-container>
-              </li>
-              
-            </ul>
-          </ng-container>
-        </li>
-        
+                <li>
+                  <div class="color-picker-row">
+                    <div class="color-box-high">
+                      <label for="colorPickerHigh">Highly Expressed Genes:</label>
+                      <div class="color-picker-container">
+                        <input type="color" id="colorPickerHigh" value="#ff0000" class="color-picker" (change)="onColorChangeHigh($event)"/>
+                        <span class="color-hex">{{ selectedColorHigh }}</span>
+                      </div>
+                    </div>
+                    <div class="color-box-low" style="margin-top: 20px;">
+                      <label for="colorPickerLow">Low Expressed Genes:</label>
+                      <div class="color-picker-container">
+                        <input type="color" id="colorPickerLow" value="#0000ff" class="color-picker" (change)="onColorChangeLow($event)"/>
+                        <span class="color-hex">{{ selectedColorLow }}</span>
+                      </div>
+                    </div>
+                  </div>
+                </li>
 
+                <li class="label-row">
+                  <label class="main-label">Customise colour for Isoforms:</label>
+                </li>
 
-      </ul>
+                <li>
+                  <div class="color-picker-row">
+                    <div class="color-box-isoform">
+                      <label for="colorPickerIsoform">Isoforms:</label>
+                      <div class="color-picker-container">
+                        <input type="color" id="colorPickerIsoform" value="#00ff00" class="color-picker" (change)="onColorChangeIsoform($event)"/>
+                        <span class="color-hex">{{ selectedColorIsoform }}</span>
+                      </div>
+                    </div>
+                  </div>
+                </li>
+
+              </ul>
+            </ng-container>
+          </li>
+
+          <!-- ---------------- SEARCH ---------------- -->
+          <li *ngIf="searchTabExists">
+            <div class="search-header" [class.active]="searchTabOpen" (click)="showSearchView()">
+              <div class="icons-container">
+                <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#48494B">
+                  <path d="M765-144 526-383q-30 22-65.79 34.5-35.79 12.5-76.18 12.5Q284-336 214-406t-70-170q0-100 70-170t170-70q100 0 170 70t70 170.03q0 40.39-12.5 76.18Q599-464 577-434l239 239-51 51ZM384-408q70 0 119-49t49-119q0-70-49-119t-119-49q-70 0-119 49t-49 119q0 70 49 119t119 49Z"/>
+                </svg>
+              </div>
+          
+              <span class="menu-text">Search</span>
+              <!-- ---------------- CLOSE BUTTON---------------- -->
+              <button *ngIf="searchTabOpen" class="search-close-btn" (click)="closeSearchTab(); $event.stopPropagation()">x</button>
+            </div>
+          
+            <!-- ---------------- CHECKBOXES FOR SEARCH FUNCTION ---------------- -->
+            <ng-container *ngIf="searchTabOpen">
+              <ul class="sub-menu show">
+            
+                <li class="label-selectDropdown">
+                  <label class="main-label">In a current pathway look for: </label>
+                </li>
+            
+                <li>
+                  <label class="checkbox-label">
+                    <input type="checkbox" id="enzymeCheckbox" [(ngModel)]="showEnzymeDropdown" (change)="onCheckboxChange('enzyme')">
+                    Enzyme
+                  </label>
+                  <label class="checkbox-label">
+                    <input type="checkbox" id="compoundCheckbox" [(ngModel)]="showCompoundDropdown" (change)="onCheckboxChange('compound')">
+                    Compound
+                  </label>
+                  <label class="checkbox-label">
+                    <input type="checkbox" id="pathwayCheckbox" [(ngModel)]="showPathwayDropdown" (change)="onCheckboxChange('pathway')">
+                    Pathway
+                  </label>
+                </li>
+                <!-- ---------------- DROP DOWN BOXES FOR SEARCH FUNCTION ----------------  -->
+                <li>
+                  <ng-container *ngIf="showEnzymeDropdown">
+                    <select id="enzymeSelect" [(ngModel)]="selectedEnzyme" (change)="onEnzymeChange()">
+                      <option value="">-- Select Enzyme --</option>
+                      <option *ngFor="let enzyme of enzymeOptions" [value]="enzyme">{{ enzyme }}</option>
+                    </select>
+                  </ng-container>
+                  
+                  <ng-container *ngIf="showCompoundDropdown">
+                    <select id="CompoundSelect" [(ngModel)]="selectedCompound" (change)="onCompoundChange()">
+                      <option value="">-- Select Compound --</option>
+                      <option *ngFor="let option of CompoundOptions" [value]="option">{{ option }}</option>
+                    </select>
+                  </ng-container>
+                  
+                  <ng-container *ngIf="showPathwayDropdown">
+                    <select id="pathwaySelect" [(ngModel)]="selectedPathwayCustom" (change)="onPathwayChange()">
+                      <option value="">-- Select Pathway --</option>
+                      <option *ngFor="let option of PathwayOptions" [value]="option">{{ option }}</option>
+                    </select>
+                  </ng-container>
+                  
+                  <ng-container *ngIf="showPathwayDropdown">
+                    <select id="pathwaySelect" [(ngModel)]="selectedPathwayCustom" (change)="onPathwayChange()">
+                      <option value="">-- Select Pathway --</option>
+                      <option *ngFor="let option of PathwayOptions" [value]="option">{{ option }}</option>
+                    </select>
+                  </ng-container>
+                </li>
+              </ul>
+            </ng-container>
+          </li>
+        </ul>
+      </div>  
     </aside>
 
     <!-- ---------------- TOP BAR ---------------- -->
@@ -368,6 +438,7 @@
         </div>
 
       </div>
+      
 
       <div class="slider-animation-wrapper">
         <!-- ---------------- TIME SLIDER ---------------- -->
