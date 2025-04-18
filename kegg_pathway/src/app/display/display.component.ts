@@ -58,6 +58,10 @@ export class DisplayComponent {
 
   enzymeList: any[] = []; // Array for storing list of Enzymes filtered from input expression files
 
+  pathwayTally: any[] = [];
+
+  highlightedPathways: any[] = [];
+
   // Creating a GoJS Diagram 
   private myDiagram: go.Diagram | null = null;
 
@@ -540,12 +544,12 @@ private matchGenes(genes: any[], nodes: any[]): any[] {
 
 // With Size Change - called when user selects individual pathways/timepoints
 private compareEnzymes(nodes: any[],timepoint: number): any[]{
-  console.log("--------------------")
-  console.log('Extracting Logfc Data - Comparing to Enzymes');
+  //console.log("--------------------")
+  //console.log('Extracting Logfc Data - Comparing to Enzymes');
   // Get Genes with logfc for the timepoint  (index this in future)
   const localNodes = nodes;
-  console.log("--------------------")
-  console.log('Selected Timepoint: '+timepoint);
+  //console.log("--------------------")
+  //console.log('Selected Timepoint: '+timepoint);
   const genes = this.filteredGenes[timepoint];
   // Taking Genes from file and matching them to enzyme nodes 
   // Change enzyme node attributes accordingly 
@@ -555,7 +559,7 @@ private compareEnzymes(nodes: any[],timepoint: number): any[]{
   const updatedNodes = elements[0];
   const colourArray = elements[1];
   const stats = elements[2];
-  const finalNodes = this.getMultipleGenes2(updatedNodes);
+  const finalNodes = this.getMultipleGenes(updatedNodes);
   return [finalNodes, colourArray, stats];
 }
 // No size change - called from getLoadedPathways
@@ -565,20 +569,21 @@ private compareEnzymesNoSize(nodes: any[],timepoint: number): any[]{
   // Get Genes with logfc for the timepoint  (index this in future)
   const localNodes = nodes;
   console.log("--------------------")
-  console.log('Selected Timepoint: '+timepoint);
+  //console.log('Selected Timepoint: '+timepoint);
   const genes = this.filteredGenes[timepoint];
+  
   // Taking Genes from file and matching them to enzyme nodes 
   // Change enzyme node attributes accordingly 
-  //console.log(genes);
-  //console.log(localNodes);
+
   const elements = this.matchGenesNoSize(genes, localNodes)
   const updatedNodes = elements[0];
   const colourArray = elements[1];
   const stats = elements[2];
-  const finalNodes = this.getMultipleGenes2(updatedNodes);
+  const finalNodes = this.getMultipleGenes(updatedNodes);
   return [finalNodes, colourArray, stats];
 }
 
+/*
 
 private getIsoforms(nodes: any[]): any[]{
   console.log("--------------------")
@@ -616,7 +621,7 @@ private getIsoforms(nodes: any[]): any[]{
                   //matchFound = true;
                   }
                 }
-              }*/
+              }
              if (firstGenes==secondGenes){
               console.log("match:");
               console.log(key1);
@@ -637,16 +642,26 @@ private getIsoforms(nodes: any[]): any[]{
 
 }
 
+*/
 
 
-
-// ------------ ISOFORM IDENTIFCATION ---------------------
+// ------------ PARALOG IDENTIFCATION ---------------------
 
 // Identification of enzyme Nodes that have multiple differentially regualted genes 
 // Colour the FULL NODE with selected colour 
+
+// Function for assessing and flagging differential direction regulation in LogFc values
+// for an enzyme node --  paralog highlighting
+private hasMixedSigns(numbers: number[]): boolean {
+  const allPositive = numbers.every(n => n > 0);
+  const allNegative = numbers.every(n => n < 0);
+  return !(allPositive || allNegative);
+}
+
+
 private getMultipleGenes(nodes: any[]): any[]{
 
-  console.log('Finding Isoforms/Multiple Genes...')
+  console.log('Finding Paralogs...')
 
   var newNodes = nodes.map(node => ({ ...node }));
   //console.log(newNodes);
@@ -654,9 +669,12 @@ private getMultipleGenes(nodes: any[]): any[]{
   for (let i = 0; i < newNodes.length; i++) {
     if (newNodes[i].type === 'enzyme' && (newNodes[i].gene)){
       const firstGenes = newNodes[i].gene;
-      if (firstGenes.length>1){
+
+      // If the list of Genes is greater than 1 and there is differential regulation direactionality
+      if (firstGenes.length>1 && this.hasMixedSigns(newNodes[i].logfcList)==true){
+        console.log(newNodes[i].logfcList);
         const key1 = newNodes[i].key;
-        console.log('Changing Colour - multiple Genes');
+        console.log('Changing Colour - Paralog with differential regulation directionality');
         newNodes[i].colour = this.selectedColorIsoform;
 
       }
@@ -665,34 +683,6 @@ private getMultipleGenes(nodes: any[]): any[]{
   return newNodes;
 
 }
-
-// Identification of enzyme Nodes that have multiple differentially regualted genes 
-// Colours the NODE MARGIN with selected colour 
-private getMultipleGenes2(nodes: any[]): any[]{
-
-  console.log('Finding Isoforms/Multiple Genes...')
-
-  var newNodes = nodes.map(node => ({ ...node }));
-  //console.log(newNodes);
-  // Looping through all the nodes
-  for (let i = 0; i < newNodes.length; i++) {
-    if (newNodes[i].type === 'enzyme' && (newNodes[i].gene)){
-      const firstGenes = newNodes[i].gene;
-      if (firstGenes.length>1){
-        const key1 = newNodes[i].key;
-        console.log('Changing Colour - multiple Genes');
-        newNodes[i].stroke = this.selectedColorIsoform;
-        newNodes[i].border = 6;
-
-      }
-    }
-  }    
-  return newNodes;
-
-}
-
-
-
 
 
 
@@ -865,6 +855,31 @@ private getLoadedPathways(): void{
     return enzymeData;
   }
 
+  loadTally(): void {
+    console.log("--------------------")
+    console.log('Processing Pathway Tally');
+    var highlightedPathways = [];
+    // extract each pathway 
+    // match code to allKEGGPathways -- get name 
+    // store in new object array - Name, pathway (code), number of enzymes in tally 
+    console.log(this.pathwayTally);
+    for (let i=0; i<this.pathwayTally.length;i++){
+      const entry = this.pathwayTally[i];
+      //console.log(entry);
+      let code = entry[0];
+      let number = entry[1];
+      const result = this.AllKeggPathways.find(item => item.pathway === code);
+      const name = result ? result.name : null;
+      highlightedPathways.push({
+        name: name,
+        pathway: code,
+        Enzymes: number
+      });
+    }
+    console.log(highlightedPathways);
+    this.highlightedPathways = highlightedPathways;
+  }
+
   isLoading: boolean = false;
 
   // Function for getting a range of number for 1 with the same length of a selected Array
@@ -915,14 +930,19 @@ private getLoadedPathways(): void{
     const data = [this.enzymeList, this.pathwayNumber];
     this.enzymeApiServicePost.postEnzymeData(data).subscribe(
       (response) => {
+        console.log('Response from Backend:')
         console.log(response);
-        console.log(response[0]);
-        console.log(response[1]);
+        //console.log(response[0]);
+        //console.log(response[1]);
+        this.pathwayTally = response[1];
+        console.log('Pathway Tally');
+        console.log(this.pathwayTally);
         // Handle the successful response
-        this.pathwayData = response[0];
+        this.pathwayData = response[0].paths;
 
-        // Loading Pathway names -- for displaying to user
-        this.loadNames();
+        
+        this.loadNames();// Loading Pathway names -- for displaying to user
+        this.loadTally();// Loading Tally of all pathways 
         console.log("--------------------")
         console.log('Received from backend:', response);
         console.log("--------------------")
@@ -1048,12 +1068,8 @@ private getLoadedPathways(): void{
       console.log('Pathway Data Loaded Successfully');
       console.log("--------------------")
 
-      //console.log(this.pathways);
       this.pathways.push(pathwayName);
-      //console.log(this.pathways);
-      //console.log(this.pathwayData);
       this.pathwayData.push(pathwayData[0]);
-      //console.log(this.pathwayData);
 
       this.getLoadedPathways();
       
@@ -2350,14 +2366,24 @@ processNewFiles(): void{
           this.enzymeApiServicePost.postEnzymeData(postData).subscribe(
             (response) => {
               // Overriding / updating lit of pathways including newly uploaded pathways 
-              this.pathwayData = response;
 
               // Current Pathways before processing new files 
               console.log('Current Pathways:');
               console.log(currentPaths)
 
+              console.log('Response from Backend:')
+              console.log(response);
+              //console.log(response[0]);
+              //console.log(response[1]);
+              this.pathwayTally = response[1];
+              console.log('Pathway Tally');
+              console.log(this.pathwayTally);
+              // Handle the successful response
+              this.pathwayData = response[0].paths;
+
               // Loading Pathway names -- for displaying to user
               this.loadNames();
+              this.loadTally();
 
               // Comparing pathways to inform the user 
               console.log('Updated Pathways:');
