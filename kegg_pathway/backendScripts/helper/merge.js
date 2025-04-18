@@ -118,11 +118,6 @@ async function processInput(code) {
     var enzymeNames = await getEnzymeNames(ko_pathway);
     console.log('------------');
     
-    // -----------------------Converting LOGFC to RBG --------------------------------------
-    // EXPERIMENTAL FUNCTION -- MOVE TO FRONT END???
-    // Replacing the LogFC with realtive RGB value 
-    //getLogFCColor(data);
-
      // -----------------Data --> Reactions, Entries, and Relations-----------------------------
     
     // Processing the whole KGML parsed
@@ -140,20 +135,12 @@ async function processInput(code) {
     console.log('------------');
     
 
-    // ----------------------Matching Enzymes to Nodes - change colour -------------------------
-    // Matching enzyme names of data to nodes
-    
-
-
+    // -------- Processing Reaction KGML and Realtions Absent in EC KGML------------
 
     //var KOcompoundLinks = processRN(ko_elements.entries, ko_elements.relations, ko_elements.reactions, map_elements.uniqueNodes);
     var RNcompoundLinks = processRN(rn_elements.entries, rn_elements.relations, rn_elements.reactions, map_elements.uniqueNodes);
     var finalEdges = addCompoundLinks(RNcompoundLinks.entryLinks,map_elements.edges);
-    //console.log(finalEdges);
-    
 
-    //console.log(KOcompoundLinks.compoundLinks);
-    //console.log(RNcompoundLinks.compoundLinks);
 
     // --------------------Re-Labelling Compounds---------------------------
     // Linking names retireved in getElements to Nodes and re-labelling 
