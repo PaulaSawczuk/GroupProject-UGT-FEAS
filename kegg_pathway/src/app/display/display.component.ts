@@ -951,7 +951,7 @@ private getLoadedPathways(): void{
         console.log('Received from backend:', response);
         console.log("--------------------")
         console.log('Getting Mapping Data');
-        this.getMapData();
+        this.getMapData(this.pathwayData);
 
       },
       (error) => {
@@ -974,10 +974,10 @@ private getLoadedPathways(): void{
 // Sends Map code (Post Request)(e.g. ec:00030)
 // Returns Mapping Data for relevant pathways (Nodes and Links)
 // Calls Data Processing functions (loadNodes, loadLinks)
-  getMapData(): void {
+  getMapData(pathwayData: any[]): void {
 
   // Sending top 10 Pathways to back-end to retrieve Mapping Data 
-  const data = [this.pathwayData];
+  const data = [pathwayData];
   this.isLoading = true;
   console.log("--------------------")
   console.log('Sending Request for Pathway Mapping Data');
@@ -1006,7 +1006,39 @@ private getLoadedPathways(): void{
     });
   };
 
+  getMoreMapData(pathwayData: any[]): void {
 
+    // Sending top 10 Pathways to back-end to retrieve Mapping Data 
+    const data = [pathwayData];
+    this.isLoading = true;
+    console.log("--------------------")
+    console.log('Sending Request for Pathway Mapping Data');
+    this.LoadingMessage = 'Loading Pathway Mapping Data...';
+    this.enzymeApiServicePost.postALLMapData(data).subscribe(
+      (response) =>{
+      console.log(response);
+      
+      const pathwayResponse = response;
+      //this.pathwayResponse = response;
+      //this.ALLpathwayData = ALLpathwayData;
+      //console.log(this.ALLpathwayData);
+  
+      // Loading Pathway Data to Loaded Pathway Array
+      // Loads edited Nodes (logfc, genes, colour)
+      //this.getLoadedPathways();
+      //const loadedData = this.loadedPathwayData;
+      //console.log(loadedData);
+      console.log("--------------------")
+      console.log('Pathway Data Loaded Successfully');
+      this.isLoading = false;
+      },
+      (error) => {
+        console.error('Error:', error);
+        this.isLoading = false;
+      });
+    };
+  
+  
 
   /** --------  GET REQUEST Functions -------- **/
 
@@ -2417,7 +2449,7 @@ processNewFiles(): void{
               console.log('Received from backend:', response);
               console.log('-----------------------------');
               console.log('Getting Mapping Data');
-              this.getMapData();
+              this.getMapData(this.pathwayData);
 
             },
             (error) => {
@@ -2886,7 +2918,46 @@ Once all the steps are completed, click the Process button to move to get visual
     const selectedPathways = this.highlightedPathways.filter(p => p.selected);
     console.log('Selected pathways:', selectedPathways);
     console.log('KEGG ALL: ', this.selectedPathwaysKEGG);
+
+    const pathwayData = this.processPathways(this.selectedPathwaysKEGG);
+    this.getMatches(this.selectedPathwaysKEGG)
+    this.getMoreMapData(pathwayData);
     this.isSearchPathwayModalOpen = false; // close the modal
+  }
+
+  getMatches(selectedPathwaysKEGG: any[]){
+    var matchingList: any[] = [];
+    // Checking if Pathway data is already loaded 
+    selectedPathwaysKEGG.forEach(pathway=>{
+        const matchingItems = this.ALLpathwayData.find((obj => obj.name === pathway));
+        //console.log(matchingItems);
+        if (matchingItems){
+          console.log('Match Found');
+          matchingItems.forEach((item: { name: any; }) => {
+            console.log(item.name);
+            matchingList.push(matchingItems.name);
+          })
+        }else{
+          console.log('No match found in Loaded Files');
+          } 
+      });
+      // Remove matching Pathway --> only retrieve pathways that are not already loaded 
+
+      const filteredArray = selectedPathwaysKEGG.filter(item => !matchingList.includes(item));
+      console.log(filteredArray);
+  }
+
+
+  private processPathways(selectedPathwaysKEGG: any[]) {
+    var pathwayData: any[] = [];
+    console.log(selectedPathwaysKEGG);
+    selectedPathwaysKEGG.forEach(pathway=>{
+      let data = this.AllKeggPathways.find((obj => obj.name === pathway))
+      console.log(data);
+      pathwayData.push(data);
+    });
+    console.log(pathwayData);
+    return pathwayData;
   }
 
   // ---- To deal with the Highlighted Pathways selection in a Table ----
