@@ -345,8 +345,8 @@
 
         <!-- ---------------- TABS ---------------- -->
         <div class="Search-Pathway-tabs">
-          <button [class.active]="activeTab === 'highlight'" (click)="activeTab = 'highlight'">Highlighted</button>
-          <button [class.active]="activeTab === 'all'" (click)="activeTab = 'all'">All KEGG</button>
+          <button [class.active]="activeTab === 'highlight'" (click)="setActiveTab('highlight')">Highlighted</button>
+          <button [class.active]="activeTab === 'all'" (click)="setActiveTab('all')">All KEGG</button>
         </div>
 
         <!-- ---------------- SEARCH FOR PATHWAY ---------------- -->
@@ -426,11 +426,8 @@
               </tbody>
             </table>
           </div>
-
         </div>
-
-
-
+        
         <div class="Search-Pathway-modal-footer">
           <button class="add-button" (click)="SearchForPathway()">Search</button>
         </div>

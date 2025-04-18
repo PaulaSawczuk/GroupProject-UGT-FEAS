@@ -2885,7 +2885,10 @@ Once all the steps are completed, click the Process button to move to get visual
   SearchForPathway() {
     const selectedPathways = this.highlightedPathways.filter(p => p.selected);
     console.log('Selected pathways:', selectedPathways);
+
     console.log('KEGG ALL: ', this.selectedPathwaysKEGG);
+
+    
     this.isSearchPathwayModalOpen = false; // close the modal
   }
 
@@ -2914,7 +2917,23 @@ Once all the steps are completed, click the Process button to move to get visual
     return this.highlightedPathways.filter(p => p.selected).length;
   }
   
-  
+  // Keep tract of a tab
+  setActiveTab(tab: 'highlight' | 'all') {
+  if (tab === 'highlight' && this.activeTab !== 'highlight') {
+    // Clear KEGG All tab selections
+    this.searchTerm = '';
+    this.selectedPathways = [];
+    this.selectedPathwaysKEGG = [];
+    this.filteredPathways = [];
+    this.isDropdownOpen = false;
+  } else if (tab === 'all' && this.activeTab !== 'all') {
+    // Clear Highlighted tab selections
+    this.highlightedPathways.forEach(p => p.selected = false);
+    this.selectedHighlightPathway = null;
+  }
+
+  this.activeTab = tab;
+}
 
   
 
