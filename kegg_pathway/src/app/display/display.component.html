@@ -76,73 +76,10 @@
                 </svg>
               </div>
         
-<<<<<<< HEAD
               <span class="menu-text">Customise</span>
             
               <!-- ---------------- CUSTOMISE CLOSE BUTTON---------------- -->
               <button *ngIf="customTabOpen" class="close-btn" (click)="closeCustomTab(); $event.stopPropagation()">x</button>
-            
-=======
-            <span class="menu-text">Customise</span>
-            <!-- ---------------- CUSTOMISE CLOSE BUTTON---------------- -->
-            <button *ngIf="customTabOpen" class="close-btn" (click)="closeCustomTab(); $event.stopPropagation()">x</button>
-          </div>
-          
-          <ng-container *ngIf="customTabOpen">
-            <ul class="sub-menu show">
-
-              <!-- ---------------- COLOUR PICKER ---------------- -->
-              <li class="label-row">
-                <label class="main-label">Customise colour for data expression:</label>
-              </li>
-              
-              <li>
-                <div class="color-picker-row">
-                  <div class="color-box-high">
-                    <label for="colorPickerHigh">Highly Expressed Genes:</label>
-                    <div class="color-picker-container">
-                      <input type="color" id="colorPickerHigh" value="#ff0000" class="color-picker" (change)="onColorChangeHigh($event)"/>
-                      <span class="color-hex">{{ selectedColorHigh }}</span>
-                    </div>
-                  </div>
-                  <div class="color-box-low" style="margin-top: 20px;">
-                    <label for="colorPickerLow">Low Expressed Genes:</label>
-                    <div class="color-picker-container">
-                      <input type="color" id="colorPickerLow" value="#0000ff" class="color-picker" (change)="onColorChangeLow($event)"/>
-                      <span class="color-hex">{{ selectedColorLow }}</span>
-                    </div>
-                  </div>
-                </div>
-              </li>
-
-              <li class="label-row">
-                <label class="main-label">Customise colour for Isoforms:</label>
-              </li>
-
-              <li>
-                <div class="color-picker-row">
-                  <div class="color-box-isoform">
-                    <label for="colorPickerIsoform">Isoforms:</label>
-                    <div class="color-picker-container">
-                      <input type="color" id="colorPickerIsoform" value="#fff44f" class="color-picker" (change)="onColorChangeIsoform($event)"/>
-                      <span class="color-hex">{{ selectedColorIsoform }}</span>
-                    </div>
-                  </div>
-                </div>
-              </li>
-
-            </ul>
-          </ng-container>
-        </li>
-
-        <!-- ---------------- SEARCH ---------------- -->
-        <li *ngIf="searchTabExists">
-          <div class="search-header" [class.active]="searchTabOpen" (click)="showSearchView()">
-            <div class="icons-container">
-              <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#48494B">
-                <path d="M765-144 526-383q-30 22-65.79 34.5-35.79 12.5-76.18 12.5Q284-336 214-406t-70-170q0-100 70-170t170-70q100 0 170 70t70 170.03q0 40.39-12.5 76.18Q599-464 577-434l239 239-51 51ZM384-408q70 0 119-49t49-119q0-70-49-119t-119-49q-70 0-119 49t-49 119q0 70 49 119t119 49Z"/>
-              </svg>
->>>>>>> origin/main
             </div>
           
             <ng-container *ngIf="customTabOpen">
@@ -162,6 +99,7 @@
                         <span class="color-hex">{{ selectedColorHigh }}</span>
                       </div>
                     </div>
+
                     <div class="color-box-low" style="margin-top: 20px;">
                       <label for="colorPickerLow">Low Expressed Genes:</label>
                       <div class="color-picker-container">
@@ -181,17 +119,15 @@
                     <div class="color-box-isoform">
                       <label for="colorPickerIsoform">Isoforms:</label>
                       <div class="color-picker-container">
-                        <input type="color" id="colorPickerIsoform" value="#00ff00" class="color-picker" (change)="onColorChangeIsoform($event)"/>
+                        <input type="color" id="colorPickerIsoform" value="#fff44f" class="color-picker" (change)="onColorChangeIsoform($event)"/>
                         <span class="color-hex">{{ selectedColorIsoform }}</span>
                       </div>
                     </div>
                   </div>
                 </li>
-
               </ul>
             </ng-container>
           </li>
-
           <!-- ---------------- SEARCH ---------------- -->
           <li *ngIf="searchTabExists">
             <div class="search-header" [class.active]="searchTabOpen" (click)="showSearchView()">
@@ -275,6 +211,7 @@
           <div class="dropdown">
             <!-- ---------------- FILES TAB ---------------- -->
             <button class="dropdown-button" (click)="openUploadModal()">File</button>
+            
             <div class="dropdown-content">
               <!-- ---------------- UPLOAD FILES ---------------- -->
               <a href="#" (click)="openUploadModal(); $event.preventDefault()">Import files</a>
@@ -290,7 +227,9 @@
                   <a href="#" (click)="exportImage('svg'); $event.preventDefault()">svg</a>
                 </div>
               </div>
+
             </div>
+
           </div>
           
 
@@ -325,9 +264,6 @@
             </div>
           </div>
       </div>
-
-
-
     </aside>
 
     <!-- ---------------- UPLOAD EXTRA FILES POP-OUT ---------------- -->
@@ -360,7 +296,7 @@
       </div>
     </div>
 
-    <!-- ---------------- GUIDE PATHWAYS POP-OUT ---------------- -->
+    <!-- ---------------- GUIDE POP-OUT ---------------- -->
     <div class="pathway-filter-modal" *ngIf="isFilterPathwayModalOpen">
       <div class="pathway-filter-modal-content">
         <div class="pathway-filter-modal-header">
