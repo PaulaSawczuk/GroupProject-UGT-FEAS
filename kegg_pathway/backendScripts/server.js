@@ -99,7 +99,7 @@ app.post('/api/getPathways', (req, res) => {
           console.log('------------');
           console.log(new Date());
           console.log('------------');
-            res.json(result.paths);
+            res.json(result);
         });
   });
 

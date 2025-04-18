@@ -42,12 +42,12 @@ function getTally(paths, number){
     tally[item] = (tally[item] || 0) + 1;
   });
 
-  console.log(tally);
+  //console.log(tally);
   let tallyArray = Object.entries(tally);
 
 // Step 3: Sort the array by frequency in descending order
   tallyArray.sort((a, b) => b[1] - a[1]);
-  console.log(tallyArray);
+  //console.log(tallyArray);
 
 // Step 4: Select the top 10 elements (or fewer if there are less than 10 unique elements)
   let top = tallyArray.slice(0, number);
@@ -63,7 +63,7 @@ function getTally(paths, number){
 
   })
   //console.log(pathways);
-  return pathways;
+  return [pathways, tallyArray];
 
 }
 
@@ -146,12 +146,18 @@ async function getEnzymePathways(enzymeIDs,number){
   let filteredPaths = all_paths.filter(path => !blacklist.has(path));
 
   let filteredAllPaths = every_path.filter(path => !blacklist.has(path));
+  //console.log('All Filtered Pathways:');
+  //console.log(filteredAllPaths);
 
-  var top_paths = getTally(filteredAllPaths,number);
+  var elements = getTally(filteredAllPaths,number);
+  const top_paths = elements[0];
+  const tallyArray = elements[1];
   console.log(top_paths);
-  //console.log(filteredPaths); 
+  console.log(tallyArray);
+  //console.log('Filtered Pathways:');
+ // console.log(filteredPaths); 
 
-  return top_paths;
+  return [top_paths, tallyArray];
   }
 
 

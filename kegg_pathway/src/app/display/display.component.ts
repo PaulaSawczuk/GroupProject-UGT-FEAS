@@ -907,7 +907,7 @@ private getLoadedPathways(): void{
     // Retrieving the Pathway number from the User
     this.pathwayNumber = this.fileDataService.getPathwayCount();
     console.log("--------------------")
-    console.log("Number of enriched pathways to return:")
+    //console.log("Number of enriched pathways to return:")
     //console.log(this.pathwayNumber);
 
     // Setting up Data Array to send to back-end API
@@ -915,8 +915,11 @@ private getLoadedPathways(): void{
     const data = [this.enzymeList, this.pathwayNumber];
     this.enzymeApiServicePost.postEnzymeData(data).subscribe(
       (response) => {
+        console.log(response);
+        console.log(response[0]);
+        console.log(response[1]);
         // Handle the successful response
-        this.pathwayData = response;
+        this.pathwayData = response[0];
 
         // Loading Pathway names -- for displaying to user
         this.loadNames();
