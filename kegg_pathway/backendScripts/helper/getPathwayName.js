@@ -30,11 +30,11 @@ async function getPathwayNames(all_paths){
   console.log("----------------------");
   var paths=[];
   const allpaths = all_paths[0];
-  console.log(allpaths);
+  //console.log(allpaths);
   const tally = all_paths[1];
-  console.log(tally);
+  //console.log(tally);
   for (const path of allpaths) {
-      console.log(path);
+      //console.log(path);
       var url = 'https://rest.kegg.jp/get/'+path;
       //console.log(url);
       try {
@@ -71,7 +71,7 @@ async function getPathwayNames(all_paths){
     console.error('There was a problem with the fetch operation:', error);
           }
   }
-  console.log(paths);
+  //console.log(paths);
   return [{paths},tally];
 }
 
