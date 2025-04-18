@@ -1019,15 +1019,36 @@ private getLoadedPathways(): void{
       console.log(response);
       
       const pathwayResponse = response;
-      //this.pathwayResponse = response;
-      //this.ALLpathwayData = ALLpathwayData;
-      //console.log(this.ALLpathwayData);
+
+      console.log(this.ALLpathwayData);
+      pathwayResponse.forEach(item => {
+        this.ALLpathwayData.push(item);
+      });
+
+      console.log(this.ALLpathwayData);
+
+      // Adding to list of names to display 
+      console.log(this.pathways);
+      pathwayResponse.forEach(item => {
+        this.pathways.push(item.name);
+      });
+      console.log(this.pathways);
+
+      // Adding to list of names to display 
+      console.log(this.pathwayData);
+      pathwayResponse.forEach(item => {
+        this.pathwayData.push({name:item.name, pathway: item.pathway});
+      });
+      console.log(this.pathwayData);
+
   
       // Loading Pathway Data to Loaded Pathway Array
       // Loads edited Nodes (logfc, genes, colour)
-      //this.getLoadedPathways();
-      //const loadedData = this.loadedPathwayData;
-      //console.log(loadedData);
+
+      this.getLoadedPathways();
+
+      const loadedData = this.loadedPathwayData;
+      console.log(loadedData);
       console.log("--------------------")
       console.log('Pathway Data Loaded Successfully');
       this.isLoading = false;
@@ -2915,18 +2936,34 @@ Once all the steps are completed, click the Process button to move to get visual
   
   // when search button is clicked
   SearchForPathway() {
+    // Getting pathways from 'highlighted' tab
     const selectedPathways = this.highlightedPathways.filter(p => p.selected);
     console.log('Selected pathways:', selectedPathways);
+    var newSelectedPathways: any[] = [];
+    selectedPathways.forEach(item => {
+      newSelectedPathways.push(item.name)
+    });
 
+    // Getting pathways selected in All KEGG tab
     console.log('KEGG ALL: ', this.selectedPathwaysKEGG);
 
-    const pathwayData = this.processPathways(this.selectedPathwaysKEGG);
-    this.getMatches(this.selectedPathwaysKEGG)
+    // Combing the two pathways - one should be empty
+    const combinedSearch = [...newSelectedPathways, ...this.selectedPathwaysKEGG];
+
+    // Filtering against already loaded pathways 
+    const filteredPathways = this.getMatches(combinedSearch);
+    // Matching against All kegg pathways to get pathway codes in correct format
+    const pathwayData = this.processPathways(filteredPathways);
+
+    // Sending a Post request to the backend
     this.getMoreMapData(pathwayData);
+
     this.isSearchPathwayModalOpen = false; // close the modal
   }
 
-  getMatches(selectedPathwaysKEGG: any[]){
+
+  // Compare to already loaded pathways, and remove any that match
+  private getMatches(selectedPathwaysKEGG: any[]){
     var matchingList: any[] = [];
     // Checking if Pathway data is already loaded 
     selectedPathwaysKEGG.forEach(pathway=>{
@@ -2934,10 +2971,7 @@ Once all the steps are completed, click the Process button to move to get visual
         //console.log(matchingItems);
         if (matchingItems){
           console.log('Match Found');
-          matchingItems.forEach((item: { name: any; }) => {
-            console.log(item.name);
-            matchingList.push(matchingItems.name);
-          })
+          matchingList.push(matchingItems.name);
         }else{
           console.log('No match found in Loaded Files');
           } 
@@ -2946,6 +2980,7 @@ Once all the steps are completed, click the Process button to move to get visual
 
       const filteredArray = selectedPathwaysKEGG.filter(item => !matchingList.includes(item));
       console.log(filteredArray);
+      return filteredArray;
   }
 
 
