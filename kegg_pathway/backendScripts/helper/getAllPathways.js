@@ -28,7 +28,8 @@ async function getAllPathways(){
         'ec01100',
         'ec01110',
         'ec00190',
-        'ec00533']);
+        'ec00533',
+        'ec01310']);
 
 
     // URL for KEGG API - retrieves list of EC pathways 
