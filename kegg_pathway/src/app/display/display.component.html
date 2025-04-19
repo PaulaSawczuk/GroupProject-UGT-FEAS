@@ -468,6 +468,28 @@
             {{ isAnimationActive ? 'Stop' : 'Animate' }}
           </button>
         </div>
+        
+        <div class="stats-container">
+          <div class="stats-content">
+            <div class="stats-header">
+              <p><strong>Information about the pathway:</strong></p>
+              <p><strong>Name:</strong> {{ SelectedPathwayName }}</p>
+            </div>
+            <div class="stats-row">
+              <div class="stats-column">
+                <p><strong>Total Genes:</strong> {{ stats?.totalGenes }}</p>
+              </div>
+              <div class="stats-column">
+                <p><strong>Unique Genes:</strong> {{ stats?.uniqueGenes }}</p>
+              </div>
+              <div class="stats-column">
+                <p><strong>Enzymes Affected:</strong> {{ stats?.enzymesEffected }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+
       </div>
 
     </main>
