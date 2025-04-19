@@ -754,19 +754,6 @@ button:hover {
 
 /* ------------ PATHWAYS SIDE BAR ------------ */
 
-#overviewDiv {  /* Floating Mini-Map Panel */
-  position: absolute;
-  top: 80px;
-  right: 30px;
-  width: 250px;
-  height: 200px;
-  border: 2px solid #ccc;
-  background-color: white;
-  z-index: 10;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-  border-radius: 4px;
-}
-
 #sidebar {
   width: 240px;
   background-color: var(--base-clr);
@@ -1008,6 +995,155 @@ button:hover {
   border-color: var(--input-focus-border-color);
 }
 
+.sub-menu li label.checkbox-label {
+  font-weight: normal; 
+  color: #3E424B;
+  font-size: 12px;
+  font-family: 'DM Sans', sans-serif;
+  margin-bottom: 10px; 
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.scrollable-pathways {
+  max-height: 50vh; 
+  overflow-y: auto; 
+  position: relative;
+  box-shadow: inset 0 -12px 10px -10px rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+}
+
+/* ---------- Colour Picker ---------- */
+
+/* ---------- Section Title ---------- */
+.label-row {
+  margin-top: 0px;
+  margin-bottom: 20px;
+}
+.label-row label {
+  font-size: 14px;
+  color: #3E424B;
+  font-family: 'DM Sans', sans-serif;
+  border-bottom: 1px solid #ddd;
+  margin-left: 20px;
+  margin-right: 20px; 
+}
+
+.label-selectDropdown label{
+  font-size: 14px;
+  margin-bottom: 5px;
+  color: #3E424B;
+  font-family: 'DM Sans', sans-serif;
+  border-bottom: 1px solid #ddd;
+  margin-left: 20px;
+  margin-right: 20px; 
+}
+
+/* ---------- Colour Picker Box ---------- */
+/* Alignment */
+.color-picker-row {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0px;
+}
+
+.color-box-high,
+.color-box-low,
+.color-box-isoform {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+/* Labels */
+.color-box-high label,
+.color-box-low label,
+.color-box-isoform {
+  font-size: 12px;
+  color: #3E424B;
+  margin-bottom: 5px;
+  font-family: 'DM Sans', sans-serif;
+  display: block;
+}
+
+.color-box-high,
+.color-box-isoform {
+  margin-top: 5px;
+  margin-bottom: -5px;
+}
+
+.color-box-low {
+  margin-bottom: 20px;
+}
+
+/* Boxes */
+.color-picker-container {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  width: 90px;
+  height: 20px;
+  border: 1px solid #ced4da;
+  border-radius: 3px;
+  background: #ffffff;
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
+  overflow: hidden;
+  margin-top: 0;
+}
+
+.color-picker-container:hover {
+  transform: scale(1.05);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.color-picker {
+  -webkit-appearance: none;
+  border: none;
+  cursor: pointer;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border-radius: 2px 0 0 2px;
+}
+
+.color-picker::-webkit-color-swatch-wrapper {
+  padding: 0;
+  height: 100%;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.color-picker::-webkit-color-swatch {
+  border: none;
+  border-radius: 2px 0 0 2px;
+  height: 100%;
+  width: 100%;
+}
+
+/* Style for the hex code display */
+.color-hex {
+  font-size: 12px;
+  color: #3E424B;
+  margin-left: auto;
+  margin-right: 4px;
+  user-select: none;
+  width: 60px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+  overflow: hidden;
+  font-family: 'DM Sans', sans-serif;
+  border-radius: 0 2px 2px 0;
+}
+
 /* ---------- Utilities ---------- */
 .menu-text {
   white-space: nowrap;
@@ -1174,14 +1310,16 @@ button:hover {
   flex-grow: 1; 
   display: flex;
 }
-/* TODO: FIX IT */
-/* Title above the pathway visualisation */
+
 .pathway-title {
-  text-align: left; 
-  font-size: 0.6em;
-  margin-bottom: 2px; 
-  color: #48494B; 
-  font-family: 'DM Sans', sans-serif; 
+  position: absolute;     
+  /* top: -1.3rem; */
+  left: 0.6rem;
+  /* font-size: 10px;             */
+  margin: 0;              
+  text-align: left;      
+  color: #48494B;
+  font-family: 'DM Sans', sans-serif;
   letter-spacing: 1px;
   
 }
@@ -1199,6 +1337,20 @@ button:hover {
   position: relative;
   top: 7%;
   z-index:0;
+}
+
+
+#overviewDiv {  /* Floating Mini-Map Panel */
+  position: absolute;
+  top: 80px;
+  right: 30px;
+  width: 250px;
+  height: 200px;
+  border: 2px solid #ccc;
+  background-color: white;
+  z-index: 10;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
 }
 
 /* ------------ LOADING ------------ */
@@ -1234,83 +1386,76 @@ button:hover {
   100% { transform: rotate(360deg); }
 }
 
-
+.LoadingMessage {
+  margin-top: 10px;
+  font-size: 16px;
+  color: #482E3C;
+  text-align: center;
+  font-family: 'DM Sans', sans-serif; 
+}
 
 /* ------------ TIME SLIDER ------------ */
 
-.custom-slider {
-  width: 100%;
-  margin-top: 20px;
-  margin-bottom: 30px;
+.slidecontainer {
+  width: 50%;
 }
 
-.slider-line {
-  position: relative;
-  height: 3px;
+.slidecontainer2 {
+  width: 50%;
+  position: left;
+}
+
+.slidecontainer p {
+  font-family: 'DM Sans', sans-serif; 
+  font-size: 16px; 
+  margin-bottom: 5px;
+  color: #48494B;
+  letter-spacing: 1px;
+}
+
+.slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 300px;
+  height: 10px;
+  border-radius: 25px;
   background: #d3d3d3;
+  outline: none;
+  opacity: 0.7;
+  -webkit-transition: .2s;
+  transition: opacity .2s;
+  /* display: flex; */
+}
+
+.slider:hover {
+  opacity: 1;
+}
+
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  background: #2E5984;
   cursor: pointer;
+  border-radius: 50%;
 }
 
-.slider-pointer {
-  position: absolute;
-  top: 15px;
-  transform: translateX(-50%);
-  font-size: 2em;
+/* ------------ ANIMATION BUTTON ------------ */
+
+.slider-animation-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  /* margin-top: -10px; */
 }
 
-.timepoint-labels {
-  position: relative;
-  display: block;
+.animation-container {
+  flex-shrink: 0;
+  margin-right: 20px;
 }
 
-.timepoint-label {
-  position: absolute;
-  bottom: 20px;
-  font-size: 14px;
-  font-family: 'DM Sans', sans-serif;
-  color: #482E3C;
-}
-
-.slider-line::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 100%;
-  background: #482E3C;
-}
-
-.slider-line span {
-  position: absolute;
-  bottom: -5px; 
-  width: 3px;
-  height: 15px; 
-  background: #482E3C;
-}
-
-.slider-container {
-  position: flex; 
-  left: 0;
-  right: 0;
-  padding: 0 20px; 
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/* .dropdown-btn {
+.animation-button {
   display: flex;
   align-items: center;
   gap: 8px;
