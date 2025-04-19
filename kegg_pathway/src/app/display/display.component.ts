@@ -1,4 +1,4 @@
-import { Component, ViewChild, ElementRef , HostListener} from '@angular/core';
+import { Component, ViewChild, ElementRef , HostListener, ChangeDetectorRef} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { enzymeApiServicePost } from '../services/kegg_enzymepathwaysPost.serice';
@@ -12,6 +12,12 @@ import { match } from 'assert';
 interface GuideElement {
   title: string;
   fullContent: string;
+}
+
+export interface StatsArrayType {
+  totalGenes: number;
+  uniqueGenes: number;
+  enzymesEffected: number;
 }
 
 @Component({
@@ -68,6 +74,8 @@ export class DisplayComponent {
   
   animatedIntervals: number[] = [];
 
+  StatsArray: any[] = [];
+
   // Creating a GoJS Diagram 
   private myDiagram: go.Diagram | null = null;
 
@@ -81,7 +89,8 @@ export class DisplayComponent {
   // Creating the Back-end API Service 
   constructor(
     private enzymeApiServicePost: enzymeApiServicePost,
-    private fileDataService: FileDataService
+    private fileDataService: FileDataService,
+    private cdr: ChangeDetectorRef
   ) {
     document.addEventListener('click', this.handleClickOutside.bind(this));
     document.addEventListener('click', this.onOutsideClick.bind(this));
@@ -569,6 +578,7 @@ private compareEnzymes(nodes: any[],timepoint: number): any[]{
   const updatedNodes = elements[0];
   const colourArray = elements[1];
   const stats = elements[2];
+  this.StatsArray = elements[2];
   const finalNodes = this.getMultipleGenes(updatedNodes);
   return [finalNodes, colourArray, stats];
 }
@@ -1151,9 +1161,12 @@ private getLoadedPathways(): void{
 
  }
 
-
     /** --------  Mapping Functions -------- **/
-
+    stats = {
+      totalGenes: 0,
+      uniqueGenes: 0,
+      enzymesEffected: 0,
+    };
   // --------------- Retrieving Data and Calling Mapping Functions-------------------
   // Gets correct Mapping Data before calling the Diagram Updating Functions
   setMap(code: string, timepoint: number, pathwayData: {name: string, pathway: string,
@@ -1181,10 +1194,14 @@ private getLoadedPathways(): void{
     const updatedEdges = this.getMetabolicFlux(updatedNodes,links)
     console.log("--------------------");
     console.log('Stats Recieved');
-    const stats = elements[2];
+    const stats = elements[2][0];
     console.log(stats);
+    console.log('Is array?', Array.isArray(stats));
 
     // TO DO:  ADD STATS TO DISPLAY COMPONENT 
+    this.stats = {...stats};
+    console.log(this.stats);
+    console.log(this.stats.enzymesEffected);
 
     this.changeDiagram(updatedNodes, updatedEdges);
     this.isLoading = false;
@@ -3304,6 +3321,10 @@ Once all the steps are completed, click the Process button to move to get visual
 
   this.activeTab = tab;
 }
+
+  // ---------- STATS DISPLAY -------------
+
+
 
   
 

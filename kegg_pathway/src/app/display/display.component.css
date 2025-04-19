@@ -1436,6 +1436,7 @@ button:hover {
   display: flex;
   align-items: center;
   gap: 10px;
+  /* margin-top: -10px; */
 }
 
 .animation-container {
@@ -1466,6 +1467,42 @@ button:hover {
   vertical-align: middle;
 }
 
+/* ------------- STATS --------------- */
+
+.stats-container {
+  width: 100%;
+  max-width: 600px;
+  height: auto; 
+  background-color: #91929477;
+  border-radius: 8px;
+  padding: 12px;
+  box-sizing: border-box;
+  margin: auto;
+  margin-left: 0px ;
+}
+
+.stats-content {
+  font-family: 'DM Sans', sans-serif;
+  color: #323335;
+  font-weight: 400;
+  margin-top: -4px;
+}
+
+.stats-header{
+  margin-top: 0px;
+}
+
+.stats-row {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 4px;
+}
+
+.stats-column {
+  flex: 1;
+  padding: 0 8px;
+  box-sizing: border-box;
+}
 
 @media (min-width: 601px) and (max-width: 1200px) {
   .pathway-title {
@@ -1482,9 +1519,14 @@ button:hover {
     margin-bottom: 10px;
   }
   .stats-container{
-    height: 80px; 
+    /* height: 80px;  */
     margin-top: 0px;
   }
+
+  .slider-animation-wrapper {
+    margin-top: -10px;
+  }
+
 }
 
 /* large screens → minimal offset */
@@ -1499,8 +1541,11 @@ button:hover {
   }
 
   .stats-container{
-    height: 80px; 
+    /* height: 80px;  */
     margin-top: 0px;
+  }
+  .slider-animation-wrapper {
+    margin-top: -10px;
   }
 
 }
@@ -1522,7 +1567,10 @@ button:hover {
   }
 
   .stats-container{
-    height: 100px; 
+    /* height: 100px;  */
     margin-top: 30px;
+  }
+  .slider-animation-wrapper {
+    margin-top: 0px;
   }
 }
