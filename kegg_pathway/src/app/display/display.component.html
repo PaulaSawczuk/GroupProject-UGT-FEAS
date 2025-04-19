@@ -164,12 +164,18 @@
                     Pathway
                   </label>
                 </li>
-                <!-- ---------------- DROP DOWN BOXES FOR SEARCH FUNCTION ----------------  -->
                 <li>
                   <ng-container *ngIf="showEnzymeDropdown">
                     <select id="enzymeSelect" [(ngModel)]="selectedEnzyme" (change)="onEnzymeChange()">
                       <option value="">-- Select Enzyme --</option>
-                      <option *ngFor="let enzyme of enzymeOptions" [value]="enzyme">{{ enzyme }}</option>
+                      <optgroup *ngFor="let category of enzymeCategories" [label]="category">
+                        <option 
+                          *ngFor="let enzyme of enzymeCategoryMap[category]" 
+                          [value]="enzyme.ec"
+                          [ngStyle]="enzyme.logfc ? { 'background-color': enzyme.colour } : {}">
+                          {{ enzyme.name }}
+                        </option>
+                      </optgroup>
                     </select>
                   </ng-container>
                   
@@ -179,17 +185,10 @@
                       <option *ngFor="let option of CompoundOptions" [value]="option">{{ option }}</option>
                     </select>
                   </ng-container>
-                  
+  
                   <ng-container *ngIf="showPathwayDropdown">
                     <select id="pathwaySelect" [(ngModel)]="selectedPathwayCustom" (change)="onPathwayChange()">
-                      <option value="">-- Select Pathway --</option>
-                      <option *ngFor="let option of PathwayOptions" [value]="option">{{ option }}</option>
-                    </select>
-                  </ng-container>
-                  
-                  <ng-container *ngIf="showPathwayDropdown">
-                    <select id="pathwaySelect" [(ngModel)]="selectedPathwayCustom" (change)="onPathwayChange()">
-                      <option value="">-- Select Pathway --</option>
+                      <option value="">-- Select Related Pathway --</option>
                       <option *ngFor="let option of PathwayOptions" [value]="option">{{ option }}</option>
                     </select>
                   </ng-container>
@@ -493,6 +492,9 @@
       </div>
 
     </main>
+
+    <!---------------------------------FLOATING MINI MAP PANEL----------------------------------->
+    <div id="overviewDiv" class="overview-panel"></div>
 
   </div>
 </div>

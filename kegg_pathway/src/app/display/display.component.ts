@@ -80,6 +80,26 @@ export class DisplayComponent {
   // to track the number of popups
   private activePopups: { nodeKey: any }[] = [];
 
+  // Toggle for nodes dropdown visibility
+  nodesOpen: boolean = false;
+
+  // List of enzyme categories: e.g., ['Oxidoreductase', 'Transferase']
+  enzymeCategories: string[] = [];
+
+  // Map of category → list of enzymes in the displayed pathway
+  enzymeCategoryMap: { 
+    [category: string]: { ec: string, name: string, colour?: string, logfc?: number }[] 
+  } = {};  
+
+  // List of compounds in the displayed pathway
+  compoundList: string[] = [];
+
+  // List of pathways in the displayed pathway
+  pathwayList: string[] = [];
+
+  // Floating mini map's overview variable
+  myOverview: go.Overview | null = null;
+
   // Creating the Back-end API Service 
   constructor(
     private enzymeApiServicePost: enzymeApiServicePost,
@@ -338,7 +358,6 @@ private newlogfcToRGB(
 
   return `rgb(${color.r}, ${color.g}, ${color.b})`;
 }
-
 // Takes array of logfc and find average value 
 // used when there are multiple genes acting on an enzyme 
 private findMean(arr: any[]): number {
@@ -699,6 +718,11 @@ private getMultipleGenes(nodes: any[]): any[]{
 }
 
 
+// ----------- Processing Function Before Matching Nodes ----------------
+// Takes nodes of selected Map 
+// Gets relevant timepoint, retrieves annotated genes
+// Both function indentical but call variations in matchGenes(NoSize) 
+// Dependent on User interaction
 
 // ------------- METABOLIC FLUX - LINE WIDTHS -----------------
 // Gets enzyme nodes that are impacted by genes and are not due to isoforms (by colour)
@@ -1061,6 +1085,7 @@ private getLoadedPathways(): void{
       console.log(loadedData);
       console.log("--------------------")
       console.log('Pathway Data Loaded Successfully');
+      console.log("--------------------")
       this.isLoading = false;
       },
       (error) => {
@@ -1198,6 +1223,10 @@ private getLoadedPathways(): void{
     this.changeDiagram(updatedNodes, updatedEdges);
     this.isLoading = false;
 
+    // calls this method when user selects another pathway, updates the dropdown node values
+    this.populateNodeCategories();
+
+    this.isLoading = false;
   }
 
 
@@ -1212,12 +1241,20 @@ private getLoadedPathways(): void{
     console.log('Initialising Map');
 
     var $ = go.GraphObject.make;
-  
+    
   // Create the GoJS Diagram
     this.myDiagram = $(go.Diagram, "myDiagramDiv", {
     initialContentAlignment: go.Spot.Center,
     "undoManager.isEnabled": true,
     initialAutoScale: go.AutoScale.Uniform
+  });
+  
+  // Attach the overview panel (floating mini-map)
+  this.myOverview = $(go.Overview, "overviewDiv", {
+    observed: this.myDiagram,
+    contentAlignment: go.Spot.Center,
+    drawsGrid: false,
+    scale: 1.5 // to improve the clarity of the diagram inside the minimap
   });
 
   // TEMPLATE FOR LAYOUT
@@ -1242,13 +1279,14 @@ private getLoadedPathways(): void{
             fill: "lightgrey",
           })
         ).add(new go.TextBlock(
-          { margin: 5,
+          { name: "TEXT", 
+            margin: 5,
             font: "15px sans-serif",
             maxSize: new go.Size(100, 20),
             overflow: go.TextBlock.OverflowEllipsis,
             //wrap: go.TextBlock.WrapFit,
             })
-          .bind("text","text")
+          .bind("text","text")         
         )
     );
 
@@ -1393,12 +1431,13 @@ private getLoadedPathways(): void{
             height: 60
           })
         ).add(new go.TextBlock(
-          { margin: 2,
+          { name: "TEXT", 
+            margin: 2,
             font: "10px sans-serif",
             wrap: go.TextBlock.WrapFit,
           width: 80 })
           .bind("text", "name")
-        )
+        )  
     );
 
   // TEMPLATE FOR REACTION GROUPS
@@ -1425,12 +1464,17 @@ private getLoadedPathways(): void{
 
       // to make the nodes to show a pop up window when clicked
       this.myDiagram!.addDiagramListener("ObjectSingleClicked", (e) => {
-        //const _this = this;
         const part = e.subject.part;
         if (!(part instanceof go.Node)) return;
       
         const node = part;
+
+        
         const data = node.data || {};
+
+        // to check the actual data present in it
+        console.log("🧠 Full node data:", data);
+
         const key = data.key;
         const type = data.type || "unknown";
       
@@ -1462,7 +1506,14 @@ private getLoadedPathways(): void{
         const emoji = emojiMap[type] || "❓";
         const bgColor = colorMap[type] || colorMap["unknown"];
         const title = `${emoji} ${type.toUpperCase()}`;
-        const contentText = `KEY: ${data.key}\nTEXT: ${data.text ?? "?"}`;
+        const contentText = `
+        KEY: ${data.key}
+        EC: ${data.text ?? "?"}
+        Gene(s): ${Array.isArray(data.gene) ? data.gene.join(", ") : data.gene ?? "N/A"}
+        logFC: ${data.logfc ?? "N/A"}
+        Name: ${data.name ?? "N/A"}
+        `.trim();
+
       
         // Build the full popup box
         const box = go.GraphObject.make(go.Adornment, "Spot",
@@ -1473,26 +1524,12 @@ private getLoadedPathways(): void{
             zOrder: 10 // higher value to keep the box infront of the blocker
           },
           go.GraphObject.make(go.Panel, "Auto",
-            /*{
-              pickable: true,
-              isActionable: true,
-            },*/
             go.GraphObject.make(go.Shape, "RoundedRectangle", {
               fill: bgColor,
               stroke: "#ccc",
               strokeWidth: 1,
               shadowVisible: true,
             }),
-            
-            /*go.GraphObject.make(go.TextBlock, "", {
-              width: 1,
-              height: 1,
-              opacity: 0,
-              isActionable: true,
-              mouseDown: (e: go.InputEvent, obj: go.GraphObject) => {
-                e.handled = true;
-              }
-            }),*/
 
             go.GraphObject.make(go.Panel, "Vertical",
               go.GraphObject.make(go.Panel, "Horizontal",
@@ -1530,15 +1567,7 @@ private getLoadedPathways(): void{
                   
                     adorned.removeAdornment("popup");
                     
-                    /*
-                    const popupRecord = this.activePopups.find(p => p.nodeKey === key);
-                      if (popupRecord?.blocker) {
-                        this.myDiagram!.remove(popupRecord.blocker);
-                      }
-                    */
-                    this.activePopups = this.activePopups.filter(p => p.nodeKey !== key);
-
-                    
+                    this.activePopups = this.activePopups.filter(p => p.nodeKey !== key); 
                   }
                   
                 })                
@@ -1552,43 +1581,13 @@ private getLoadedPathways(): void{
           )
         );        
       
-        node.removeAdornment("popup");
-        /*
-        const blockerShape = go.GraphObject.make(go.Shape, "Rectangle", {
-          width: 160,
-          height: 60,
-          fill: "rgba(255, 0, 0, 0.2)",
-          stroke: null,
-          cursor: "default",
-          isActionable: true,  // Enable interactivity
-          click: (e: go.InputEvent, obj: go.GraphObject) => {
-            e.handled = true;
-            console.log("Blocker clicked, intercepting");
-          }
-        }); */
-        
-        /*
-        const blocker = go.GraphObject.make(go.Part, "Auto",
-          {
-            location: node.getDocumentPoint(go.Spot.Bottom),
-            layerName: "Tool",
-            selectable: false,
-            pickable: false,
-            zOrder: 1 // lower value than in box to keep this behind the box
-          },
-          blockerShape
-        );  */      
+        node.removeAdornment("popup");   
         
 
         box.adornedObject = node; // Link the popup to the node properly
         node.addAdornment("popup", box);
         //this.activePopups.push({ nodeKey: key ,blocker});
         this.activePopups.push({ nodeKey: key });
-
-
-        // for making the popup essentially opaque
-        //this.myDiagram!.add(blocker);
-        //console.log("📍 Blocker added to diagram");
 
 
         const anim = new go.Animation();
@@ -1612,6 +1611,162 @@ private getLoadedPathways(): void{
     model.linkDataArray = links;
     // Assigning the model to the diagram for visualisation
     this.myDiagram.model = model;
+
+    // for populating the node categories 
+    this.populateNodeCategories();   
+    
+    // Focus in by default after diagram is initialized, added to make the minimap relevant
+    this.myDiagram.addDiagramListener("InitialLayoutCompleted", () => {
+      // Delay zoom to ensure layout is fully rendered
+      // Animate zoom-in to center of the diagram
+      //this.myDiagram!.zoomToFit(); // Show whole map first
+
+      setTimeout(() => {
+        const allNodes = this.myDiagram!.nodes;
+        const firstNode = allNodes.first();
+        if (!firstNode) return;
+      
+        this.myDiagram!.commandHandler.scrollToPart(firstNode);
+        this.myDiagram!.startTransaction("initialZoom");
+      
+        this.myDiagram!.scale = 0.65; // Controlled zoom-in level
+        this.myDiagram!.centerRect(firstNode.actualBounds); // Center the node
+        this.myDiagram!.commitTransaction("initialZoom");
+      }, 400);
+      
+      /*
+      setTimeout(() => {
+        const bounds = this.myDiagram!.documentBounds;
+        const center = bounds.center;
+        const scale = Math.min(1.5, this.myDiagram!.scale * 1.5);
+      
+        const anim = new go.Animation();
+        anim.duration = 800;
+        anim.easing = go.Animation.EaseOutExpo;
+        anim.add(this.myDiagram!, "scale", this.myDiagram!.scale, scale);
+        anim.add(this.myDiagram!, "position", this.myDiagram!.position, center.offset(-300, -300));
+        anim.start();
+      }, 300); */     
+    });
+  }
+
+ // method for populating the node categories
+  populateNodeCategories(): void {
+    if (!this.myDiagram) return;
+  
+    //console.log("🧠 Full node data array:", this.myDiagram.model.nodeDataArray);
+
+
+    const nodeDataArray = this.myDiagram.model.nodeDataArray;
+  
+    this.enzymeCategories = [];
+    this.enzymeCategoryMap = {};
+    this.compoundList = [];
+    this.pathwayList = [];
+  
+  
+    for (const node of nodeDataArray) {
+      //console.log("🔍 Node:", node);
+      const type = node['type'];
+      const ec = node['text'];
+
+      const name = node['name'] || ec;
+  
+      if (type === 'enzyme') {
+        const category = node['enzymeType'] || 'Uncategorized';
+  
+        if (!this.enzymeCategoryMap[category]) {
+          this.enzymeCategoryMap[category] = [];
+          this.enzymeCategories.push(category);
+        }
+  
+        // Avoid duplicate entries
+        const alreadyExists = this.enzymeCategoryMap[category].some(e => e.ec === ec);
+        if (!alreadyExists) {
+          this.enzymeCategoryMap[category].push({
+            ec,
+            name,
+            logfc: node?.['logfc'] ?? null,
+            colour: node?.['colour'] ?? null,
+          });
+          
+        }
+      }
+  
+      if (type === 'compound' && !this.compoundList.includes(name)) {
+        this.compoundList.push(name);
+      }
+  
+      if (type === 'map' && !this.pathwayList.includes(name)) {
+        this.pathwayList.push(name);
+      }
+    }
+  
+    this.enzymeCategories.sort();
+    for (const category of this.enzymeCategories) {
+      this.enzymeCategoryMap[category].sort((a, b) => a.name.localeCompare(b.name));
+    }
+    this.compoundList.sort();
+    this.pathwayList.sort();
+
+    // to populate the drop downs
+    for (const category of this.enzymeCategories) {
+      for (const enzyme of this.enzymeCategoryMap[category]) {
+        // Find matching node in nodeDataArray
+        const node = nodeDataArray.find(n => n['text'] === enzyme.ec && n['type'] === 'enzyme');
+    
+        this.enzymeOptions.push({
+          ec: enzyme.ec,
+          name: enzyme.name,
+          logfc: node?.['logfc'] ?? null,
+          colour: node?.['colour'] ?? null
+        });
+      }
+    }
+
+    console.log('enzymeCategoryMap w/ colours:', this.enzymeCategoryMap);
+
+    console.log('enzymeOptions:', this.enzymeOptions);
+
+  this.CompoundOptions = [...this.compoundList];
+  this.PathwayOptions = [...this.pathwayList];
+  }
+  
+  // method for highlighting the node when an item in the dropdown is clicked
+  selectNodeFromDropdown(nodeKeyOrName: string, nodeType: string): void {
+    if (!this.myDiagram) return;
+  
+    const nodeDataArray = this.myDiagram.model.nodeDataArray;
+  
+    let match: any;
+
+    if (nodeType === 'enzyme') {
+      match = nodeDataArray.find(n => n['type'] === 'enzyme' && n['text'] === nodeKeyOrName);
+    } else if (nodeType === 'compound') {
+      match = nodeDataArray.find(n => n['type'] === 'compound' && n['text'] === nodeKeyOrName);
+    } else if (nodeType === 'map') {
+      match = nodeDataArray.find(n => n['type'] === 'map' && n['name'] === nodeKeyOrName);
+    }
+  
+    if (!match) {
+      console.warn(`${nodeType === 'map' ? 'Map name' : 'Node'} not found: ${nodeType} →`, nodeKeyOrName);
+      return;
+    }
+  
+    const node = this.myDiagram.findNodeForData(match);
+    if (!node) {
+      console.warn(`Node instance not found for:`, match);
+      return;
+    }
+
+    // Highlight node
+    this.myDiagram.select(node);
+    this.myDiagram.centerRect(node.actualBounds);
+
+    // Zoom and center
+    this.myDiagram.commandHandler.scrollToPart(node);
+    this.myDiagram.scale = 1.1;
+    this.myDiagram.centerRect(node.actualBounds);
     this.setLegend(this.myDiagram);
   }
   
@@ -2700,17 +2855,17 @@ Once all the steps are completed, click the Process button to move to get visual
   }
 
 
-
-
   //  ------------------ POPULATE SELECT BOXES -------------------
   // MOCK DATA
-  enzymeOptions: string[] = ['Enzyme A', 'Enzyme B', 'Enzyme C'];
+  enzymeOptions: { ec: string; name: string; logfc?: number; colour?: string }[] = [];
   CompoundOptions: string[] = ['Value 1', 'Value 2', 'Value 3'];
   PathwayOptions: string[] = ['Pathway A', 'Pathway B', 'Pathway C'];
   
   selectedEnzyme: string = '';
   selectedCompound: string = '';
   selectedPathwayCustom: string = '';
+  selectedEnzymeType: string = '';
+  filteredEnzymeOptions: { ec: string, name: string }[] = [];
   
   showEnzymeDropdown: boolean = false;
   showCompoundDropdown: boolean = false;
@@ -2743,15 +2898,18 @@ Once all the steps are completed, click the Process button to move to get visual
 
   onEnzymeChange() {
     console.log('Selected enzyme:', this.selectedEnzyme);
-  }
+    this.selectNodeFromDropdown(this.selectedEnzyme, 'enzyme');
+  }  
 
   onCompoundChange() {
     console.log('Selected compound:', this.selectedCompound);
+    this.selectNodeFromDropdown(this.selectedCompound, 'compound');
   }
 
   onPathwayChange() {
     console.log('Selected pathway:', this.selectedPathwayCustom);
-  }
+    this.selectNodeFromDropdown(this.selectedPathwayCustom, 'map');
+  }  
 
 
   //  ------------------ TIME SLIDER -------------------
