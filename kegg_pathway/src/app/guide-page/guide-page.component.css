@@ -1,0 +1,257 @@
+/* ------------- BACKGROUND ------------- */
+.faded-background {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(to top, rgba(62, 66, 75, 0.2) 0%, rgba(62, 66, 75, 0) 100%);
+  z-index: -1;
+  pointer-events: none;
+}
+
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+.guide-container {
+  display: flex;
+  height: 100%;
+  width: 100%;
+  font-family: 'DM Sans', sans-serif;
+  overflow: hidden;
+  position: relative;
+}
+
+/* ------------- HEADER ------------- */
+.header {
+  /* padding: 24px 16px; */
+  text-align: center;
+  position: relative;
+}
+
+.header-content {
+  max-width: 768px;
+  margin: 0 auto;
+  margin-top: 32px;
+  padding: 0 16px;
+}
+
+/* ------------- GOING BACK ARROW ------------- */
+.back-button {
+  position: absolute;
+  top: 0px;
+  left: 16px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 50%;
+  transition: background-color 0.3s ease;
+  z-index: 10;
+  display: flex;
+ 
+}
+
+.back-button:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.back-button svg {
+  width: 24px;
+  height: 24px;
+  stroke: #48494B;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* ------------- TEXT IN THE HEADER ------------- */
+.title {
+  font-size: 40px;
+  font-weight: bold;
+  background: #48494B;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-family: 'DM Sans', sans-serif;
+  margin-bottom: 16px;
+}
+
+.subtitle {
+  font-size: 20px;
+  color: #6b7280;
+  font-family: 'DM Sans', sans-serif;
+}
+
+/* ------------- PANEL WITH CARDS ------------- */
+.main {
+  flex: 1;
+  padding: 16px 16px;
+  max-width: 768px;
+  margin: 0 auto;
+}
+
+.card-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+}
+
+@media (min-width: 768px) {
+  .card-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* ------------- CARDS ------------- */
+.card {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  padding: 16px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  font-family: 'DM Sans', sans-serif;
+  position: relative;
+}
+
+.card:hover {
+  transform: scale(1.01);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+}
+
+.card-title {
+  font-size: 24px;
+  font-weight: 600;
+  font-family: 'DM Sans', sans-serif;
+  color: #48494B;
+}
+
+.card-description {
+  color: #6b7280;
+  line-height: 1.6;
+  margin-top: 8px;
+  font-family: 'DM Sans', sans-serif;
+}
+
+/* ------------- GET STARTED BUTTON ------------- */
+.start-button-container {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 32px;
+}
+
+.start-button {
+  background: #48494B;
+  color: white;
+  padding: 12px 32px;
+  border-radius: 9999px;
+  font-size: 16px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 6px 12px rgba(118, 118, 119, 0.3);
+  border: none;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+}
+
+.start-button:hover {
+  background: #afacac;
+}
+
+.arrow-icon {
+  width: 20px;
+  height: 20px;
+}
+
+/* ------------- READ MORE FOR THE CARDS ------------- */
+.read-more {
+  padding: 8px 16px;
+  font-size: 14px;
+  background-color: transparent;
+  color: #48494B;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  position: absolute; 
+  bottom: 16px;   
+  right: 16px;     
+  margin-top: 0;
+  font-family: 'DM Sans', sans-serif;   
+}
+
+.read-more::before {
+  content: "▶";
+  margin-right: 8px;
+  color: #48494B;
+}
+
+.read-more:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.read-more:focus {
+  outline: none;
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+.read-more:active {
+  background-color: rgba(0, 0, 0, 0.15);
+}
+
+/* ------------- READ MORE MODAL ------------- */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal {
+  background: white;
+  padding: 24px;
+  border-radius: 12px;
+  max-width: 500px;
+  width: 90%;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+}
+
+.modal h2 {
+  font-family: 'DM Sans', sans-serif;
+  color: #48494B;   
+}
+
+.modal p {
+  font-family: 'DM Sans', sans-serif;
+  color: #6b7280; 
+  line-height: 1.2;
+}
+
+/* ------------- CLOSE BUTTON FOR MODALS ------------- */
+.close-button {
+  margin-top: 20px;
+  background: #48494B;
+  color: white;
+  border: none;
+  padding: 8px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.close-button:hover {
+  background-color: #646566;
+}
+

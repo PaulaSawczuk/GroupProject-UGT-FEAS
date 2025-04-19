@@ -4,6 +4,7 @@ import { KeggDataService } from '../services/kegg_organisms-data.service';
 import { KeggPathwaysService } from '../services/kegg_pathways.service';
 import { Router } from '@angular/router';
 import { FileDataService } from '../services/file-data.service';
+import {MatTooltipModule} from '@angular/material/tooltip';
 // import { getUniquePathways } from '../helper/getGenePathways';
 interface UploadedFile {
   name: string;
@@ -1092,5 +1093,23 @@ export class UploadComponent {
       this.fileDataService.setPathwayCount(this.pathwayCount);
 
     }
-  }
+}
+
+// ------------------ GO BACK TO LANDING PAGE -----------------
+goBackToLanding(): void {
+  this.router.navigate(['/']);
+}
+
+// ------------------ INFORMATION ------------------
+
+showInformationPopOut = false;
+
+showInformation() {
+  this.showInformationPopOut = true;
+}
+
+hideInformation() {
+  this.showInformationPopOut = false;
+}
+
 }

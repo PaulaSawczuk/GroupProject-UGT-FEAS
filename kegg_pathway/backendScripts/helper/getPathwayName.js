@@ -29,7 +29,12 @@ async function getPathwayNames(all_paths){
   console.log("Getting Pathway Names");
   console.log("----------------------");
   var paths=[];
-  for (const path of all_paths) {
+  const allpaths = all_paths[0];
+  //console.log(allpaths);
+  const tally = all_paths[1];
+  //console.log(tally);
+  for (const path of allpaths) {
+      //console.log(path);
       var url = 'https://rest.kegg.jp/get/'+path;
       //console.log(url);
       try {
@@ -67,7 +72,7 @@ async function getPathwayNames(all_paths){
           }
   }
   //console.log(paths);
-  return {paths};
+  return [{paths},tally];
 }
 
 module.exports = {

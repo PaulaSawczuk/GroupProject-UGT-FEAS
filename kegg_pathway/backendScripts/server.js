@@ -14,7 +14,7 @@
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
-const { processInput, processPathways } = require('./helper/merge.js');
+const { processInput, processPathways, processIndividualPathway } = require('./helper/merge.js');
 const {getEnzymePathways} = require('./helper/getEnzymePathways.js');
 const {getPathwayNames} = require('./helper/getPathwayName.js');
 const {getAllPathways} = require('./helper/getAllPathways.js');
@@ -37,12 +37,12 @@ app.post('/api/getMap', (req, res) => {
     console.log('------------');
     console.log(new Date());
     console.log('------------');
-    var response = req.body;
-    var pathway = response[0];
-
+    //var response = req.body;
+    //var pathway = response[0];
+    var code = req.body;
     //console.log(genes);
-    //console.log(pathway);
-    processInput(pathway).then((elements) => {
+    console.log(code);
+    processIndividualPathway(code).then((elements) => {
         console.log('------------');
         console.log('Sending to FrontEnd');
         console.log('------------');
@@ -62,7 +62,7 @@ app.post('/api/getMap', (req, res) => {
     var response = req.body;
     var pathway = response[0];
     //console.log(genes);
-    //console.log(pathway);
+    console.log(pathway);
     processPathways(pathway).then((pathwayData) => {
         console.log('------------');
         console.log('Sending to FrontEnd');
@@ -86,12 +86,12 @@ app.post('/api/getPathways', (req, res) => {
     console.log('Getting Enzyme Pathways');
     console.log('------------');
     console.log(new Date());
-    console.log(req.body);
+    //console.log(req.body);
     console.log('------------');
     var number= req.body[1];
     console.log(number);
     var enzymes = req.body[0];
-    console.log(enzymes);
+    //console.log(enzymes);
     //console.log(enzymes);
     getEnzymePathways(enzymes,number).then(pathways => getPathwayNames(pathways))
         .then((result)=>{
@@ -99,7 +99,7 @@ app.post('/api/getPathways', (req, res) => {
           console.log('------------');
           console.log(new Date());
           console.log('------------');
-            res.json(result.paths);
+            res.json(result);
         });
   });
 
@@ -131,22 +131,6 @@ app.post('/api/getPathways', (req, res) => {
       res.json(pathwayData);
     })
   });
-
-
-// This works for Paula lol please don't delete for now 
-// let requestCount = 0;
-
-// app.post('/api/getPathways', (req, res) => {
-//     requestCount++;
-//     console.log(`Received request #${requestCount} for getPathways`);
-//     console.log(req.body);
-    
-//     var enzymes = req.body;
-//     getEnzymePathways(enzymes).then(pathways => getPathwayNames(pathways))
-//         .then((result)=>{
-//             res.json(result.paths);
-//         });
-// });
 
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => {

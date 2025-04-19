@@ -11,184 +11,206 @@
     <span class="LoadingMessage">{{ LoadingMessage }}</span>
   </div>
 
+  <!-- ---------------- MAIN CONTENT (SIDEBAR AND MAIN PANEL) ---------------- -->
   <div class="content-container" [class.loading-blur]="isLoading">
     
     <!-- ---------------- SIDE BAR WITH PATHWAYS ---------------- -->
     <aside id="sidebar" [class.close]="!isMenuOpen">
-      <ul>
-        <li>
-          <div class="toggle-container" [class.right]="isMenuOpen" >
-            <button id="toggle-btn" (click)="toggleMenu()" [class.rotate]="isMenuOpen">
-              <svg xmlns="http://www.w3.org/2000/svg" height="20" viewBox="0 -960 960 960" width="20" fill="#48494B">
-                <path d="m240-240 172-240-172-240h96l172 240-172 240h-96Zm212 0 172-240-172-240h97l171 240-171 240h-97Z"/>
-              </svg>
-            </button>
-          </div>
-        </li>
+      <div class="sidebar-content">
+        <ul>
+          <li>
+            <div class="toggle-container" [class.right]="isMenuOpen" >
+              <button id="toggle-btn" (click)="toggleMenu()" [class.rotate]="isMenuOpen">
+                <svg xmlns="http://www.w3.org/2000/svg" height="20" viewBox="0 -960 960 960" width="20" fill="#48494B">
+                  <path d="m240-240 172-240-172-240h96l172 240-172 240h-96Zm212 0 172-240-172-240h97l171 240-171 240h-97Z"/>
+                </svg>
+              </button>
+            </div>
+          </li>
 
-        <li>
-          <div class="pathways-header" [class.active]="isPathwaysActive()" >
-            <div class="icons-container" (click)="showPathwaysFromIcon($event)">
-              <div class="icons">
-                <!-- Pathway Icon -->
-                <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#48494B">
-                  <path d="M744-144q-41 0-72-24t-42-60H396q-55 0-93.5-38.5T264-360q0-55 38.5-93.5T396-492h120q34.65 0 59.33-24.75Q600-541.5 600-576.25t-24.67-59.25Q550.65-660 516-660H330q-11 36-42 60t-72 24q-50 0-85-35t-35-85q0-50 35-85t85-35q41 0 72 24t42 60h186q65 0 110.5 45.5T672-576q0 65-45.5 110.5T516-420H396q-24.75 0-42.37 17.68Q336-384.65 336-359.82q0 24.82 17.63 42.32Q371.25-300 396-300h234q11-36 42-60t72-24q50 0 85 35t35 85q0 50-35 85t-85 35ZM216-648q20.4 0 34.2-13.8Q264-675.6 264-696q0-20.4-13.8-34.2Q236.4-744 216-744q-20.4 0-34.2 13.8Q168-716.4 168-696q0 20.4 13.8 34.2Q195.6-648 216-648Z" />
+          <li>
+            <div class="pathways-header" [class.active]="isPathwaysActive()" >
+              
+              <div class="icons-container" (click)="showPathwaysFromIcon($event)">
+                <div class="icons">
+                  <!-- Pathway Icon -->
+                  <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#48494B">
+                    <path d="M744-144q-41 0-72-24t-42-60H396q-55 0-93.5-38.5T264-360q0-55 38.5-93.5T396-492h120q34.65 0 59.33-24.75Q600-541.5 600-576.25t-24.67-59.25Q550.65-660 516-660H330q-11 36-42 60t-72 24q-50 0-85-35t-35-85q0-50 35-85t85-35q41 0 72 24t42 60h186q65 0 110.5 45.5T672-576q0 65-45.5 110.5T516-420H396q-24.75 0-42.37 17.68Q336-384.65 336-359.82q0 24.82 17.63 42.32Q371.25-300 396-300h234q11-36 42-60t72-24q50 0 85 35t35 85q0 50-35 85t-85 35ZM216-648q20.4 0 34.2-13.8Q264-675.6 264-696q0-20.4-13.8-34.2Q236.4-744 216-744q-20.4 0-34.2 13.8Q168-716.4 168-696q0 20.4 13.8 34.2Q195.6-648 216-648Z" />
+                  </svg>
+                </div>
+                <span class="menu-text">Pathways</span>
+              </div>
+              
+              <!-- ---------------- SORT BY ---------------- -->
+              <div class="sort-container" (click)="toggleSortDropdown($event)"> 
+                <span class="sort-label">Sort</span>
+                <svg [class.rotate]="sortDropdownOpen" class="dropdown-arrow" xmlns="http://www.w3.org/2000/svg" height="16" viewBox="0 -960 960 960" width="16" fill="#48494B">
+                  <path d="M480-360 280-560h400L480-360Z"/>
                 </svg>
               </div>
-              <span class="menu-text">Pathways</span>
-            </div>
-            <div class="sort-container" (click)="toggleSortDropdown($event)">
-              <!-- ---------------- SORT BY ---------------- -->
-              <span class="sort-label">Sort</span>
-              <svg [class.rotate]="sortDropdownOpen" class="dropdown-arrow" xmlns="http://www.w3.org/2000/svg" height="16" viewBox="0 -960 960 960" width="16" fill="#48494B">
-                <path d="M480-360 280-560h400L480-360Z"/>
-              </svg>
+
               <ul *ngIf="sortDropdownOpen" class="sort-dropdown">
-                <li (click)="sortPathways('name')">Name: A to Z</li>
-                <li (click)="sortPathways('length')">Name: Z to A</li>
-                <li (click)="sortPathways('highComp')">Complexity: High to Low</li>
-                <li (click)="sortPathways('lowComp')">Complexity: Low to High</li>
+                <li (click)="onSortClick('name')">Name: A to Z</li>
+                <li (click)="onSortClick('length')">Name: Z to A</li>
+                <li (click)="onSortClick('highComp')">Complexity: High to Low</li>
+                <li (click)="onSortClick('lowComp')">Complexity: Low to High</li>
               </ul>
-            </div>
-          </div>
-          <hr />
-          <ul class="sub-menu" [class.show]="pathwaysOpen && !customTabOpen && !searchTabOpen">
-            <li *ngFor="let pathway of pathways">
-              <a (click)="selectPathway($event, pathway)">{{ pathway }}</a>
-            </li>
-          </ul>
-        </li>
 
-        <!-- ---------------- CUSTOMISE ---------------- -->
-        <li *ngIf="customTabExists">
-          <div class="customise-header" [class.active]="customTabOpen" (click)="showCustomiseView()">
-            <div class="icons-container">
-              <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#48494B">
-                <path d="m216-909 51-51 338 338q20 20 19.5 47T605-529L431-355q-20 20-47 20t-47-20L163-530q-19-19-20-46t20-47l170-169-117-117Zm168 168L219-576h1-1 330L384-741Zm348 453q-35 0-59.5-24.5T648-372q0-20 10.5-42.5T692-469q8-11 18.5-24t21.5-26q10 13 20.5 25.5T772-469q16 23 30 47t14 50q0 35-24.5 59.5T732-288ZM96 0v-192h768V0H96Z"/>
-              </svg>
             </div>
+            <hr />
+            <div class="scrollable-pathways">
+              <ul class="sub-menu" [class.show]="pathwaysOpen && !customTabOpen && !searchTabOpen">
+                <li *ngFor="let pathway of pathways">
+                  <a (click)="selectPathway($event, pathway)">{{ pathway }}</a>
+                </li>
+              </ul>
+            </div> 
+          </li>
+
+          <!-- ---------------- CUSTOMISE ---------------- -->
+          <li *ngIf="customTabExists">
+            <div class="customise-header" [class.active]="customTabOpen" (click)="showCustomiseView()">
+              <div class="icons-container">
+                <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#48494B">
+                  <path d="m216-909 51-51 338 338q20 20 19.5 47T605-529L431-355q-20 20-47 20t-47-20L163-530q-19-19-20-46t20-47l170-169-117-117Zm168 168L219-576h1-1 330L384-741Zm348 453q-35 0-59.5-24.5T648-372q0-20 10.5-42.5T692-469q8-11 18.5-24t21.5-26q10 13 20.5 25.5T772-469q16 23 30 47t14 50q0 35-24.5 59.5T732-288ZM96 0v-192h768V0H96Z"/>
+                </svg>
+              </div>
         
-            <span class="menu-text">Customise</span>
-            <!-- ---------------- CUSTOMISE CLOSE BUTTON---------------- -->
-            <button *ngIf="customTabOpen" class="close-btn" (click)="closeCustomTab(); $event.stopPropagation()">x</button>
-          </div>
-          
-          <ng-container *ngIf="customTabOpen">
-            <ul class="sub-menu show">
-
-              <!-- ---------------- COLOUR PICKER ---------------- -->
-              <li class="label-row">
-                <label class="main-label">Customise colour for data expression:</label>
-              </li>
-              
-              <li>
-                <div class="color-picker-row">
-                  <div class="color-box-high">
-                    <label for="colorPickerHigh">Highly Expressed Genes:</label>
-                    <div class="color-picker-container">
-                      <input type="color" id="colorPickerHigh" value="#ff0000" class="color-picker" (change)="onColorChangeHigh($event)"/>
-                      <span class="color-hex">{{ selectedColorHigh }}</span>
-                    </div>
-                  </div>
-                  <div class="color-box-low" style="margin-top: 20px;">
-                    <label for="colorPickerLow">Low Expressed Genes:</label>
-                    <div class="color-picker-container">
-                      <input type="color" id="colorPickerLow" value="#0000ff" class="color-picker" (change)="onColorChangeLow($event)"/>
-                      <span class="color-hex">{{ selectedColorLow }}</span>
-                    </div>
-                  </div>
-                </div>
-              </li>
-
-            </ul>
-          </ng-container>
-        </li>
-
-        <!-- ---------------- SEARCH ---------------- -->
-        <li *ngIf="searchTabExists">
-          <div class="search-header" [class.active]="searchTabOpen" (click)="showSearchView()">
-            <div class="icons-container">
-              <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#48494B">
-                <path d="M765-144 526-383q-30 22-65.79 34.5-35.79 12.5-76.18 12.5Q284-336 214-406t-70-170q0-100 70-170t170-70q100 0 170 70t70 170.03q0 40.39-12.5 76.18Q599-464 577-434l239 239-51 51ZM384-408q70 0 119-49t49-119q0-70-49-119t-119-49q-70 0-119 49t-49 119q0 70 49 119t119 49Z"/>
-              </svg>
+              <span class="menu-text">Customise</span>
+            
+              <!-- ---------------- CUSTOMISE CLOSE BUTTON---------------- -->
+              <button *ngIf="customTabOpen" class="close-btn" (click)="closeCustomTab(); $event.stopPropagation()">x</button>
             </div>
-        
-            <span class="menu-text">Search</span>
-            <!-- ---------------- CUSTOMISE CLOSE BUTTON---------------- -->
-            <button *ngIf="searchTabOpen" class="search-close-btn" (click)="closeSearchTab(); $event.stopPropagation()">x</button>
-          </div>
           
-          <!-- ---------------- CHECKBOXES FOR SEARCH FUNCTION ---------------- -->
-          <ng-container *ngIf="searchTabOpen">
-            <ul class="sub-menu show">
-          
-              <li class="label-selectDropdown">
-                <label class="main-label">Look for: </label>
-              </li>
-          
-              <li>
-                <label class="checkbox-label">
-                  <input type="checkbox" id="enzymeCheckbox" [(ngModel)]="showEnzymeDropdown" (change)="onCheckboxChange('enzyme')">
-                  Enzyme
-                </label>
-                <label class="checkbox-label">
-                  <input type="checkbox" id="compoundCheckbox" [(ngModel)]="showCompoundDropdown" (change)="onCheckboxChange('compound')">
-                  Compound
-                </label>
-                <label class="checkbox-label">
-                  <input type="checkbox" id="pathwayCheckbox" [(ngModel)]="showPathwayDropdown" (change)="onCheckboxChange('pathway')">
-                  Related Pathways
-                </label>
-              </li>
-              <!-- ---------------- DROP DOWN BOXES FOR SEARCH FUNCTION ----------------  -->
-              <li>
-                <ng-container *ngIf="showEnzymeDropdown">
-                  <select id="enzymeSelect" [(ngModel)]="selectedEnzyme" (change)="onEnzymeChange()">
-                    <option value="">-- Select Enzyme --</option>
-                    <optgroup *ngFor="let category of enzymeCategories" [label]="category">
-                      <option 
-                        *ngFor="let enzyme of enzymeCategoryMap[category]" 
-                        [value]="enzyme.ec"
-                        [ngStyle]="enzyme.logfc ? { 'background-color': enzyme.colour } : {}">
-                        {{ enzyme.name }}
-                      </option>
-                    </optgroup>
-                  </select>
-                </ng-container>
+            <ng-container *ngIf="customTabOpen">
+              <ul class="sub-menu show">
+
+                <!-- ---------------- COLOUR PICKER ---------------- -->
+                <li class="label-row">
+                  <label class="main-label">Customise colour for data expression:</label>
+                </li>
                 
-                <ng-container *ngIf="showCompoundDropdown">
-                  <select id="CompoundSelect" [(ngModel)]="selectedCompound" (change)="onCompoundChange()">
-                    <option value="">-- Select Compound --</option>
-                    <option *ngFor="let option of CompoundOptions" [value]="option">{{ option }}</option>
-                  </select>
-                </ng-container>
+                <li>
+                  <div class="color-picker-row">
+                    <div class="color-box-high">
+                      <label for="colorPickerHigh">Highly Expressed Genes:</label>
+                      <div class="color-picker-container">
+                        <input type="color" id="colorPickerHigh" value="#ff0000" class="color-picker" (change)="onColorChangeHigh($event)"/>
+                        <span class="color-hex">{{ selectedColorHigh }}</span>
+                      </div>
+                    </div>
 
-                <ng-container *ngIf="showPathwayDropdown">
-                  <select id="pathwaySelect" [(ngModel)]="selectedPathwayCustom" (change)="onPathwayChange()">
-                    <option value="">-- Select Related Pathway --</option>
-                    <option *ngFor="let option of PathwayOptions" [value]="option">{{ option }}</option>
-                  </select>
-                </ng-container>
-              </li>
-            </ul>
-          </ng-container>
-        </li>
-        
+                    <div class="color-box-low" style="margin-top: 20px;">
+                      <label for="colorPickerLow">Low Expressed Genes:</label>
+                      <div class="color-picker-container">
+                        <input type="color" id="colorPickerLow" value="#0000ff" class="color-picker" (change)="onColorChangeLow($event)"/>
+                        <span class="color-hex">{{ selectedColorLow }}</span>
+                      </div>
+                    </div>
+                  </div>
+                </li>
 
+                <li class="label-row">
+                  <label class="main-label">Customise colour for Isoforms:</label>
+                </li>
 
-      </ul>
+                <li>
+                  <div class="color-picker-row">
+                    <div class="color-box-isoform">
+                      <label for="colorPickerIsoform">Isoforms:</label>
+                      <div class="color-picker-container">
+                        <input type="color" id="colorPickerIsoform" value="#fff44f" class="color-picker" (change)="onColorChangeIsoform($event)"/>
+                        <span class="color-hex">{{ selectedColorIsoform }}</span>
+                      </div>
+                    </div>
+                  </div>
+                </li>
+              </ul>
+            </ng-container>
+          </li>
+          <!-- ---------------- SEARCH ---------------- -->
+          <li *ngIf="searchTabExists">
+            <div class="search-header" [class.active]="searchTabOpen" (click)="showSearchView()">
+              <div class="icons-container">
+                <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#48494B">
+                  <path d="M765-144 526-383q-30 22-65.79 34.5-35.79 12.5-76.18 12.5Q284-336 214-406t-70-170q0-100 70-170t170-70q100 0 170 70t70 170.03q0 40.39-12.5 76.18Q599-464 577-434l239 239-51 51ZM384-408q70 0 119-49t49-119q0-70-49-119t-119-49q-70 0-119 49t-49 119q0 70 49 119t119 49Z"/>
+                </svg>
+              </div>
+          
+              <span class="menu-text">Search</span>
+              <!-- ---------------- CLOSE BUTTON---------------- -->
+              <button *ngIf="searchTabOpen" class="search-close-btn" (click)="closeSearchTab(); $event.stopPropagation()">x</button>
+            </div>
+          
+            <!-- ---------------- CHECKBOXES FOR SEARCH FUNCTION ---------------- -->
+            <ng-container *ngIf="searchTabOpen">
+              <ul class="sub-menu show">
+            
+                <li class="label-selectDropdown">
+                  <label class="main-label">In a current pathway look for: </label>
+                </li>
+            
+                <li>
+                  <label class="checkbox-label">
+                    <input type="checkbox" id="enzymeCheckbox" [(ngModel)]="showEnzymeDropdown" (change)="onCheckboxChange('enzyme')">
+                    Enzyme
+                  </label>
+                  <label class="checkbox-label">
+                    <input type="checkbox" id="compoundCheckbox" [(ngModel)]="showCompoundDropdown" (change)="onCheckboxChange('compound')">
+                    Compound
+                  </label>
+                  <label class="checkbox-label">
+                    <input type="checkbox" id="pathwayCheckbox" [(ngModel)]="showPathwayDropdown" (change)="onCheckboxChange('pathway')">
+                    Pathway
+                  </label>
+                </li>
+                <li>
+                  <ng-container *ngIf="showEnzymeDropdown">
+                    <select id="enzymeSelect" [(ngModel)]="selectedEnzyme" (change)="onEnzymeChange()">
+                      <option value="">-- Select Enzyme --</option>
+                      <optgroup *ngFor="let category of enzymeCategories" [label]="category">
+                        <option 
+                          *ngFor="let enzyme of enzymeCategoryMap[category]" 
+                          [value]="enzyme.ec"
+                          [ngStyle]="enzyme.logfc ? { 'background-color': enzyme.colour } : {}">
+                          {{ enzyme.name }}
+                        </option>
+                      </optgroup>
+                    </select>
+                  </ng-container>
+                  
+                  <ng-container *ngIf="showCompoundDropdown">
+                    <select id="CompoundSelect" [(ngModel)]="selectedCompound" (change)="onCompoundChange()">
+                      <option value="">-- Select Compound --</option>
+                      <option *ngFor="let option of CompoundOptions" [value]="option">{{ option }}</option>
+                    </select>
+                  </ng-container>
+  
+                  <ng-container *ngIf="showPathwayDropdown">
+                    <select id="pathwaySelect" [(ngModel)]="selectedPathwayCustom" (change)="onPathwayChange()">
+                      <option value="">-- Select Related Pathway --</option>
+                      <option *ngFor="let option of PathwayOptions" [value]="option">{{ option }}</option>
+                    </select>
+                  </ng-container>
+                </li>
+              </ul>
+            </ng-container>
+          </li>
+        </ul>
+      </div>  
     </aside>
 
     <!-- ---------------- TOP BAR ---------------- -->
     <aside class="top-bar">
       <div class="top-bar-left">
-        <div class="app-logo">X</div>
-        <span class="app-name">AppName</span>
+        <div class="app-logo"><img src="assets/Enstrap_icon.png" alt="Landing Image"></div>
+        <span class="app-name">Enstrap.int</span>
         <div class="separator"></div>
         <div class="top-bar-menu">
           <div class="dropdown">
             <!-- ---------------- FILES TAB ---------------- -->
             <button class="dropdown-button" (click)="openUploadModal()">File</button>
+            
             <div class="dropdown-content">
               <!-- ---------------- UPLOAD FILES ---------------- -->
               <a href="#" (click)="openUploadModal(); $event.preventDefault()">Import files</a>
@@ -204,32 +226,42 @@
                   <a href="#" (click)="exportImage('svg'); $event.preventDefault()">svg</a>
                 </div>
               </div>
-            </div>
-          </div>
-          <!-- ---------------- FILTER TAB ---------------- -->
-          <div class="separator-vertical"></div>
-          <div class="dropdown">
-            <button class="dropdown-button">Filter</button>
-            <div class="dropdown-content">
-              <!-- ---------------- FILTER PATHWAYS ---------------- -->
-              <a href="#" (click)="openFilterPathwayModal(); $event.preventDefault()">Pathways</a>
-              
-              <!-- ---------------- MAYBE OPTION 2 IDK ---------------- -->
-              <a href="#">Option 2</a>
 
             </div>
+
           </div>
+          
 
           <!-- ---------------- VIEW TAB ---------------- -->
           <div class="separator-vertical"></div>
-          <div class="dropdown">
-            <button class="dropdown-button">View</button>
-            <div class="dropdown-content">
-              <a href="#" (click)="openCustomTab(); $event.preventDefault() ">Customise</a>
-              <a href="#" (click)="openSearchTab(); $event.preventDefault() ">Search</a>
+            <div class="dropdown">
+              <button class="dropdown-button">View</button>
+              <div class="dropdown-content">
+                <a href="#" (click)="openCustomTab(); $event.preventDefault() ">Customise</a>
+
+                <div class="submenu" (click)="onSubmenuClick($event)">
+                  <a href="#" (click)="toggleSearchSubmenu($event)" class="submenu-trigger">
+                    <span>Search...</span>
+                    <span class="submenu-icon">›</span>
+                  </a>
+                  <div class="submenu-content" *ngIf="searchSubmenuOpen">
+                    <a href="#" (click)="openSearchTab(); $event.preventDefault()">Pathway Elements</a>
+                    <a href="#" (click)="openSearchPathwayModal(); $event.preventDefault()">For Pathway</a>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
+
+          <!-- ---------------- HELP TAB ---------------- -->
+          <div class="separator-vertical"></div>
+          <div class="dropdown">
+            <button class="dropdown-button">Help</button>
+            <div class="dropdown-content">
+              <!-- ---------------- GUIDE ---------------- -->
+              <a href="#" (click)="openFilterPathwayModal(); $event.preventDefault()">Guide</a>
+            </div>
+          </div>
       </div>
     </aside>
 
@@ -263,32 +295,143 @@
       </div>
     </div>
 
-    <!-- ---------------- FILTER PATHWAYS POP-OUT ---------------- -->
+    <!-- ---------------- GUIDE POP-OUT ---------------- -->
     <div class="pathway-filter-modal" *ngIf="isFilterPathwayModalOpen">
       <div class="pathway-filter-modal-content">
         <div class="pathway-filter-modal-header">
-          <h2>Filter Pathways</h2>
+          <h2>Guide</h2>
           <span class="pathway-filter-close-btn" (click)="closeFilterPathwayModal()">×</span>
-          </div>
-          <div class="pathway-filter-modal-body">
-            <div class="checkbox-container">
-              <label for="filterOption1">Filter 1</label>
-              <input type="checkbox" id="filterOption1" name="filterOption1" (change)="updateFilter($event)">
+        </div>
+    
+        <div class="pathway-filter-modal-body">
+          <div *ngFor="let element of guideElements; let i = index" class="card">
+            <div class="card-header" [style.min-height.px]="maxTitleHeight">
+              <div class="card-title">
+                {{ element.title }}
+                <button class="read-more-button" (click)="openGuideDetail(element)">
+                  Read More
+                </button>
+              </div>
             </div>
-            <div class="checkbox-container">
-              <label for="filterOption2">Filter 2</label>
-              <input type="checkbox" id="filterOption2" name="filterOption2" (change)="updateFilter($event)">
-            </div>
-            <div class="checkbox-container">
-              <label for="filterOption3">Filter 3</label>
-              <input type="checkbox" id="filterOption3" name="filterOption3" (change)="updateFilter($event)">
-            </div>
-          </div>
-          <div class="pathway-filter-modal-footer">
-            <button class="filter-button-modal-footer" (click)="FilterPathways()">Filter</button>
           </div>
         </div>
       </div>
+    </div>
+    
+    <!-- ---------------- SUB MODALS FOR READ MORE IN A GUIDE ---------------- -->
+    <div class="pathway-filter-modal" *ngIf="selectedGuideElement">
+      <div class="pathway-filter-modal-content">
+        <div class="pathway-filter-modal-header">
+          <h2>{{ selectedGuideElement.title }}</h2>
+          <span class="pathway-filter-close-btn" (click)="closeGuideDetail()">×</span>
+        </div>
+        <div class="pathway-filter-modal-body">
+          <pre class="guide-description">{{ selectedGuideElement.fullContent }}</pre>
+        </div>
+        <div class="pathway-filter-modal-footer">
+          <button class="filter-button-modal-footer" (click)="closeGuideDetail()">Close</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ---------------- SEARCH FOR PATHWAY MODAL ---------------- -->
+    <div class="Search-Pathway-modal" *ngIf="isSearchPathwayModalOpen">
+      <div class="Search-Pathway-modal-content" style="position: relative;">
+        <div class="Search-Pathway-modal-header">
+          <h2>Search for Pathway</h2>
+          <span class="Search-Pathway-modal-close-btn" (click)="closeSearchPathwayModal()">×</span>
+        </div>
+
+        <!-- ---------------- TABS ---------------- -->
+        <div class="Search-Pathway-tabs">
+          <button [class.active]="activeTab === 'highlight'" (click)="setActiveTab('highlight')">Highlighted</button>
+          <button [class.active]="activeTab === 'all'" (click)="setActiveTab('all')">All KEGG</button>
+        </div>
+
+        <!-- ---------------- SEARCH FOR PATHWAY ---------------- -->
+        <div class="Search-Pathway-modal-body">
+          <div class="pathway-search" *ngIf="activeTab === 'all'" >
+            <div class="search-input-wrapper" (click)="openDropdown()">
+              <svg xmlns="http://www.w3.org/2000/svg" height="16px" viewBox="0 -960 960 960" width="16px" fill="#6c757d">
+                <path d="M796-120 560-356q-35 28-79.5 44T392-296q-109 0-184.5-75.5T132-556q0-109 75.5-184.5T392-816q109 0 184.5 75.5T652-556q0 49-16 93t-44 79l236 236-32 28ZM392-356q83 0 141.5-58.5T592-556q0-83-58.5-141.5T392-756q-83 0-141.5 58.5T192-556q0 83 58.5 141.5T392-356Z"/>
+              </svg>
+              <input
+                type="text"
+                placeholder="Search pathways..."
+                [(ngModel)]="searchTerm"
+                (input)="filterPathways()"
+              />
+
+              <!-- Dropdown results -->
+              <ul class="dropdown-results" *ngIf="filteredPathways.length && searchTerm && isDropdownOpen">
+                <li *ngFor="let suggestion of filteredPathways" (click)="addPathway(suggestion)">
+                  {{ suggestion }}
+                </li>
+              </ul>
+            </div>
+
+            <!-- Selected tags below -->
+            <div class="selected-pathways">
+              <span class="selected-chip" *ngFor="let pathway of selectedPathwaysKEGG">
+                {{ pathway }}
+                <button (click)="removePathway(pathway)" class="remove-chip">&times;</button>
+              </span>
+            </div>
+          </div>
+          <!-- ---------------- ALL KEGG TAB ---------------- -->
+          <div *ngIf="activeTab === 'all'">
+            <ul>
+              <!-- <li *ngFor="let pathway of filteredPathways">{{ pathway }}</li> -->
+            </ul>
+          </div>
+
+          <!-- ---------------- HIGHLIGHTES PATHWAYS TAB---------------- -->
+          <div *ngIf="activeTab === 'highlight'">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+              <div class="PathwayCount">
+                <strong>Total:</strong> {{ highlightedPathways.length }} |
+                <strong>Selected:</strong> {{ selectedHighlightedCount }}
+              </div>
+              <div class="SelectClearButtons">
+                <button (click)="selectAll()" class="select-all-button">Select All</button>
+                <button (click)="clearAllSelections()" class="clear-all-button">Clear All</button>    
+              </div>
+            </div>
+            <table class="highlight-table">
+              <thead>
+                <tr>
+                  <th>Select</th>
+                  <th>Name</th>
+                  <th>Pathway</th>
+                  <th>Enzymes</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr 
+                  *ngFor="let pathway of highlightedPathways; let i = index" 
+                  class="clickable-row"
+                >
+                  <td>
+                    <input 
+                      type="checkbox" 
+                      [(ngModel)]="highlightedPathways[i].selected"
+                      (click)="$event.stopPropagation()" 
+                    />
+                  </td>
+                  <td (click)="onHighlightRowClick(pathway)">{{ pathway.name }}</td>
+                  <td (click)="onHighlightRowClick(pathway)">{{ pathway.pathway }}</td>
+                  <td (click)="onHighlightRowClick(pathway)">{{ pathway.Enzymes }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        
+        <div class="Search-Pathway-modal-footer">
+          <button class="add-button" (click)="SearchForPathway()">Search</button>
+        </div>
+      </div>
+    </div>
 
 
     <!-- ---------------- MAIN PANEL WITH THE DISPLAY OF PATHWAYS AND TIME SLIDER ---------------- -->
@@ -301,6 +444,7 @@
         </div>
 
       </div>
+      
 
       <div class="slider-animation-wrapper">
         <!-- ---------------- TIME SLIDER ---------------- -->
@@ -323,6 +467,28 @@
             {{ isAnimationActive ? 'Stop' : 'Animate' }}
           </button>
         </div>
+        
+        <div class="stats-container">
+          <div class="stats-content">
+            <div class="stats-header">
+              <p><strong>Information about the pathway:</strong></p>
+              <p><strong>Name:</strong> {{ SelectedPathwayName }}</p>
+            </div>
+            <div class="stats-row">
+              <div class="stats-column">
+                <p><strong>Total Genes:</strong> {{ stats?.totalGenes }}</p>
+              </div>
+              <div class="stats-column">
+                <p><strong>Unique Genes:</strong> {{ stats?.uniqueGenes }}</p>
+              </div>
+              <div class="stats-column">
+                <p><strong>Enzymes Affected:</strong> {{ stats?.enzymesEffected }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+
       </div>
 
     </main>
