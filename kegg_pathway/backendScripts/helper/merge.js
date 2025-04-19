@@ -56,8 +56,9 @@ function getCompoundNames(compounds, nodes){
     console.log('ALL DONE - getCompound Names');
 }
 
-    // -----------------------------------------------
-    // 
+
+
+/*
 function matchEnzymes(data, nodes) {
         //console.log('matching nodes')
         // Check if the values for the given kesy match in both objects
@@ -76,7 +77,7 @@ function matchEnzymes(data, nodes) {
             }
         }
     }
-
+*/
 
 
 function matchEnzymeNames(enzymeNames, nodes){
@@ -126,14 +127,14 @@ function matchEnzymeNames(enzymeNames, nodes){
 }
 
 
-
+/*
 function getLogFCColor(data) {
         /**
          * Maps a log fold change (logfc) value to a color where:
          * - Positive logfc is a shade of green.
          * - Negative logfc is a shade of red.
          * - Zero logfc is white.
-         */
+         
         data.forEach(logfc=>{
             let color;
             if (logfc.value > 0) {
@@ -178,6 +179,8 @@ function getLogFCColor(data) {
             value: values[i]
         })
     }
+*/
+
 
 async function processInput(code) {
     console.log('Processing');

@@ -185,12 +185,10 @@ export class UploadComponent {
   
 
 //=====MABLES=====
-
   // Process the uploaded files
   processFiles(): void {
     const validExtensions = ['txt', 'csv'];
     const expressionData: { [filename: string]: string[][] } = {};
-
     const dataLoadPromises = this.uploadedFiles.map(fileObj =>
       new Promise<void>((resolve, reject) => {
         const fileExtension = fileObj.name.split('.').pop()?.toLowerCase();
@@ -235,6 +233,7 @@ export class UploadComponent {
         };
 
         fileReader.readAsText(fileObj.file);
+        
       })
     );
 
@@ -1066,6 +1065,32 @@ export class UploadComponent {
     this.hideDropdowns = !this.hideDropdowns;
     if (!this.hideDropdowns) {
       this.resetDropdowns();
+    }
+  }
+
+  // ---------------- CHECKBOX TO CHECK IF TIME SERIES DATA ----------------
+  
+  noTimeSeriesChecked: boolean = false;
+  
+  onTimeSeriesCheckboxChange() {
+    this.noTimeSeriesChecked = !this.noTimeSeriesChecked;
+    console.log('Time Series?', this.noTimeSeriesChecked);
+  }
+
+  // ---------------- INPUT NUMBER OF PATHWAYS ----------------
+
+  pathwayCount: number = 10;
+
+  onPathwayInputChange(event: Event): void {
+    const value = (event.target as HTMLInputElement).valueAsNumber;
+    if (!isNaN(value) && value > 0) {
+      this.pathwayCount = value;
+      console.log('Pathway count:', this.pathwayCount);
+      console.log('Sending pathway Count to File Service')
+      this.fileDataService.setPathwayCount(value);
+    }else{
+      this.fileDataService.setPathwayCount(this.pathwayCount);
+
     }
   }
 }

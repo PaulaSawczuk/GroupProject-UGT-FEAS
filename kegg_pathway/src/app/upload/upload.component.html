@@ -4,27 +4,46 @@
       <h1 class="upload-title">Upload Files</h1>
       <button class="upload-button" (click)="onUploadClick()">Upload <span class="arrow">⬆</span></button>
     </div>
-
+    <!-- -------------- WARNING MESSAGES -------------- -->
     <div *ngIf="unsupportedFileTypeMessage || validationMessage || warningMessage" class="warning-message">
       <p *ngIf="unsupportedFileTypeMessage">{{ unsupportedFileTypeMessage }}</p>
       <p *ngIf="validationMessage">{{ validationMessage }}</p>
       <p *ngIf="warningMessage">{{ warningMessage }}</p>
     </div>
 
+    <!-- -------------- LIST OF FILES -------------- -->
     <div *ngIf="showFileList" class="file-list">
       <div *ngFor="let file of uploadedFiles; let i = index" class="file-item">
         <span>{{ file.name }}</span>
         <button class="remove-button" (click)="removeFile(i)">X</button>
       </div>
 
+      <!-- -------------- CHECKBOXES AND INPUT NUMBER -------------- -->
       <div class="dropdown-section" *ngIf="uniqueKingdoms.length > 0">
         <div class="dropdown-container">
-          
+
           <div class="checkbox-container">
-            <input type="checkbox" id="toggleDropdown" (change)="toggleDropdowns()" [checked]="hideDropdowns"> 
-            <label for="toggleDropdown">No Organism</label>
+
+            <!-- -------------- CHECK BOXES -------------- -->
+            <div class="checkbox-item">
+                <input type="checkbox" id="toggleDropdown" (change)="toggleDropdowns()" [checked]="hideDropdowns">  
+                <label for="toggleDropdown">No Organism</label>
+            </div>
+
+            <div class="checkbox-item">
+              <input type="checkbox" id="NoTimeSeries" (change)="onTimeSeriesCheckboxChange()" [checked]="noTimeSeriesChecked">  
+              <label for="NoTimeSeries">No Time Series Data</label>
+            </div>
+
+            <!-- -------------- INPUT NUMBER -------------- -->
+            <div class="numeric-input-container">
+              <label for="pathwayCountInput" class="numeric-input-label">Number of pathways to display:</label>
+              <input type="number" id="pathwayCountInput" [value]="pathwayCount" (input)="onPathwayInputChange($event)" min="1" step="1" class="numeric-input" />
+            </div>
+            
           </div>
 
+          <!-- -------------- DROPDOWNS TO PICK AN ORGANISM -------------- -->
           <div *ngIf="!hideDropdowns">
             <h3 class="dropdown-title">Select an Organism</h3>
             
@@ -62,6 +81,7 @@
           </div> </div>
       </div>
 
+      <!-- -------------- PROCESS BUTTON -------------- -->
       <div class="process-container">
         <button class="process-button" (click)="processFiles()">Process</button>
       </div>
