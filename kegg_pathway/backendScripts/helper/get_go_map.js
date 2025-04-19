@@ -414,8 +414,8 @@ function getEnzymeNodes (reaction_nodes, entries){
                                 colour: "lightgrey", // Standard colour for enzyme nodes
                                 group: matches[k],
                                 position: positions,
-                                width: 50, // Standard Height and width for enzyme nodes
-                                height: 30
+                                width: 75, // Standard Height and width for enzyme nodes
+                                height: 40
                             });
                     }
                 }

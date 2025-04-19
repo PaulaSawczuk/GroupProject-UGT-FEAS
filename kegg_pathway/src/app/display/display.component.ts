@@ -62,6 +62,12 @@ export class DisplayComponent {
 
   highlightedPathways: any[] = [];
 
+  regulatedLinks: any[] = [];
+
+  animatedParts: go.Part[] = []; // Store animated parts (dots)
+  
+  animatedIntervals: number[] = [];
+
   // Creating a GoJS Diagram 
   private myDiagram: go.Diagram | null = null;
 
@@ -374,7 +380,7 @@ private getLineWidth(logfc: number, baseline = 3) {
 
   // Set min and max width values
   const minWidth = 3;
-  const maxWidth = 20;
+  const maxWidth = 15;
 
   // You can tweak this multiplier for scaling effect
   const scaleFactor = 2;
@@ -701,6 +707,7 @@ private getMetabolicFlux(nodes: any[], links: any[]){
 
   var newNodes = nodes.map(node => ({ ...node }));// Deep cloning Nodes and Links 
   var newLinks = links.map(link => ({ ...link}));
+  var regulatedLink = [];
   for (let i = 0; i < newNodes.length; i++) {
 
     // Get all enzyme nodes that have been effected but not by isoforms (coloured yellow)
@@ -729,7 +736,7 @@ private getMetabolicFlux(nodes: any[], links: any[]){
           newLinks[j].colour = colour; // Adding new colour attribute to link 
           const width = this.getLineWidth(logfc); // Calculating line width realtive to logFc
           newLinks[j].size = width; // Assinging caluclated width to the link 
-          
+          regulatedLink.push(reactKey);
         }else{
           continue;
         }
@@ -741,6 +748,7 @@ private getMetabolicFlux(nodes: any[], links: any[]){
       }
     }
   }
+  this.regulatedLinks = regulatedLink;
   //console.log(newLinks);
   // Returns new links to 
   return newLinks;
@@ -1596,7 +1604,15 @@ private getLoadedPathways(): void{
     // Assigning the model to the diagram for visualisation
     this.myDiagram.model = model;
     this.setLegend(this.myDiagram);
+    
+    this.myDiagram.addDiagramListener("InitialLayoutCompleted", () => {
+      if (this.myDiagram) {
+        //this.clearAnimations(this.myDiagram);
+        this.animateLinksFromNodeKeys(this.myDiagram, this.regulatedLinks);
+      }
+    });
   }
+
   
 
   // --------------- Updating GO.js Model -------------------
@@ -1625,6 +1641,12 @@ private getLoadedPathways(): void{
       console.log('Diagram Data Cleared')
       this.updateDiagram(nodes,links);
       this.setLegend(this.myDiagram);
+      this.myDiagram.addDiagramListener("InitialLayoutCompleted", () => {
+        if (this.myDiagram) {
+          //this.clearAnimations(this.myDiagram);
+          this.animateLinksFromNodeKeys(this.myDiagram, this.regulatedLinks);
+        }
+      });
 
     }else{
     // Create a new a Diagram with template
@@ -1762,6 +1784,248 @@ private getLoadedPathways(): void{
     myDiagram.add(legend);
 
   }
+
+
+
+
+    // Animation function
+  animateLinksFromNodeKeys(diagram: go.Diagram, fromNodeKeys: string[]) {
+    if (!diagram) return; // Return early if diagram is null or undefined
+    this.clearAnimations(diagram);
+    diagram.startTransaction("animate links"); // Start a transaction
+
+    fromNodeKeys.forEach(fromKey => {
+      const fromNode = diagram.findNodeForKey(fromKey);
+      if (!fromNode) {
+        console.warn(`❌ Node not found for key: ${fromKey}`);
+        return;
+      }
+
+      const it = fromNode.findLinksOutOf();
+      it.each((link: go.Link) => {
+        const pointsCount = link.pointsCount;
+        console.log(`Link from ${link.data?.from} to ${link.data?.to} has ${pointsCount} points`);
+        if (pointsCount < 2) {
+          console.warn(`⚠️ Link from ${link.data?.from} to ${link.data?.to} has insufficient points`);
+        } else {
+          this.animateAlongLink(diagram, link);
+        }
+      });
+    });
+
+    diagram.commitTransaction("animate links"); // Commit the transaction
+  }
+    /*
+    // Function to animate the link
+    animateAlongLink(diagram: go.Diagram, link: go.Link) {
+      if (!link || link.pointsCount < 2) {
+        console.warn("⚠️ Link is invalid or has insufficient points");
+        return;
+      }
+  
+      const shape = new go.Shape();
+      shape.geometryString = "F1 M0 0 A5 5 0 1 1 9 0 A5 5 0 1 1 0 0"; // circle
+      shape.fill = "green";
+      shape.stroke = null;
+      shape.width = 20;
+      shape.height = 20;
+  
+      const part = new go.Part();
+      part.layerName = "Foreground";
+      part.locationSpot = go.Spot.Center;
+      part.add(shape);
+  
+      diagram.add(part);
+  
+      const points: go.Point[] = [];
+      link.points.each((pt: go.Point) => points.push(pt.copy()));
+  
+      let i = 0;
+      const speed = 150;
+  
+      const animate = () => {
+        i = 0;
+    
+        const interval = window.setInterval(() => {
+          if (i >= points.length) {
+            i = 0; // Reset to start
+          }
+    
+          diagram.startTransaction("move shape");
+          part.location = points[i];
+          diagram.commitTransaction("move shape");
+          i++;
+        }, speed);
+        this.animatedParts.push(part);
+        this.animatedIntervals.push(interval);
+      };
+    
+      animate(); // Start the animation
+    }*/
+   /*
+
+      animateAlongLink(diagram: go.Diagram, link: go.Link) {
+        if (!link || link.pointsCount < 2) {
+          console.warn("⚠️ Link is invalid or has insufficient points");
+          return;
+        }
+    
+        // Clear previous animations before starting a new one
+        //this.clearAnimations(diagram);
+    
+        // Create the shape (dot)
+        const shape = new go.Shape();
+        shape.geometryString = "F1 M0 0 A5 5 0 1 1 9 0 A5 5 0 1 1 0 0"; // Green circle
+        shape.fill = "green";
+        shape.stroke = null;
+        shape.width = 20;
+        shape.height = 20;
+    
+        // Create the part and add the shape to the diagram
+        const part = new go.Part();
+        part.layerName = "Foreground";
+        part.locationSpot = go.Spot.Center;
+        part.add(shape);
+        part.category = "animation-dot";
+    
+        diagram.add(part);
+    
+        const points: go.Point[] = [];
+        link.points.each((pt: go.Point) => points.push(pt.copy()));
+    
+        let i = 0;
+        const speed = 200;
+    
+        // Animation function to move the dot along the path
+        const animate = () => {
+          const interval = window.setInterval(() => {
+            if (i >= points.length) {
+              i = 0; // Reset to start
+            }
+    
+            diagram.startTransaction("move shape");
+            part.location = points[i];
+            diagram.commitTransaction("move shape");
+            i++;
+          }, speed);
+    
+          // Save the interval and part for cleanup
+          this.animatedParts.push(part);
+          this.animatedIntervals.push(interval);
+        };
+    
+        animate(); // Start the animation
+      }*/
+
+        animateAlongLink(diagram: go.Diagram, link: go.Link) {
+          if (!link || link.pointsCount < 2) {
+            console.warn("⚠️ Link is invalid or has insufficient points");
+            return;
+          }
+        
+          const shape = new go.Shape();
+          shape.geometryString = "F1 M0 0 A5 5 0 1 1 9 0 A5 5 0 1 1 0 0"; // Green circle
+          shape.fill = "green";
+          shape.stroke = null;
+          shape.width = 20;
+          shape.height = 20;
+        
+          const part = new go.Part();
+          part.layerName = "Foreground";
+          part.locationSpot = go.Spot.Center;
+          part.add(shape);
+          diagram.add(part);
+        
+          const rawPoints: go.Point[] = [];
+          link.points.each(pt => rawPoints.push(pt.copy()));
+        
+          // Flatten the points into a list of segments
+          const segments: { from: go.Point; to: go.Point; len: number }[] = [];
+          let totalLength = 0;
+          for (let i = 0; i < rawPoints.length - 1; i++) {
+            const from = rawPoints[i];
+            const to = rawPoints[i + 1];
+            const len = Math.sqrt(from.distanceSquaredPoint(to));
+            segments.push({ from, to, len });
+            totalLength += len;
+          }
+        
+          // Animation config
+          const pixelsPerSecond = 250; // ← your visual speed
+          const fps = 60; // smoothness
+          const intervalTime = 1000 / fps; // ~16.66ms
+          const pixelsPerFrame = (pixelsPerSecond / 1000) * intervalTime;
+        
+          let distance = 0;
+        
+          const interval = window.setInterval(() => {
+            distance += pixelsPerFrame;
+        
+            // Wrap around
+            if (distance > totalLength) distance = 0;
+        
+            // Find which segment the current distance falls into
+            let distLeft = distance;
+            let pos: go.Point | null = null;
+        
+            for (const seg of segments) {
+              if (distLeft <= seg.len) {
+                const t = distLeft / seg.len;
+                pos = new go.Point(
+                  seg.from.x + (seg.to.x - seg.from.x) * t,
+                  seg.from.y + (seg.to.y - seg.from.y) * t
+                );
+                break;
+              } else {
+                distLeft -= seg.len;
+              }
+            }
+        
+            if (pos) {
+              diagram.startTransaction("move shape");
+              part.location = pos;
+              diagram.commitTransaction("move shape");
+            }
+          }, intervalTime);
+        
+          this.animatedParts.push(part);
+          this.animatedIntervals.push(interval);
+        }
+    
+      // Function to clear existing animations
+      clearAnimations(diagram: go.Diagram) {
+        console.log("Clearing old animations...");
+    
+        // Clear all intervals (stop animations)
+        this.animatedIntervals.forEach(id => clearInterval(id));
+        this.animatedIntervals = [];
+    
+        // Remove all animation parts (dots) from the diagram
+        this.animatedParts.forEach(part => {
+          if (diagram.findPartForKey(part.key)) {
+            diagram.remove(part);
+          }
+        });
+        this.animatedParts = [];
+
+        diagram.parts.each(part => {
+          if (part.category === "animation-dot") {
+            diagram.remove(part);
+          }
+        });
+    
+        console.log("All old animations cleared.");
+      }
+
+
+    
+  
+
+  
+  
+  
+
+
 
 
 
@@ -2786,7 +3050,7 @@ Once all the steps are completed, click the Process button to move to get visual
         // Updating the Diagram 
         this.updateDiagram(timeNodes,links)
         
-        await this.delay(1000);// 1 Second between pathway refresh (large pathays take a while to load)
+        await this.delay(1250);// 1 Second between pathway refresh (large pathays take a while to load)
         }
     
   }
@@ -2961,6 +3225,8 @@ Once all the steps are completed, click the Process button to move to get visual
     this.isSearchPathwayModalOpen = false; // close the modal
   }
 
+
+ // ------- Search processing function
 
   // Compare to already loaded pathways, and remove any that match
   private getMatches(selectedPathwaysKEGG: any[]){
