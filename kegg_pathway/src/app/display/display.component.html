@@ -29,8 +29,7 @@
           </li>
 
           <li>
-            <div class="pathways-header" [class.active]="isPathwaysActive()" >
-              
+            <div class="pathways-header" [class.active]="isPathwaysActive()" >             
               <div class="icons-container" (click)="showPathwaysFromIcon($event)">
                 <div class="icons">
                   <!-- Pathway Icon -->
@@ -442,7 +441,6 @@
         <div class="pathway-title" *ngIf="selectedPathway">
           <h2>{{ SelectedPathwayName }}</h2>
         </div>
-
       </div>
       
 
@@ -487,10 +485,7 @@
             </div>
           </div>
         </div>
-
-
       </div>
-
     </main>
 
     <!---------------------------------FLOATING MINI MAP PANEL----------------------------------->
