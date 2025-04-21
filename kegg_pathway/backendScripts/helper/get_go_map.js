@@ -187,9 +187,6 @@ function getNodesEdges(entries, reactions, relations){
         nodes.push(node);
     });
 
-
-    //console.log(uniqueNodes)
-
     console.log('------------');
     console.log('ALL DONE - processKGML');
     console.log('------------');

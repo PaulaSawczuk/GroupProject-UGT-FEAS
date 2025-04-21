@@ -179,7 +179,7 @@ private getEnzymeGenes(): void{
       filteredFiles.push(geneEnzymes);
     }
   }
-  //console.log('filtered files: '+filteredFiles)
+
   //console.log(geneEnzymes); //Array of Genes with EC matched 
   this.filterEnzymeGenes(filteredFiles); // pass to 
 }
@@ -591,8 +591,7 @@ private compareEnzymes(nodes: any[],timepoint: number): any[]{
   const genes = this.filteredGenes[timepoint];
   // Taking Genes from file and matching them to enzyme nodes 
   // Change enzyme node attributes accordingly 
-  //console.log(genes);
-  //console.log(localNodes);
+
   const elements = this.matchGenes(genes, localNodes)
   const updatedNodes = elements[0];
   const colourArray = elements[1];
@@ -622,66 +621,11 @@ private compareEnzymesNoSize(nodes: any[],timepoint: number): any[]{
   return [finalNodes, colourArray, stats];
 }
 
-/*
 
-private getIsoforms(nodes: any[]): any[]{
-  console.log("--------------------")
-  console.log('Finding Isoforms')
 
-  var newNodes = nodes.map(node => ({ ...node }));
-  //console.log(newNodes);
-  // Looping through all the nodes
-  for (let i = 0; i < newNodes.length; i++) {
-    if (newNodes[i].type === 'enzyme' && (newNodes[i].gene)){
-      const firstGenes = newNodes[i].gene;
-      //console.log('First Genes:')
-      //console.log(firstGenes);
-      const key1 = newNodes[i].key;
+
       
 
-      // Looping through list again to find matching gene entries 
-      for (let j = 0; j < newNodes.length; j++) {
-        if (newNodes[j].type === 'enzyme'&&(newNodes[j].gene) ) {
-          const secondGenes = newNodes[j].gene;
-          const key2 = newNodes[j].key;
-          
-          //console.log(firstGenes);
-          //console.log('Second Genes:')
-          //console.log(secondGenes);
-          // Making sure that the nodes dont match to themselves 
-          if (key1 != key2){
-            /*
-            for (const gene1 of firstGenes) {
-              for (const gene2 of secondGenes) {
-                if (gene1 === gene2) {
-                  console.log("match:", gene1);
-                  console.log(key1);
-                  console.log(key2);
-                  //matchFound = true;
-                  }
-                }
-              }
-             if (firstGenes==secondGenes){
-              console.log("match:");
-              console.log(key1);
-              console.log(key2);
-              console.log(firstGenes);
-              console.log(secondGenes);
-             }
-            }
-
-
-          }
-          
-
-        }
-      }
-  }
-  return [];
-
-}
-
-*/
 
 
 // ------------ PARALOG IDENTIFCATION ---------------------
@@ -747,30 +691,40 @@ private getMetabolicFlux(nodes: any[], links: any[]){
     // Get all enzyme nodes that have been effected but not by isoforms (coloured yellow)
     if (newNodes[i].type === 'enzyme' && (newNodes[i].gene) && newNodes[i].colour != this.selectedColorIsoform){
 
+      const group = newNodes[i].group;
+      //console.log(group);
       const key = newNodes[i].key;
       const colour = newNodes[i].colour;
       const logfc = newNodes[i].logfc;
       const rIndex = key.indexOf("R"); // Finding 'R' character in link key 
       if (rIndex !== -1) {
         const reactKey = key.substring(rIndex);
+        //console.log('Reaction Key');
         //console.log(reactKey); 
+        //console.log("Group ID");
+        //console.log(group);
 
         // Loop through links to get any that match with that reaction key
       for (let j = 0; j < newLinks.length; j++) { // Matching 'to' links
-        if (newLinks[j].to == reactKey){
+        if (newLinks[j].to == group){
           //console.log('Match Found: (Link to) ');
           let category = newLinks[j].category;
+          newLinks[j].colour = colour; 
+          newLinks[j].logfc = logfc;
+          regulatedLink.push(group);
           //console.log(category);
 
+
         }
-        if (newLinks[j].from == reactKey){ // Matching 'from' links
+        if (newLinks[j].from == group){ // Matching 'from' links
           //console.log('Match Found: (Link from) ');
           let category = newLinks[j].category;
           //console.log(category);
           newLinks[j].colour = colour; // Adding new colour attribute to link 
+          newLinks[j].logfc = logfc;
           //const width = this.getLineWidth(logfc); // Calculating line width realtive to logFc
           //newLinks[j].size = width; // Assinging caluclated width to the link 
-          regulatedLink.push(reactKey);
+          regulatedLink.push(group);
         }else{
           continue;
         }
@@ -1840,24 +1794,22 @@ private getLoadedPathways(): void{
     console.log("Clicked map node:", data);
     const pathCode = data.text;
     const code = pathCode.replace("path:", "");
-    console.log(code);
+    //console.log(code);
 
     const matchingItems = this.ALLpathwayData.find((obj => obj.pathway === code));
-    console.log(matchingItems);
+    //console.log(matchingItems);
     if (matchingItems){
-      console.log('Match Found');
-      console.log(matchingItems);
+
       this.setMap(code, this.selectedTimeIndex,matchingItems)
     }else{
       console.log('Searching all Kegg Pathways');
       const allMatch = this.AllKeggPathways.find((obj => obj.pathway === code));
       if (allMatch){
-        console.log('Match found in All Kegg Pathways');
-        console.log(allMatch);
+
         this.getSpecificPathway(allMatch);
 
       }else{
-      console.log('No Match Found');
+      //console.log('No Match Found');
 
     }}
   }
@@ -1961,334 +1913,177 @@ private getLoadedPathways(): void{
   }
 
 
+// ---------- METABOLIC FLUX ANIMATIONS ----------
 
+  // Finds to and from links from list of Differentially regulated links
+  // Extracts colours from the links to assigns as the arrow colour
+  // calls animtaion function for each link (animateAlongLink) for dynamic animation along the selected links
 
-    // Animation function
-  animateLinksFromNodeKeys(diagram: go.Diagram, fromNodeKeys: string[]) {
-    if (!diagram) return; // Return early if diagram is null or undefined
+  private animateLinksFromNodeKeys(diagram: go.Diagram, fromNodeKeys: string[]) {
+    if (!diagram) return;
+  
     this.clearAnimations(diagram);
-    diagram.startTransaction("animate links"); // Start a transaction
-
+    diagram.startTransaction("animate links");
+  
     fromNodeKeys.forEach(fromKey => {
-      const fromNode = diagram.findNodeForKey(fromKey);
-      if (!fromNode) {
+      const node = diagram.findNodeForKey(fromKey);
+      if (!node) {
         console.warn(`❌ Node not found for key: ${fromKey}`);
         return;
       }
-
-      const it = fromNode.findLinksOutOf();
-      it.each((link: go.Link) => {
+  
+      // Get BOTH incoming and outgoing links
+      const linksOut = node.findLinksOutOf();
+      const linksIn = node.findLinksInto();
+  
+      // Combine them
+      const allLinks = new go.List<go.Link>().addAll(linksOut).addAll(linksIn);
+  
+      allLinks.each((link: go.Link) => {
         const pointsCount = link.pointsCount;
-        console.log(`Link from ${link.data?.from} to ${link.data?.to} has ${pointsCount} points`);
+        const from = link.data?.from;
+        const to = link.data?.to;
+  
+        //console.log(`🔗 Link from ${from} to ${to} has ${pointsCount} points`);
+  
         if (pointsCount < 2) {
-          console.warn(`⚠️ Link from ${link.data?.from} to ${link.data?.to} has insufficient points`);
+          console.warn(`⚠️ Link from ${from} to ${to} has insufficient points`);
         } else {
           this.animateAlongLink(diagram, link);
         }
       });
     });
-
-    diagram.commitTransaction("animate links"); // Commit the transaction
+  
+    diagram.commitTransaction("animate links");
   }
-    /*
-    // Function to animate the link
-    animateAlongLink(diagram: go.Diagram, link: go.Link) {
-      if (!link || link.pointsCount < 2) {
-        console.warn("⚠️ Link is invalid or has insufficient points");
-        return;
+
+// Function that defines animation attributes
+// Called for each highlighted link within the selected pathway map
+  private animateAlongLink(diagram: go.Diagram, link: go.Link) {
+    if (!link || link.pointsCount < 2) {
+      // Checking that the link it long enough to animate along
+      return;
+    }
+
+    // Defining the node colour as the link colour with default as 'green'
+    const rawLogfc = link.data?.logfc ?? 0;
+    const logfc = typeof rawLogfc === "string" ? parseFloat(rawLogfc) : rawLogfc;
+    const linkColour = link.data?.colour || "green";
+
+// Compute arrow scale based on absolute logfc
+    const arrowScale = 1 + Math.min(3, Math.abs(logfc)) * 0.5;
+    // Arrow Shape Attributes 
+    const shape = new go.Shape();
+    shape.geometryString = "F1 M0 0 L10 5 L0 10 Z"; // Arrow
+    shape.fill = linkColour; // Same colours as link - relative to DGE
+    shape.stroke = null;
+    //shape.width = 30;
+    //shape.height = 30;
+    //shape.width = arrowSize;
+    //shape.height = arrowSize;
+    shape.scale = arrowScale;
+    shape.angle = 0; // default but updated dynamically
+  
+    const part = new go.Part();
+    part.layerName = "Foreground";
+    part.locationSpot = go.Spot.Center;
+    part.category = "animation-dot"; // Assingin category for node removal later
+    part.add(shape);// add arrow to part
+    diagram.add(part);// add part to diagram
+  
+    // Animation config
+    const pixelsPerSecond = 400;
+    const fps = 60;
+    const intervalTime = 1000 / fps;
+    const pixelsPerFrame = (pixelsPerSecond / 1000) * intervalTime;
+  
+    let distance = 0;
+  
+    const interval = window.setInterval(() => {
+      // Recalculate link path every frame
+      const rawPoints: go.Point[] = [];
+      link.points.each(pt => rawPoints.push(pt.copy()));
+  
+      const segments: { from: go.Point; to: go.Point; len: number }[] = [];
+      let totalLength = 0;
+  
+      for (let i = 0; i < rawPoints.length - 1; i++) {
+        const from = rawPoints[i];
+        const to = rawPoints[i + 1];
+        const len = Math.sqrt(from.distanceSquaredPoint(to));
+        segments.push({ from, to, len });
+        totalLength += len;
       }
   
-      const shape = new go.Shape();
-      shape.geometryString = "F1 M0 0 A5 5 0 1 1 9 0 A5 5 0 1 1 0 0"; // circle
-      shape.fill = "green";
-      shape.stroke = null;
-      shape.width = 20;
-      shape.height = 20;
+      // Handle no valid segments
+      if (segments.length === 0 || totalLength === 0) return;
   
-      const part = new go.Part();
-      part.layerName = "Foreground";
-      part.locationSpot = go.Spot.Center;
-      part.add(shape);
+      distance += pixelsPerFrame;
+      if (distance > totalLength) distance = 0;
   
-      diagram.add(part);
+      let distLeft = distance;
+      let pos: go.Point | null = null;
+      let currentSegment: { from: go.Point; to: go.Point; len: number } | null = null;
   
-      const points: go.Point[] = [];
-      link.points.each((pt: go.Point) => points.push(pt.copy()));
-  
-      let i = 0;
-      const speed = 150;
-  
-      const animate = () => {
-        i = 0;
-    
-        const interval = window.setInterval(() => {
-          if (i >= points.length) {
-            i = 0; // Reset to start
-          }
-    
-          diagram.startTransaction("move shape");
-          part.location = points[i];
-          diagram.commitTransaction("move shape");
-          i++;
-        }, speed);
-        this.animatedParts.push(part);
-        this.animatedIntervals.push(interval);
-      };
-    
-      animate(); // Start the animation
-    }*/
-   /*
-
-      animateAlongLink(diagram: go.Diagram, link: go.Link) {
-        if (!link || link.pointsCount < 2) {
-          console.warn("⚠️ Link is invalid or has insufficient points");
-          return;
+      for (const seg of segments) {
+        if (distLeft <= seg.len) {
+          currentSegment = seg;
+          const t = distLeft / seg.len;
+          pos = new go.Point(
+            seg.from.x + (seg.to.x - seg.from.x) * t,
+            seg.from.y + (seg.to.y - seg.from.y) * t
+          );
+          break;
+        } else {
+          distLeft -= seg.len;
         }
-    
-        // Clear previous animations before starting a new one
-        //this.clearAnimations(diagram);
-    
-        // Create the shape (dot)
-        const shape = new go.Shape();
-        shape.geometryString = "F1 M0 0 A5 5 0 1 1 9 0 A5 5 0 1 1 0 0"; // Green circle
-        shape.fill = "green";
-        shape.stroke = null;
-        shape.width = 20;
-        shape.height = 20;
-    
-        // Create the part and add the shape to the diagram
-        const part = new go.Part();
-        part.layerName = "Foreground";
-        part.locationSpot = go.Spot.Center;
-        part.add(shape);
-        part.category = "animation-dot";
-    
-        diagram.add(part);
-    
-        const points: go.Point[] = [];
-        link.points.each((pt: go.Point) => points.push(pt.copy()));
-    
-        let i = 0;
-        const speed = 200;
-    
-        // Animation function to move the dot along the path
-        const animate = () => {
-          const interval = window.setInterval(() => {
-            if (i >= points.length) {
-              i = 0; // Reset to start
-            }
-    
-            diagram.startTransaction("move shape");
-            part.location = points[i];
-            diagram.commitTransaction("move shape");
-            i++;
-          }, speed);
-    
-          // Save the interval and part for cleanup
-          this.animatedParts.push(part);
-          this.animatedIntervals.push(interval);
-        };
-    
-        animate(); // Start the animation
-      }*/
-        /*
-        animateAlongLink(diagram: go.Diagram, link: go.Link) {
-          if (!link || link.pointsCount < 2) {
-            console.warn("⚠️ Link is invalid or has insufficient points");
-            return;
-          }
-        
-          const shape = new go.Shape();
-          //shape.geometryString = "F1 M0 0 A5 5 0 1 1 9 0 A5 5 0 1 1 0 0"; // Green circle
-          shape.geometryString = "F1 M0 0 L10 5 L0 10 Z"; // Arrow
-          shape.fill = "green";
-          shape.stroke = null;
-          shape.width = 20;
-          shape.height = 20;
-          shape.angle = 0; 
-        
-          const part = new go.Part();
-          part.layerName = "Foreground";
-          part.locationSpot = go.Spot.Center;
-          part.category = "animation-dot";
-          part.add(shape);
-          diagram.add(part);
-        
-          const rawPoints: go.Point[] = [];
-          link.points.each(pt => rawPoints.push(pt.copy()));
-        
-          // Flatten the points into a list of segments
-          const segments: { from: go.Point; to: go.Point; len: number }[] = [];
-          let totalLength = 0;
-          for (let i = 0; i < rawPoints.length - 1; i++) {
-            const from = rawPoints[i];
-            const to = rawPoints[i + 1];
-            const len = Math.sqrt(from.distanceSquaredPoint(to));
-            segments.push({ from, to, len });
-            totalLength += len;
-          }
-        
-          // Animation config
-          const pixelsPerSecond = 400; // ← your visual speed
-          const fps = 60; // smoothness
-          const intervalTime = 1000 / fps; // ~16.66ms
-          const pixelsPerFrame = (pixelsPerSecond / 1000) * intervalTime;
-        
-          let distance = 0;
-        
-          const interval = window.setInterval(() => {
-            distance += pixelsPerFrame;
-        
-            // Wrap around
-            if (distance > totalLength) distance = 0;
-        
-            // Find which segment the current distance falls into
-            let distLeft = distance;
-            let pos: go.Point | null = null;
-        
-            for (const seg of segments) {
-              if (distLeft <= seg.len) {
-                const t = distLeft / seg.len;
-                pos = new go.Point(
-                  seg.from.x + (seg.to.x - seg.from.x) * t,
-                  seg.from.y + (seg.to.y - seg.from.y) * t
-                );
-                break;
-              } else {
-                distLeft -= seg.len;
-              }
-            }
-        
-            if (pos) {
-              diagram.startTransaction("move shape");
-              part.location = pos;
-              diagram.commitTransaction("move shape");
-            }
-          }, intervalTime);
-        
-          this.animatedParts.push(part);
-          this.animatedIntervals.push(interval);
-        }*/
-          animateAlongLink(diagram: go.Diagram, link: go.Link) {
-            if (!link || link.pointsCount < 2) {
-              console.warn("⚠️ Link is invalid or has insufficient points");
-              return;
-            }
-          
-            const shape = new go.Shape();
-            shape.geometryString = "F1 M0 0 L10 5 L0 10 Z"; // Arrow
-            shape.fill = "green";
-            shape.stroke = null;
-            shape.width = 30;
-            shape.height = 30;
-            shape.angle = 0;
-          
-            const part = new go.Part();
-            part.layerName = "Foreground";
-            part.locationSpot = go.Spot.Center;
-            part.category = "animation-dot";
-            part.add(shape);
-            diagram.add(part);
-          
-            const rawPoints: go.Point[] = [];
-            link.points.each(pt => rawPoints.push(pt.copy()));
-          
-            // Flatten the points into a list of segments
-            const segments: { from: go.Point; to: go.Point; len: number }[] = [];
-            let totalLength = 0;
-            for (let i = 0; i < rawPoints.length - 1; i++) {
-              const from = rawPoints[i];
-              const to = rawPoints[i + 1];
-              const len = Math.sqrt(from.distanceSquaredPoint(to));
-              segments.push({ from, to, len });
-              totalLength += len;
-            }
-          
-            // Animation config
-            const pixelsPerSecond = 400;
-            const fps = 60;
-            const intervalTime = 1000 / fps;
-            const pixelsPerFrame = (pixelsPerSecond / 1000) * intervalTime;
-          
-            let distance = 0;
-          
-            const interval = window.setInterval(() => {
-              distance += pixelsPerFrame;
-          
-              if (distance > totalLength) distance = 0;
-          
-              let distLeft = distance;
-              let pos: go.Point | null = null;
-              let currentSegment: { from: go.Point; to: go.Point; len: number } | null = null;
-          
-              for (const seg of segments) {
-                if (distLeft <= seg.len) {
-                  currentSegment = seg;
-          
-                  const t = distLeft / seg.len;
-                  pos = new go.Point(
-                    seg.from.x + (seg.to.x - seg.from.x) * t,
-                    seg.from.y + (seg.to.y - seg.from.y) * t
-                  );
-                  break;
-                } else {
-                  distLeft -= seg.len;
-                }
-              }
-          
-              if (pos && currentSegment) {
-                // Compute direction angle
-                const dx = currentSegment.to.x - currentSegment.from.x;
-                const dy = currentSegment.to.y - currentSegment.from.y;
-                const angle = Math.atan2(dy, dx) * (180 / Math.PI);
-          
-                diagram.startTransaction("move shape");
-                part.location = pos;
-                shape.angle = angle;
-                diagram.commitTransaction("move shape");
-              }
-            }, intervalTime);
-          
-            this.animatedParts.push(part);
-            this.animatedIntervals.push(interval);
-          }
-    
-      // Function to clear existing animations
-      clearAnimations(diagram: go.Diagram) {
-        console.log("Clearing old animations...");
-    
-        // Clear all intervals (stop animations)
-        this.animatedIntervals.forEach(id => clearInterval(id));
-        this.animatedIntervals = [];
-    
-        // Remove all animation parts (dots) from the diagram
-        this.animatedParts.forEach(part => {
-          if (diagram.findPartForKey(part.key)) {
-            diagram.remove(part);
-          }
-        });
-        this.animatedParts = [];
-
-        diagram.parts.each(part => {
-          if (part.category === "animation-dot") {
-            diagram.remove(part);
-          }
-        });
-    
-        console.log("All old animations cleared.");
       }
-
-
-    
   
-
+      if (pos && currentSegment) {
+        const dx = currentSegment.to.x - currentSegment.from.x;
+        const dy = currentSegment.to.y - currentSegment.from.y;
+        const angle = Math.atan2(dy, dx) * (180 / Math.PI);
   
+        diagram.startTransaction("move shape");
+        part.location = pos;
+        shape.angle = angle;
+        diagram.commitTransaction("move shape");
+      }
+    }, intervalTime);
   
-  
+    this.animatedParts.push(part);
+    this.animatedIntervals.push(interval);
+  }
+
+  // Function to clear existing animations
+  // Prevents nodes from staying on the diagram when a different timepoint/pathway 
+  // is selected 
+  private clearAnimations(diagram: go.Diagram) {
+    console.log("Clearing old animations...");
+
+    // Clear all intervals (stop animations)
+    this.animatedIntervals.forEach(id => clearInterval(id));
+    this.animatedIntervals = [];
+
+    // Remove all animation parts (dots) from the diagram
+    this.animatedParts.forEach(part => {
+      if (diagram.findPartForKey(part.key)) {
+        diagram.remove(part);
+      }
+    });
+    this.animatedParts = [];
+
+    diagram.parts.each(part => {
+      if (part.category === "animation-dot") {
+        diagram.remove(part);
+      }
+    });
+
+    console.log("All old animations cleared.");
+  }
 
 
-
-
+  // Setting more global Attributes 
 
   isMenuOpen = true;
   pathwaysOpen = true;
@@ -2641,58 +2436,6 @@ private getLoadedPathways(): void{
   //console.log("Filteref out enzymes: "+ filteredFiles_enzymes[0]);
   return filteredFiles_enzymes;
 }
-
-/*
-  private updatePathways(newFilteredGenes: any[]): void{
-
-  this.isLoading = true; 
-  
-  console.log('Extracting Enzymes');
-  console.log('-----------------------------');
-  // Extract Enzymes 
-  const enzymes = this.updateExtractECNumbers(newFilteredGenes);
-  //console.log(enzymes);
-  console.log('Updating Pathway List');
-  console.log('-----------------------------');
-
-  // Sending Query to Kegg for new Enzymes
-  const data = [enzymes, this.pathwayNumber];
-  this.enzymeApiServicePost.postEnzymeData(data).subscribe(
-    (response) => {
-      // Handle the successful response
-      const pathways = response;
-
-      console.log('Received from backend:', response);
-      console.log('-----------------------------');
-      console.log(this.pathwayData); // Existing pathways 
-
-      // Comparing Existing to New Pathways 
-      const uniquePathways = this.getNewPathways(pathways, this.pathwayData);
-
-      //console.log(uniquePathways);
-      if (uniquePathways){
-        console.log(uniquePathways);
-        // RE-RUN PATHWAY REQUEST??
-        // COMPLETELY RE-LOAD PATHWAY DATA??
-
-        // LOAD NEW TIMEPOINT DATA
-
-      }else{
-        console.log('No Unique Pathways -- Pathway List Preserved');
-        // LOAD NEW TIMEPOINT DATA
-      }
-      this.isLoading = false; 
-      // Compare New Pathway List to existing pathways 
-    },
-    (error) => {
-      // Handle errors
-      console.error('Error:', error);
-      this.isLoading = false; 
-
-      //this.responseMessage = 'Error sending data';
-    }
-  );
-}*/
 
 processNewFiles(): void{
     this.isLoading = true;
