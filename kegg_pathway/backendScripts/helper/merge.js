@@ -175,6 +175,8 @@ async function processInput(code) {
     console.log('------------');
     console.log('All Links and Nodes Generated');
     console.log('------------');
+    //console.log(nodeData);
+    //console.log(linkData);
     return {nodeData,linkData,enzymeList};
   }
 

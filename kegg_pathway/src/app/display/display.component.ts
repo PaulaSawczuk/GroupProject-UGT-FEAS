@@ -1187,6 +1187,9 @@ private getLoadedPathways(): void{
 
     // calls this method when user selects another pathway, updates the dropdown node values
     this.populateNodeCategories();
+    if(this.myDiagram){
+    this.setLegend(this.myDiagram);
+    }
 
     this.isLoading = false;
   }
@@ -1572,7 +1575,7 @@ private getLoadedPathways(): void{
     model.nodeDataArray = nodes; 
     model.linkDataArray = links;
     // Assigning the model to the diagram for visualisation
-    this.clearAnimations(this.myDiagram);
+    //this.clearAnimations(this.myDiagram);
     this.myDiagram.model = model;
 
     // for populating the node categories 
@@ -1730,11 +1733,13 @@ private getLoadedPathways(): void{
     this.myDiagram.commandHandler.scrollToPart(node);
     this.myDiagram.scale = 1.1;
     this.myDiagram.centerRect(node.actualBounds);
-    this.setLegend(this.myDiagram);
+
+    //this.setLegend(this.myDiagram);
     
     this.myDiagram.addDiagramListener("InitialLayoutCompleted", () => {
       if (this.myDiagram) {
-        this.clearAnimations(this.myDiagram);
+        //this.clearAnimations(this.myDiagram);
+        this.setLegend(this.myDiagram);
         this.animateLinksFromNodeKeys(this.myDiagram, this.regulatedLinks);
       }
     });
@@ -1864,7 +1869,7 @@ private getLoadedPathways(): void{
         $(go.Shape, "Rectangle", { width: 15, height: 15, fill: 'lightgrey', margin: 2 }),
         $(go.TextBlock, "Enzyme - No change", { margin: 2,font: "8pt sans-serif"})
       ),
-
+      /*
       // Node Type: Selected Upregulated Colour
       $(go.Panel, "Horizontal", { row: 4 },
         $(go.Shape, "Rectangle", { width: 15, height: 15, fill: this.selectedColorHigh, margin: 2 }),
@@ -1875,6 +1880,27 @@ private getLoadedPathways(): void{
       $(go.Panel, "Horizontal", { row: 5 },
         $(go.Shape, "Rectangle", { width: 15, height: 15, fill: this.selectedColorLow, margin: 2 }),
         $(go.TextBlock, "Low Expression", { margin: 2,font: "8pt sans-serif"})
+      ),*/
+      // Expression Gradient
+      $(go.Panel, "Horizontal", { row: 4 },
+        $(go.Shape, "Rectangle", {
+          width: 100,
+          height: 12,
+          margin: 2,
+          fill: $(go.Brush, "Linear", {
+            start: go.Spot.Left,
+            end: go.Spot.Right,
+            0: this.selectedColorLow,        // Low expression
+            0.5: "lightgrey",                // Neutral / No change
+            1: this.selectedColorHigh        // High expression
+          }),
+          stroke: "black"
+        })
+      ),
+
+      $(go.Panel, "Horizontal", { row: 5 },
+        $(go.TextBlock, "Low DGE", { font: "6pt sans-serif", margin: new go.Margin(0, 40, 0, 2) }),
+        $(go.TextBlock, "High DGE", { font: "6pt sans-serif", margin: new go.Margin(0, 2, 0, 40) })
       ),
 
       // Node Type: Selected Isoform Colour
@@ -2148,6 +2174,8 @@ private getLoadedPathways(): void{
 
     const pathwayData = this.ALLpathwayData.find((obj => obj.pathway === code));
     this.setMap(code, this.selectedTimeIndex, pathwayData);
+    if(this.myDiagram){
+    this.setLegend(this.myDiagram);}
   }
 
   // ------------------ SORT BY FUNCTIONALITY -------------------
