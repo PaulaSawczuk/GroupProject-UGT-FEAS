@@ -164,7 +164,7 @@
                   </label>
                 </li>
                 <li>
-                  <ng-container *ngIf="showEnzymeDropdown">
+                  <!-- <ng-container *ngIf="showEnzymeDropdown">
                     <select id="enzymeSelect" [(ngModel)]="selectedEnzyme" (change)="onEnzymeChange()">
                       <option value="">-- Select Enzyme --</option>
                       <optgroup *ngFor="let category of enzymeCategories" [label]="category">
@@ -173,6 +173,27 @@
                           [value]="enzyme.ec"
                           [ngStyle]="enzyme.logfc ? { 'background-color': enzyme.colour } : {}">
                           {{ enzyme.name }}
+                        </option>
+                      </optgroup>
+                    </select>
+                  </ng-container> -->
+                  
+                  <ng-container *ngIf="showEnzymeDropdown">
+                    <select id="enzymeSelect" [(ngModel)]="selectedEnzyme" (change)="onEnzymeChange()">
+                      <option value="">-- Select Enzyme --</option>
+                      <optgroup *ngFor="let category of enzymeCategories" [label]="category">
+                        <option
+                          *ngFor="let enzyme of enzymeCategoryMap[category]"
+                          [value]="enzyme.ec"
+                          [ngStyle]="{ 'background-color': enzyme.colour }"
+                        >
+                          <span>{{ enzyme.name }}</span>
+                          <ng-container *ngIf="enzyme.logfc">
+                            <span>_____________________</span>
+                            <span *ngIf="enzyme.logfc > 0"> &#8593;</span>
+                            <span *ngIf="enzyme.logfc < 0"> &#8595;</span>
+                            <span *ngIf="enzyme.logfc === 0" class="neutral-symbol"> ― </span>
+                          </ng-container>
                         </option>
                       </optgroup>
                     </select>

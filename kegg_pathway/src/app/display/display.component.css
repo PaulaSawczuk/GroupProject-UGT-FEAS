@@ -1,12 +1,12 @@
 
-:root {
+/* :root {
   --base-clr: #11121a;
   --line-clr: #42434a;
   --hover-clr: #222533;
   --text-clr: #e6e6ef;
   --accent-clr: #5e63ff;
   --side-panel-width: 250px;
-}
+} */
 
 * {
   margin: 0;
@@ -915,6 +915,11 @@ button:hover {
 #sidebar .search-close-btn:hover {
   color: #115ba9;
 }
+
+
+
+/* EXPERIMENT */
+
 
 /* ---------- Close Button for Custom ---------- */
 .close-btn {
