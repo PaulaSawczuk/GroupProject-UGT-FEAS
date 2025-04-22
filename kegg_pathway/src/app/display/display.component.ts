@@ -2912,6 +2912,16 @@ Once all the steps are completed, click the Process button to move to get visual
   }  
 
 
+  getArrowFontSize(logfc: number | undefined): string | null {
+    if (logfc === undefined || logfc === null) {
+      return null;
+    }
+    const absoluteLogfc = Math.abs(logfc);
+    const fontSize = (absoluteLogfc % 5 + 1) + 'em';
+    return fontSize;
+  }
+
+
   //  ------------------ TIME SLIDER -------------------
   timepoints = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
   selectedTimeIndex: number = 0;
