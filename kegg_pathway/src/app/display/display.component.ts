@@ -1187,9 +1187,8 @@ private getLoadedPathways(): void{
 
     // calls this method when user selects another pathway, updates the dropdown node values
     this.populateNodeCategories();
-    if(this.myDiagram){
-    this.setLegend(this.myDiagram);
-    }
+    if (this.myDiagram){
+    this.setLegend(this.myDiagram);}
 
     this.isLoading = false;
   }
@@ -1318,15 +1317,31 @@ private getLoadedPathways(): void{
           strokeWidth: 3,
           strokeDashArray: [10, 5]  // Set the line to be dashed (10px dashes, 5px gaps)
         }).bind('stroke','colour').bind('strokeWidth','size'),
-  
+        /*
       // Arrowhead at the "to" end of the link (one-way arrow)
       $(go.Shape, 
         {
           toArrow: "Standard",  // Standard arrowhead at the end of the link
           stroke: null  // No border around the arrow
         }).bind('fill','colour'),
+    ),*/
+    $(go.Panel, "Auto",
+      {
+        segmentIndex: NaN,
+        segmentFraction: 0.5
+      },
+      $(go.Shape,
+        {
+          geometryString: "F1 M0 0 L10 5 L0 10 Z",
+          name: "MiddleArrow",
+          fill: "black",
+          stroke: null,
+          scale: 2
+        }
+      ).bind('fill', 'colour')
     )
-  );
+  )
+);
 
   this.myDiagram.linkTemplateMap.add("irreversible",  // Link type category
     $(go.Link,
@@ -1349,13 +1364,30 @@ private getLoadedPathways(): void{
         }).bind('stroke','colour').bind('strokeWidth','size'),
   
       // Arrowhead at the "to" end of the link (one-way arrow)
+      /*
       $(go.Shape, 
         {
           toArrow: "Standard",  // Standard arrowhead at the end of the link
           fill: "black",  // Set the color of the arrow to black
           stroke: null  // No border around the arrow
         }).bind('fill','colour'),
-    )
+    )*/
+        $(go.Panel, "Auto",
+          {
+            segmentIndex: NaN,
+            segmentFraction: 0.5
+          },
+          $(go.Shape,
+            {
+              geometryString: "F1 M0 0 L10 5 L0 10 Z",
+              name: "MiddleArrow",
+              fill: "black",
+              stroke: null,
+              scale: 2
+            }
+          ).bind('fill', 'colour')
+        )
+      )
   );
   
   // TEMPLATE FOR ENZYME NODES
@@ -1599,7 +1631,15 @@ private getLoadedPathways(): void{
         this.myDiagram!.centerRect(firstNode.actualBounds); // Center the node
         this.myDiagram!.commitTransaction("initialZoom");
       }, 400);
-      
+
+      if (this.myDiagram){
+      this.myDiagram.addDiagramListener("InitialLayoutCompleted", () => {
+        if (this.myDiagram) {
+          //this.clearAnimations(this.myDiagram);
+          this.setLegend(this.myDiagram);
+          this.animateLinksFromNodeKeys(this.myDiagram, this.regulatedLinks);
+        }
+      });}
       /*
       setTimeout(() => {
         const bounds = this.myDiagram!.documentBounds;
@@ -1733,18 +1773,28 @@ private getLoadedPathways(): void{
     this.myDiagram.commandHandler.scrollToPart(node);
     this.myDiagram.scale = 1.1;
     this.myDiagram.centerRect(node.actualBounds);
-
-    //this.setLegend(this.myDiagram);
-    
-    this.myDiagram.addDiagramListener("InitialLayoutCompleted", () => {
-      if (this.myDiagram) {
-        //this.clearAnimations(this.myDiagram);
-        this.setLegend(this.myDiagram);
-        this.animateLinksFromNodeKeys(this.myDiagram, this.regulatedLinks);
-      }
-    });
   }
 
+
+  private updateMiddleArrowAngle(link: go.Link) {
+    const arrow = link.findObject("MiddleArrow");
+    if (arrow && link.pointsCount > 1) {
+      const points = link.points;
+      const from = points.first();
+      const to = points.last();
+  
+      // Ensure from and to are not null
+      if (from && to) {
+        const angle = Math.atan2(to.y - from.y, to.x - from.x) * (180 / Math.PI); // Calculate angle
+        arrow.angle = angle;  // Set the angle of the arrow
+      } else {
+        console.warn("❌ Invalid link points: 'from' or 'to' is null.");
+      }
+    } else {
+      console.warn("❌ Link has insufficient points to calculate the angle.");
+    }
+  }
+  
   
 
   // --------------- Updating GO.js Model -------------------
@@ -1941,6 +1991,8 @@ private getLoadedPathways(): void{
 
 // ---------- METABOLIC FLUX ANIMATIONS ----------
 
+private animatedLinkIds: Set<string> = new Set();
+
   // Finds to and from links from list of Differentially regulated links
   // Extracts colours from the links to assigns as the arrow colour
   // calls animtaion function for each link (animateAlongLink) for dynamic animation along the selected links
@@ -1950,6 +2002,7 @@ private getLoadedPathways(): void{
   
     this.clearAnimations(diagram);
     diagram.startTransaction("animate links");
+    const animatedLinkIds = new Set<string>();
   
     fromNodeKeys.forEach(fromKey => {
       const node = diagram.findNodeForKey(fromKey);
@@ -1961,6 +2014,7 @@ private getLoadedPathways(): void{
       // Get BOTH incoming and outgoing links
       const linksOut = node.findLinksOutOf();
       const linksIn = node.findLinksInto();
+      
   
       // Combine them
       const allLinks = new go.List<go.Link>().addAll(linksOut).addAll(linksIn);
@@ -1969,6 +2023,11 @@ private getLoadedPathways(): void{
         const pointsCount = link.pointsCount;
         const from = link.data?.from;
         const to = link.data?.to;
+
+        if (from && to) {
+          const linkId = `${from}->${to}`;
+          animatedLinkIds.add(linkId);
+        }
   
         //console.log(`🔗 Link from ${from} to ${to} has ${pointsCount} points`);
   
@@ -1979,8 +2038,11 @@ private getLoadedPathways(): void{
         }
       });
     });
+    this.updateArrowVisibilityForAnimations(animatedLinkIds);
   
     diagram.commitTransaction("animate links");
+
+    this.animatedLinkIds = animatedLinkIds;
   }
 
 // Function that defines animation attributes
@@ -2105,8 +2167,23 @@ private getLoadedPathways(): void{
       }
     });
 
+    this.animatedLinkIds?.clear?.();
+
     console.log("All old animations cleared.");
   }
+
+
+  private updateArrowVisibilityForAnimations(animatedLinkIds: Set<string>) {
+    if (this.myDiagram){
+    this.myDiagram.links.each(link => {
+      const id = `${link.data.from}->${link.data.to}`;
+      const arrow = link.findObject("MiddleArrow") as go.Shape;
+      if (arrow) {
+        arrow.visible = !animatedLinkIds.has(id);
+      }
+    });}
+  }
+
 
 
   // Setting more global Attributes 
