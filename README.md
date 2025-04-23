@@ -1,18 +1,22 @@
 # EnStrap.Int
 
-EnStrap.int is a web-based application tool. 
+EnStrap.int is a web-based application tool for the visualisation and interactive exploration of KEGG metabolic pathways.  
 
 ## Table of Contents
 
 - [EnStrap.Int](#enstrap.int)
- - 
+  - [Table of Contents](#table-of-contents)
+  - [Installation](#installation)
+    - [1. Cloning the Repository](#1-cloning-the-repository)
+    - [2. Installing Dependincies](#2-installing-dependincies)
+    - [3. Starting the Application](#3-starting-the-application)
 
 ## Installation 
 
 **To get the application up and running on users local machine, follow the steps below:**
 
-- Clone the Repository  
-  Open your terminal or command prompt and run:  
+### Cloning the Repository  
+  Open the terminal or command prompt and run:  
 
   ```bash  
   git clone https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS.git
@@ -30,14 +34,13 @@ EnStrap.int is a web-based application tool.
   cd ./kegg_pathway
   ```
 
-- Install Dependencies  
+### Installing Dependencies  
   In the terminal, run the following command to install all required dependencies:  
 
   ```bash
   npm install
   ```
-
-- Start the Application  
+### Starting the Application  
   Once the installation is complete, start the application with:  
 
   ```bash
