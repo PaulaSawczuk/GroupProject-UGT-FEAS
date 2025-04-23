@@ -4,11 +4,11 @@ EnStrap.int is a web-based application tool for the visualisation and interactiv
 
 ## Table of Contents
 
-- [EnStrap.Int](#enstrap.int)
+- [EnStrap.Int](#enstrap.Int)
   - [Table of Contents](#table-of-contents)
   - [Installation](#installation)
     - [Cloning the Repository](#1-cloning-the-repository)
-    - [Installing Dependincies](#2-installing-dependincies)
+    - [Installing Dependencies](#2-installing-dependencies)
     - [Starting the Application](#3-starting-the-application)
 
 ## Installation 
