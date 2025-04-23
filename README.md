@@ -15,7 +15,7 @@ EnStrap.int is a web-based application tool for the visualisation and interactiv
 
 **To get the application up and running on users local machine, follow the steps below:**
 
-### Cloning the Repository  
+### 1. Cloning the Repository  
   Open the terminal or command prompt and run:  
 
   ```bash  
@@ -34,13 +34,13 @@ EnStrap.int is a web-based application tool for the visualisation and interactiv
   cd ./kegg_pathway
   ```
 
-### Installing Dependencies  
+### 2. Installing Dependencies  
   In the terminal, run the following command to install all required dependencies:  
 
   ```bash
   npm install
   ```
-### Starting the Application  
+### 3. Starting the Application  
   Once the installation is complete, start the application with:  
 
   ```bash
