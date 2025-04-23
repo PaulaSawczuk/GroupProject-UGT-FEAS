@@ -1014,6 +1014,8 @@ private getLoadedPathways(): void{
     });
   };
 
+  newlyAddedPathways: string[] = [];
+  
   getMoreMapData(pathwayData: any[]): void {
 
     // Sending top 10 Pathways to back-end to retrieve Mapping Data 
@@ -1036,11 +1038,13 @@ private getLoadedPathways(): void{
       console.log(this.ALLpathwayData);
 
       // Adding to list of names to display 
-      console.log(this.pathways);
+      console.log("pathways before adding", this.pathways);
+      this.newlyAddedPathways=[];
       pathwayResponse.forEach(item => {
         this.pathways.push(item.name);
+        this.newlyAddedPathways.push(item.name);
       });
-      console.log(this.pathways);
+      console.log("pathways after adding", this.pathways);
 
       // Adding to list of names to display 
       console.log(this.pathwayData);
@@ -2630,6 +2634,7 @@ processNewFiles(): void{
   unsupportedFileTypeMessage: string = '';
   validationMessage: string = '';
   warningMessage: string = '';
+  WrongFileAddedMessage: string = '';
   showFileList: boolean = false;
 
   // Open the modal when the 'Import files' button is clicked
@@ -2644,6 +2649,7 @@ processNewFiles(): void{
     this.unsupportedFileTypeMessage = '';
     this.validationMessage = '';
     this.warningMessage = '';
+    this.WrongFileAddedMessage = '';
     this.showFileList = false;
   }
 
@@ -2691,6 +2697,7 @@ processNewFiles(): void{
     this.unsupportedFileTypeMessage = '';
     this.validationMessage = '';
     this.warningMessage = '';
+    this.WrongFileAddedMessage = '';
 
     const newFiles: { name: string; file: File }[] = [];
 
@@ -2717,6 +2724,12 @@ processNewFiles(): void{
     this.showFileList = this.uploadedFiles.length > 0;
   }
 
+  showSummaryBox = false;
+  summaryData = {
+    newItems: [] as string[],
+    oldItems: [] as string[],
+    similarities: [] as string[],
+  };
   // Add files
     // Add files
   addFiles() {
@@ -2887,6 +2900,14 @@ processNewFiles(): void{
               console.log('Pathways Added: ');
               console.log(newItems);
 
+              this.summaryData = {
+                newItems,
+                oldItems,
+                similarities: similar,
+              };
+              this.showSummaryBox = true;
+              
+
               console.log('Received from backend:', response);
               console.log('-----------------------------');
               console.log('Getting Mapping Data');
@@ -2906,6 +2927,7 @@ processNewFiles(): void{
           //this.isLoading = false;
         }).catch(err => {
           console.warn('Failed to process added files:', err);
+          this.unsupportedFileTypeMessage = 'Failed to process added files, make sure you are only uploading Expression Data';
         });
       } else {
         console.error('No files selected!');
@@ -3160,6 +3182,16 @@ Once all the steps are completed, click the Process button to move to get visual
   }  
 
 
+  getArrowFontSize(logfc: number | undefined): string | null {
+    if (logfc === undefined || logfc === null) {
+      return null;
+    }
+    const absoluteLogfc = Math.abs(logfc);
+    const fontSize = (absoluteLogfc % 5 + 1) + 'em';
+    return fontSize;
+  }
+
+
   //  ------------------ TIME SLIDER -------------------
   timepoints = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
   selectedTimeIndex: number = 0;
@@ -3305,7 +3337,6 @@ Once all the steps are completed, click the Process button to move to get visual
   selectedPathways: string[] = [];
   selectedPathwaysKEGG: string[] = [];
   isDropdownOpen = false;
-
   // to handle open and close of the modal
   isSearchPathwayModalOpen = false;
 
@@ -3346,6 +3377,7 @@ Once all the steps are completed, click the Process button to move to get visual
       this.isDropdownOpen = false;
       this.filterPathways();
   }
+  
 
   removePathway(pathway: string) {
     this.selectedPathwaysKEGG = this.selectedPathwaysKEGG.filter(p => p !== pathway);
@@ -3423,6 +3455,10 @@ Once all the steps are completed, click the Process button to move to get visual
     });
     console.log(pathwayData);
     return pathwayData;
+  }
+
+  isAlreadyInList(pathwayName: string): boolean {
+    return this.pathways.includes(pathwayName);
   }
 
   // ---- To deal with the Highlighted Pathways selection in a Table ----

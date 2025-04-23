@@ -1,8 +1,13 @@
-# GroupProject-UGT-FEAS
+# EnStrap.Int
 
-## Project Description
+EnStrap.int is a web-based application tool. 
 
-## How To Run The Application 
+## Table of Contents
+
+- [EnStrap.Int](#enstrap.int)
+ - 
+
+## Installation 
 
 **To get the application up and running on users local machine, follow the steps below:**
 

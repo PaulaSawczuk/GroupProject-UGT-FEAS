@@ -1,12 +1,12 @@
 
-:root {
+/* :root {
   --base-clr: #11121a;
   --line-clr: #42434a;
   --hover-clr: #222533;
   --text-clr: #e6e6ef;
   --accent-clr: #5e63ff;
   --side-panel-width: 250px;
-}
+} */
 
 * {
   margin: 0;
@@ -570,6 +570,11 @@ button:hover {
   background-color: #dee2e6;
 }
 
+/* Change colour of pathways that are already listed in the side bar */
+.existing-pathway {
+  color: #3e42476f; 
+}
+
 
 /* ---------- CLEAR ALL BUTTON ----------- */
 
@@ -702,6 +707,13 @@ button:hover {
 .remove-chip:hover {
   background-color: #8c9397; /* Change this to the desired hover color */
   padding: 7px 7px;
+}
+
+
+/* CHanging the colour in the pathway list */
+.new-highlight {
+  background-color: #bbdbf16f; /* light blue highlight */
+  transition: background-color 0.5s ease-in-out;
 }
 
 /* ------------ CHECBOXES FOR FILTERS ---------- */
@@ -915,6 +927,11 @@ button:hover {
 #sidebar .search-close-btn:hover {
   color: #115ba9;
 }
+
+
+
+/* EXPERIMENT */
+
 
 /* ---------- Close Button for Custom ---------- */
 .close-btn {
@@ -1514,6 +1531,94 @@ button:hover {
   padding: 0 8px;
   box-sizing: border-box;
 }
+
+/* SUMMARY BOX AFTER UPLOAD */
+
+.summary-box {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  max-width: 450px;
+  background-color: #f9f9ff;
+  border: 1px solid #ccc;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+  border-radius: 12px;
+  font-family: 'DM Sans', sans-serif;
+  padding: 20px;
+  z-index: 1000;
+  animation: fadeInScale 0.3s ease-out;
+}
+
+
+.summary-box-content h3 {
+  margin: 0;
+}
+
+.summary-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.summary-close {
+  font-size: 20px;
+  cursor: pointer;
+  padding: 0 8px;
+  color: #666;
+}
+
+.summary-box-content ul {
+  margin: 0;
+  padding-left: 20px;
+  margin-bottom: 10px;
+}
+
+.summary-footer {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 12px;
+}
+
+.summary-ok-btn {
+  background: #343a40;
+  color: white;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 5px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.summary-ok-btn:hover {
+  background: #999ca0;
+}
+
+.added-label {
+  color: green;
+}
+
+.removed-label {
+  color: red;
+}
+
+.similar-label {
+  color: gray;
+}
+
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+
 
 @media (min-width: 601px) and (max-width: 1200px) {
   .pathway-title {

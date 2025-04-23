@@ -60,7 +60,7 @@
             <div class="scrollable-pathways">
               <ul class="sub-menu" [class.show]="pathwaysOpen && !customTabOpen && !searchTabOpen">
                 <li *ngFor="let pathway of pathways">
-                  <a (click)="selectPathway($event, pathway)">{{ pathway }}</a>
+                  <a (click)="selectPathway($event, pathway)" [ngClass]="{ 'new-highlight': newlyAddedPathways.includes(pathway) }">{{ pathway }}</a>
                 </li>
               </ul>
             </div> 
@@ -94,7 +94,7 @@
                     <div class="color-box-high">
                       <label for="colorPickerHigh">Highly Expressed Genes:</label>
                       <div class="color-picker-container">
-                        <input type="color" id="colorPickerHigh" value="#ff0000" class="color-picker" (change)="onColorChangeHigh($event)"/>
+                        <input type="color" id="colorPickerHigh" [value]="selectedColorHigh" class="color-picker" (change)="onColorChangeHigh($event)"/>
                         <span class="color-hex">{{ selectedColorHigh }}</span>
                       </div>
                     </div>
@@ -102,7 +102,7 @@
                     <div class="color-box-low" style="margin-top: 20px;">
                       <label for="colorPickerLow">Low Expressed Genes:</label>
                       <div class="color-picker-container">
-                        <input type="color" id="colorPickerLow" value="#0000ff" class="color-picker" (change)="onColorChangeLow($event)"/>
+                        <input type="color" id="colorPickerLow" [value]="selectedColorLow" class="color-picker" (change)="onColorChangeLow($event)"/>
                         <span class="color-hex">{{ selectedColorLow }}</span>
                       </div>
                     </div>
@@ -118,7 +118,7 @@
                     <div class="color-box-isoform">
                       <label for="colorPickerIsoform">Isoforms:</label>
                       <div class="color-picker-container">
-                        <input type="color" id="colorPickerIsoform" value="#fff44f" class="color-picker" (change)="onColorChangeIsoform($event)"/>
+                        <input type="color" id="colorPickerIsoform" [value]="selectedColorIsoform" class="color-picker" (change)="onColorChangeIsoform($event)"/>
                         <span class="color-hex">{{ selectedColorIsoform }}</span>
                       </div>
                     </div>
@@ -164,7 +164,7 @@
                   </label>
                 </li>
                 <li>
-                  <ng-container *ngIf="showEnzymeDropdown">
+                  <!-- <ng-container *ngIf="showEnzymeDropdown">
                     <select id="enzymeSelect" [(ngModel)]="selectedEnzyme" (change)="onEnzymeChange()">
                       <option value="">-- Select Enzyme --</option>
                       <optgroup *ngFor="let category of enzymeCategories" [label]="category">
@@ -173,6 +173,26 @@
                           [value]="enzyme.ec"
                           [ngStyle]="enzyme.logfc ? { 'background-color': enzyme.colour } : {}">
                           {{ enzyme.name }}
+                        </option>
+                      </optgroup>
+                    </select>
+                  </ng-container> -->
+                  
+                  <ng-container *ngIf="showEnzymeDropdown">
+                    <select id="enzymeSelect" [(ngModel)]="selectedEnzyme" (change)="onEnzymeChange()">
+                      <option value="">-- Select Enzyme --</option>
+                      <optgroup *ngFor="let category of enzymeCategories" [label]="category">
+                        <option
+                          *ngFor="let enzyme of enzymeCategoryMap[category]"
+                          [value]="enzyme.ec"
+                          [ngStyle]="{ 'background-color': enzyme.colour }"
+                        >
+                          <span>{{ enzyme.name }}</span>
+                          <ng-container *ngIf="enzyme.logfc">
+                            <span> [</span>
+                            <span> {{enzyme.logfc }} </span>
+                            <span> ]</span>
+                          </ng-container>
                         </option>
                       </optgroup>
                     </select>
@@ -294,6 +314,41 @@
       </div>
     </div>
 
+    <div class="summary-box" *ngIf="showSummaryBox">
+      <div class="summary-box-content">
+        <div class="summary-header">
+          <h3>Pathway Comparison Summary</h3>
+          <span class="summary-close" (click)="showSummaryBox = false">×</span>
+        </div>
+    
+        <div *ngIf="summaryData.newItems.length">
+          <strong class="added-label">Added:</strong>
+          <ul>
+            <li *ngFor="let item of summaryData.newItems">{{ item }}</li>
+          </ul>
+        </div>
+        
+        <div *ngIf="summaryData.oldItems.length">
+          <strong class="removed-label">Removed:</strong>
+          <ul>
+            <li *ngFor="let item of summaryData.oldItems">{{ item }}</li>
+          </ul>
+        </div>
+        
+        <div *ngIf="summaryData.similarities.length">
+          <strong class="similar-label">Similar:</strong>
+          <ul>
+            <li *ngFor="let item of summaryData.similarities">{{ item }}</li>
+          </ul>
+        </div>
+    
+        <div class="summary-footer">
+          <button (click)="showSummaryBox = false" class="summary-ok-btn">Okay</button>
+        </div>
+      </div>
+    </div>
+    
+
     <!-- ---------------- GUIDE POP-OUT ---------------- -->
     <div class="pathway-filter-modal" *ngIf="isFilterPathwayModalOpen">
       <div class="pathway-filter-modal-content">
@@ -409,13 +464,17 @@
                 <tr 
                   *ngFor="let pathway of highlightedPathways; let i = index" 
                   class="clickable-row"
+                  [ngClass]="{
+                    'existing-pathway': isAlreadyInList(pathway.name)}"
                 >
-                  <td>
+                  <td *ngIf="!isAlreadyInList(pathway.name)">
                     <input 
                       type="checkbox" 
                       [(ngModel)]="highlightedPathways[i].selected"
                       (click)="$event.stopPropagation()" 
                     />
+                  </td>
+                  <td *ngIf="isAlreadyInList(pathway.name)">
                   </td>
                   <td (click)="onHighlightRowClick(pathway)">{{ pathway.name }}</td>
                   <td (click)="onHighlightRowClick(pathway)">{{ pathway.pathway }}</td>
