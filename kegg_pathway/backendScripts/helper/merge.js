@@ -18,9 +18,11 @@ const { addCompoundLinks } = require('./get_go_map');
 const { getMapNodes } = require('./visualise_map');
 
 
+// Takes Compound Name extracted from KEGG text response
+// Assignns names to matching and updating Nodes
 function getCompoundNames(compounds, nodes){
     console.log('------------');
-    console.log('Matching Entry Names to Nodes');
+    console.log('Matching Compound Entry Names to Nodes');
     console.log('------------');
 
     for (let i = 0; i< nodes.length; i++){
@@ -52,6 +54,8 @@ function getCompoundNames(compounds, nodes){
     console.log('ALL DONE - getCompound Names');
 }
 
+// Takes Enzyme Names extracted from KEGG text response
+// Assignns names to matching enzymes -- updates nodes
 function matchEnzymeNames(enzymeNames, nodes){
     console.log('------------');
     console.log('Matching Enzyme Names to Nodes');
@@ -96,25 +100,25 @@ function matchEnzymeNames(enzymeNames, nodes){
     console.log('------------');
 }
 
-
+// --------- MAIN PROCESSING FUNCTION --------
+// Takes individual code 
+// Combines internal and external function for KEGG API requests, Data Extraction, 
+// Processing and Annotation.
+// Returns Nodes, Edges, Enzymes List for each pathway entered.
 async function processInput(code) {
     console.log('Processing');
     console.log(code);
     console.log('------------');
-    //console.log(genes);
-    
 
-    // Here we will just echo back the input, but you can modify this function
-    // to perform any logic like math operations, string manipulations, etc.
-    var ec_pathway = code;
-    var rn_pathway = code.replace(/^ec/, 'rn');
-    var ko_pathway = code.replace(/^ec/, 'ko');
+
+    // Changing the inputted code to make alternative KEGG requests 
+    var ec_pathway = code; // Original Code (ec)
+    var rn_pathway = code.replace(/^ec/, 'rn'); // Reaction Code  (rn)
+    var ko_pathway = code.replace(/^ec/, 'ko'); // KEGG Orthology Code (ko)
     
     // -------------------------------------------------------------
     // Getting Compounds for the organism specific pathway - used for labelling and indexing 
-    // NEED TO BE RE-IMPLEMENTED
     var compounds = await getElements(ko_pathway);
-    //console.log(compounds);
     var enzymeNames = await getEnzymeNames(ko_pathway);
     console.log('------------');
     
@@ -126,7 +130,6 @@ async function processInput(code) {
     var rn_elements = await processKGML(rn_pathway);
     console.log('------------');
 
-    //var ko_elements = await processKGML(ko_pathway)
 
     // ------------------Taking Entries, Reactions and Relations --> Nodes and Edges ----------------------------
     //Getting Element names
@@ -137,7 +140,7 @@ async function processInput(code) {
 
     // -------- Processing Reaction KGML and Realtions Absent in EC KGML------------
 
-    //var KOcompoundLinks = processRN(ko_elements.entries, ko_elements.relations, ko_elements.reactions, map_elements.uniqueNodes);
+
     var RNcompoundLinks = processRN(rn_elements.entries, rn_elements.relations, rn_elements.reactions, map_elements.uniqueNodes);
     var finalEdges = addCompoundLinks(RNcompoundLinks.entryLinks,map_elements.edges);
 
@@ -161,20 +164,29 @@ async function processInput(code) {
 
 
     // ---------------- Parsing the data to the front-end -----------------------
+    // Extracting Nodes and Edges 
     let nodeData = processedElements.finalNodes;
-    //console.log(nodeData);
     let linkData = processedElements.edgesProcessed;
 
+    // Generating list of enzymes present in map
     var enzymeList = getEnzymeCodes(nodeData);
     enzymeList = Array.from(enzymeList);
-    //console.log(linkData);
+
     console.log('------------');
     console.log('All Links and Nodes Generated');
     console.log('------------');
+    //console.log(nodeData);
+    //console.log(linkData);
     return {nodeData,linkData,enzymeList};
   }
 
 
+
+// ------ Parsing Function for an Array of Pathways -----
+// Takes array of Pathway Objects sent from Front-end (Name:, Pathway(code):)
+// Loops through each pathway and passes into processInput()
+// KGML Data Extraction and processing response is pushed to an array
+// Once all the pathways are processed the output is returned to the front-end.
 async function processPathways(pathways){
 
     console.log(pathways);
@@ -202,6 +214,12 @@ async function processPathways(pathways){
     return pathwayData;
 }
 
+
+// ------ Parsing Function for an Individual Pathway Code -----
+// Takes single pathway code of interest
+// KGML Data Extraction and processing response is pushed to an array
+// Data is sent back to front-end
+// Used for Node-Map Click through and Searching for single Pathways 
 async function processIndividualPathway(code){
 
     console.log(code);

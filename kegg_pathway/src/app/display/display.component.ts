@@ -68,7 +68,15 @@ export class DisplayComponent {
 
   highlightedPathways: any[] = [];
 
+  regulatedLinks: any[] = [];
+
+  animatedParts: go.Part[] = []; // Store animated parts (dots)
+  
+  animatedIntervals: number[] = [];
+
   StatsArray: any[] = [];
+
+  currentLogFc: any[] = [];
 
   // Creating a GoJS Diagram 
   private myDiagram: go.Diagram | null = null;
@@ -173,7 +181,7 @@ private getEnzymeGenes(): void{
       filteredFiles.push(geneEnzymes);
     }
   }
-  //console.log('filtered files: '+filteredFiles)
+
   //console.log(geneEnzymes); //Array of Genes with EC matched 
   this.filterEnzymeGenes(filteredFiles); // pass to 
 }
@@ -402,7 +410,7 @@ private getLineWidth(logfc: number, baseline = 3) {
 
   // Set min and max width values
   const minWidth = 3;
-  const maxWidth = 20;
+  const maxWidth = 15;
 
   // You can tweak this multiplier for scaling effect
   const scaleFactor = 2;
@@ -437,7 +445,8 @@ private matchGenesNoSize(genes: any[], nodes: any[]): any[] {
   var allGenes = [];
   var colourArray = [];
   var stats = [];
-  //console.log(genes);
+  var currentLogFc = [];
+
 
   // Create a deep copy of nodes to prevent mutation of the original array
   var newNodes = nodes.map(node => ({ ...node }));
@@ -479,6 +488,7 @@ private matchGenesNoSize(genes: any[], nodes: any[]): any[] {
         newNodes[i].logfc = mean;
         newNodes[i].colour = rgb;
         newNodes[i].logfcList = logfcList;
+        currentLogFc.push(logfcList);
       }
       //console.log('adding colour');
       colourArray.push({
@@ -492,6 +502,8 @@ private matchGenesNoSize(genes: any[], nodes: any[]): any[] {
     uniqueGenes: GeneSet.size,
     enzymesEffected: enzymeSet.size
   })
+
+  //this.currentLogFc = currentLogFc;
   return [newNodes,colourArray, stats];
 }
 
@@ -505,6 +517,7 @@ private matchGenes(genes: any[], nodes: any[]): any[] {
   var allGenes = [];
   var colourArray = [];
   var stats = [];
+  var currentLogFc = [];
 
   // Create a deep copy of nodes to prevent mutation of the original array
   var newNodes = nodes.map(node => ({ ...node }));
@@ -547,6 +560,7 @@ private matchGenes(genes: any[], nodes: any[]): any[] {
         newNodes[i].logfc = mean;
         newNodes[i].colour = rgb;
         newNodes[i].logfcList = logfcList;
+        currentLogFc.push(logfcList);
       }
       //console.log('adding colour');
       colourArray.push({
@@ -563,6 +577,7 @@ private matchGenes(genes: any[], nodes: any[]): any[] {
     uniqueGenes: GeneSet.size,
     enzymesEffected: enzymeSet.size
   })
+ 
 
   return [newNodes,colourArray, stats];
 }
@@ -585,8 +600,7 @@ private compareEnzymes(nodes: any[],timepoint: number): any[]{
   const genes = this.filteredGenes[timepoint];
   // Taking Genes from file and matching them to enzyme nodes 
   // Change enzyme node attributes accordingly 
-  //console.log(genes);
-  //console.log(localNodes);
+
   const elements = this.matchGenes(genes, localNodes)
   const updatedNodes = elements[0];
   const colourArray = elements[1];
@@ -616,66 +630,11 @@ private compareEnzymesNoSize(nodes: any[],timepoint: number): any[]{
   return [finalNodes, colourArray, stats];
 }
 
-/*
 
-private getIsoforms(nodes: any[]): any[]{
-  console.log("--------------------")
-  console.log('Finding Isoforms')
 
-  var newNodes = nodes.map(node => ({ ...node }));
-  //console.log(newNodes);
-  // Looping through all the nodes
-  for (let i = 0; i < newNodes.length; i++) {
-    if (newNodes[i].type === 'enzyme' && (newNodes[i].gene)){
-      const firstGenes = newNodes[i].gene;
-      //console.log('First Genes:')
-      //console.log(firstGenes);
-      const key1 = newNodes[i].key;
+
       
 
-      // Looping through list again to find matching gene entries 
-      for (let j = 0; j < newNodes.length; j++) {
-        if (newNodes[j].type === 'enzyme'&&(newNodes[j].gene) ) {
-          const secondGenes = newNodes[j].gene;
-          const key2 = newNodes[j].key;
-          
-          //console.log(firstGenes);
-          //console.log('Second Genes:')
-          //console.log(secondGenes);
-          // Making sure that the nodes dont match to themselves 
-          if (key1 != key2){
-            /*
-            for (const gene1 of firstGenes) {
-              for (const gene2 of secondGenes) {
-                if (gene1 === gene2) {
-                  console.log("match:", gene1);
-                  console.log(key1);
-                  console.log(key2);
-                  //matchFound = true;
-                  }
-                }
-              }
-             if (firstGenes==secondGenes){
-              console.log("match:");
-              console.log(key1);
-              console.log(key2);
-              console.log(firstGenes);
-              console.log(secondGenes);
-             }
-            }
-
-
-          }
-          
-
-        }
-      }
-  }
-  return [];
-
-}
-
-*/
 
 
 // ------------ PARALOG IDENTIFCATION ---------------------
@@ -735,35 +694,48 @@ private getMetabolicFlux(nodes: any[], links: any[]){
 
   var newNodes = nodes.map(node => ({ ...node }));// Deep cloning Nodes and Links 
   var newLinks = links.map(link => ({ ...link}));
+  var regulatedLink = [];
+  var currentLogFc = [];
   for (let i = 0; i < newNodes.length; i++) {
 
     // Get all enzyme nodes that have been effected but not by isoforms (coloured yellow)
     if (newNodes[i].type === 'enzyme' && (newNodes[i].gene) && newNodes[i].colour != this.selectedColorIsoform){
 
+      const group = newNodes[i].group;
+      //console.log(group);
       const key = newNodes[i].key;
       const colour = newNodes[i].colour;
       const logfc = newNodes[i].logfc;
+      currentLogFc.push(logfc);
       const rIndex = key.indexOf("R"); // Finding 'R' character in link key 
       if (rIndex !== -1) {
         const reactKey = key.substring(rIndex);
+        //console.log('Reaction Key');
         //console.log(reactKey); 
+        //console.log("Group ID");
+        //console.log(group);
 
         // Loop through links to get any that match with that reaction key
       for (let j = 0; j < newLinks.length; j++) { // Matching 'to' links
-        if (newLinks[j].to == reactKey){
+        if (newLinks[j].to == group){
           //console.log('Match Found: (Link to) ');
           let category = newLinks[j].category;
+          newLinks[j].colour = colour; 
+          newLinks[j].logfc = logfc;
+          regulatedLink.push(group);
           //console.log(category);
 
+
         }
-        if (newLinks[j].from == reactKey){ // Matching 'from' links
+        if (newLinks[j].from == group){ // Matching 'from' links
           //console.log('Match Found: (Link from) ');
           let category = newLinks[j].category;
           //console.log(category);
           newLinks[j].colour = colour; // Adding new colour attribute to link 
-          const width = this.getLineWidth(logfc); // Calculating line width realtive to logFc
-          newLinks[j].size = width; // Assinging caluclated width to the link 
-          
+          newLinks[j].logfc = logfc;
+          //const width = this.getLineWidth(logfc); // Calculating line width realtive to logFc
+          //newLinks[j].size = width; // Assinging caluclated width to the link 
+          regulatedLink.push(group);
         }else{
           continue;
         }
@@ -775,6 +747,8 @@ private getMetabolicFlux(nodes: any[], links: any[]){
       }
     }
   }
+  this.currentLogFc = currentLogFc;
+  this.regulatedLinks = regulatedLink;
   //console.log(newLinks);
   // Returns new links to 
   return newLinks;
@@ -1096,7 +1070,7 @@ private getLoadedPathways(): void{
         console.error('Error:', error);
         this.isLoading = false;
       });
-    };
+  };
   
   
 
@@ -1107,7 +1081,7 @@ private getLoadedPathways(): void{
 // Does Get request for Pathway Names and asscoiated EC pathway codes
 // Returns list after filtering against blacklist 
 
-  async getAllPathwayNames(): Promise<void>{
+async getAllPathwayNames(): Promise<void>{
     console.log("--------------------")
     console.log('Getting All Pathway Names')
     console.log("--------------------")
@@ -1229,6 +1203,8 @@ private getLoadedPathways(): void{
 
     // calls this method when user selects another pathway, updates the dropdown node values
     this.populateNodeCategories();
+    if (this.myDiagram){
+    this.setLegend(this.myDiagram);}
 
     this.isLoading = false;
   }
@@ -1357,15 +1333,26 @@ private getLoadedPathways(): void{
           strokeWidth: 3,
           strokeDashArray: [10, 5]  // Set the line to be dashed (10px dashes, 5px gaps)
         }).bind('stroke','colour').bind('strokeWidth','size'),
-  
+        /*
       // Arrowhead at the "to" end of the link (one-way arrow)
       $(go.Shape, 
         {
           toArrow: "Standard",  // Standard arrowhead at the end of the link
           stroke: null  // No border around the arrow
         }).bind('fill','colour'),
-    )
-  );
+    ),*/
+    $(go.Shape,
+      {
+        toArrow: 'OpenTriangle',
+        name: "MiddleArrow",
+        segmentIndex: Infinity,  // position the arrow
+        segmentFraction: 0.5,    // middle of the link
+        stroke: 'black',
+        fill: 'black',
+        scale: 1.7
+      }
+    ))
+);
 
   this.myDiagram.linkTemplateMap.add("irreversible",  // Link type category
     $(go.Link,
@@ -1388,18 +1375,31 @@ private getLoadedPathways(): void{
         }).bind('stroke','colour').bind('strokeWidth','size'),
   
       // Arrowhead at the "to" end of the link (one-way arrow)
+      /*
       $(go.Shape, 
         {
           toArrow: "Standard",  // Standard arrowhead at the end of the link
           fill: "black",  // Set the color of the arrow to black
           stroke: null  // No border around the arrow
         }).bind('fill','colour'),
-    )
-  );
+    )*/
+        $(go.Shape,
+          {
+            toArrow: 'OpenTriangle',
+            name: "MiddleArrow",
+            segmentIndex: Infinity,  // position the arrow
+            segmentFraction: 0.5,    // middle of the link
+            stroke: 'black',
+            fill: 'black',
+            scale: 1.7
+          }
+        ))
+      );
+        
   
   // TEMPLATE FOR ENZYME NODES
-    this.myDiagram.nodeTemplateMap.add("enzyme",  // Custom category for compound nodes
-      new go.Node("Auto")  // Use Vertical Panel to place the label above the shape
+    this.myDiagram.nodeTemplateMap.add("enzyme",
+      new go.Node("Auto") 
         .add(
           new go.Shape("Rectangle").bind("fill","colour").bind("width").bind("height").bind('stroke').bind('strokeWidth','border')
         ).add(new go.TextBlock(
@@ -1409,16 +1409,16 @@ private getLoadedPathways(): void{
           width: 80 })
           .bind("text")
           .bind("font", "", (node) => {
-            const size = node.width; // Get the width of the node
+            const size = node.width; 
             const result = Math.max(10, size * 0.1);
             const output = `${result}px sans-serif`;
-            return output;  // Adjust the font size as 10% of the node's width (minimum size of 10)
+            return output;
         })
         )
     );
 
     // TEMPLATE FOR MAP NODES
-    this.myDiagram.nodeTemplateMap.add("map",  // Custom category for compound nodes
+    this.myDiagram.nodeTemplateMap.add("map",
       new go.Node("Auto",
         {
           click: (e: go.InputEvent, obj: go.GraphObject) => {
@@ -1614,17 +1614,23 @@ private getLoadedPathways(): void{
     model.nodeDataArray = nodes; 
     model.linkDataArray = links;
     // Assigning the model to the diagram for visualisation
+    //this.clearAnimations(this.myDiagram);
     this.myDiagram.model = model;
 
     // for populating the node categories 
     this.populateNodeCategories();   
-    
+    /*
     // Focus in by default after diagram is initialized, added to make the minimap relevant
     this.myDiagram.addDiagramListener("InitialLayoutCompleted", () => {
       // Delay zoom to ensure layout is fully rendered
       // Animate zoom-in to center of the diagram
       //this.myDiagram!.zoomToFit(); // Show whole map first
-
+      if (this.myDiagram) {
+        //this.clearAnimations(this.myDiagram);
+        this.setLegend(this.myDiagram);
+        this.animateLinksFromNodeKeys(this.myDiagram, this.regulatedLinks);
+      }*/
+      /*
       setTimeout(() => {
         const allNodes = this.myDiagram!.nodes;
         const firstNode = allNodes.first();
@@ -1636,8 +1642,16 @@ private getLoadedPathways(): void{
         this.myDiagram!.scale = 0.65; // Controlled zoom-in level
         this.myDiagram!.centerRect(firstNode.actualBounds); // Center the node
         this.myDiagram!.commitTransaction("initialZoom");
-      }, 400);
-      
+      }, 400);*/
+      /*
+      if (this.myDiagram){
+      this.myDiagram.addDiagramListener("InitialLayoutCompleted", () => {
+        if (this.myDiagram) {
+          //this.clearAnimations(this.myDiagram);
+          this.setLegend(this.myDiagram);
+          this.animateLinksFromNodeKeys(this.myDiagram, this.regulatedLinks);
+        }
+      });}*/
       /*
       setTimeout(() => {
         const bounds = this.myDiagram!.documentBounds;
@@ -1650,9 +1664,10 @@ private getLoadedPathways(): void{
         anim.add(this.myDiagram!, "scale", this.myDiagram!.scale, scale);
         anim.add(this.myDiagram!, "position", this.myDiagram!.position, center.offset(-300, -300));
         anim.start();
-      }, 300); */     
-    });
+      }, 300);     
+    });*/
   }
+
 
  // method for populating the node categories
   populateNodeCategories(): void {
@@ -1771,15 +1786,36 @@ private getLoadedPathways(): void{
     this.myDiagram.commandHandler.scrollToPart(node);
     this.myDiagram.scale = 1.1;
     this.myDiagram.centerRect(node.actualBounds);
-    this.setLegend(this.myDiagram);
   }
+
+/*
+  private updateMiddleArrowAngle(link: go.Link) {
+    const arrow = link.findObject("MiddleArrow");
+    if (arrow && link.pointsCount > 1) {
+      const points = link.points;
+      const from = points.first();
+      const to = points.last();
+  
+      // Ensure from and to are not null
+      if (from && to) {
+        const angle = Math.atan2(to.y - from.y, to.x - from.x) * (180 / Math.PI); // Calculate angle
+        arrow.angle = angle;  // Set the angle of the arrow
+      } else {
+        console.warn("❌ Invalid link points: 'from' or 'to' is null.");
+      }
+    } else {
+      console.warn("❌ Link has insufficient points to calculate the angle.");
+    }
+  }*/
+  
   
 
   // --------------- Updating GO.js Model -------------------
   // Updates the pre-existing Diagram Model
   updateDiagram(nodes: any[], links: any[]): void{
     if (this.myDiagram){
-    console.log('Updating Diagram');  
+    console.log('Updating Diagram'); 
+    this.clearAnimations(this.myDiagram); 
     this.myDiagram.model = new go.GraphLinksModel(nodes, links);
     }
   }
@@ -1797,14 +1833,25 @@ private getLoadedPathways(): void{
       // Diagram Exists - update the current one 
       console.log("--------------------");
       console.log('Diagram Exists')
+      this.clearAnimations(this.myDiagram);
       this.myDiagram.model = new go.GraphLinksModel([], []);
       console.log('Diagram Data Cleared')
       this.updateDiagram(nodes,links);
       this.setLegend(this.myDiagram);
+      this.myDiagram.addDiagramListener("InitialLayoutCompleted", () => {
+        if (this.myDiagram) {
+          this.clearAnimations(this.myDiagram);
+          this.animateLinksFromNodeKeys(this.myDiagram, this.regulatedLinks);
+        }
+      });
 
     }else{
     // Create a new a Diagram with template
-      this.createGoJSMap(nodes, links);}
+      this.createGoJSMap(nodes, links);
+    if (this.myDiagram) {
+          this.clearAnimations(this.myDiagram);
+          this.animateLinksFromNodeKeys(this.myDiagram, this.regulatedLinks);
+        }}
       
   }
 
@@ -1819,24 +1866,22 @@ private getLoadedPathways(): void{
     console.log("Clicked map node:", data);
     const pathCode = data.text;
     const code = pathCode.replace("path:", "");
-    console.log(code);
+    //console.log(code);
 
     const matchingItems = this.ALLpathwayData.find((obj => obj.pathway === code));
-    console.log(matchingItems);
+    //console.log(matchingItems);
     if (matchingItems){
-      console.log('Match Found');
-      console.log(matchingItems);
+
       this.setMap(code, this.selectedTimeIndex,matchingItems)
     }else{
       console.log('Searching all Kegg Pathways');
       const allMatch = this.AllKeggPathways.find((obj => obj.pathway === code));
       if (allMatch){
-        console.log('Match found in All Kegg Pathways');
-        console.log(allMatch);
+
         this.getSpecificPathway(allMatch);
 
       }else{
-      console.log('No Match Found');
+      //console.log('No Match Found');
 
     }}
   }
@@ -1891,7 +1936,7 @@ private getLoadedPathways(): void{
         $(go.Shape, "Rectangle", { width: 15, height: 15, fill: 'lightgrey', margin: 2 }),
         $(go.TextBlock, "Enzyme - No change", { margin: 2,font: "8pt sans-serif"})
       ),
-
+      /*
       // Node Type: Selected Upregulated Colour
       $(go.Panel, "Horizontal", { row: 4 },
         $(go.Shape, "Rectangle", { width: 15, height: 15, fill: this.selectedColorHigh, margin: 2 }),
@@ -1902,6 +1947,27 @@ private getLoadedPathways(): void{
       $(go.Panel, "Horizontal", { row: 5 },
         $(go.Shape, "Rectangle", { width: 15, height: 15, fill: this.selectedColorLow, margin: 2 }),
         $(go.TextBlock, "Low Expression", { margin: 2,font: "8pt sans-serif"})
+      ),*/
+      // Expression Gradient
+      $(go.Panel, "Horizontal", { row: 4 },
+        $(go.Shape, "Rectangle", {
+          width: 100,
+          height: 12,
+          margin: 2,
+          fill: $(go.Brush, "Linear", {
+            start: go.Spot.Left,
+            end: go.Spot.Right,
+            0: this.selectedColorLow,        // Low expression
+            0.5: "lightgrey",                // Neutral / No change
+            1: this.selectedColorHigh        // High expression
+          }),
+          stroke: "black"
+        })
+      ),
+
+      $(go.Panel, "Horizontal", { row: 5 },
+        $(go.TextBlock, "Low DGE", { font: "6pt sans-serif", margin: new go.Margin(0, 40, 0, 2) }),
+        $(go.TextBlock, "High DGE", { font: "6pt sans-serif", margin: new go.Margin(0, 2, 0, 40) })
       ),
 
       // Node Type: Selected Isoform Colour
@@ -1940,6 +2006,238 @@ private getLoadedPathways(): void{
   }
 
 
+// ---------- METABOLIC FLUX ANIMATIONS ----------
+
+  private animatedLinkIds: Set<string> = new Set();
+
+  // Finds to and from links from list of Differentially regulated links
+  // Extracts colours from the links to assigns as the arrow colour
+  // calls animtaion function for each link (animateAlongLink) for dynamic animation along the selected links
+
+ private getMinMax(values: number[]): { min: number; max: number } {
+    if (!values.length) {
+      throw new Error("Empty array passed to getMinMax");
+    }
+  
+    let min = values[0];
+    let max = values[0];
+  
+    for (const val of values) {
+      if (val < min) min = val;
+      if (val > max) max = val;
+    }
+  
+    return { min, max };
+  }
+
+
+
+  private animateLinksFromNodeKeys(diagram: go.Diagram, fromNodeKeys: string[]) {
+    if (!diagram) return;
+  
+    this.clearAnimations(diagram);
+    diagram.startTransaction("animate links");
+    const animatedLinkIds = new Set<string>();
+  
+    fromNodeKeys.forEach(fromKey => {
+      const node = diagram.findNodeForKey(fromKey);
+      if (!node) {
+        console.warn(` Node not found for key: ${fromKey}`);
+        return;
+      }
+  
+      // Get BOTH incoming and outgoing links
+      const linksOut = node.findLinksOutOf();
+      const linksIn = node.findLinksInto();
+      
+  
+      // Combine them
+      const allLinks = new go.List<go.Link>().addAll(linksOut).addAll(linksIn);
+  
+      allLinks.each((link: go.Link) => {
+        const pointsCount = link.pointsCount;
+        const from = link.data?.from;
+        const to = link.data?.to;
+
+        if (from && to) {
+          const linkId = `${from}->${to}`;
+          animatedLinkIds.add(linkId);
+        }
+        
+        // Calculating Min and Max of Logfc for the current diagram
+        // Use to get a realtive scale for determining arrow size 
+        const result = this.getMinMax(this.currentLogFc);
+        const min = result.min;
+        const max = result.max;
+  
+        if (pointsCount < 2) {
+          console.warn(`Link from ${from} to ${to} has insufficient points`);
+        } else {
+
+          this.animateAlongLink(diagram, link, min,max);
+        }
+      });
+    });
+    // Removing 'Middle Arrow" for links that now have animations
+    this.updateArrowVisibilityForAnimations(animatedLinkIds);
+    
+    // Starting Diagram Transaction
+    diagram.commitTransaction("animate links");
+
+    // Updating list of animated links --> used to remove "MiddleArrow" 
+    this.animatedLinkIds = animatedLinkIds;
+  }
+
+// Function that defines animation attributes
+// Called for each highlighted link within the selected pathway map
+  private animateAlongLink(diagram: go.Diagram, link: go.Link,minLogfc: number, maxLogfc: number) {
+    if (!link || link.pointsCount < 2) {
+      // Checking that the link it long enough to animate along
+      return;
+    }
+
+    // Defining the node colour as the link colour with default as 'green'
+    const rawLogfc = link.data?.logfc ?? 0;
+    const logfc = typeof rawLogfc === "string" ? parseFloat(rawLogfc) : rawLogfc;
+    const linkColour = link.data?.colour || "green";
+
+    let normalized = 0;
+    if (maxLogfc !== minLogfc) {
+      normalized = (logfc - minLogfc) / (maxLogfc - minLogfc);
+    }
+
+
+    //const normalized = (logfc - minLogfc) / (maxLogfc - minLogfc);
+    const clamped = Math.max(0, Math.min(1, normalized));   
+    const minScale = 1;
+    const maxScale = 4;
+    const arrowScale = minScale + clamped * (maxScale - minScale);
+    // Compute arrow scale based on absolute logfc
+    //const arrowScale = 1 + Math.min(3, Math.abs(logfc)) * 0.5;
+    // Arrow Shape Attributes 
+    const shape = new go.Shape();
+    shape.geometryString = "F1 M0 0 L10 5 L0 10 Z"; // Arrow
+    shape.fill = linkColour; // Same colours as link - relative to DGE
+    shape.stroke = null;
+    
+    shape.scale = isFinite(arrowScale) && !isNaN(arrowScale) ? arrowScale : 1;
+    shape.angle = 0; // default but updated dynamically
+  
+    const part = new go.Part();
+    part.layerName = "Foreground";
+    part.locationSpot = go.Spot.Center;
+    part.category = "animation-dot"; // Assingin category for node removal later
+    part.add(shape);// add arrow to part
+    diagram.add(part);// add part to diagram
+  
+    // Animation config
+    const pixelsPerSecond = 400;
+    const fps = 60;
+    const intervalTime = 1000 / fps;
+    const pixelsPerFrame = (pixelsPerSecond / 1000) * intervalTime;
+  
+    let distance = 0;
+  
+    const interval = window.setInterval(() => {
+      // Recalculate link path every frame
+      const rawPoints: go.Point[] = [];
+      link.points.each(pt => rawPoints.push(pt.copy()));
+  
+      const segments: { from: go.Point; to: go.Point; len: number }[] = [];
+      let totalLength = 0;
+  
+      for (let i = 0; i < rawPoints.length - 1; i++) {
+        const from = rawPoints[i];
+        const to = rawPoints[i + 1];
+        const len = Math.sqrt(from.distanceSquaredPoint(to));
+        segments.push({ from, to, len });
+        totalLength += len;
+      }
+  
+      // Handle no valid segments
+      if (segments.length === 0 || totalLength === 0) return;
+  
+      distance += pixelsPerFrame;
+      if (distance > totalLength) distance = 0;
+  
+      let distLeft = distance;
+      let pos: go.Point | null = null;
+      let currentSegment: { from: go.Point; to: go.Point; len: number } | null = null;
+  
+      for (const seg of segments) {
+        if (distLeft <= seg.len) {
+          currentSegment = seg;
+          const t = distLeft / seg.len;
+          pos = new go.Point(
+            seg.from.x + (seg.to.x - seg.from.x) * t,
+            seg.from.y + (seg.to.y - seg.from.y) * t
+          );
+          break;
+        } else {
+          distLeft -= seg.len;
+        }
+      }
+  
+      if (pos && currentSegment) {
+        const dx = currentSegment.to.x - currentSegment.from.x;
+        const dy = currentSegment.to.y - currentSegment.from.y;
+        const angle = Math.atan2(dy, dx) * (180 / Math.PI);
+  
+        diagram.startTransaction("move shape");
+        part.location = pos;
+        shape.angle = angle;
+        diagram.commitTransaction("move shape");
+      }
+    }, intervalTime);
+  
+    this.animatedParts.push(part);
+    this.animatedIntervals.push(interval);
+  }
+
+  // Function to clear existing animations
+  // Prevents nodes from staying on the diagram when a different timepoint/pathway 
+  // is selected 
+  private clearAnimations(diagram: go.Diagram) {
+    console.log("Clearing old animations...");
+
+    // Clear all intervals (stop animations)
+    this.animatedIntervals.forEach(id => clearInterval(id));
+    this.animatedIntervals = [];
+
+    // Remove all animation parts (dots) from the diagram
+    this.animatedParts.forEach(part => {
+      if (diagram.findPartForKey(part.key)) {
+        diagram.remove(part);
+      }
+    });
+    this.animatedParts = [];
+
+    diagram.parts.each(part => {
+      if (part.category === "animation-dot") {
+        diagram.remove(part);
+      }
+    });
+
+    this.animatedLinkIds?.clear?.();
+
+    console.log("All old animations cleared.");
+  }
+
+
+  private updateArrowVisibilityForAnimations(animatedLinkIds: Set<string>) {
+    if (this.myDiagram){
+    this.myDiagram.links.each(link => {
+      const id = `${link.data.from}->${link.data.to}`;
+      const arrow = link.findObject("MiddleArrow") as go.Shape;
+      if (arrow) {
+        arrow.visible = !animatedLinkIds.has(id);
+      }
+    });}
+  }
+
+
+
+  // Setting more global Attributes 
 
   isMenuOpen = true;
   pathwaysOpen = true;
@@ -2004,6 +2302,8 @@ private getLoadedPathways(): void{
 
     const pathwayData = this.ALLpathwayData.find((obj => obj.pathway === code));
     this.setMap(code, this.selectedTimeIndex, pathwayData);
+    if(this.myDiagram){
+    this.setLegend(this.myDiagram);}
   }
 
   // ------------------ SORT BY FUNCTIONALITY -------------------
@@ -2292,58 +2592,6 @@ private getLoadedPathways(): void{
   //console.log("Filteref out enzymes: "+ filteredFiles_enzymes[0]);
   return filteredFiles_enzymes;
 }
-
-/*
-  private updatePathways(newFilteredGenes: any[]): void{
-
-  this.isLoading = true; 
-  
-  console.log('Extracting Enzymes');
-  console.log('-----------------------------');
-  // Extract Enzymes 
-  const enzymes = this.updateExtractECNumbers(newFilteredGenes);
-  //console.log(enzymes);
-  console.log('Updating Pathway List');
-  console.log('-----------------------------');
-
-  // Sending Query to Kegg for new Enzymes
-  const data = [enzymes, this.pathwayNumber];
-  this.enzymeApiServicePost.postEnzymeData(data).subscribe(
-    (response) => {
-      // Handle the successful response
-      const pathways = response;
-
-      console.log('Received from backend:', response);
-      console.log('-----------------------------');
-      console.log(this.pathwayData); // Existing pathways 
-
-      // Comparing Existing to New Pathways 
-      const uniquePathways = this.getNewPathways(pathways, this.pathwayData);
-
-      //console.log(uniquePathways);
-      if (uniquePathways){
-        console.log(uniquePathways);
-        // RE-RUN PATHWAY REQUEST??
-        // COMPLETELY RE-LOAD PATHWAY DATA??
-
-        // LOAD NEW TIMEPOINT DATA
-
-      }else{
-        console.log('No Unique Pathways -- Pathway List Preserved');
-        // LOAD NEW TIMEPOINT DATA
-      }
-      this.isLoading = false; 
-      // Compare New Pathway List to existing pathways 
-    },
-    (error) => {
-      // Handle errors
-      console.error('Error:', error);
-      this.isLoading = false; 
-
-      //this.responseMessage = 'Error sending data';
-    }
-  );
-}*/
 
 processNewFiles(): void{
     this.isLoading = true;
@@ -2991,9 +3239,13 @@ Once all the steps are completed, click the Process button to move to get visual
       for (let i=0; i<this.timepoints.length;i++){
         const timeNodes = nodes[i];
         // Updating the Diagram 
+        this.currentLogFc = [];
+        this.regulatedLinks = [];
         this.updateDiagram(timeNodes,links)
+        if (this.myDiagram){
+        this.clearAnimations(this.myDiagram);};
         
-        await this.delay(1000);// 1 Second between pathway refresh (large pathays take a while to load)
+        await this.delay(2000);// 1 Second between pathway refresh (large pathays take a while to load)
         }
     
   }
@@ -3016,7 +3268,7 @@ Once all the steps are completed, click the Process button to move to get visual
     this.loopWithDelay(links, nodes); // setting up to loop 10 times before stopping 
     //this.isAnimationActive = false;
 
-    this.stopAnimation();
+    //this.stopAnimation();
   }
     else{
       this.stopAnimation();
@@ -3168,6 +3420,8 @@ Once all the steps are completed, click the Process button to move to get visual
     this.isSearchPathwayModalOpen = false; // close the modal
   }
 
+
+ // ------- Search processing function
 
   // Compare to already loaded pathways, and remove any that match
   private getMatches(selectedPathwaysKEGG: any[]){

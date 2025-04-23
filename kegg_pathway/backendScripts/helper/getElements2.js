@@ -45,7 +45,9 @@ async function fetchAndParseURL(url) {
     }
   }
 
-// Functionto extract compoounds 
+// ------ Function to extract COMPOUND NAMES ---------
+// Takes text response from Kegg and Search for the start of the COMPOUND entries
+// Splits and processes the extracted lines - returns ID and Name of the compund 
 function getCompounds(anno_data){
     var compounds=[];
     var start;
@@ -114,6 +116,10 @@ function getCompounds(anno_data){
     return compounds;
 }
 
+
+// ------ Function to extract ENZYME NAME ----------
+// Takes text response from Kegg and Search for the start of the COMPOUND entries
+// Splits and processes the extracted lines - returns KO, EC and Name for annotation
 function getEnzymes(anno_data){
   var names=[];
   var ec_codes=[];
@@ -137,11 +143,7 @@ function getEnzymes(anno_data){
       //console.log(line);
       if (start != end-1) {
       
-      //const match = anno_data[i].match(/\d+/);
-      //const match2 = anno_data[i].match(/\d+(.*?)\[/);
       var ko_matches = [...anno_data[i].matchAll(/\[K[^\]]*\]/g)];
-      //ko_matches = ko_matches.map(match => match[0]);
-      //console.log(ko_matches);
 
       var ec_matches = [...anno_data[i].matchAll(/\[EC:[^\]]*\]/g)];
       ec_matches = ec_matches.map(match => match[0]);
@@ -190,6 +192,10 @@ function getEnzymes(anno_data){
 }
 
 
+//------- KEGG request defining function ---------
+// calls fetchAndParseURL using pathwaycode inputted from merge.js
+// Takes text response from KEGG and passes to processing function - getCompounds()
+// Handles getting compound names for node annotation
 async function getElements(pathway){
 
     var anno_data='';
@@ -207,6 +213,11 @@ async function getElements(pathway){
   return elements;
 }
 
+
+// ------ KEGG request defining function-------
+// calls fetchAndParseURL using pathwaycode inputted from merge.js
+// Takes text response from KEGG and passes to processing function - getEnzymes()
+// Handles getting enzymes names for node annotation
 async function getEnzymeNames(pathway){
   
 
@@ -225,6 +236,9 @@ return elements;
 }
 
 
+
+// Function for getting a list of enzymes for the map 
+// Passed to front end - useful for indexing 
 function getEnzymeCodes(nodes){
   const enzymeList = new Set();
   for (let i=0; i<nodes.length; i++){
@@ -237,91 +251,27 @@ function getEnzymeCodes(nodes){
   return enzymeList;
 }
 
-/*
-function matchGenes(genes, nodes){
-  var enzymeSet = new Set();
-  //console.log(genes);
-  var GeneSet = new Set();
-  var allGenes = [];
-
-  for (let i=0; i<nodes.length; i++){
-    //console.log(nodes[i].type)
-    if (nodes[i].type == 'enzyme'){
-      var geneList = [];
-      var logfcList = [];
-      //console.log(nodes[i].text);
-      let nodetext = nodes[i].text;
-      //console.log('node: '+nodetext);
-      for (let j=0; j<genes.length; j++){
-        //console.log(genes[j].enzyme[0]);
-        let enzyme = genes[j].enzyme[0];
-        let gene = genes[j].gene;
-        let logfc = genes[j].logfc;
-        if (enzyme == nodetext){
-          //console.log('match');
-          //console.log(enzyme);
-          enzymeSet.add(enzyme);
-          //console.log(nodetext);
-          //console.log(gene);
-          geneList.push(gene);
-  
-          GeneSet.add(gene);
-          allGenes.push(gene);
-          //GeneSet.add(gene);
-          logfcList.push(logfc);
-          //console.log(logfc);
-
-        }
-        
-      }
-      //console.log(geneList);
-        if (geneList[0]){
-          nodes[i].gene = geneList;
-          //console.log(nodes[i]);
-        }else{
-          continue;
-        }
-        if (logfcList[0]){
-          //console.log(logfcList);
-          let mean = findMean(logfcList)
-          //console.log(mean);
-          nodes[i].logfc = mean;
-          let rgb = logfcToRGB(mean);
-          //console.log(rgb);
-          nodes[i].colour = rgb;
-          //console.log(nodes[i]);
-        }else{
-          continue;
-        }
-    }
-    }
-    //console.log(GeneSet);
-    console.log('Number of Unique Genes: '+GeneSet.size);
-    //console.log(allGenes);
-    console.log('Total Number of instances of Genes: '+allGenes.length);
-    //console.log(enzymeSet);
-  }
-*/
-
+// ------ Assinging Enzyme Families---------
+// Extracting enzyme name from node and assigning new family attribute 
+// Takes KO EC Brite Hierarchy Classfications - Used for search function in front end
 function getEnzymeType(nodes){
 
   for (let i=0; i<nodes.length; i++){
     if (nodes[i].type == 'enzyme'){
-      //console.log(nodes[i]);
-      // Extract enzyme name 
-      // strip ec:
-      //console.log(nodes[i].text);
+
       let text = nodes[i].text
       text = text.replace(/^ec:/, "");
       //console.log(text);
       let firstNumber = text.split('.')[0];
       //console.log(firstNumber);
       var brite;
+
+      // Setting up each Family type to assign to appropriate EC code
       switch (firstNumber) {
       case '1':
         //console.log('Oxidoreductase');
-        brite = 'Oxidoreductase';
-        nodes[i].enzymeType = brite;
+        brite = 'Oxidoreductase'; // Determining the Family Type 
+        nodes[i].enzymeType = brite; // Assigning new attribute to node
         break;
 
       case '2':
@@ -362,10 +312,8 @@ function getEnzymeType(nodes){
         break;
 
       default:
-          //console.log("Number out of range.");
           break;
       }
-      //console.log(nodes[i]);
       }
     }
 

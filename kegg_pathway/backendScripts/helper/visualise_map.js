@@ -261,6 +261,7 @@ function removeDuplicateReactionNodes(myDiagram) {
     console.log("Removed Duplicate Nodes:", nodesToRemove);
   }
 
+  /*
 // Function for removing duplicate Enzymes 
 function removeDuplicateEnzymeNodes(myDiagram) {
     const nodes = myDiagram.nodes;
@@ -285,6 +286,10 @@ function removeDuplicateEnzymeNodes(myDiagram) {
       }
     });
   }
+*/
+
+
+
 
 // --------------  Processing Function ------------------
 // Creates Go.js model to assign nodes and edges 
@@ -316,6 +321,8 @@ function getMapNodes(inputNodes,inputEdges){
 
   let seenNames = new Set();
   let seenReactions = new Set();
+
+  // Remove Replicate Enzymes Nodes
   myDiagram.nodes.each(function(node) {
 
     if (node.data.type == 'enzyme'){

@@ -124,7 +124,7 @@ app.post('/api/getPathways', (req, res) => {
       console.log('------------');
       console.log('Sending Pathways to the FrontEnd');
       console.log('------------');
-      console.log(pathwayData);
+      //console.log(pathwayData);
       console.log('------------');
       console.log(new Date());
       console.log('------------');
