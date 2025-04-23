@@ -54,7 +54,7 @@ export class DisplayComponent {
 
   pathwayNumber: number = 10; // Hard Coded - but can add functionality for user to change this
 
-  fileNames: any[] = []; // Stores files names
+  fileNames: any[] = [];
 
   pathwaySizeData: any[] = []; // Stores sorted files size data 
 
@@ -64,19 +64,19 @@ export class DisplayComponent {
 
   enzymeList: any[] = []; // Array for storing list of Enzymes filtered from input expression files
 
-  pathwayTally: any[] = []; // Stores response tally from KEGG during enzymes pathways request
+  pathwayTally: any[] = [];
 
-  highlightedPathways: any[] = []; // Stores all pathways that are regulated by inputted genes
+  highlightedPathways: any[] = [];
 
-  regulatedLinks: any[] = []; // Stores links that are regulated for animation functions
+  regulatedLinks: any[] = [];
 
-  animatedParts: go.Part[] = []; // Stores animated parts (dots)
+  animatedParts: go.Part[] = []; // Store animated parts (dots)
   
-  animatedIntervals: number[] = []; // Stores Animation intervals during link animation function
+  animatedIntervals: number[] = [];
 
-  StatsArray: any[] = []; // Stores Pathway Stats for the selected pathway
+  StatsArray: any[] = [];
 
-  currentLogFc: any[] = []; // Stores list logfc values for the selected pathway
+  currentLogFc: any[] = [];
 
   // Creating a GoJS Diagram 
   private myDiagram: go.Diagram | null = null;
@@ -236,7 +236,7 @@ private filterEnzymeGenes(filteredFiles:any[]):void{
 
 // ---------------- Extraction of enzymes in filtered Constrast Datasets ---------------------
 // This Gets a processed list of all the enzymes present in the input files that have corresponding DEGs
-// Returns the top 750 (or otherwise specified) list of enzymes to be queried to KEGG to get paths
+// Returns the top 1000 (or otherwise specified) list of enzymes to be queried to KEGG to get paths
 
 private extractECNumbers(): void {
   this.isLoading = true;
@@ -307,8 +307,8 @@ private getTopEnzymes(items: string[]): string[] {
   const sortedTally = this.sortTally(tally);  
 
   // Step 3: Select the top items and extract only the names
-  const topNames = sortedTally.slice(0, 750).map(entry => entry[0]);
-  return topNames;
+  const top100Names = sortedTally.slice(0, 750).map(entry => entry[0]);
+  return top100Names;
 }
 
 
@@ -1054,14 +1054,12 @@ private getLoadedPathways(): void{
       // Loads edited Nodes (logfc, genes, colour)
 
       this.getLoadedPathways();
-      this.setMap(pathwayResponse[0].pathway, this.selectedTimeIndex, pathwayResponse[0])
 
       const loadedData = this.loadedPathwayData;
       console.log(loadedData);
       console.log("--------------------")
       console.log('Pathway Data Loaded Successfully');
       console.log("--------------------")
-      
       this.isLoading = false;
       },
       (error) => {
@@ -1617,7 +1615,7 @@ async getAllPathwayNames(): Promise<void>{
 
     // for populating the node categories 
     this.populateNodeCategories();   
-    
+    /*
     // Focus in by default after diagram is initialized, added to make the minimap relevant
     this.myDiagram.addDiagramListener("InitialLayoutCompleted", () => {
       // Delay zoom to ensure layout is fully rendered
@@ -1627,8 +1625,8 @@ async getAllPathwayNames(): Promise<void>{
         //this.clearAnimations(this.myDiagram);
         this.setLegend(this.myDiagram);
         this.animateLinksFromNodeKeys(this.myDiagram, this.regulatedLinks);
-      }
-
+      }*/
+      /*
       setTimeout(() => {
         const allNodes = this.myDiagram!.nodes;
         const firstNode = allNodes.first();
@@ -1640,7 +1638,7 @@ async getAllPathwayNames(): Promise<void>{
         this.myDiagram!.scale = 0.65; // Controlled zoom-in level
         this.myDiagram!.centerRect(firstNode.actualBounds); // Center the node
         this.myDiagram!.commitTransaction("initialZoom");
-      }, 400);
+      }, 400);*/
       /*
       if (this.myDiagram){
       this.myDiagram.addDiagramListener("InitialLayoutCompleted", () => {
@@ -1662,8 +1660,8 @@ async getAllPathwayNames(): Promise<void>{
         anim.add(this.myDiagram!, "scale", this.myDiagram!.scale, scale);
         anim.add(this.myDiagram!, "position", this.myDiagram!.position, center.offset(-300, -300));
         anim.start();
-      }, 300); */     
-    });
+      }, 300);     
+    });*/
   }
 
 
@@ -1786,6 +1784,27 @@ async getAllPathwayNames(): Promise<void>{
     this.myDiagram.centerRect(node.actualBounds);
   }
 
+/*
+  private updateMiddleArrowAngle(link: go.Link) {
+    const arrow = link.findObject("MiddleArrow");
+    if (arrow && link.pointsCount > 1) {
+      const points = link.points;
+      const from = points.first();
+      const to = points.last();
+  
+      // Ensure from and to are not null
+      if (from && to) {
+        const angle = Math.atan2(to.y - from.y, to.x - from.x) * (180 / Math.PI); // Calculate angle
+        arrow.angle = angle;  // Set the angle of the arrow
+      } else {
+        console.warn("❌ Invalid link points: 'from' or 'to' is null.");
+      }
+    } else {
+      console.warn("❌ Link has insufficient points to calculate the angle.");
+    }
+  }*/
+  
+  
 
   // --------------- Updating GO.js Model -------------------
   // Updates the pre-existing Diagram Model
@@ -1824,7 +1843,11 @@ async getAllPathwayNames(): Promise<void>{
 
     }else{
     // Create a new a Diagram with template
-      this.createGoJSMap(nodes, links);}
+      this.createGoJSMap(nodes, links);
+    if (this.myDiagram) {
+          this.clearAnimations(this.myDiagram);
+          this.animateLinksFromNodeKeys(this.myDiagram, this.regulatedLinks);
+        }}
       
   }
 
@@ -2072,25 +2095,29 @@ async getAllPathwayNames(): Promise<void>{
     // Defining the node colour as the link colour with default as 'green'
     const rawLogfc = link.data?.logfc ?? 0;
     const logfc = typeof rawLogfc === "string" ? parseFloat(rawLogfc) : rawLogfc;
-    // Assgining same colour as enzyme  - default to green if absent
     const linkColour = link.data?.colour || "green";
 
-    // Taking mix and max logfc values for the selected map
-    // Normalising from 0-1 and scaling to determine arrow size 
-    const normalized = (logfc - minLogfc) / (maxLogfc - minLogfc);
+    let normalized = 0;
+    if (maxLogfc !== minLogfc) {
+      normalized = (logfc - minLogfc) / (maxLogfc - minLogfc);
+    }
+
+
+    //const normalized = (logfc - minLogfc) / (maxLogfc - minLogfc);
     const clamped = Math.max(0, Math.min(1, normalized));   
-    const minScale = 1.2;
+    const minScale = 1;
     const maxScale = 4;
     const arrowScale = minScale + clamped * (maxScale - minScale);
-
-
+    // Compute arrow scale based on absolute logfc
+    //const arrowScale = 1 + Math.min(3, Math.abs(logfc)) * 0.5;
     // Arrow Shape Attributes 
     const shape = new go.Shape();
-    shape.geometryString = "F1 M0 0 L10 5 L0 10 Z"; 
-    shape.fill = linkColour;
+    shape.geometryString = "F1 M0 0 L10 5 L0 10 Z"; // Arrow
+    shape.fill = linkColour; // Same colours as link - relative to DGE
     shape.stroke = null;
-    shape.scale = arrowScale;
-    shape.angle = 0;
+    
+    shape.scale = isFinite(arrowScale) && !isNaN(arrowScale) ? arrowScale : 1;
+    shape.angle = 0; // default but updated dynamically
   
     const part = new go.Part();
     part.layerName = "Foreground";
@@ -2151,18 +2178,15 @@ async getAllPathwayNames(): Promise<void>{
         const dx = currentSegment.to.x - currentSegment.from.x;
         const dy = currentSegment.to.y - currentSegment.from.y;
         const angle = Math.atan2(dy, dx) * (180 / Math.PI);
-        
-        // Defining Diagram Transaction
+  
         diagram.startTransaction("move shape");
         part.location = pos;
         shape.angle = angle;
         diagram.commitTransaction("move shape");
       }
     }, intervalTime);
-    
-    // Sotring Part
+  
     this.animatedParts.push(part);
-    // Storing Interval 
     this.animatedIntervals.push(interval);
   }
 
@@ -3178,12 +3202,18 @@ Once all the steps are completed, click the Process button to move to get visual
 
   async loopWithDelay( links: any[], nodes: any[]): Promise<void> {
     // Number of loops to cycle through before stopping 
+    
       // Looping through the maps (one for each timepoint)
       for (let i=0; i<this.timepoints.length;i++){
         const timeNodes = nodes[i];
         // Updating the Diagram 
+        this.currentLogFc = [];
+        this.regulatedLinks = [];
         this.updateDiagram(timeNodes,links)
-        await this.delay(1250);// 1 Second between pathway refresh (large pathays take a while to load)
+        if (this.myDiagram){
+        this.clearAnimations(this.myDiagram);};
+        
+        await this.delay(2000);// 1 Second between pathway refresh (large pathays take a while to load)
         }
     
   }
@@ -3206,7 +3236,7 @@ Once all the steps are completed, click the Process button to move to get visual
     this.loopWithDelay(links, nodes); // setting up to loop 10 times before stopping 
     //this.isAnimationActive = false;
 
-    this.stopAnimation();
+    //this.stopAnimation();
   }
     else{
       this.stopAnimation();
