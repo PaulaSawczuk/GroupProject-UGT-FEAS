@@ -60,7 +60,7 @@
             <div class="scrollable-pathways">
               <ul class="sub-menu" [class.show]="pathwaysOpen && !customTabOpen && !searchTabOpen">
                 <li *ngFor="let pathway of pathways">
-                  <a (click)="selectPathway($event, pathway)">{{ pathway }}</a>
+                  <a (click)="selectPathway($event, pathway)" [ngClass]="{ 'new-highlight': newlyAddedPathways.includes(pathway) }">{{ pathway }}</a>
                 </li>
               </ul>
             </div> 
@@ -314,6 +314,41 @@
       </div>
     </div>
 
+    <div class="summary-box" *ngIf="showSummaryBox">
+      <div class="summary-box-content">
+        <div class="summary-header">
+          <h3>Pathway Comparison Summary</h3>
+          <span class="summary-close" (click)="showSummaryBox = false">×</span>
+        </div>
+    
+        <div *ngIf="summaryData.newItems.length">
+          <strong class="added-label">Added:</strong>
+          <ul>
+            <li *ngFor="let item of summaryData.newItems">{{ item }}</li>
+          </ul>
+        </div>
+        
+        <div *ngIf="summaryData.oldItems.length">
+          <strong class="removed-label">Removed:</strong>
+          <ul>
+            <li *ngFor="let item of summaryData.oldItems">{{ item }}</li>
+          </ul>
+        </div>
+        
+        <div *ngIf="summaryData.similarities.length">
+          <strong class="similar-label">Similar:</strong>
+          <ul>
+            <li *ngFor="let item of summaryData.similarities">{{ item }}</li>
+          </ul>
+        </div>
+    
+        <div class="summary-footer">
+          <button (click)="showSummaryBox = false" class="summary-ok-btn">Okay</button>
+        </div>
+      </div>
+    </div>
+    
+
     <!-- ---------------- GUIDE POP-OUT ---------------- -->
     <div class="pathway-filter-modal" *ngIf="isFilterPathwayModalOpen">
       <div class="pathway-filter-modal-content">
@@ -429,13 +464,17 @@
                 <tr 
                   *ngFor="let pathway of highlightedPathways; let i = index" 
                   class="clickable-row"
+                  [ngClass]="{
+                    'existing-pathway': isAlreadyInList(pathway.name)}"
                 >
-                  <td>
+                  <td *ngIf="!isAlreadyInList(pathway.name)">
                     <input 
                       type="checkbox" 
                       [(ngModel)]="highlightedPathways[i].selected"
                       (click)="$event.stopPropagation()" 
                     />
+                  </td>
+                  <td *ngIf="isAlreadyInList(pathway.name)">
                   </td>
                   <td (click)="onHighlightRowClick(pathway)">{{ pathway.name }}</td>
                   <td (click)="onHighlightRowClick(pathway)">{{ pathway.pathway }}</td>
