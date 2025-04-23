@@ -94,7 +94,7 @@
                     <div class="color-box-high">
                       <label for="colorPickerHigh">Highly Expressed Genes:</label>
                       <div class="color-picker-container">
-                        <input type="color" id="colorPickerHigh" value="#ff0000" class="color-picker" (change)="onColorChangeHigh($event)"/>
+                        <input type="color" id="colorPickerHigh" [value]="selectedColorHigh" class="color-picker" (change)="onColorChangeHigh($event)"/>
                         <span class="color-hex">{{ selectedColorHigh }}</span>
                       </div>
                     </div>
@@ -102,7 +102,7 @@
                     <div class="color-box-low" style="margin-top: 20px;">
                       <label for="colorPickerLow">Low Expressed Genes:</label>
                       <div class="color-picker-container">
-                        <input type="color" id="colorPickerLow" value="#0000ff" class="color-picker" (change)="onColorChangeLow($event)"/>
+                        <input type="color" id="colorPickerLow" [value]="selectedColorLow" class="color-picker" (change)="onColorChangeLow($event)"/>
                         <span class="color-hex">{{ selectedColorLow }}</span>
                       </div>
                     </div>
@@ -118,7 +118,7 @@
                     <div class="color-box-isoform">
                       <label for="colorPickerIsoform">Isoforms:</label>
                       <div class="color-picker-container">
-                        <input type="color" id="colorPickerIsoform" value="#fff44f" class="color-picker" (change)="onColorChangeIsoform($event)"/>
+                        <input type="color" id="colorPickerIsoform" [value]="selectedColorIsoform" class="color-picker" (change)="onColorChangeIsoform($event)"/>
                         <span class="color-hex">{{ selectedColorIsoform }}</span>
                       </div>
                     </div>
