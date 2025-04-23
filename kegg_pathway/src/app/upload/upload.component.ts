@@ -246,6 +246,11 @@ export class UploadComponent {
         console.log("Expression data files:", expressionData);
         console.log("Annotation data files:", annotationData);
 
+        if (Object.keys(expressionData).length === 0 || Object.keys(annotationData).length === 0) {
+          this.warningMessage = "Missing expression or annotation data. Please ensure both are provided.";
+          return;
+        }
+
         const combinedArrayList: any[][] = [];
 
         for (const [exprFilename, exprData] of Object.entries(expressionData)) {
@@ -302,7 +307,7 @@ export class UploadComponent {
 
         this.fileDataService.setCombinedData(allCombined);
         this.fileDataService.setMultipleCombinedArrays(combinedArrayList);
-
+        
         this.router.navigate(['/display']);
       })
       .catch((err) => {
