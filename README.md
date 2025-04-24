@@ -17,6 +17,21 @@ This project was generated using [Angular CLI](https://github.com/angular/angula
   - [Navigating EnStrap.int](#navigating-enstrapint)
     - [Welcome Page](#welcome-page)
     - [Guide Section](#guide-section)
+      - [File Upload](#file-upload)
+      - [File Menu](#file-menu)
+        - [Import Files](#import-files)
+        - [Export Pathway](#export-pathway)
+      - [View Menu](#view-menu)
+        - [Customise](#customise)
+        - [Search](#search)
+          - [Pathway Elements](#pathway-elements)
+          - [For Pathway](#for-pathway)
+        - [Help Menu](#help-menu)
+        - [Display Interaction](#display-interaction)
+        - [Time Series](#time-series)
+        - [Pathway Information](#pathway-information)
+  - [Hands-on Example](#hands-on-example)  
+
 
 ## Installation 
 
@@ -79,6 +94,49 @@ The welcome page is the first screen users will see when they launch the EnStrap
 
 ![Guide Page](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/Guide_page.png)  
 
-*Fig.2. The users guuide page.*
+*Fig.2. The users guide page.* 
+
+The guide provides detailed instructions on how to use the key features of EnStrap.Int, including:
+
+- File Upload
+- Customisation and Search
+- Interaction Display
+- Adding Files and Exporting Pathways
+- Time Series Analysis
+- Sidebar and Pathway Information
+
+Clicking Button (**A**) in (**Fig.2**) will take you to the File Upload page, just like Button (**A**) in (**Fig.1**).  
+
+#### File Upload  
+
+#### File Menu 
+
+##### Import Files  
+
+##### Export Pathway 
+ 
+###### Pathway Elements  
+
+###### For Pathway
+
+#### Display Interaction  
+
+#### View Menu
+
+##### Customise  
+
+##### Search 
+
+#### Help Menu 
+ 
+#### Time Series  
+
+#### Pathway Information
+
+## Hands-on Example
+
+
+  
+
 
 
