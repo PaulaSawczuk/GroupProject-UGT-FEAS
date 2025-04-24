@@ -2,6 +2,8 @@
 
 EnStrap.int is a web-based application tool for the visualisation and interactive exploration of KEGG metabolic pathways.  
 
+This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 19.2.3.
+
 ## Table of Contents
 
 - [EnStrap.Int](#enstrapint)
