@@ -57,6 +57,7 @@ EnStrap.int is a web-based application tool for the visualisation and interactiv
 
 ## Test Data and Data Format
 ## Navigating EnStrap.Int
-## Guide Section
+### Welcome Page
+### Guide Section
 
 
