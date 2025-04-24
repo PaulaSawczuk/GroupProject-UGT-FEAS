@@ -66,5 +66,5 @@ This project was generated using [Angular CLI](https://github.com/angular/angula
 ![Welcome Page](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/Welcome_Page.png)  
 
 ### Guide Section
-
+![Guide Page](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/Guide_Page.png)
 
