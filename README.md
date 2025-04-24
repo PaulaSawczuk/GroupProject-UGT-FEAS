@@ -60,13 +60,7 @@ This project was generated using [Angular CLI](https://github.com/angular/angula
 
 ## Test Data and Data Format  
 
-When EnStrap.int is launched, the data for testing the app can be accessed via [Test Data Folder on GitHub](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/tree/main/TestData).
-
-To download the entire folder:
-
-1. Click the link above to open the folder on GitHub.
-2. Click the green **"Code"** button (top-right of the folder view).
-3. Select **"Download ZIP"** to download the whole folder to your computer.
+When EnStrap.int is launched, the data for testing the app can be accessed via [Test Data Folder on GitHub](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/tree/main/TestData). The tool supports files in .csv and .txt formats only. The data must include at least one *expression file* and its corresponding *annotation file*.  
 
 ## Navigating EnStrap.Int
 
