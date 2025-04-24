@@ -60,6 +60,8 @@ This project was generated using [Angular CLI](https://github.com/angular/angula
 
 ## Test Data and Data Format  
 
+When EnStrap.int is launched, the data for testing the app can be accessed via ![Test Data](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/tree/main/TestData).  
+
 ## Navigating EnStrap.Int
 
 ### Welcome Page  
@@ -68,10 +70,10 @@ This project was generated using [Angular CLI](https://github.com/angular/angula
 
 *Fig.1. Welcome page for the users.*  
 
-The EnStrap.int welcome page is the landing page for the user.
+The welcome page is the first screen users will see when they launch the EnStrap.int application.
 
-- Clicking button (**A**) will take the user to the "Upload page".
-- Button (**B**) is the users "Guide", where they will familiarise themselves with EnStrap.int features.
+- Clicking button (**A**) navigates to the Upload Page, where users can submit their data (expression files and annotation file).
+- Button (**B**) opens the User Guide, providing an overview of EnStrap.int’s features and how to use them effectively.  
 
 ### Guide Section  
 
