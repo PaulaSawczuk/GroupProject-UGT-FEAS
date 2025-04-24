@@ -62,9 +62,21 @@ This project was generated using [Angular CLI](https://github.com/angular/angula
 
 ## Navigating EnStrap.Int
 
-### Welcome Page
+### Welcome Page  
+
 ![Welcome Page](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/Welcome_Page.png)  
 
-### Guide Section
-![Guide Page](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/Guide_Page.png)
+*Fig.1. Welcome page for the users.*  
+
+The EnStrap.int welcome page is the landing page for the user.
+
+- Clicking button (**A**) will take the user to the "Upload page".
+- Button (**B**) is the users "Guide", where they will familiarise themselves with EnStrap.int features.
+
+### Guide Section  
+
+![Guide Page](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/Guide_page.png)  
+
+*Fig.2. The users guuide page.*
+
 
