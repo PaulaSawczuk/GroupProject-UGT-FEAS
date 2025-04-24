@@ -10,6 +10,10 @@ EnStrap.int is a web-based application tool for the visualisation and interactiv
     - [Cloning the Repository](#1-cloning-the-repository)
     - [Installing Dependencies](#2-installing-dependencies)
     - [Starting the Application](#3-starting-the-application)
+  - [Test Data and Data Format](#test-data-and-data-format)
+  - [Navigating EnStrap.Int](#navigating-enstrap.Int)
+    - [Welcome Page](#welcome-page)
+    - [Guide Section](#guide-section)
 
 ## Installation 
 
@@ -50,3 +54,9 @@ EnStrap.int is a web-based application tool for the visualisation and interactiv
   This will launch the app in your default web browser.
   
 **Note:** Ensure that Node.js and npm are installed on your system.
+
+## Test Data and Data Format
+## Navigating EnStrap.Int
+## Guide Section
+
+
