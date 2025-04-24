@@ -1,19 +1,20 @@
-# EnStrap.Int
+# EnStrap.int
 
-EnStrap.int is a web-based application tool for the visualisation and interactive exploration of KEGG metabolic pathways.  
+EnStrap.int is a user-friendly web-based application designed to support interactive visualisation of time-series differential gene expression data, focusing on uncovering metabolic flux changes. This application allows users to upload their gene expression data, including an annotation file, to generate dynamic metabolic pathway maps, explore pathway-level regulation patterns over time and under different experimental conditions, filter results by gene families or contrasts, and export the resulting visualisations for downstream use. 
+The tool aims to empower researchers, especially those without programming expertise, to explore pathway-level changes over time and across experimental conditions.  
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 19.2.3.
+This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 19.2.3. For more information about Angular CLI, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
 
 ## Table of Contents
 
-- [EnStrap.Int](#enstrapint)
+- [EnStrap.int](#enstrapint)
   - [Table of Contents](#table-of-contents)
   - [Installation](#installation)
     - [Cloning the Repository](#1-cloning-the-repository)
     - [Installing Dependencies](#2-installing-dependencies)
     - [Starting the Application](#3-starting-the-application)
   - [Test Data and Data Format](#test-data-and-data-format)
-  - [Navigating EnStrap.Int](#navigating-enstrapint)
+  - [Navigating EnStrap.int](#navigating-enstrapint)
     - [Welcome Page](#welcome-page)
     - [Guide Section](#guide-section)
 
@@ -57,9 +58,13 @@ This project was generated using [Angular CLI](https://github.com/angular/angula
   
 **Note:** Ensure that Node.js and npm are installed on your system.
 
-## Test Data and Data Format
+## Test Data and Data Format  
+
 ## Navigating EnStrap.Int
+
 ### Welcome Page
+![Welcome Page](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/Welcome_Page.png)  
+
 ### Guide Section
 
 
