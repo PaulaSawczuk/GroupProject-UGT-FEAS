@@ -90,7 +90,6 @@ The welcome page is the first screen users will see when they launch the EnStrap
 - Clicking button (**A**) navigates to the Upload Page, where users can submit their data (expression files and annotation file).
 - Button (**B**) opens the User Guide, providing an overview of EnStrap.int’s features and how to use them effectively.  
 
-
 ### Guide Section  
 
 ![Guide Page](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/Guide_page.png)  
@@ -106,10 +105,13 @@ The guide provides detailed instructions on how to use the key features of EnStr
 - Time Series Analysis
 - Sidebar and Pathway Information
 
-Clicking Button (**A**) in (**Fig.2**) will take you to the File Upload page, just like Button (**A**) in (**Fig.1**).  
+Clicking Button (**C**) in (**Fig.2**) will take you to the File Upload page, just like Button (**A**) in (**Fig.1**).  
 
-#### File Upload
+#### File Upload  
 
+![Upload Image1](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/Upload_Image1.png)  
+
+![Upload Image2](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/Upload_Image2.png)
 
 #### File Menu 
 
