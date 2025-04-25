@@ -127,7 +127,7 @@ In case the user is unsure about the type of files to upload, click the informat
 ##### **Manage Uploaded Files**
 After uploading, a list of selected files will appear.  
 
-- To remove a file, click the X button (**C**) next to it.
+- To remove a file, click the **X** button (**C**) next to it.
 - To add more files, simply click the Upload button again.  
 
 ##### **Configure Settings**
@@ -152,7 +152,7 @@ Click the Process button (**F**) once all settings are configured to generate vi
 
 *Fig.4a. File menu options.**  
 
-To access file-related actions, click the File menu item (**A**) located in the top menu bar.
+To access file-related options, click the File menu item (**A**) located in the top menu bar.
    
 ##### a). Import Extra Files  
 Click Import Files (**B**) which will open a pop-up window where you can upload additional expression files. 
@@ -178,14 +178,33 @@ Click on the Export button in the File menuitem dropdown (**E**).
    
 #### 3. View Menu     
 
+To access view-related options, click the View menu item (**A**) located in the top menu bar.  
+
 ![View TopBar](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/View_TopBar.png)  
 
 ##### a). Customise  
+
+###### i). Open Customisation  
+- CLick the Customise button (**B**) to open the customisation panel, which will appear on the left side of the application window.  
+  
 ![View Customise](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/View_Customise.png)  
+
+###### ii). Change Colours  
+The user can modify the colours used to represent of high or low expressed genes including isoforms:
+- Click the coloured box (**F**) to open the colour picker.
+- Select your desired colour from the palette.    
+
+###### iii). Close the Colour Picker
+Once the user has selectected the colour and is satisfied with the choice, simply click anywhere outside the colour picker to close it.  
+
+###### iv). Close Customisation Tab
+To exit the customisation panel, click the **X** button located in the top-right cornerof the tab (**H**).  
+
 
 ##### b). Search  
 
 i). *Pathway Elements*  
+
 ![View SearchForElements](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/View_SearchForElements.png)
 
 ii). *For Pathway*  
