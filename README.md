@@ -150,7 +150,11 @@ Click the Process button (**F**) once all settings are configured to generate vi
 
 #### File Menu 
 
-##### Import Files    
+![ExtraFile Image1](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/ExtraFile_Image1.png)  
+
+##### Import Files  
+
+![ExtraFile_Image2](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/ExtraFile_Image2.png)  
 
 ##### Export Pathway   
  
