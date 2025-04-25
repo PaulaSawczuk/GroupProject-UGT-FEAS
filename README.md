@@ -113,10 +113,10 @@ Clicking Button (**C**) in (**Fig.2**) will take you to the File Upload page, ju
 
 This is where the user uploads the data files:  
 
-##### **Upload Users Files**  
+##### **Upload Users Files**
 Click button (**A**), as previously described in the [Test Data and Data Format](#test-data-and-data-format) section. The user must upload at least one expression file and one annotation file to proceed.  
 
-##### **Access Upload Instructions**  
+##### **Access Upload Instructions**
 In case the user is unsure about the type of files to upload, click the information icon (**B**) at the top-right corner for guidance.  
 
 
@@ -124,13 +124,13 @@ In case the user is unsure about the type of files to upload, click the informat
 
 *Fig.3b. Managing Uploaded Files and Configuring Options.**
 
-##### **Manage Uploaded Files**  
+##### **Manage Uploaded Files**
 After uploading, a list of selected files will appear.  
 
 - To remove a file, click the X button (**C**) next to it.
 - To add more files, simply click the Upload button again.  
 
-##### **Configure Settings**  
+##### **Configure Settings**
 User can customise how the data will be processed by adjusting the following options:  
 
 ###### a). **Number of Top-Expreesed Pathways:**  
@@ -142,7 +142,7 @@ User can customise how the data will be processed by adjusting the following opt
 ###### c). **Time Series Data:**  
    - User must indicate whether the dataset includes time series analysis (**D**).
    
-##### **Process and Visualise**  
+##### **Process and Visualise**
 Click the Process button (**F**) once all settings are configured to generate visualisations of the KEGG pathways.
 
 
@@ -154,7 +154,7 @@ Click the Process button (**F**) once all settings are configured to generate vi
 
 To access file-related actions, click the File menu item (**A**) located in the top menu bar.
    
-##### a). Import Extra Files  
+##### a). Import Extra Files
 Click Import Files (**B**) which will open a pop-up window where you can upload additional expression files. 
         
 
@@ -163,7 +163,7 @@ Click Import Files (**B**) which will open a pop-up window where you can upload 
 - In the pop-up window, click Choose Files (**C**), the user can select multiple files and note that **only expression files are accepted here-annotation files are not supported**.
 - After selecting the extra files, click the Add button (**D**) to upload them. This will trigger reprocessing the mapping and displaying the previously selected number of top pathways from all expression files.  
 
-##### b). Export Pathway Visualisation  
+##### b). Export Pathway Visualisation
 Click on the Export button in the File menuitem dropdown (**E**).
 
    **IMAGE**
