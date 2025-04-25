@@ -19,8 +19,6 @@ This project was generated using [Angular CLI](https://github.com/angular/angula
     - [Guide Section](#guide-section)
       - [File Upload](#file-upload)
       - [File Menu](#file-menu)
-        - [Import Files](#import-files)
-        - [Export Pathway](#export-pathway)
       - [View Menu](#view-menu)
         - [Customise](#customise)
         - [Search](#search)
@@ -150,18 +148,31 @@ Click the Process button (**F**) once all settings are configured to generate vi
 
 #### File Menu 
 
-![ExtraFile Image1](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/ExtraFile_Image1.png)  
+![ExtraFile Image1](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/ExtraFile_Image1.png)   
 
-##### Import Files  
+*Fig.4a. File menu options.**  
+
+Click the File menuitem (**A**) on top of the menu bar to view the options it provides.
+   
+1. **Import Extra Files**
+    Click Import Files (**B**). A pop-up window will appear, allowing you to upload additional expression files if needed.
 
 ![ExtraFile_Image2](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/ExtraFile_Image2.png)  
 
-##### Export Pathway   
- 
-###### Pathway Elements    
+- Within the pop-up, click Choose Files (**C**), the user can choose multiple files and note that *Only expression files can be loaded here not annotation file*.
+- Once the user is satisfied with the list of chosen files, user can click on the Add button (**D**). This will reprocess the mapping and display the previously chosen number of top pathways from all expression files.
 
-###### For Pathway
+2. **Export Pathway Visualisation**  
+   Click on the Export button in the File menuitem dropdown (**E**).
 
+   **IMAGE**
+
+   a). *Choose Export Format*
+   - The user will have two options to export the image, either **PNG** or **SVG**.
+   - Click to choose desired format.
+
+   
+   
 
 #### Display Interaction  
 
@@ -172,10 +183,14 @@ Click the Process button (**F**) once all settings are configured to generate vi
 
 ##### Search 
 
+###### Pathway Elements    
 
-#### Help Menu 
+###### For Pathway
 
 
+#### Help Menu   
+The Help Menu provides access to the [Guide Section](#guide-section), which users can refer to if they are unsure how to use a specific feature-especially when they are on the main application window rather than the [Welcome Page](#welcome-page).  
+ 
 #### Time Series
 
 
