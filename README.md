@@ -115,12 +115,10 @@ Clicking Button (**C**) in (**Fig.2**) will take you to the File Upload page, ju
 
 This is where the user uploads the data files:  
 
-**Upload Users Files**  
-
+**Upload Users Files**
 Click button (**A**), as previously described in the [Test Data and Data Format](#test-data-and-data-format) section. The user must upload at least one expression file and one annotation file to proceed.  
 
-**Access Upload Instructions**  
-
+**Access Upload Instructions**
 In case the user is unsure about the type of files to upload, click the information icon (**B**) at the top-right corner for guidance.  
 
 
@@ -128,8 +126,7 @@ In case the user is unsure about the type of files to upload, click the informat
 
 *Fig.3b. Managing Uploaded Files and Configuring Options.**
 
-**Manage Uploaded Files**  
-
+**Manage Uploaded Files**
 After uploading, a list of selected files will appear.  
 
 - To remove a file, click the X button (**C**) next to it.
@@ -139,19 +136,16 @@ After uploading, a list of selected files will appear.
 User can customise how the data will be processed by adjusting the following options:  
 
 1. **Number of Top-Expreesed Pathways:**
-   
    - Enter the desired number of pathways or use the up/down arrows (**E**)to specify how many of the top-expressed KEGG pathways should be visualised.  
 
 2. **Organism Specification:**
-    
    - The user can choose to specify the organism or not.
 
    
 3. **Time Series Data:**
-   
    - User must indicate whether the dataset includes time series analysis (**D**).
    
-**Process and Visualise**  
+**Process and Visualise**
 - Click the Process button (**F**) once all settings are configured to generate visualisations of the KEGG pathways.
 
 
