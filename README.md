@@ -3,7 +3,7 @@
 EnStrap.int is a user-friendly web-based application designed to support interactive visualisation of time-series differential gene expression data, focusing on uncovering metabolic flux changes. This application allows users to upload their gene expression data, including an annotation file, to generate dynamic metabolic pathway maps, explore pathway-level regulation patterns over time and under different experimental conditions, filter results by gene families or contrasts, and export the resulting visualisations for downstream use. 
 The tool aims to empower researchers, especially those without programming expertise, to explore pathway-level changes over time and across experimental conditions.  
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 19.2.3. For more information about Angular CLI, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 19.2.3. For more information refer to the official [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page. The application is built using TypeScript/JavaScript for logic and functionality, HTML for structuring web content, and CSS for styling and layout.
 
 ## Table of Contents
 
@@ -115,10 +115,10 @@ Clicking Button (**C**) in (**Fig.2**) will take you to the File Upload page, ju
 
 This is where the user uploads the data files:  
 
-**Upload Users Files**
+**Upload Users Files**  
 Click button (**A**), as previously described in the [Test Data and Data Format](#test-data-and-data-format) section. The user must upload at least one expression file and one annotation file to proceed.  
 
-**Access Upload Instructions**
+**Access Upload Instructions**  
 In case the user is unsure about the type of files to upload, click the information icon (**B**) at the top-right corner for guidance.  
 
 
@@ -126,7 +126,7 @@ In case the user is unsure about the type of files to upload, click the informat
 
 *Fig.3b. Managing Uploaded Files and Configuring Options.**
 
-**Manage Uploaded Files**
+**Manage Uploaded Files**  
 After uploading, a list of selected files will appear.  
 
 - To remove a file, click the X button (**C**) next to it.
