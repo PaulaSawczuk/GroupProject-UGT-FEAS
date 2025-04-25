@@ -275,18 +275,35 @@ To create a timelapse animation of the pathway across all time points, click the
 #### 7. Side Bar Functionality and Pathway Information      
 ##### a). Side Bar Functionality  
 ![SideBar_Image0](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/SideBar_Image0.png)  
-*Fig.7a. Side bar functionality*  
-The side bar is located on the left side of the website, displays a list (**A**) of top- expressed pathways. The number of pathways displayed depends on the number previously selected by the user.  
-
+*Fig.7a. Side bar functionality.*  
+The side bar, located on the left side of the interface, displays a list (**A**) of top-expressed pathways. The number of pathways shown depends on the number previously selected by the user.    
 
 ![SideBar_Image1](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/SideBar_Image1.png)    
-*Fig.7b. Sorting pathways, expanding and collapsing the sede bar.*  
+*Fig.7b. Sorting pathways and expanding/collapsing the side bar.*  
 
-**Sorting Pathways:** The user may want to sort the pathways by clicking "Sort" (**B**) which opens a dropdown menu with two main sorting options; sorting alphabetically whether in descending or ascending order.
-**Expanding and Collapsing the Side Bar:** For the user to collapse the side bar and expand the display view, click the arrows at the top right corner (**C**). To reopen the side bar, click the same arrows on the closed bar (**D**).  
+**Sorting Pathways:** To sort pathways, click the "Sort" button (**B**) which opens a dropdown menu with two main sorting options; alphabetical order in either ascending or descending sequence.  
 
-![SideBar_Image2](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/SideBar_Image2.png)
-*Fig.7c. 
+**Expanding and Collapsing the Side Bar:** For the user to collapse the side bar and expand the main display view, click the arrows at the top right corner (**C**). To reopen the side bar, click the same arrows on the collapsed bar (**D**).   
+
+![SideBar_Image2](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/SideBar_Image2.png)  
+*Fig.7c. Merging tabs within the side bar.*  
+If the [Search](#b-search) and [Customise](#a-customise) tabs are added to the side bar, the user can easily switch between them by clicking the relevant icon or section name. The currently active section will be highlighted (**E**).    
+
+To close the [Search](#b-search) and [Customise](#a-customise) sections, click on the **X** button (**F**) at the top right of each section. Closing a section automatically reverts to the "Pathways" section, which is the default view.  
+
+**Note:** The "Pathways" section cannot be closed as it is the defualt view of the side bar.  
+
+#### b). Pathway Information  
+
+![StatsDisplay](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/StatsDisplay.png)  
+*Fig.7d. Summary of the visualised pathway*    
+
+The panel displayed at the bottom of the screen provides key information about the currently visualised pathway. This includes:
+- The name of the pathway currently being viewed.
+- The total number of genes present in the pathway.
+- The number of unique genes represented in the visualisation.
+- The number of enzymes impacted based on the uploaded expression data.  
+
 ## Hands-on Example
 
 
