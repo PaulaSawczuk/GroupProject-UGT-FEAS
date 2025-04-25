@@ -150,7 +150,7 @@ Click the "Process" button (**F**) once all settings are configured to generate 
 
 ![ExtraFile Image1](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/ExtraFile_Image1.png)   
 
-*Fig.4a. File menu options.**  
+*Fig.4a. File menu options.*  
 
 To access file-related options, click the "File" menu (**A**) located in the top menu bar.
    
@@ -211,11 +211,12 @@ If the user would like to search by elements within the pathway, click  "Pathway
 ![View SearchForElements](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/View_SearchForElements.png)  
 
 
-- Within the panel, the user can choose from three search categories: **Enzyme, Compound and Pathway** by ticking the box next to the desired option (**I**).
+- Within the panel, the user can choose from three search categories: **Enzyme, Compound and Pathway** by ticking the box next to the desired option (**I**).  
   **For example:**
   If the user select the **Element**, a drop-down box (**J**) will appear displaying a list of elements relevant to the selected category in the current pathway. The user can scroll down through the list and click on a specific element to zoom into it within the visualisation display.  
 
 ii). *For Pathway*  
+
 If the user looking to search for a specific pathway: Next to "Pathway Ements" button (**D**) in the "Search" panel (accessed via the [View Menu](#3-view-menu)), click on the "For Pathway" button (**E**). Ihis will open a pop-up window containing two tabs that allow you to search and navigate different pathways.   
 
 ![View_SearchForPathway_Highlight](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/View_SearchForPathway_Highlight.png)  
