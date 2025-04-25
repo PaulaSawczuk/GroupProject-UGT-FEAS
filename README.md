@@ -105,7 +105,7 @@ The guide provides detailed instructions on how to use the key features of EnStr
 
 Clicking Button (**C**) in (**Fig.2**) will take you to the File Upload page, just like Button (**A**) in (**Fig.1**).  
 
-#### File Upload  
+#### 1. File Upload  
 
 ![Upload Image1](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/Upload_Image1.png) 
 
@@ -133,20 +133,20 @@ After uploading, a list of selected files will appear.
 **Configure Settings**  
 User can customise how the data will be processed by adjusting the following options:  
 
-1. **Number of Top-Expreesed Pathways:**  
+a). **Number of Top-Expreesed Pathways:**  
    - Enter the desired number of pathways or use the up/down arrows (**E**)to specify how many of the top-expressed KEGG pathways should be visualised.  
 
-3. **Organism Specification:**  
+b). **Organism Specification:**  
    - The user can choose to specify the organism or not.
 
-4. **Time Series Data:**  
+c). **Time Series Data:**  
    - User must indicate whether the dataset includes time series analysis (**D**).
    
 **Process and Visualise**  
 Click the Process button (**F**) once all settings are configured to generate visualisations of the KEGG pathways.
 
 
-#### File Menu 
+#### 2. File Menu 
 
 ![ExtraFile Image1](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/ExtraFile_Image1.png)   
 
@@ -176,10 +176,10 @@ Click on the Export button in the File menuitem dropdown (**E**).
    - Once the user has selected the desired format,and click the Download button, the image will automatically be saved to your computer in the Downloads folder.  
    
 
-#### Display Interaction  
+#### 3. Display Interaction  
 
 
-#### View Menu  
+#### 4. View Menu  
 
 ##### a). Customise   
 
@@ -190,13 +190,13 @@ i). *Pathway Elements*
 ii). *For Pathway*
 
 
-#### Help Menu   
+#### 5. Help Menu   
 The Help Menu provides access to the [Guide Section](#guide-section), which users can refer to if they are unsure how to use a specific feature-especially when they are on the main application window rather than the [Welcome Page](#welcome-page).  
  
-#### Time Series
+#### 6. Time Series
 
 
-#### Pathway Information
+#### 7. Pathway Information
 
 
 ## Hands-on Example
