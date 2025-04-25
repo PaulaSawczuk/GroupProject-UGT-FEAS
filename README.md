@@ -85,8 +85,8 @@ When EnStrap.int is launched, the data for testing the app can be accessed via [
 
 The welcome page is the first screen users will see when they launch the EnStrap.int application.
 
-- Clicking button (**A**) navigates to the Upload Page, where users can submit their data (expression files and annotation file).
-- Button (**B**) opens the User Guide, providing an overview of EnStrap.int’s features and how to use them effectively.  
+- Clicking "Get Started" button (**A**) navigates to the Upload Page, where users can submit their data (expression files and annotation file).
+- The "Guide" Button (**B**) opens the User Guide, providing an overview of EnStrap.int’s features and how to use them effectively.  
 
 ### Guide Section  
 
@@ -103,7 +103,7 @@ The guide provides detailed instructions on how to use the key features of EnStr
 - Time Series Analysis
 - Sidebar and Pathway Information
 
-Clicking Button (**C**) in (**Fig.2**) will take you to the File Upload page, just like Button (**A**) in (**Fig.1**).  
+Clicking "Get Started" button (**C**) in (**Fig.2**) will take you to the File Upload page, just like "Get Started" Button (**A**) in (**Fig.1**).  
 
 #### 1. File Upload  
 
@@ -114,7 +114,7 @@ Clicking Button (**C**) in (**Fig.2**) will take you to the File Upload page, ju
 This is where the user uploads the data files:  
 
 ##### **Upload Users Files**
-Click button (**A**), as previously described in the [Test Data and Data Format](#test-data-and-data-format) section. The user must upload at least one expression file and one annotation file to proceed.  
+Click "Upload" button (**A**), as previously described in the [Test Data and Data Format](#test-data-and-data-format) section, the user must upload at least one expression file and one annotation file to proceed.  
 
 ##### **Access Upload Instructions**
 In case the user is unsure about the type of files to upload, click the information icon (**B**) at the top-right corner for guidance.  
@@ -128,7 +128,7 @@ In case the user is unsure about the type of files to upload, click the informat
 After uploading, a list of selected files will appear.  
 
 - To remove a file, click the **X** button (**C**) next to it.
-- To add more files, simply click the Upload button again.  
+- To add more files, simply click the "Upload" button again.  
 
 ##### **Configure Settings**
 User can customise how the data will be processed by adjusting the following options:  
@@ -143,7 +143,7 @@ User can customise how the data will be processed by adjusting the following opt
    - User must indicate whether the dataset includes time series analysis (**D**).
    
 ##### **Process and Visualise**
-Click the Process button (**F**) once all settings are configured to generate visualisations of the KEGG pathways.
+Click the "Process" button (**F**) once all settings are configured to generate visualisations of the KEGG pathways.
 
 
 #### 2. File Menu 
@@ -152,19 +152,19 @@ Click the Process button (**F**) once all settings are configured to generate vi
 
 *Fig.4a. File menu options.**  
 
-To access file-related options, click the File menu item (**A**) located in the top menu bar.
+To access file-related options, click the "File" menu (**A**) located in the top menu bar.
    
 ##### a). Import Extra Files  
-Click Import Files (**B**) which will open a pop-up window where you can upload additional expression files. 
+Click "Import Files" (**B**) which will open a pop-up window where you can upload additional expression files. 
         
 
 ![ExtraFile_Image2](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/ExtraFile_Image2.png)  
 
-- In the pop-up window, click Choose Files (**C**), the user can select multiple files and note that **only expression files are accepted here-annotation files are not supported**.
-- After selecting the extra files, click the Add button (**D**) to upload them. This will trigger reprocessing the mapping and displaying the previously selected number of top pathways from all expression files.  
+- In the pop-up window, click "Choose Files" (**C**), the user can select multiple files and note that **only expression files are accepted here-annotation files are not supported**.
+- After selecting the extra files, click the "Add" button (**D**) to upload them. This will trigger reprocessing the mapping and displaying the previously selected number of top pathways from all expression files.  
 
 ##### b). Export Pathway Visualisation  
-Click on the Export button in the File menuitem dropdown (**E**).
+Click on the "Export" button in the [File Menu](#2-file-menu) dropdown (**E**).
 
    **IMAGE**
 
@@ -173,19 +173,19 @@ Click on the Export button in the File menuitem dropdown (**E**).
    - Click to choose desired format.  
 
    ###### ii). *Download File*
-   - Once the user has selected the desired format,and click the Download button, the image will automatically be saved to your computer in the Downloads folder.  
+   - Once the user has selected the desired format,and click the "Download" button, the image will automatically be saved to your computer in the Downloads folder.  
 
    
 #### 3. View Menu     
 
-To access view-related options, click the View menu item (**A**) located in the top menu bar.  
+To access view-related options, click the "View" menu (**A**) located on the top of the menu bar..  
 
 ![View TopBar](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/View_TopBar.png)  
 
 ##### a). Customise  
 
 ###### i). Open Customisation  
-- CLick the Customise button (**B**) to open the customisation panel, which will appear on the left side of the application window.  
+- Click the "Customise" button (**B**) to open the customisation panel, which will appear on the left side of the application window.  
   
 ![View Customise](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/View_Customise.png)  
 
@@ -198,20 +198,33 @@ The user can modify the colours used to represent of high or low expressed genes
 Once the user has selectected the colour and is satisfied with the choice, simply click anywhere outside the colour picker to close it.  
 
 ###### iv). Close Customisation Tab
-To exit the customisation panel, click the **X** button located in the top-right cornerof the tab (**H**).  
+To exit the customisation panel, click the **X** button located in the top-right corner of the tab (**H**).  
 
 
-##### b). Search  
-
+##### b). Search 
+To access the search options user should go to the [View Menu](#3-view-menu) (**A**) at the top bar.
+- To open the search panel, click "Search" button (**C**).  
+  
 i). *Pathway Elements*  
+If the user would like to search by elements within the pathway, click  "Pathway Elements" button (**D). This will open a search options on the left side of the application window.  
 
-![View SearchForElements](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/View_SearchForElements.png)
+![View SearchForElements](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/View_SearchForElements.png)  
+
+
+- Within the panel, the user can choose from three search categories: **Enzyme, Compound and Pathway** by ticking the box next to the desired option (**I**).
+  **For example:**
+  If the user select the **Element**, a drop-down box (**J**) will appear displaying a list of elements relevant to the selected category in the current pathway. The user can scroll down through the list and click on a specific element to zoom into it within the visualisation display.  
 
 ii). *For Pathway*  
+If the user looking to search for a specific pathway: Next to "Pathway Ements" button (**D**) in the "Search" panel (accessed via the [View Menu](#3-view-menu)), click on the "For Pathway" button (**E**). Ihis will open a pop-up window containing two tabs that allow you to search and navigate different pathways.   
+
+![View_SearchForPathway_Highlight](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/View_SearchForPathway_Highlight.png)  
+
+**Highlilight Tab:**
+- 
 
 ![View_SearchForPathway_AllKEGG](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/View_SearchForPathway_AllKEGG.png)  
 
-![View_SearchForPathway_Highlight](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/View_SearchForPathway_Highlight.png)
 
 #### 4. Help Menu   
 The Help Menu provides access to the [Guide Section](#guide-section), which users can refer to if they are unsure how to use a specific feature-especially when they are on the main application window rather than the [Welcome Page](#welcome-page). 
