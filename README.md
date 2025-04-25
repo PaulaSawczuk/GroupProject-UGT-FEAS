@@ -3,7 +3,7 @@
 EnStrap.int is a user-friendly web-based application designed to support interactive visualisation of time-series differential gene expression data, focusing on uncovering metabolic flux changes. This application allows users to upload their gene expression data, including an annotation file, to generate dynamic metabolic pathway maps, explore pathway-level regulation patterns over time and under different experimental conditions, filter results by gene families or contrasts, and export the resulting visualisations for downstream use. 
 The tool aims to empower researchers, especially those without programming expertise, to explore pathway-level changes over time and across experimental conditions.  
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 19.2.3. For more information refer to the official [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page. The application is built using TypeScript/JavaScript for logic and functionality, HTML for structuring web content, and CSS for styling and layout.
+This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 19.2.3. For more information refer to the official [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page. The application was built using TypeScript/JavaScript for logic and functionality, HTML for structuring web content, and CSS for styling and layout.
 
 ## Table of Contents
 
@@ -276,7 +276,7 @@ To create a timelapse animation of the pathway across all time points, click the
 ##### a). Side Bar Functionality  
 ![SideBar_Image0](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/SideBar_Image0.png)  
 *Fig.7a. Side bar functionality.*  
-The side bar, located on the left side of the interface, displays a list (**A**) of top-expressed pathways. The number of pathways shown depends on the number previously selected by the user.    
+The side bar, located on the left side of the interface, displays a list labelled (**A**) in (**Fig.7b**) of top-expressed pathways. The number of pathways shown depends on the number previously selected by the user.    
 
 ![SideBar_Image1](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/SideBar_Image1.png)    
 *Fig.7b. Sorting pathways and expanding/collapsing the side bar.*  
@@ -286,7 +286,8 @@ The side bar, located on the left side of the interface, displays a list (**A**)
 **Expanding and Collapsing the Side Bar:** For the user to collapse the side bar and expand the main display view, click the arrows at the top right corner (**C**). To reopen the side bar, click the same arrows on the collapsed bar (**D**).   
 
 ![SideBar_Image2](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/SideBar_Image2.png)  
-*Fig.7c. Merging tabs within the side bar.*  
+*Fig.7c. Merging tabs within the side bar.*    
+
 If the [Search](#b-search) and [Customise](#a-customise) tabs are added to the side bar, the user can easily switch between them by clicking the relevant icon or section name. The currently active section will be highlighted (**E**).    
 
 To close the [Search](#b-search) and [Customise](#a-customise) sections, click on the **X** button (**F**) at the top right of each section. Closing a section automatically reverts to the "Pathways" section, which is the default view.  
