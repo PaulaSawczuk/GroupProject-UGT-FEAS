@@ -179,9 +179,9 @@ Click on the Export button in the File menuitem dropdown (**E**).
 #### 3. Display Interaction  
 
 
-#### 4. View Menu  
+#### 4. View Menu    
 
-##### a). Customise   
+##### a). Customise     
 
 ##### b). Search
 
