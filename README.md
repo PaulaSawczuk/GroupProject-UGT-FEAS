@@ -27,7 +27,7 @@ This project was generated using [Angular CLI](https://github.com/angular/angula
       - [Help Menu](#4-help-menu)
       - [Display Interaction](#5-display-interaction)
       - [Time Series](#6-time-series)
-      - [Side Bar Functionality and Pathway Information](#7side-bar-functionality-and-pathway-information)
+      - [Side Bar Functionality and Pathway Information](#7-side-bar-functionality-and-pathway-information)
   - [Hands-on Example](#hands-on-example)  
 
 
@@ -296,7 +296,7 @@ To close the [Search](#b-search) and [Customise](#a-customise) sections, click o
 #### b). Pathway Information  
 
 ![StatsDisplay](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/StatsDisplay.png)  
-*Fig.7d. Summary of the visualised pathway*    
+*Fig.7d. Summary of the visualised pathway.*    
 
 The panel displayed at the bottom of the screen provides key information about the currently visualised pathway. This includes:
 - The name of the pathway currently being viewed.
