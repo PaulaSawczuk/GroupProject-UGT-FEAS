@@ -226,7 +226,7 @@ If the user looking to search for a specific pathway: Next to "Pathway Ements" b
 ![View_SearchForPathway_Highlight](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/View_SearchForPathway_Highlight.png)  
 *Fig.5d. Displays pathways with hits and all KEGG pathways online.*  
 
-####### **Highlilight Tab:**
+**Highlilight Tab:**
 - The tab displays a list of pathways in a table where the uploaded expression files found hits, and information about the total number of pathways and how many the user has selected is shown next to the table.
 - Tick the boxes in the "Select" column of the table (**L**) to select pathways, and to unselect a pathway click the tick box again.
 - Use the "Select All" and "Clear All" buttons (**M**) to quickly select or clear all the selections.
@@ -235,7 +235,7 @@ If the user looking to search for a specific pathway: Next to "Pathway Ements" b
 
 
 ![View_SearchForPathway_AllKEGG](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/View_SearchForPathway_AllKEGG.png)  
-*Fig.5e. Online KEGG pathway search page.
+*Fig.5e. Online KEGG pathway search page.*
 
 #### 4. Help Menu   
 The Help Menu provides access to the [Guide Section](#guide-section), which users can refer to if they are unsure how to use a specific feature-especially when they are on the main application window rather than the [Welcome Page](#welcome-page). 
