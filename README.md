@@ -81,7 +81,7 @@ When EnStrap.int is launched, the data for testing the app can be accessed via [
 
 ![Welcome Page](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/Welcome_Page.png)  
 
-*Fig.1. Welcome page for the users.*  
+*Fig.1. Users welcome page.*  
 
 The welcome page is the first screen users will see when they launch the EnStrap.int application.
 
@@ -92,7 +92,7 @@ The welcome page is the first screen users will see when they launch the EnStrap
 
 ![Guide Page](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/Guide_page.png)  
 
-*Fig.2. The users guide page.* 
+*Fig.2. Users guide page.* 
 
 The guide provides detailed instructions on how to use the key features of EnStrap.Int, including:
 
@@ -101,7 +101,7 @@ The guide provides detailed instructions on how to use the key features of EnStr
 - Interaction Display
 - Adding Files and Exporting Pathways
 - Time Series Analysis
-- Sidebar and Pathway Information
+- Side bar and Pathway Information
 
 Clicking "Get Started" button (**C**) in (**Fig.2**) will take you to the File Upload page, just like "Get Started" Button (**A**) in (**Fig.1**).  
 
