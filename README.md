@@ -176,16 +176,23 @@ Click on the Export button in the File menuitem dropdown (**E**).
    - Once the user has selected the desired format,and click the Download button, the image will automatically be saved to your computer in the Downloads folder.  
 
    
-#### 3. View Menu    
+#### 3. View Menu     
 
-##### a). Customise     
+![View TopBar](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/View_TopBar.png)  
 
-##### b). Search
+##### a). Customise  
+![View Customise](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/View_Customise.png)  
 
-i). *Pathway Elements*    
+##### b). Search  
+
+i). *Pathway Elements*  
+![View SearchForElements](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/View_SearchForElements.png)
 
 ii). *For Pathway*  
 
+![View_SearchForPathway_AllKEGG](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/View_SearchForPathway_AllKEGG.png)  
+
+![View_SearchForPathway_Highlight](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/View_SearchForPathway_Highlight.png)
 
 #### 4. Help Menu   
 The Help Menu provides access to the [Guide Section](#guide-section), which users can refer to if they are unsure how to use a specific feature-especially when they are on the main application window rather than the [Welcome Page](#welcome-page). 
