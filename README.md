@@ -174,12 +174,9 @@ Click on the Export button in the File menuitem dropdown (**E**).
 
    ###### ii). *Download File*
    - Once the user has selected the desired format,and click the Download button, the image will automatically be saved to your computer in the Downloads folder.  
+
    
-
-#### 3. Display Interaction  
-
-
-#### 4. View Menu    
+#### 3. View Menu    
 
 ##### a). Customise     
 
@@ -187,11 +184,15 @@ Click on the Export button in the File menuitem dropdown (**E**).
 
 i). *Pathway Elements*    
 
-ii). *For Pathway*
+ii). *For Pathway*  
 
 
-#### 5. Help Menu   
-The Help Menu provides access to the [Guide Section](#guide-section), which users can refer to if they are unsure how to use a specific feature-especially when they are on the main application window rather than the [Welcome Page](#welcome-page).  
+#### 4. Help Menu   
+The Help Menu provides access to the [Guide Section](#guide-section), which users can refer to if they are unsure how to use a specific feature-especially when they are on the main application window rather than the [Welcome Page](#welcome-page). 
+
+
+#### 5. Display Interaction  
+ 
  
 #### 6. Time Series
 
