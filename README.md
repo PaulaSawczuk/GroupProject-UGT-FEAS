@@ -27,7 +27,7 @@ This project was generated using [Angular CLI](https://github.com/angular/angula
       - [Help Menu](#4-help-menu)
       - [Display Interaction](#5-display-interaction)
       - [Time Series](#6-time-series)
-      - [Pathway Information](#7-pathway-information)
+      - [Side Bar Functionality and Pathway Information](#7side-bar-functionality-and-pathway-information)
   - [Hands-on Example](#hands-on-example)  
 
 
@@ -231,7 +231,7 @@ If the user looking to search for a specific pathway: Next to "Pathway Ements" b
 
 *Fig.5d. Display pathways with hits and all KEGG pathways online.*  
 
-**Highlilight Tab:**
+**Highlight Tab:**
 - This tab displays a table listing all pathways where hits were found in the uploaded expression files. Information about the total number of pathways and the number of pathways currently selected is shown above the table.
 - To select pathways, tick the boxes in the "Select" column of the table (**L**) and to deselect a pathway, simply click the checkbox again..
 - Use the "Select All" and "Clear All" buttons (**M**) to quickly select or deselect all pathways.
@@ -260,11 +260,19 @@ The Help Menu provides access to the [Guide Section](#guide-section), which user
 #### 5. Display Interaction  
  
  
-#### 6. Time Series
+#### 6. Time Series  
+![TimeSeries_Image2](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/TimeSeries_Image2.png)
+![TimeSeries_Image1](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/TimeSeries_Image1.png)  
 
+*Fig.6. Time series animation display.*  
 
-#### 7. Pathway Information
+The figure above illustrate how users can explore different time points, as labeled in their uploaded expression files.
+Use the slider (**A**) to move through the different time points and observe how the pathway changes over time.  
 
+To create a timelapse animation of the pathway across all time points, click the "Animate" button (**B**). The animation will sequentially display changes across each time point, providing a dynamic view of pathway evolution.  
+
+#### 7. Side Bar Functionality and Pathway Information    
+![]()
 
 ## Hands-on Example
 
