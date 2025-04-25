@@ -272,9 +272,21 @@ Use the slider (**A**) to move through the different time points and observe how
 
 To create a timelapse animation of the pathway across all time points, click the "Animate" button (**B**). The animation will sequentially display changes across each time point, providing a dynamic view of pathway evolution.  
 
-#### 7. Side Bar Functionality and Pathway Information    
-![]()
+#### 7. Side Bar Functionality and Pathway Information      
+##### a). Side Bar Functionality  
+![SideBar_Image0](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/SideBar_Image0.png)  
+*Fig.7a. Side bar functionality*  
+The side bar is located on the left side of the website, displays a list (**A**) of top- expressed pathways. The number of pathways displayed depends on the number previously selected by the user.  
 
+
+![SideBar_Image1](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/SideBar_Image1.png)    
+*Fig.7b. Sorting pathways, expanding and collapsing the sede bar.*  
+
+**Sorting Pathways:** The user may want to sort the pathways by clicking "Sort" (**B**) which opens a dropdown menu with two main sorting options; sorting alphabetically whether in descending or ascending order.
+**Expanding and Collapsing the Side Bar:** For the user to collapse the side bar and expand the display view, click the arrows at the top right corner (**C**). To reopen the side bar, click the same arrows on the closed bar (**D**).  
+
+![SideBar_Image2](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/SideBar_Image2.png)
+*Fig.7c. 
 ## Hands-on Example
 
 
