@@ -19,11 +19,11 @@ This project was generated using [Angular CLI](https://github.com/angular/angula
     - [Guide Section](#guide-section)
       - [File Upload](#file-upload)
       - [File Menu](#file-menu)
+        - [Import Extra Files](#import-extra-files)
+        - [Export Pathway Visualisation](#export-pathway-visualisation)
       - [View Menu](#view-menu)
         - [Customise](#customise)
         - [Search](#search)
-          - [Pathway Elements](#pathway-elements)
-          - [For Pathway](#for-pathway)
       - [Help Menu](#help-menu)
       - [Display Interaction](#display-interaction)
       - [Time Series](#time-series)
@@ -33,7 +33,7 @@ This project was generated using [Angular CLI](https://github.com/angular/angula
 
 ## Installation 
 
-**To get the application up and running on users local machine, follow the steps below:**
+To get the application up and running on users local machine, follow the steps below:
 
 ### 1. Cloning the Repository  
   Open the terminal or command prompt and run:  
@@ -152,26 +152,27 @@ Click the Process button (**F**) once all settings are configured to generate vi
 
 *Fig.4a. File menu options.**  
 
-Click the File menuitem (**A**) on top of the menu bar to view the options it provides.
+To access file-related actions, click the File menu item (**A**) located in the top menu bar.
    
-1. **Import Extra Files**
-    Click Import Files (**B**). A pop-up window will appear, allowing you to upload additional expression files if needed.
+##### 1. Import Extra Files
+    Click Import Files (**B**) which will open a pop-up window where you can upload additional expression files.     
 
 ![ExtraFile_Image2](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/ExtraFile_Image2.png)  
 
-- Within the pop-up, click Choose Files (**C**), the user can choose multiple files and note that *Only expression files can be loaded here not annotation file*.
-- Once the user is satisfied with the list of chosen files, user can click on the Add button (**D**). This will reprocess the mapping and display the previously chosen number of top pathways from all expression files.
+- In the pop-up window, click Choose Files (**C**), the user can select multiple files and note that **only expression files are accepted here-annotation files are not supported**.
+- After selecting the extra files, click the Add button (**D**) to upload them. This will trigger reprocessing the mapping and displaying the previously selected number of top pathways from all expression files.  
 
-2. **Export Pathway Visualisation**  
+##### 2. Export Pathway Visualisation  
    Click on the Export button in the File menuitem dropdown (**E**).
 
    **IMAGE**
 
    a). *Choose Export Format*
-   - The user will have two options to export the image, either **PNG** or **SVG**.
-   - Click to choose desired format.
+   - The user will have two options to export the visualisation, as either **PNG** or **SVG**.
+   - Click to choose desired format.  
 
-   
+   b). *Download File*
+   - Once the user has selected the desired format,and click the Download button, the image will automatically be saved to your computer in the Downloads folder.  
    
 
 #### Display Interaction  
@@ -179,13 +180,13 @@ Click the File menuitem (**A**) on top of the menu bar to view the options it pr
 
 #### View Menu  
 
-##### Customise   
+##### 1. Customise   
 
-##### Search 
+##### 2. Search
 
-###### Pathway Elements    
+a). *Pathway Elements*    
 
-###### For Pathway
+b). *For Pathway*
 
 
 #### Help Menu   
