@@ -26,10 +26,10 @@ This project was generated using [Angular CLI](https://github.com/angular/angula
         - [Search](#search)
           - [Pathway Elements](#pathway-elements)
           - [For Pathway](#for-pathway)
-        - [Help Menu](#help-menu)
-        - [Display Interaction](#display-interaction)
-        - [Time Series](#time-series)
-        - [Pathway Information](#pathway-information)
+      - [Help Menu](#help-menu)
+      - [Display Interaction](#display-interaction)
+      - [Time Series](#time-series)
+      - [Pathway Information](#pathway-information)
   - [Hands-on Example](#hands-on-example)  
 
 
