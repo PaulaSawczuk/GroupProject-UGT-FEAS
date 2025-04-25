@@ -145,7 +145,7 @@ User can customise how the data will be processed by adjusting the following opt
    - User must indicate whether the dataset includes time series analysis (**D**).
    
 **Process and Visualise**  
-- Click the Process button (**F**) once all settings are configured to generate visualisations of the KEGG pathways.
+Click the Process button (**F**) once all settings are configured to generate visualisations of the KEGG pathways.
 
 
 #### File Menu 
