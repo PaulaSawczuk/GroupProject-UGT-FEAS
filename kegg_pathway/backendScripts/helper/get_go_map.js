@@ -308,6 +308,17 @@ function processRN(entries, relations, reactions, nodes){
     return {compoundLinks, entryLinks};
 }
 
+function getURLLinks(entries,id){
+    var link;
+    for (let i=0; i<entries.length; i++){
+        if (entries[i].$.id==id &&  entries[i].$.type=="compound"){
+            link = entries[i].$.link;
+        }
+    }
+    return link;
+
+}
+
 function getReactionNodes(reactions,entries){
 
     var nodes = [];
@@ -328,12 +339,14 @@ function getReactionNodes(reactions,entries){
         // Finding Substrates
         for (let j = 0; j < reactions[i].substrate.length; j++){
 
+            let link = getURLLinks(entries, reactions[i].substrate[j].$.id);
             nodes.push({
             // Adding Substrate Nodes
                     key: reactions[i].substrate[j].$.id,
                     text: reactions[i].substrate[j].$.name,
                     type: 'compound',
-                    category:"compound"
+                    category:"compound",
+                    link: link
         });
             // Adding Edges 
             edges.push({
@@ -354,22 +367,16 @@ function getReactionNodes(reactions,entries){
 
         // Finding Products 
         for (let j = 0; j < reactions[i].product.length; j++){
-
-            const positions = entries.forEach(function(entry){
-                if (entry.$.name==reactions[i].product[j].$.name){
-                    const positions = getPosition(entry);
-                    //console.log(positions);
-                    return positions;
-                }
-            })
-
+            
+            let link = getURLLinks(entries, reactions[i].product[j].$.id);
             nodes.push({
                 // Adding Product Nodes
                     key: reactions[i].product[j].$.id,
                     text: reactions[i].product[j].$.name,
                     type: 'compound',
                     category: 'compound',
-                    position: positions
+                    link: link
+                    
         });
             edges.push({
                     from: reaction_id,
@@ -400,7 +407,7 @@ function getEnzymeNodes (reaction_nodes, entries){
                     for (let k = 0; k < matches.length; k++){
                         var edge_id = entries[i].$.id+matches[k];
                         //console.log('Edge ID: '+edge_id);
-                        const positions= getPosition(entries[i]);
+                        //const positions= getPosition(entries[i]);
                         //console.log(positions);
                         nodes.push({
                             // Adding Enzyme Nodes
@@ -410,7 +417,8 @@ function getEnzymeNodes (reaction_nodes, entries){
                                 category:'enzyme',
                                 colour: "lightgrey", // Standard colour for enzyme nodes
                                 group: matches[k],
-                                position: positions,
+                                //position: positions,
+                                link: entries[i].$.link,
                                 width: 75, // Standard Height and width for enzyme nodes
                                 height: 40
                             });
@@ -433,6 +441,7 @@ function getMapNodes(entries){
                         key: entries[i].$.id,
                         text: entries[i].$.name,
                         name: entries[i].graphics[0].$.name,
+                        link: entries[i].$.link,
                         type: 'map',
                         category:'map'
     
@@ -463,6 +472,7 @@ function getCompoundNodes(entries){
                         key: entries[i].$.id,
                         text: entries[i].$.name,
                         name: entries[i].graphics[0].$.name,
+                        link: entries[i].$.link,
                         type: 'compound',
                         category:'compound'
     
@@ -572,6 +582,7 @@ function addCompounds(uniqueNodes,compoundIDs,entries){
                     // Adding Product Nodes
                         key: entries[i].$.id,
                         text: entries[i].$.name,
+                        link: entries[i].$.link,
                         type: 'compound',
                         category: 'compound',
     

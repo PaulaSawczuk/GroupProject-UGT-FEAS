@@ -64,11 +64,12 @@ export class DisplayComponent {
 
   enzymeList: any[] = []; // Array for storing list of Enzymes filtered from input expression files
 
-  pathwayTally: any[] = [];
+  pathwayTally: any[] = []; // Array recieved from back-end with all pathways regulated by the Enzymes Extracted
+                                          // From users data
 
   highlightedPathways: any[] = [];
 
-  regulatedLinks: any[] = [];
+  regulatedLinks: any[] = []; // Storing current regulated links for animating 
 
   animatedParts: go.Part[] = []; // Store animated parts (dots)
   
@@ -528,6 +529,7 @@ private matchGenes(genes: any[], nodes: any[]): any[] {
       var geneList = [];
       var logfcList = [];
       let nodetext = newNodes[i].text;
+      var logfcGene = [];
 
       // cycle through genes 
       for (let j = 0; j < genes.length; j++) {
@@ -541,8 +543,10 @@ private matchGenes(genes: any[], nodes: any[]): any[] {
           GeneSet.add(gene); // Add to unique list of genes 
           allGenes.push(gene); // Add to list of all genes
           logfcList.push(logfc); // Add to list of logfc 
+          logfcGene.push ({gene: gene, logfc: logfc})
         }
       }
+      //console.log(logfcGene);
 
       if (geneList[0]) { // If there were genes that matched 
         newNodes[i].gene = geneList; // Add gene attribute to node
@@ -550,6 +554,8 @@ private matchGenes(genes: any[], nodes: any[]): any[] {
 
       if (logfcList[0]) {
         //console.log(logfcList);
+        //console.log("LogFC List with genes");
+        //console.log(logfcGene);
         let mean = this.findMean(logfcList); // Calculating mean of Genes logfc
         let rgb = this.newlogfcToRGB(mean, this.selectedColorLow,this.selectedColorHigh); // Getting colout relative to logfc
         let result = this.resizeNodeByLogFC(mean); // resizing node
@@ -561,7 +567,9 @@ private matchGenes(genes: any[], nodes: any[]): any[] {
         newNodes[i].colour = rgb;
         newNodes[i].logfcList = logfcList;
         currentLogFc.push(logfcList);
+        newNodes[i].geneList = logfcGene;
       }
+      //console.log(newNodes[i]);
       //console.log('adding colour');
       colourArray.push({
         node: newNodes[i].key,
@@ -578,6 +586,7 @@ private matchGenes(genes: any[], nodes: any[]): any[] {
     enzymesEffected: enzymeSet.size
   })
  
+  //console.log(newNodes);
 
   return [newNodes,colourArray, stats];
 }
@@ -607,6 +616,7 @@ private compareEnzymes(nodes: any[],timepoint: number): any[]{
   const stats = elements[2];
   this.StatsArray = elements[2];
   const finalNodes = this.getMultipleGenes(updatedNodes);
+  console.log(finalNodes);
   return [finalNodes, colourArray, stats];
 }
 // No size change - called from getLoadedPathways
@@ -2384,22 +2394,65 @@ async getAllPathwayNames(): Promise<void>{
       this.pathways = list;
     }
 
-    // Sorting High to Low Pathway Size
-    if (criteria == 'highComp'){
-  
-      var pathwaysSize = this.pathwaySize()
-      pathwaysSize.sort((a, b) => b.size - a.size)
-      let sortedNames = pathwaysSize.map(item => item.name);
-      this.pathways = sortedNames;
+    // Sorting High DE enzymes
+    if (criteria == 'highDGE'){
+      
+      console.log('Sorting Pathways by No. of DE Enzymes - High to low');
+      const pathwayTally = this.pathwayTally;
+      let list = this.pathways;
+
+      const result = this.AllKeggPathways.filter(item1 =>
+        list.some(item2 => item2 === item1.name)
+      );
+
+      const tally = result.map(item => {
+        const match = pathwayTally.find(([path]) => path === item.pathway);
+        return match ? { name: item.name, number: match[1] } : null;
+      }).filter(Boolean);
+      const sortedTally = tally.sort((a, b) => {
+        if (a === null && b === null) return 0;
+        if (a === null) return 1;  // push nulls to the end
+        if (b === null) return -1;
+        return b.number - a.number;
+      });
+      //console.log(sortedTally);
+      const sortedNames = sortedTally
+          .filter(item => item !== null)
+            .map(item => item.name);
+      this.pathways=sortedNames;
+
       };
 
-    // Sorting Low to High Pathway Size
-    if (criteria == 'lowComp'){
+    // Sorting Low DE Enzymes
+    if (criteria == 'lowDGE'){
+      console.log('Sorting Pathways by No. of DE Enzymes - Low to High');
+      const pathwayTally = this.pathwayTally;
+      let list = this.pathways;
+      console.log(list);
+      let data = this.ALLpathwayData;
+      console.log(data);
 
-      var pathwaysSize = this.pathwaySize()
-      pathwaysSize.sort((a, b) => a.size - b.size);
-      let sortedNames = pathwaysSize.map(item => item.name);
-      this.pathways = sortedNames;
+      const result = this.AllKeggPathways.filter(item1 =>
+        list.some(item2 => item2 === item1.name)
+      );
+      console.log(result);
+
+      const tally = result.map(item => {
+        const match = pathwayTally.find(([path]) => path === item.pathway);
+        return match ? { name: item.name, number: match[1] } : null;
+      }).filter(Boolean);
+
+      const sortedTally = tally.sort((a, b) => {
+        if (a === null && b === null) return 0;
+        if (a === null) return 1;  // push nulls to the end
+        if (b === null) return -1;
+        return a.number - b.number;
+      });
+      console.log(sortedTally);
+      const sortedNames = sortedTally
+          .filter(item => item !== null)
+            .map(item => item.name);
+      this.pathways=sortedNames;
     }
     
     this.sortDropdownOpen = false;
