@@ -198,22 +198,21 @@ Click "Import Files" (**B**) which will open a pop-up window where the user can 
 - After selecting the extra files, click the "Add" button (**D**) to upload them. This will trigger reprocessing the mapping and displaying the previously selected number of top pathways from all expression files.  
 
 ##### b). Export Pathway Visualisation  
-Click on the "Export" button in the [File Menu](#2-file-menu) dropdown (**E**).
+Click on the "Export" button in the [File Menu](#2-file-menu) dropdown (**E**) to access the export feature functionalities.
 
    **IMAGE**
 *Fig.4c. Export pathway visulaisation page.*  
 
-   ###### i). *Choose Export Format*
-   - The user will have two options to export the visualisation, as either **PNG** or **SVG**.
-   - Click to choose desired format.  
+   ###### i). *Choose Export Format*  
+   The user will have two options to export the visualisation, as either **PNG** or **SVG**. Then click to choose the desired format.  
 
-   ###### ii). *Download File*
-   - Once the user has selected the desired format,and click the "Download" button, the image will automatically be saved to your computer in the Downloads folder.  
+   ###### ii). *Download File*  
+   Once the user has selected the desired format,and click the "Download" button, the image will automatically be saved to your computer in the Downloads folder.  
 
    
 #### 3. View Menu     
 
-To access view-related options, click the "View" menu (**A**) located on the top of the menu bar..  
+To access view-related options, click the "View" menu (**A**) located on the top of the menu bar.  
 
 ![View TopBar](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/View_TopBar.png)  
 
@@ -226,10 +225,10 @@ To access view-related options, click the "View" menu (**A**) located on the top
   
 ![View Customise](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/View_Customise.png)  
 
-*Fig.5b. shows customisation page.*  
+*Fig.5b. The customisation page.*  
 
 ###### ii). Change Colours  
-The user can modify the colours used to represent of high or low expressed genes including isoforms:
+The user can modify the colours used to represent high or low expressed genes including isoforms:
 - Click the coloured box (**F**) to open the colour picker.
 - Select your desired colour from the palette.    
 
@@ -241,8 +240,7 @@ To exit the customisation panel, click the **X** button located in the top-right
 
 
 ##### b). Search 
-To access the search options user should go to the [View Menu](#3-view-menu) (**A**) at the top bar.
-- To open the search panel, click "Search" button (**C**).  
+To access the search options user should go to the [View Menu](#3-view-menu) (**A**) at the top bar. To open the search panel, click "Search" button (**C**).  
   
 ###### i). *Search For Pathway Elements*  
 If the user would like to search by elements within the pathway, click  "Pathway Elements" button (**D). This will open a search options on the left side of the application window.  
@@ -258,7 +256,7 @@ Within the panel, the user can choose from three search categories: **Enzyme, Co
 
 ###### ii). *Search For Pathway*  
 
-If the user looking to search for a specific pathway: Next to "Pathway Ements" button (**D**) in the "Search" panel (accessed via the [View Menu](#3-view-menu)), click on the "For Pathway" button (**E**). Ihis will open a pop-up window containing two tabs that allow user to search and navigate different pathways.   
+If the user is looking to search for a specific pathway: Next to "Pathway Elements" button (**D**) in the "Search" panel (accessed via the [View Menu](#3-view-menu)), click on the "For Pathway" button (**E**). Ihis will open a pop-up window containing two tabs that will allow user to search and navigate different pathways.   
 
 ![View_SearchForPathway_Highlight](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/View_SearchForPathway_Highlight.png)  
 
@@ -266,9 +264,9 @@ If the user looking to search for a specific pathway: Next to "Pathway Ements" b
 
 **Highlight Tab:**
 - This tab displays a table listing all pathways where hits were found in the uploaded expression files. Information about the total number of pathways and the number of pathways currently selected is shown above the table.
-- To select pathways, tick the boxes in the "Select" column of the table (**L**) and to deselect a pathway, simply click the checkbox again..
+- To select pathways, tick the boxes in the "Select" column of the table (**L**) and to deselect a pathway, simply click the checkbox again.
 - Use the "Select All" and "Clear All" buttons (**M**) to quickly select or deselect all pathways.
-- Once user is satisfied with the selection,, click the "Search" button (**N**) to add the chosen pathways to the end of the pathway list in the sidebar.  
+- Once user is satisfied with the selection,, click the "Search" button (**N**) to add the chosen pathways to the end of the pathway list in the side bar.  
 
 **All KEGG Online Search Tab**  
 
@@ -279,11 +277,11 @@ The KEGG Online Search tab allows users to search for pathway names directly fro
 
 - As the user begins typing, a list of matching pathway names will appear below the search box.  
 - To add the pathway, simply click on its name and it will be added to the list beneath the search box (**P**).
-- To remove a particular pathway, click **X** next to its name.
+- To remove a particular pathway, click on **X** next to its name.
 - Once the desired pathways are selected, click the "Search" button at the bottom of the page to add them to the end of the pathway list in the Sidebar. The user can add multiple pathways.
 
 *Important things to note for the user:* 
-- The pop-out window can be resized by dragging its bottom-right corner, allowing for a more comfortable view of the pathway table.
+- The pop-up window can be resized by dragging its bottom-right corner, allowing for a more comfortable view of the pathway table.
 - Only one tab can be active at a time. Switching between tabs will reset any selections made in the previously opened tab.  
 
 #### 4. Help Menu   
@@ -291,7 +289,9 @@ The Help Menu provides access to the [Guide Section](#guide-section), which user
 
 
 #### 5. Display Interaction  
- 
+
+**IMAGE**  
+
  
 #### 6. Time Series  
 ![TimeSeries_Image1](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/TimeSeries_Image1.png)
@@ -300,8 +300,7 @@ The Help Menu provides access to the [Guide Section](#guide-section), which user
 
 *Fig.6. Time series animation display.*  
 
-The figure above illustrate how users can explore different time points, as labeled in their uploaded expression files.
-Use the slider (**A**) to move through the different time points and observe how the pathway changes over time.  
+The figure above illustrate how users can explore different time points, with names as labeled in their uploaded expression files, by using the slider (**A**) to move through the different time points and observe how the pathway changes over time.  
 
 To create a timelapse animation of the pathway across all time points, click the "Animate" button (**B**). The animation will sequentially display changes across each time point, providing a dynamic view of pathway evolution.  
 
@@ -336,7 +335,7 @@ The panel displayed at the bottom of the screen provides key information about t
 - The name of the pathway currently being viewed.
 - The total number of genes present in the pathway.
 - The number of unique genes represented in the visualisation.
-- The number of enzymes impacted based on the uploaded expression data.  
+- The number of enzymes differentially regulated by the genes based on the uploaded data.  
 
 ## Hands-on Example
 
