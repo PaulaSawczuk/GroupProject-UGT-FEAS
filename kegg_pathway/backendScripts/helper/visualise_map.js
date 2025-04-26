@@ -90,32 +90,20 @@ function removeDuplicateReactionNodes(myDiagram) {
     var reaction_groups= [];
     myDiagram.nodes.each(function(node) {
       if (node.data.type == "reaction"){
-        //console.log(node.data.key);
-        //console.log(node.data.group);
-        //console.log(node.data.text);
+
         reaction_groups.push(node.data.key);
       }
     });
 
-
-
-    //console.log(enzyme_groups);
-    //console.log(reaction_groups);
     var enzyme_matches=[];
-    //console.log(enzyme_groups);
-    
     enzyme_groups.forEach(function(enzyme){
      //console.log(enzyme);
       
       for (let i=0; i<nodesToRemove.length;i++){
-        //console.log(nodesToRemove[i]);
-        //console.log(enzyme.group);
+
         //console.log("------------")
         if (enzyme.group == nodesToRemove[i]){
-          //console.log("Match! :"+enzyme.group);
-          //console.log(nodesToRemove[i]);
-          //console.log(enzyme.key);
-          //console.log("------------")
+
           enzyme_matches.push({
             key: enzyme.key,
             group: enzyme.group

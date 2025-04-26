@@ -429,7 +429,7 @@ function getMapNodes(entries){
         if (entries[i].$.type=='map'){
 
             nodes.push({
-                // Adding Substrate Nodes
+                // Adding Map Nodes
                         key: entries[i].$.id,
                         text: entries[i].$.name,
                         name: entries[i].graphics[0].$.name,
@@ -459,7 +459,7 @@ function getCompoundNodes(entries){
         if (entries[i].$.type=='compound'){
 
             nodes.push({
-                // Adding Substrate Nodes
+                // Adding Compound Nodes
                         key: entries[i].$.id,
                         text: entries[i].$.name,
                         name: entries[i].graphics[0].$.name,
