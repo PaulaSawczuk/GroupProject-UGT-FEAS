@@ -69,7 +69,7 @@ To get the application up and running on users local machine, follow the steps b
 
   This will launch the app in your default web browser.
   
-**Note:** Ensure that Node.js and npm are installed on your system.
+**Note:** Ensure that Node.js and npm are installed on your system follow instructions on the official [Node.js](https://nodejs.org/en/download/) download site.
 
 ## Test Data and Data Format  
 
