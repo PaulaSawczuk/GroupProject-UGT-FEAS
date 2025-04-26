@@ -140,7 +140,7 @@ async function processInput(code) {
 
     // -------- Processing Reaction KGML and Realtions Absent in EC KGML------------
 
-
+    // Processing RN 
     var RNcompoundLinks = processRN(rn_elements.entries, rn_elements.relations, rn_elements.reactions, map_elements.uniqueNodes);
     var finalEdges = addCompoundLinks(RNcompoundLinks.entryLinks,map_elements.edges);
 
