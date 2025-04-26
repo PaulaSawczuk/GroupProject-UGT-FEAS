@@ -13,7 +13,7 @@ This project was generated using [Angular CLI](https://github.com/angular/angula
     - [Cloning the Repository](#1-cloning-the-repository)
     - [Installing Dependencies](#2-installing-dependencies)
     - [Starting the Application](#3-starting-the-application)
-  - [EnStrap.int Test Data and Format](#enstrapint-test-data-and-format)
+  - [EnStrap.int Test Data and File Format Requirements](#enstrapint-test-data-and-file-format-rquirements)
     - [File Format Requirements ](#file-format-requirements)
   - [Navigating EnStrap.int](#navigating-enstrapint)
     - [Welcome Page](#welcome-page)
@@ -72,7 +72,7 @@ To get the application up and running on users local machine, follow the steps b
   
 **Note:** Ensure that Node.js and npm are installed on your system follow instructions on the official [Node.js](https://nodejs.org/en/download/) download site.
 
-## EnStrap.int Test Data and Format  
+## EnStrap.int Test Data and File Format Requirements  
 
 When EnStrap.int is launched, the data for testing the app can be accessed via [Test Data Folder on GitHub](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/tree/main/TestData). The tool supports files in .csv and .txt formats only. The data must include at least one *expression file* and its corresponding *annotation file*. 
 
@@ -118,7 +118,7 @@ The system ensures compatibility by transforming all column names to lowercase b
 
 The welcome page is the first screen users will see when they launch the EnStrap.int application.
 
-- Clicking "Get Started" button (**A**) navigates to the Upload Page, where users can submit their data (expression files and annotation file).
+- Clicking "Get Started" button (**A**) navigates to the Upload Page, where users can submit their data (expression and annotation files).
 - The "Guide" Button (**B**) opens the User Guide, providing an overview of EnStrap.int’s features and how to use them effectively.  
 
 ### Guide Section  
@@ -127,7 +127,7 @@ The welcome page is the first screen users will see when they launch the EnStrap
 
 *Fig.2. Users guide page.* 
 
-The guide provides detailed instructions on how to use the key features of EnStrap.Int, including:
+The guide provides detailed instructions on how to use the key features of EnStrap.Int, which includes:
 
 - File Upload
 - Customisation and Search
@@ -147,7 +147,7 @@ Clicking "Get Started" button (**C**) in (**Fig.2**) will take you to the File U
 This is where the user uploads the data files:  
 
 ##### **Upload Users Files**
-Click "Upload" button (**A**), as previously described in the [Test Data and Data Format](#test-data-and-data-format) section, the user must upload at least one expression file and one annotation file to proceed.  
+Click "Upload" button (**A**), as previously described in the [EnStrap.int Test Data and File Format Requirements](#enstrapint-test-data-and-file-format-rquirements) section, the user must upload at least one expression file and one annotation file to proceed.  
 
 ##### **Access Upload Instructions**
 In case the user is unsure about the type of files to upload, click the information icon (**B**) at the top-right corner for guidance.  
@@ -167,13 +167,13 @@ After uploading, a list of selected files will appear.
 User can customise how the data will be processed by adjusting the following options:  
 
 ###### a). **Number of Top-Expreesed Pathways:**  
-   - Enter the desired number of pathways or use the up/down arrows (**E**)to specify how many of the top-expressed KEGG pathways should be visualised.  
+   - Enter the desired number of pathways or use the up/down arrows (**E**) to specify how many of the top-expressed KEGG pathways should be visualised.  
 
 ###### b). **Organism Specification:**  
    - The user can choose to specify the organism or not.
 
 ###### c). **Time Series Data:**  
-   - User must indicate whether the dataset includes time series analysis (**D**).
+   - User must indicate whether the dataset includes time series analysis (**D**) or not.
    
 ##### **Process and Visualise**
 Click the "Process" button (**F**) once all settings are configured to generate visualisations of the KEGG pathways.
@@ -188,13 +188,13 @@ Click the "Process" button (**F**) once all settings are configured to generate 
 To access file-related options, click the "File" menu (**A**) located in the top menu bar.
    
 ##### a). Import Extra Files  
-Click "Import Files" (**B**) which will open a pop-up window where you can upload additional expression files. 
+Click "Import Files" (**B**) which will open a pop-up window where the user can upload additional expression files. Take note that **only expression files are accepted here-annotation files are not supported**. 
         
 
 ![ExtraFile_Image2](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/ExtraFile_Image2.png)  
 *Fig.4b. Upload extra files page*
 
-- In the pop-up window, click "Choose Files" (**C**), the user can select multiple files and note that **only expression files are accepted here-annotation files are not supported**.
+- In the pop-up window, click "Choose Files" (**C**), the user can select multiple expression files.
 - After selecting the extra files, click the "Add" button (**D**) to upload them. This will trigger reprocessing the mapping and displaying the previously selected number of top pathways from all expression files.  
 
 ##### b). Export Pathway Visualisation  
