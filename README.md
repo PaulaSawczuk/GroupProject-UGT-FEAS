@@ -288,17 +288,39 @@ The KEGG Online Search tab allows users to search for pathway names directly fro
 The Help Menu provides access to the [Guide Section](#guide-section), which users can refer to if they are unsure how to use a specific feature-especially when they are on the main application window rather than the [Welcome Page](#welcome-page). 
 
 
-#### 5. Display Interaction  
+#### 5. Display Interaction    
+The figure below illustrates the interactive features of the visualizations.  
 
-**IMAGE**  
+![Interactive_Image1](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/Interactive_Image1.png)    
+*Fig. 6a.  Overview of visualization interactivity.*  
 
+##### a). Pathway Dynamic Hyperlink  
+When a user clicks on a linked pathway name — for example, the one labeled (**A**) in the visualization — the application dynamically renders the selected pathway. See (**Fig. 6b**) below:  
+
+![InteractivityHyperlink_Image2](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/InteractivityHyperlink_Image2.png)  
+*Fig. 6b. Navigation from pathway name to pathway visualization.*  
+
+##### b). Pop-Out Windows
+i). *Enzyme:*
+Click on the "Enzyme" label (**B**), opens a pop-up window displaying detailed information about the selected enzyme, which includes: 
+- Enzyme key identifier
+- Enzyme Commission (EC) code
+- Associated gene(s), including isoforms where applicable
+- Log2 fold change (logFC) value
+- Enzyme name  
+
+ii). *Compound:*  
+Clicking on a "Compound" label (**C**) opens a pop-up window with details about the selected compound, which includes:
+
+- Compound key identifier
+- Enzyme Commission number   
  
 #### 6. Time Series  
 ![TimeSeries_Image1](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/TimeSeries_Image1.png)
 ![TimeSeries_Image2](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/TimeSeries_Image2.png)
   
 
-*Fig.6. Time series animation display.*  
+*Fig.7. Time series animation display.*  
 
 The figure above illustrate how users can explore different time points, with names as labeled in their uploaded expression files, by using the slider (**A**) to move through the different time points and observe how the pathway changes over time.  
 
@@ -307,18 +329,18 @@ To create a timelapse animation of the pathway across all time points, click the
 #### 7. Side Bar Functionality and Pathway Information      
 ##### a). Side Bar Functionality  
 ![SideBar_Image0](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/SideBar_Image0.png)  
-*Fig.7a. Side bar functionality.*  
-The side bar, located on the left side of the interface, displays a list labelled (**A**) in (**Fig.7b**) of top-expressed pathways. The number of pathways shown depends on the number previously selected by the user.    
+*Fig.8a. Side bar functionality.*  
+The side bar, located on the left side of the interface, displays a list labelled (**A**) in (**Fig.8b**) of top-expressed pathways. The number of pathways shown depends on the number previously selected by the user.    
 
 ![SideBar_Image1](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/SideBar_Image1.png)    
-*Fig.7b. Sorting pathways and expanding/collapsing the side bar.*  
+*Fig.b. Sorting pathways and expanding/collapsing the side bar.*  
 
 **Sorting Pathways:** To sort pathways, click the "Sort" button (**B**) which opens a dropdown menu with two main sorting options; alphabetical order in either ascending or descending sequence.  
 
 **Expanding and Collapsing the Side Bar:** For the user to collapse the side bar and expand the main display view, click the arrows at the top right corner (**C**). To reopen the side bar, click the same arrows on the collapsed bar (**D**).   
 
 ![SideBar_Image2](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/SideBar_Image2.png)  
-*Fig.7c. Merging tabs within the side bar.*    
+*Fig.8c. Merging tabs within the side bar.*    
 
 If the [Search](#b-search) and [Customise](#a-customise) tabs are added to the side bar, the user can easily switch between them by clicking the relevant icon or section name. The currently active section will be highlighted (**E**).    
 
@@ -329,7 +351,7 @@ To close the [Search](#b-search) and [Customise](#a-customise) sections, click o
 #### b). Pathway Information  
 
 ![StatsDisplay](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/StatsDisplay.png)  
-*Fig.7d. Summary of the visualised pathway.*    
+*Fig.8d. Summary of the visualised pathway.*    
 
 The panel displayed at the bottom of the screen provides key information about the currently visualised pathway. This includes:
 - The name of the pathway currently being viewed.
