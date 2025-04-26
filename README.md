@@ -13,7 +13,7 @@ This project was generated using [Angular CLI](https://github.com/angular/angula
     - [Cloning the Repository](#1-cloning-the-repository)
     - [Installing Dependencies](#2-installing-dependencies)
     - [Starting the Application](#3-starting-the-application)
-  - [EnStrap.int Test Data and File Format Requirements](#enstrapint-test-data-and-file-format-rquirements)
+  - [EnStrap.int Test Data and File Format Requirements](#enstrapint-test-data-and-file-format-requirements)
     - [File Format Requirements ](#file-format-requirements)
   - [Navigating EnStrap.int](#navigating-enstrapint)
     - [Welcome Page](#welcome-page)
@@ -147,7 +147,7 @@ Clicking "Get Started" button (**C**) in (**Fig.2**) will take you to the File U
 This is where the user uploads the data files:  
 
 ##### **Upload Users Files**
-Click "Upload" button (**A**), as previously described in the [EnStrap.int Test Data and File Format Requirements](#enstrapint-test-data-and-file-format-rquirements) section, the user must upload at least one expression file and one annotation file to proceed.  
+Click "Upload" button (**A**), as previously described in the [EnStrap.int Test Data and File Format Requirements](#enstrapint-test-data-and-file-format-requirements) section, the user must upload at least one expression file and one annotation file to proceed.  
 
 ##### **Access Upload Instructions**
 In case the user is unsure about the type of files to upload, click the information icon (**B**) at the top-right corner for guidance.  
