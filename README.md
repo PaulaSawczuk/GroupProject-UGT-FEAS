@@ -13,7 +13,8 @@ This project was generated using [Angular CLI](https://github.com/angular/angula
     - [Cloning the Repository](#1-cloning-the-repository)
     - [Installing Dependencies](#2-installing-dependencies)
     - [Starting the Application](#3-starting-the-application)
-  - [Test Data and Data Format](#test-data-and-data-format)
+  - [EnStrap.int Test Data and Format](#enstrapint-test-data-and-format)
+    - [File Format Requirements ](#file-format-requirements)
   - [Navigating EnStrap.int](#navigating-enstrapint)
     - [Welcome Page](#welcome-page)
     - [Guide Section](#guide-section)
@@ -71,9 +72,43 @@ To get the application up and running on users local machine, follow the steps b
   
 **Note:** Ensure that Node.js and npm are installed on your system follow instructions on the official [Node.js](https://nodejs.org/en/download/) download site.
 
-## Test Data and Data Format  
+## EnStrap.in Test Data and Format  
 
-When EnStrap.int is launched, the data for testing the app can be accessed via [Test Data Folder on GitHub](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/tree/main/TestData). The tool supports files in .csv and .txt formats only. The data must include at least one *expression file* and its corresponding *annotation file*.  
+When EnStrap.int is launched, the data for testing the app can be accessed via [Test Data Folder on GitHub](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/tree/main/TestData). The tool supports files in .csv and .txt formats only. The data must include at least one *expression file* and its corresponding *annotation file*. 
+
+### File Format Requirements  
+The tool is designed to work with two types of files that contain different information, identified by specific column naming conventions.  
+
+#### Expression File Format:
+
+*Required columns:*  
+- A column named "gene" (for matching genes across files).
+- A column named "log2foldchange" (for file identification).  
+
+*Format considerations:*  
+- Column names are case-insensitive (can be upper, lower, or mixed case).
+- The "gene" column must contain string data.
+- The "log2foldchange" column must contain numeric data.
+
+
+
+### Annotation File Format:
+
+*Identification criteria:*   
+Must have at least **ONE** of the following:
+- A column named "sequence.name" (for gene matching) **OR**
+- A column named "annotation.go.id" **OR**
+- A column named "enzyme.code" **OR**.
+- BOTH a column with "go" in its name **AND** a column with "enzyme" in its name (e.g., "annotation.go.id" and "enzyme.code" or any other column names containing these terms).
+
+
+*Format considerations:*
+- Column names are case-insensitive (the tool converts all to lowercase for processing).
+- All columns in the annotation file should contain string data.
+
+
+
+The system ensures compatibility by transforming all column names to lowercase before processing, allowing users to enter column names in any case format while maintaining the tool's functionality.
 
 ## Navigating EnStrap.int
 
