@@ -2428,9 +2428,9 @@ async getAllPathwayNames(): Promise<void>{
       console.log('Sorting Pathways by No. of DE Enzymes - Low to High');
       const pathwayTally = this.pathwayTally;
       let list = this.pathways;
-      console.log(list);
+      //console.log(list);
       let data = this.ALLpathwayData;
-      console.log(data);
+      //console.log(data);
 
       const result = this.AllKeggPathways.filter(item1 =>
         list.some(item2 => item2 === item1.name)
@@ -2448,7 +2448,7 @@ async getAllPathwayNames(): Promise<void>{
         if (b === null) return -1;
         return a.number - b.number;
       });
-      console.log(sortedTally);
+      //console.log(sortedTally);
       const sortedNames = sortedTally
           .filter(item => item !== null)
             .map(item => item.name);
