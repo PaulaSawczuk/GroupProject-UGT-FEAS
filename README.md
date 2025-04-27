@@ -109,11 +109,11 @@ b). *Format considerations:*
 
 The system ensures compatibility by transforming all column names to lowercase before processing, allowing users to enter column names in any case format while maintaining the tool's functionality.
 
-## The Visualisation     
+## The Pathway Visualisation     
   
 The pathway visualization was developed using the GoJS library, which provides powerful diagramming capabilities for complex biochemical networks. The figure below illustrates a representative example of the pathway visualization interface with its key interactive elements.   
 
-![]()  
+![Visualisation_Image](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/Visualisation_Image.png)    
 
 ### Visualisation Features  
 
@@ -311,18 +311,19 @@ The Help Menu provides access to the [Guide Section](#guide-section), which user
 
 
 #### 5. Display Interaction    
-The figure below illustrates the interactive features of the visualizations.  
-
-![Interactive_Image1](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/Interactive_Image1.png)    
-*Fig. 6a.  Overview of visualization interactivity.*    
+The figures illustrate the interactive features of the visualisations.  
 
 ##### a). Pathway Dynamic Hyperlink  
-When a user clicks on a linked pathway name — for example, the one labeled (**A**) in the visualization — the application dynamically renders the selected pathway. See (**Fig. 6b**) below:  
+When a user clicks on a linked pathway name — for example, the one labeled (**A**) in the visualisation — the application dynamically renders the selected pathway. See figure below:  
 
 ![InteractivityHyperlink_Image2](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/InteractivityHyperlink_Image2.png)  
-*Fig. 6b. Navigation from pathway name to pathway visualization.*    
+*Fig. 6a. Navigation from pathway name to pathway visualisation.*   
 
-##### b). Pop-Out Windows
+##### b). Pop-Out Windows  
+
+![Interactive_Image1](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/Interactive_Image1.png)      
+*Fig. 6b.  Visualisation interactivity.*       
+
 i). *Enzyme:*  
 Click on the "Enzyme" label (**B**), opens a pop-up window displaying detailed information about the selected enzyme, which includes: 
 - Enzyme key identifier
