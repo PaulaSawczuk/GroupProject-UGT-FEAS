@@ -119,7 +119,7 @@ The pathway visualization was developed using the GoJS library, which provides p
 
 **Linked Pathway:** Represented by the light blue rectangular box labeled (**A**), this element serves as a gateway to another pathway visualization. Clicking on this interactive element allows users to navigate to related metabolic pathways, facilitating comprehensive exploration of interconnected biochemical processes as below in [Display Interaction](#5-display-interaction).  
 
-**Enzyme:** Depicted by rectangular boxes such as the one labeled (**D**), enzymes are color-coded to reflect differential gene expression levels. The color spectrum transitions from purple (**J**) to pink (**B**), indicating varying degrees of expression. Gray enzymes (**D**) signify neutral expression levels, indicating no significant change in gene activity. The legend (**F**) in the bottom corner provides a complete reference for interpreting these color variations.    
+**Enzyme:** Depicted by rectangular boxes such as the one labeled (**D**), enzymes are color-coded to reflect differential gene expression levels. The color spectrum transitions from blue (**J**) to red (**B**), indicating varying degrees of expression. Gray enzymes (**D**) signify neutral expression levels, indicating no significant change in gene activity. The legend (**F**) in the bottom corner provides a complete reference for interpreting these color variations.    
 
 **Compound:** Illustrated by gray circles (**C**), these elements represent metabolites or chemical compounds that participate in the biochemical reactions within the pathway.    
 
