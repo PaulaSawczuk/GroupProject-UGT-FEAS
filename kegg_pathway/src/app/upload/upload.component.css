@@ -137,6 +137,7 @@
   font-size: 18px;
   display: flex;
   align-items: center;
+  margin-bottom: 10px;
 }
 
 .upload-button:hover {
@@ -317,6 +318,161 @@
   border-radius: 2px;
   border: 1px solid #482E3C;
   font-size: 14px;
+}
+
+
+.tick {
+  color: green;
+  /* font-weight: bold; */
+  font-family: 'DM Sans', sans-serif;
+
+}
+.cross {
+  color: red;
+  /* font-weight: bold; */
+  font-family: 'DM Sans', sans-serif;
+
+}
+
+.file-status p {
+  position: relative;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px;
+  color: #48494B;
+  margin-bottom: 0;
+  margin-top: 0;
+}
+
+.file-status-title p {
+  font-family: 'DM Sans', sans-serif;
+  font-weight: bold;
+  margin-bottom: 2px;
+  position: relative;
+  font-size: 12px; 
+  color: #48494B;
+  margin-left: -64%; 
+  margin-top: 0;
+}
+
+
+/* ------------- EXPRESSION FILE LIST --------------- */
+.expression-file-item.dragging {
+  opacity: 0.5;
+  transform: scale(1.02);
+}
+
+.expression-file-item.drag-over {
+  background-color: #d6e4ff;
+  border: 2px dashed #4a90e2;
+} 
+
+.expression-file-list {
+  width: 100%;
+  margin-top: 20px;
+  text-align: left;
+  font-family: 'DM Sans', sans-serif;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.expression-file-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background-color: #bdb9b9b4;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: grab;
+  transition: background-color 0.25s, transform 0.25s;
+  position: relative;
+}
+
+/* Number */
+.file-number {
+  font-weight: bold;
+  color: #4A4459;
+  margin-right: 10px;
+  width: 24px;
+  text-align: center;
+}
+
+/* File name */
+.file-name {
+  flex-grow: 1;
+  color: #48494B;
+  font-family: 'DM Sans', sans-serif;
+}
+
+/* Remove button */
+.remove-button {
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  color: #888;
+}
+
+.remove-btn:hover {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+/* Dragging item */
+.expression-file-item.dragging {
+  opacity: 0.5;
+  transform: scale(1.02);
+}
+
+.expression-file-item.drag-over-top::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 4px;
+  width: 100%;
+  background-color: #4a90e2;
+
+  border-radius: 4px 4px 4px 4px;
+}
+
+.expression-file-item.drag-over-bottom::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 4px;
+  width: 100%;
+  background-color: #4a90e2;
+  border-radius: 0 0 4px 4px;
+}
+
+.drag-placeholder {
+  height: 48px; 
+  background-color: #d6e4ff;
+  border: 2px dashed #4a90e2;
+  border-radius: 8px;
+  margin: 4px 0;
+  transition: background-color 0.2s;
+}
+
+.file-list-title{
+  font-family: 'DM Sans', sans-serif;
+  /* font-weight: bold; */
+  /* margin-bottom: 2px; */
+  /* position: relative; */
+  font-size: 12px; 
+  color: #48494B;
+  /* margin-top: -10%; */
+}
+
+.file-type-group h3{
+  font-family: 'DM Sans', sans-serif;
+  font-weight: bold;
+  margin-bottom: 2px;
+  font-size: 18px; 
+  color: #222223;
 }
 
 

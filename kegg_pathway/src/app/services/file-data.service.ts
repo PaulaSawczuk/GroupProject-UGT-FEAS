@@ -1,7 +1,14 @@
 import { Injectable } from '@angular/core';
+
+interface UploadedFile {
+  name: string;
+  file: File;
+}
 @Injectable({
 providedIn: 'root',
 })
+
+
 export class FileDataService {
 private fileData: { [fileName: string]: string[][] } = {};
 private pathways: string[] = []; // Add pathways property
@@ -11,7 +18,20 @@ private combinedData: any[] = []; // Added for combined data
 private annotationData: { [filename: string]: string[][] } = {}; // Added for annotation data
 private multipleCombinedArrays: any[][] = [];
 private pathwayCount: number = 10; // Default to 10 pathways 
+private uploadedExpressionFiles: UploadedFile[] = [];
 
+setUploadedExpressionFiles(files: UploadedFile[]): void {
+  this.uploadedExpressionFiles = files;
+  console.log('Uploaded files set:', this.uploadedExpressionFiles);
+}
+
+getUploadedExpressionFiles(): UploadedFile[] {
+  return this.uploadedExpressionFiles;
+}
+
+clearUploadedExpressionFiles(): void {
+  this.uploadedExpressionFiles = [];
+}
 
 setPathwayCount(numberEntered: number): void{
   console.log('Setting PathwayCount');

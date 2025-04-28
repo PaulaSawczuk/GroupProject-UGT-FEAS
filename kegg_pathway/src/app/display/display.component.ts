@@ -14,6 +14,11 @@ interface GuideElement {
   fullContent: string;
 }
 
+interface UploadedExpressionFile {
+  name: string;
+  file: File;
+}
+
 export interface StatsArrayType {
   totalGenes: number;
   uniqueGenes: number;
@@ -79,6 +84,9 @@ export class DisplayComponent {
 
   currentLogFc: any[] = [];
 
+  UploadedExpressionFiles: UploadedExpressionFile[] = [];
+  ExpressionFileNames: string[] = [];
+
   // Creating a GoJS Diagram 
   private myDiagram: go.Diagram | null = null;
 
@@ -117,6 +125,7 @@ export class DisplayComponent {
   ) {
     document.addEventListener('click', this.handleClickOutside.bind(this));
     document.addEventListener('click', this.onOutsideClick.bind(this));
+    this.UploadedExpressionFiles = this.fileDataService.getUploadedExpressionFiles();
   }
 
   // ------------- SETTING UP PROCESSING FUNCTIONS -------------------------
@@ -943,7 +952,7 @@ private getLoadedPathways(): void{
 
       },
       (error) => {
-        // Handle errors
+        // Handle errorsF
         console.error('Error:', error);
         this.isLoading = false; 
 
@@ -953,7 +962,7 @@ private getLoadedPathways(): void{
 
     this.filteredPathways = [...this.pathways];
     
-
+    this.ExpressionFileNames = this.UploadedExpressionFiles.map(file => file.name);
   };
 
 
@@ -2698,6 +2707,8 @@ processNewFiles(): void{
     }
 
     const newFilteredGenes = this.updateFilterEnzymeGenes(filteredFiles);
+    // this.UploadedExpressionFiles =  [...this.UploadedExpressionFiles, ...newFiles];
+
     //var newArray = originalData.push(newFilteredGenes);
     console.log('Adding New Filtered Data to Array');
     //console.log(newArray);
@@ -2795,6 +2806,7 @@ processNewFiles(): void{
     // Update the uploadedFiles array with the newly selected valid files
     this.uploadedFiles = [...this.uploadedFiles, ...newFiles];
     this.showFileList = this.uploadedFiles.length > 0; // Show the file list if files are uploaded
+    this.UploadedExpressionFiles =  [...this.UploadedExpressionFiles, ...newFiles];
   }
 
   // Remove a specific file from the uploadedFiles list
@@ -3002,7 +3014,7 @@ processNewFiles(): void{
             }
           );
           this.closeUploadModal(); // Close modal after merge
-
+          
           //this.isLoading = false;
         }).catch(err => {
           console.warn('Failed to process added files:', err);
@@ -3279,6 +3291,7 @@ Once all the steps are completed, click the Process button to move to get visual
 
   updateValue(): void {
     this.value = this.timepoints[this.selectedTimeIndex];
+    console.log('Uploaded Expression Files:', this.UploadedExpressionFiles);
     console.log('Timepoint changed');
     console.log('Getting Map for: ');
     const code = this.selectedPathway;
@@ -3291,6 +3304,26 @@ Once all the steps are completed, click the Process button to move to get visual
 
   }
 
+  // Shorten the name of the ticks
+  shortenFileName(name: string): string {
+    if (name.length > 10) {
+      return name.substring(0, 7) + '...';  
+    }
+    return name;
+  }
+  
+  selectTimeIndex(index: number) {
+    this.selectedTimeIndex = index;
+    this.updateValue(); 
+  }
+
+  removeFileExtension(fileName: string): string {
+    return fileName.replace(/\.(csv|txt)$/i, '');
+  }
+  
+  hasThreeOrMoreFiles(): boolean {
+    return this.ExpressionFileNames.length >= 3;
+  }
   // ------------------ ANIMATION ------------------
 
   isAnimationActive = false;
@@ -3581,6 +3614,10 @@ Once all the steps are completed, click the Process button to move to get visual
   }
 
   this.activeTab = tab;
+}
+
+removeEcPrefix(pathway: string): string {
+  return pathway?.replace(/^ec/, '') || '';
 }
 
   // ---------- STATS DISPLAY -------------

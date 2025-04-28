@@ -39,6 +39,8 @@
                 </div>
                 <span class="menu-text">Pathways</span>
               </div>
+
+
               
               <!-- ---------------- SORT BY ---------------- -->
               <div class="sort-container" (click)="toggleSortDropdown($event)"> 
@@ -57,6 +59,10 @@
 
             </div>
             <hr />
+            <!-- Total Count -->
+            <div *ngIf="isMenuOpen" class="total-pathways">
+              Number of Pathways: {{ highlightedPathways.length }}
+            </div>
             <div class="scrollable-pathways">
               <ul class="sub-menu" [class.show]="pathwaysOpen && !customTabOpen && !searchTabOpen">
                 <li *ngFor="let pathway of pathways">
@@ -293,6 +299,9 @@
         </div>
         <div class="Upload-modal-body">
           <button class="choose-files-button" (click)="onUploadClick()">Choose Files</button>
+            <div class = "What-to-upload-message">
+              <p>Please upload only Expression data (.csv or .txt). </p>
+            </div>  
           <div *ngIf="unsupportedFileTypeMessage" class="error-message-box">
             <span [innerHTML]="unsupportedFileTypeMessage"></span>
           </div>
@@ -304,7 +313,7 @@
               </li>
             </ul>
           </div>
-          <div *ngIf="!uploadedFiles.length && !unsupportedFileTypeMessage" style="margin-top: 10px; font-family: 'DM Sans', sans-serif;">
+          <div *ngIf="!uploadedFiles.length && !unsupportedFileTypeMessage" style="margin-top: 10px; font-family: 'DM Sans', sans-serif; font-size: 14px;">
             No files selected yet.
           </div>
         </div>
@@ -317,7 +326,7 @@
     <div class="summary-box" *ngIf="showSummaryBox">
       <div class="summary-box-content">
         <div class="summary-header">
-          <h3>Pathway Comparison Summary</h3>
+          <h3>Top Pathways Comparison Summary</h3>
           <span class="summary-close" (click)="showSummaryBox = false">×</span>
         </div>
     
@@ -399,7 +408,7 @@
         <!-- ---------------- TABS ---------------- -->
         <div class="Search-Pathway-tabs">
           <button [class.active]="activeTab === 'highlight'" (click)="setActiveTab('highlight')">Highlighted</button>
-          <button [class.active]="activeTab === 'all'" (click)="setActiveTab('all')">All KEGG</button>
+          <button [class.active]="activeTab === 'all'" (click)="setActiveTab('all')">KEGG Online</button>
         </div>
 
         <!-- ---------------- SEARCH FOR PATHWAY ---------------- -->
@@ -477,7 +486,9 @@
                   <td *ngIf="isAlreadyInList(pathway.name)">
                   </td>
                   <td (click)="onHighlightRowClick(pathway)">{{ pathway.name }}</td>
-                  <td (click)="onHighlightRowClick(pathway)">{{ pathway.pathway }}</td>
+                  <td (click)="onHighlightRowClick(pathway)">
+                    {{ removeEcPrefix(pathway.pathway) }}
+                  </td>                  
                   <td (click)="onHighlightRowClick(pathway)">{{ pathway.Enzymes }}</td>
                 </tr>
               </tbody>
@@ -509,11 +520,36 @@
           <div class="custom-slider">
             <div class="slidecontainer">
               <p>Time Point:</p>
-              <input type="range" class="slider" [min]="0" [max]="timepoints.length - 1" [(ngModel)]="selectedTimeIndex" (input)="updateValue()" step="1">
-              <p><span id="sliderValue">{{ value }}</span></p>
+          
+              <div class="slider-wrapper">
+                <input  
+                  type="range"  
+                  class="slider"  
+                  [min]="0"  
+                  [max]="ExpressionFileNames.length - 1"  
+                  [(ngModel)]="selectedTimeIndex"  
+                  (input)="updateValue()"  
+                  step="1"
+                >
+          
+                <div  
+                  *ngFor="let fileName of ExpressionFileNames; let i = index"
+                  class="tick"
+                  [ngClass]="{ 'staggered': hasThreeOrMoreFiles() }"
+                  [class.selected]="i === selectedTimeIndex"
+                  [style.left.%]="(i / (ExpressionFileNames.length - 1)) * 100"
+                  [title]="removeFileExtension(fileName)"
+                  (click)="selectTimeIndex(i)">
+                  {{ removeFileExtension(fileName) }}
+                </div>
+              </div>
+          
+              <!-- <p><span id="sliderValue">{{ ExpressionFileNames[selectedTimeIndex] || '0' }}</span></p> -->
             </div>
           </div>
         </div>
+        
+        
 
         <!-- ---------------- ANIMATION BUTTON ---------------- -->
         <div class="animation-container">
