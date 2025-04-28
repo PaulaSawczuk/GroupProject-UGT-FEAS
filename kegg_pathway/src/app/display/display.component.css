@@ -195,6 +195,255 @@ html {
   line-height: 1;
 }
 
+/* ------------ Submenu - UPLOADED FILES -------------- */
+
+.uploaded-files-modal {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+}
+
+.uploaded-files-modal-content {
+  background-color: #e9ecef;
+  padding: 20px;
+  border-radius: 15px;
+  width: 400px;
+  height: 500px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  max-width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.uploaded-files-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  font-family: 'DM Sans', sans-serif;
+  color: #343a40;
+  font-size: 12px;
+  letter-spacing: 1px;
+  border-bottom: 1px solid #ddd;
+  margin-left: 0px;
+  margin-right: 0px; 
+}
+
+.uploaded-files-close-btn {
+  cursor: pointer;
+  font-size: 18px;
+  margin-top: -30px;
+  margin-right: -10px;
+}
+
+.uploaded-files-modal-body {
+  margin-top: 10px;
+  flex-grow: 1;
+  overflow-y: auto;
+}
+
+/* ------------- EXPRESSION FILE LIST --------------- */
+
+.expression-file-item.dragging {
+  opacity: 0.5;
+  transform: scale(1.02);
+}
+
+.expression-file-item.drag-over {
+  background-color: #d6e4ff;
+  border: 2px dashed #4a90e2;
+} 
+
+.expression-file-list {
+  width: 100%;
+  margin-top: 20px;
+  text-align: left;
+  font-family: 'DM Sans', sans-serif;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.file-item{
+  color: #4A4459;
+  margin-right: 10px;
+  width: 24px;
+  text-align: center;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+}
+.expression-file-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 12px;
+  background-color: #bdb9b9b4;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: grab;
+  transition: background-color 0.25s, transform 0.25s;
+  position: relative;
+  
+}
+
+.expression-files-header h3{
+  font-family: 'DM Sans', sans-serif;
+  font-weight: bold;
+  margin-bottom: 0;
+  position: relative;
+  font-size: 12px; 
+  color: #48494B;
+  margin-top: 10px;
+}
+
+/* Number */
+.file-number {
+  font-weight: bold;
+  color: #4A4459;
+  margin-right: 10px;
+  width: 24px;
+  text-align: center;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+
+}
+
+/* File name */
+.file-name {
+  flex-grow: 1;
+  color: #48494B;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+}
+
+/* Remove button */
+.remove-button {
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 12px;
+  color: #888;
+}
+
+.remove-button:hover {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+/* Dragging item */
+.expression-file-item.dragging {
+  opacity: 0.5;
+  transform: scale(1.02);
+}
+
+.expression-file-item.drag-over-top::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 4px;
+  width: 100%;
+  background-color: #4a90e2;
+
+  border-radius: 4px 4px 4px 4px;
+}
+
+.expression-file-item.drag-over-bottom::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 4px;
+  width: 100%;
+  background-color: #4a90e2;
+  border-radius: 0 0 4px 4px;
+}
+
+.drag-placeholder {
+  height: 48px; 
+  background-color: #d6e4ff;
+  border: 2px dashed #4a90e2;
+  border-radius: 8px;
+  margin: 4px 0;
+  transition: background-color 0.2s;
+}
+
+.file-list-title{
+  font-family: 'DM Sans', sans-serif;
+  font-size: 11px; 
+  color: #48494B;
+}
+
+.file-type-group h3{
+  font-family: 'DM Sans', sans-serif;
+  font-weight: bold;
+  margin-bottom: 2px;
+  font-size: 14px; 
+  color: #222223;
+}
+
+.uploaded-files-modal-footer {
+  padding: 10px;
+  display: flex;
+  justify-content: center;
+}
+
+.apply-button {
+  padding: 10px 20px;
+  background-color: #48494B;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.apply-button:hover {
+  background-color: #7f80828f;
+}
+
+.to-remove {
+  background-color: transparent;
+  border: 1px dashed #d9534f;
+}
+
+.restore-button {
+  margin-left: 10px;
+  padding: 2px 6px;
+  background-color: #48494B;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.restore-button:hover {
+  background-color: #7f80828f;
+}
+.no-files-message {
+  font-size: 14px;
+  color: #888;
+  margin-top: 8px;
+}
+
+
+.files-to-remove-header h3{
+  font-family: 'DM Sans', sans-serif;
+  font-weight: bold;
+  margin-bottom: -10px;
+  position: relative;
+  font-size: 14px; 
+  color: #333436;
+  margin-top: 10px;
+}
 
 /* ------------ Submenu - IMPORT ------------  */
 
