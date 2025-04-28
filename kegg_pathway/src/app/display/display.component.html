@@ -586,15 +586,53 @@
 
     <!-- ---------------- MAIN PANEL WITH THE DISPLAY OF PATHWAYS AND TIME SLIDER ---------------- -->
     <main class="main-panel">
-      
-      <!-- ---------------- VISUALISATION ---------------- -->
-      <div class="myDiagramDiv" id="myDiagramDiv">
-        <div class="pathway-title" *ngIf="selectedPathway">
-          <h2>{{ SelectedPathwayName }}</h2>
+
+      <div class="diagram-wrapper">
+        <!-- ---------------- VISUALISATION ---------------- -->
+        <div class="myDiagramDiv" id="myDiagramDiv">
+          <div class="pathway-title" *ngIf="selectedPathway">
+            <h2>{{ SelectedPathwayName }}</h2>
+          </div>          
         </div>
+
+        <!----------------------------A WRAPPER TO CLIP POPUP OVERFLOW-------------------------------->
+
+        <div class="popup-clipper" id="popup-clipper">
+          <!----------------------------------------POPUPS-------------------------------------------->
+          <div #goHtmlPopup class="go-html-info popup-overlay"
+              [ngStyle]="{
+                display: isPopupVisible ? 'block' : 'none',
+                left: popupPosition?.left + 'px',
+                top: popupPosition?.top + 'px'
+              }"
+            >
+              <div class="popup-header">
+                <span class="popup-title">{{ popupNodeData?.type?.toUpperCase() || 'ENTITY' }}</span>
+                <span class="popup-close" (click)="closePopup()">✖</span>
+              </div>
+        
+              <div class="popup-content">
+                <p><strong>Name:</strong> {{ popupNodeData?.name || 'N/A' }}</p>
+                <p><strong>EC:</strong> {{ popupNodeData?.text || 'N/A' }}</p>
+                <p><strong>logFC:</strong> {{ popupNodeData?.logfc ?? 'N/A' }}</p>
+                <p><strong>Gene:</strong>
+                  <ng-container *ngIf="popupNodeData?.gene">
+                    <ng-container *ngIf="isArray(popupNodeData?.gene); else singleGene">
+                      {{ popupNodeData?.gene.join(', ') }}
+                    </ng-container>
+                
+                    <ng-template #singleGene>
+                      {{ popupNodeData?.gene }}
+                    </ng-template>            
+                  </ng-container>
+                </p>
+              </div>
+            </div>
+
+        </div>
+
       </div>
       
-
       <div class="slider-animation-wrapper">
         <!-- ---------------- TIME SLIDER ---------------- -->
         <div class="slider-container">
