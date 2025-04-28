@@ -3391,6 +3391,14 @@ Once all the steps are completed, click the Process button to move to get visual
   }  
 >>>>>>> df57a0a (pop-ups in HTML with links)
 
+  zoomIn() {
+    this.myDiagram?.commandHandler.increaseZoom();
+  }
+  
+  zoomOut() {
+    this.myDiagram?.commandHandler.decreaseZoom();
+  }
+
   //  ------------------ TIME SLIDER -------------------
   timepoints = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
   selectedTimeIndex: number = 0;

@@ -1634,11 +1634,43 @@ button:hover {
   right: 30px;
   width: 250px;
   height: 200px;
-  border: 2px solid #ccc;
+  border: 1px solid #141313;
   background-color: white;
   z-index: 800;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
   border-radius: 4px;
+}
+
+.zoom-controls {
+  position: absolute;
+  top: 82px; /* Adjust as needed */
+  left: 875px; /* Adjust as needed */
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  z-index: 800; /* Similar to overview panel */
+}
+
+.zoom-controls button {
+  width: 25px;
+  height: 30px;
+  font-size: 16px;
+  border-radius: 4px;
+  margin: 5px 0;
+  justify-content: center;
+  align-items: center;
+  color: #2f2929;
+  font-weight: bold;
+  border: 1px solid #101010;
+  background-color: white;
+  cursor: pointer;
+  display: flex;
+  border-radius: 6px;
+  transition: background-color 0.2s ease;
+}
+
+.zoom-controls button:hover {
+  background-color: #f0f0f0;
 }
 
 .popup-clipper {
