@@ -92,7 +92,7 @@
             [class.drag-over]="hoveredIndex === i"
             class="expression-file-item"
           >
-            <div class="file-number">{{ i + 1 }}.</div> <!-- ADD this -->
+            <div class="file-number">{{ i + 1 }}.</div> 
             <div class="file-name">{{ file.name }}</div>
             <button class="remove-button" (click)="removeFileByName(file.name)">X</button>
           </div>

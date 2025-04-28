@@ -45,7 +45,7 @@ export class UploadComponent {
   private hardcodedFilePath: string = '../helperData/KEGG_IDs.csv';
   
   // Constructor with injected services
-  constructor(private keggService: KeggDataService, private router: Router, private fileDataService: FileDataService, private keggPathwaysService: KeggPathwaysService) {} // Inject service
+  constructor(private keggService: KeggDataService, private router: Router, private fileDataService: FileDataService, private keggPathwaysService: KeggPathwaysService) {} // services
 
   // Once Upload button is clicked, create a file input element and trigger the click event
   onUploadClick(): void {
@@ -441,6 +441,7 @@ preIdentifyUploadedFiles(): void {
         console.log(expressionData)
 
         this.fileDataService.setUploadedExpressionFiles(this.expressionFiles);
+        this.fileDataService.setUploadedAnnoationFiles(this.annotationFiles);
         this.router.navigate(['/display']);
       })
       .catch((err) => {

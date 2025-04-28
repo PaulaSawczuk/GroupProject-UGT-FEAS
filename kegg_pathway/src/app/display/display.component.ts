@@ -8,6 +8,8 @@ import { filter, first } from 'rxjs';
 import { parseFileContent, identifyFileType } from '../helper/file-utils';
 import {MatSliderModule} from '@angular/material/slider';
 import { match } from 'assert';
+import { Router } from '@angular/router';
+
 
 interface GuideElement {
   title: string;
@@ -15,6 +17,11 @@ interface GuideElement {
 }
 
 interface UploadedExpressionFile {
+  name: string;
+  file: File;
+}
+
+interface UploadedAnnoationFile {
   name: string;
   file: File;
 }
@@ -85,6 +92,7 @@ export class DisplayComponent {
   currentLogFc: any[] = [];
 
   UploadedExpressionFiles: UploadedExpressionFile[] = [];
+  UploadedAnnoationFiles: UploadedAnnoationFile[] = [];
   ExpressionFileNames: string[] = [];
 
   // Creating a GoJS Diagram 
@@ -121,11 +129,14 @@ export class DisplayComponent {
   constructor(
     private enzymeApiServicePost: enzymeApiServicePost,
     private fileDataService: FileDataService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private router: Router
   ) {
     document.addEventListener('click', this.handleClickOutside.bind(this));
     document.addEventListener('click', this.onOutsideClick.bind(this));
     this.UploadedExpressionFiles = this.fileDataService.getUploadedExpressionFiles();
+    this.UploadedAnnoationFiles = this.fileDataService.getUploadedAnnoationFiles();
+
   }
 
   // ------------- SETTING UP PROCESSING FUNCTIONS -------------------------
@@ -2538,23 +2549,30 @@ populateNodeCategories(): void {
 
   exportImage(format: string) {
     if (!this.myDiagram) return;
-  
-    const diagramBounds = this.myDiagram.documentBounds; // Get the actual bounds of the diagram
+    
+    const diagramBounds = this.myDiagram.documentBounds;
     const diagramWidth = diagramBounds.width;
     const diagramHeight = diagramBounds.height;
-  
+    
     const maxWidth = 13500; 
     const maxHeight = 2200;
-
-    // Calculate scale to fit the diagram within the maxSize while maintaining the aspect ratio
+    
     const scaleX = maxWidth / diagramWidth;
     const scaleY = maxHeight / diagramHeight;
     const scale = Math.min(scaleX, scaleY);
   
+    const pathwayName = this.SelectedPathwayName || 'pathway';
+    const timePointName = this.UploadedExpressionFiles[this.selectedTimeIndex]?.name || 'timepoint';
+    
+    const safePathwayName = pathwayName.replace(/\s+/g, '_').replace(/[^\w\-]/g, '');
+    const safeTimePointName = timePointName.replace(/\s+/g, '_').replace(/[^\w\-]/g, '').replace(/\.(csv|txt)$/i, '');
+    
+    const fileName = `${safePathwayName}_${safeTimePointName}`;
+  
     if (format === 'png') {
       const pngData = this.myDiagram.makeImageData({
         background: "white",
-        scale: scale,  // Adjusted scale
+        scale: scale,
         maxSize: new go.Size(maxWidth, maxHeight),
         type: "image/png"
       });
@@ -2567,7 +2585,7 @@ populateNodeCategories(): void {
           console.error('Failed to generate PNG image as a string.');
           return;
         }
-        link.download = 'diagram.png';
+        link.download = `${fileName}.png`; 
         link.click();
       } else {
         console.error('Failed to generate PNG image.');
@@ -2575,7 +2593,7 @@ populateNodeCategories(): void {
   
     } else if (format === 'svg') {
       const svg = this.myDiagram.makeSvg({
-        scale: scale,  // Adjusted scale
+        scale: scale,
         background: 'white'
       });
   
@@ -2587,7 +2605,7 @@ populateNodeCategories(): void {
   
         const link = document.createElement('a');
         link.href = url;
-        link.download = 'diagram.svg';
+        link.download = `${fileName}.svg`;
         link.click();
   
         URL.revokeObjectURL(url);
@@ -2599,7 +2617,7 @@ populateNodeCategories(): void {
       console.error(`Unsupported format: ${format}`);
     }
   }
-
+  
   //  ------------------ UPLOADING -------------------
 
   // Same function as above for Newly Uploaded Files
@@ -3093,6 +3111,130 @@ Once all the steps are completed, click the Process button to move to get visual
     this.isFilterPathwayModalOpen = false;
   }
 
+  // ------------------ UPLOADED FILES MODAL -------------------
+
+  isUploadedFileModalOpen = false;
+
+  draggedIndex: number | null = null;
+  hoveredIndex: number | null = null;
+  initialExpressionFiles: any[] = []; // Save the initial state
+  remainingExpressionFiles: any[] = []; // Working list (after removal, reordering)
+  filesMarkedForRemoval: any[] = []; // Files to remove
+
+    // When opening modal, prepare data
+    openUploadedFilesModal() {
+      this.isUploadedFileModalOpen = true;
+      this.initialExpressionFiles = [...this.UploadedExpressionFiles]; // Save original
+      this.remainingExpressionFiles = [...this.UploadedExpressionFiles];
+      this.filesMarkedForRemoval = [];
+    }
+
+    // Start dragging
+    onDragStart(event: DragEvent, index: number) {
+      this.draggedIndex = index;
+    }
+
+    // Drag over
+    onDragOver(event: DragEvent, index: number) {
+      event.preventDefault();
+      this.hoveredIndex = index;
+    }
+
+    // Drop
+    onDrop(event: DragEvent, index: number) {
+      event.preventDefault();
+      if (this.draggedIndex === null) return;
+
+      const file = this.remainingExpressionFiles[this.draggedIndex];
+      this.remainingExpressionFiles.splice(this.draggedIndex, 1);
+      this.remainingExpressionFiles.splice(index, 0, file);
+
+      this.draggedIndex = null;
+      this.hoveredIndex = null;
+    }
+
+    // End dragging
+    onDragEnd() {
+      this.draggedIndex = null;
+      this.hoveredIndex = null;
+    }
+
+    // Move file to removal list
+    moveToRemove(file: any) {
+      this.remainingExpressionFiles = this.remainingExpressionFiles.filter(f => f !== file);
+      this.filesMarkedForRemoval.push(file);
+    }
+
+    // Restore file back
+    restoreFile(file: any) {
+      this.filesMarkedForRemoval = this.filesMarkedForRemoval.filter(f => f !== file);
+      this.remainingExpressionFiles.push(file);
+    }
+
+    // Apply all changes
+    applyChanges() {
+      const removedFiles = this.filesMarkedForRemoval.map(f => f.name);
+      const reorderChanged = !this.isSameOrder(this.initialExpressionFiles, [...this.remainingExpressionFiles, ...this.filesMarkedForRemoval]);
+
+      let message = '';
+
+      if (removedFiles.length > 0) {
+        message += `You are about to remove these files:\n- ${removedFiles.join('\n- ')}\n\n`;
+      }
+
+      if (reorderChanged) {
+        message += `You have reordered the remaining files.\n\n`;
+      }
+
+      if (message === '') {
+        alert('No changes to apply.');
+        return;
+      }
+
+      const confirmed = window.confirm(message + 'Are you sure you want to apply these changes?');
+      if (confirmed) {
+        // Update main UploadedExpressionFiles list
+        this.UploadedExpressionFiles = [...this.remainingExpressionFiles];
+
+        // Clear everything and close
+        this.closeUploadedFilesModal();
+      }
+    }
+
+    // Helper: check if two arrays have same order
+    isSameOrder(arr1: any[], arr2: any[]) {
+      if (arr1.length !== arr2.length) return false;
+      for (let i = 0; i < arr1.length; i++) {
+        if (arr1[i].name !== arr2[i].name) return false;
+      }
+      return true;
+    }
+
+    // Close modal
+    closeUploadedFilesModal() {
+      this.isUploadedFileModalOpen = false;
+    }
+
+  // ------------------- NEW PROJECT subMenu -----------------
+
+  openUploadPage() {
+    const confirmed = window.confirm('Are you sure you want to close the current project? All progress will be lost.');
+  
+    if (confirmed) {
+      this.resetEverything();
+      this.router.navigate(['/upload']); // Navigate back to upload page
+    }
+  }
+
+  resetEverything() {
+    // Clear all your relevant project data
+    this.UploadedAnnoationFiles = [];
+    this.UploadedExpressionFiles = [];
+    this.remainingExpressionFiles = [];
+    this.filesMarkedForRemoval = [];
+    
+  }
+  
   //  ------------------ VIEW TAB -------------------
   customTabOpen: boolean = false;
   customTabExists: boolean = false;

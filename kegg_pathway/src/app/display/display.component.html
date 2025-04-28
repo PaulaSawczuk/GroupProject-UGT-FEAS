@@ -233,12 +233,18 @@
         <div class="separator"></div>
         <div class="top-bar-menu">
           <div class="dropdown">
+
             <!-- ---------------- FILES TAB ---------------- -->
             <button class="dropdown-button" (click)="openUploadModal()">File</button>
             
             <div class="dropdown-content">
-              <!-- ---------------- UPLOAD FILES ---------------- -->
+              <!-- ---------------- UPLOADED FILES ---------------- -->
+              <a href="#" (click)="openUploadedFilesModal(); $event.preventDefault()">Uploaded files</a>
+              <!-- ---------------- IMPORT FILES ---------------- -->
               <a href="#" (click)="openUploadModal(); $event.preventDefault()">Import files</a>
+
+              <!-- ---------------- NEW PROJECT ---------------- -->
+              <a href="#" (click)="openUploadPage(); $event.preventDefault()">New Project</a>
 
               <!-- ---------------- EXPORT FILES ---------------- -->
               <div class="submenu" (click)="onSubmenuClick($event)">
@@ -251,11 +257,8 @@
                   <a href="#" (click)="exportImage('svg'); $event.preventDefault()">svg</a>
                 </div>
               </div>
-
             </div>
-
           </div>
-          
 
           <!-- ---------------- VIEW TAB ---------------- -->
           <div class="separator-vertical"></div>
@@ -501,6 +504,84 @@
         </div>
       </div>
     </div>
+
+    <!-- ---------------- UPLOADED FILES MODAL ---------------- -->
+    <div class="uploaded-files-modal" *ngIf="isUploadedFileModalOpen">
+      <div class="uploaded-files-modal-content">
+        <div class="uploaded-files-modal-header">
+          <h2>Uploaded Files</h2>
+          <span class="uploaded-files-close-btn" (click)="closeUploadedFilesModal()">×</span>
+        </div>
+    
+        <div class="uploaded-files-modal-body">
+    
+          <!-- Annotation Files -->
+          <div *ngIf="UploadedAnnoationFiles.length > 0" class="file-type-group">
+            <h3>Annotation Files:</h3>
+            <div *ngFor="let file of UploadedAnnoationFiles" class="file-item">
+              <span>{{ file.name }}</span>
+            </div>
+          </div>
+    
+          <!-- Expression Files -->
+          <div class="file-type-group">
+            <div class="expression-files-header">
+            <h3>Expression Files:</h3>
+            </div>
+            <ng-container *ngIf="remainingExpressionFiles.length > 0; else noExpressionFiles">
+              <span class="file-list-title">Please order your time series data. Drag and drop to reorder</span>
+    
+              <div class="expression-file-list">
+                <div 
+                  *ngFor="let file of remainingExpressionFiles; let i = index"
+                  draggable="true"
+                  (dragstart)="onDragStart($event, i)"
+                  (dragover)="onDragOver($event, i)"
+                  (drop)="onDrop($event, i)"
+                  (dragend)="onDragEnd()"
+                  [class.dragging]="draggedIndex === i"
+                  [class.drag-over]="hoveredIndex === i"
+                  class="expression-file-item"
+                >
+                  <div class="file-number">{{ i + 1 }}.</div> 
+                  <div class="file-name">{{ file.name }}</div>
+                  <button class="remove-button" (click)="moveToRemove(file)">x</button>
+                </div>
+              </div>
+            </ng-container>
+    
+            <ng-template #noExpressionFiles>
+              <p class="no-files-message">No expression files uploaded yet.</p>
+            </ng-template>
+          </div>
+    
+          <!-- Files to Remove -->
+          <div class="file-type-group" *ngIf="filesMarkedForRemoval.length > 0">
+            <div class = "files-to-remove-header">
+            <h3>Files to be Removed:</h3>
+            </div>
+            <div class="expression-file-list">
+              <div 
+                *ngFor="let file of filesMarkedForRemoval"
+                class="expression-file-item to-remove"
+              >
+                <div class="file-name">{{ file.name }}</div>
+                <button class="restore-button" (click)="restoreFile(file)">Restore</button>
+              </div>
+            </div>
+          </div>
+    
+        </div>
+    
+        <!-- Modal Footer with Apply Button -->
+        <div class="uploaded-files-modal-footer">
+          <button class="apply-button" (click)="applyChanges()">Apply Changes</button>
+        </div>
+    
+      </div>
+    </div>
+    
+    
 
 
     <!-- ---------------- MAIN PANEL WITH THE DISPLAY OF PATHWAYS AND TIME SLIDER ---------------- -->

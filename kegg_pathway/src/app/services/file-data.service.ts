@@ -19,10 +19,11 @@ private annotationData: { [filename: string]: string[][] } = {}; // Added for an
 private multipleCombinedArrays: any[][] = [];
 private pathwayCount: number = 10; // Default to 10 pathways 
 private uploadedExpressionFiles: UploadedFile[] = [];
+private uploadedAnnoationFiles: UploadedFile[] = [];
 
 setUploadedExpressionFiles(files: UploadedFile[]): void {
   this.uploadedExpressionFiles = files;
-  console.log('Uploaded files set:', this.uploadedExpressionFiles);
+  console.log('Uploaded Expression files set:', this.uploadedExpressionFiles);
 }
 
 getUploadedExpressionFiles(): UploadedFile[] {
@@ -31,6 +32,19 @@ getUploadedExpressionFiles(): UploadedFile[] {
 
 clearUploadedExpressionFiles(): void {
   this.uploadedExpressionFiles = [];
+}
+
+setUploadedAnnoationFiles(files: UploadedFile[]): void {
+  this.uploadedAnnoationFiles = files;
+  console.log('Uploaded Annotation files set:', this.uploadedAnnoationFiles);
+}
+
+getUploadedAnnoationFiles(): UploadedFile[] {
+  return this.uploadedAnnoationFiles;
+}
+
+clearUploadedAnnotationFiles(): void {
+  this.uploadedAnnoationFiles = [];
 }
 
 setPathwayCount(numberEntered: number): void{
