@@ -37,12 +37,68 @@
       <p *ngIf="validationMessage">{{ validationMessage }}</p>
       <p *ngIf="warningMessage">{{ warningMessage }}</p>
     </div>
+    <!-- -------------- INFO IF FILES WERE UPLOADED -------------- -->
+    <div class="file-status">
+      <div class ="file-status-title">
+      <p>
+        Please upload:
+      </p>
+      </div>
+      <p>
+        Expression file (.csv or .txt):
+        <span [ngClass]="{ 'tick': expressionUploaded, 'cross': !expressionUploaded }">
+          {{ expressionUploaded ? '✔️ Uploaded' : '❌ Not uploaded' }}
+        </span>
+      </p>
+      <p>
+        Annotation file (.csv or .txt):
+        <span [ngClass]="{ 'tick': annotationUploaded, 'cross': !annotationUploaded }">
+          {{ annotationUploaded ? '✔️ Uploaded' : '❌ Not uploaded' }}
+        </span>
+      </p>
+    </div>    
 
     <!-- -------------- LIST OF FILES -------------- -->
-    <div *ngIf="showFileList" class="file-list">
+    <!-- <div *ngIf="showFileList" class="file-list">
       <div *ngFor="let file of uploadedFiles; let i = index" class="file-item">
         <span>{{ file.name }}</span>
         <button class="remove-button" (click)="removeFile(i)">X</button>
+      </div> -->
+
+      <div *ngIf="showFileList" class="file-list">
+
+      <!-- Annotation Files -->
+      <div *ngIf="annotationFiles.length > 0" class="file-type-group">
+        <h3>Annotation Files:</h3>
+        <div *ngFor="let file of annotationFiles; let i = index" class="file-item">
+          <span>{{ file.name }}</span>
+          <button class="remove-button" (click)="removeFileByName(file.name)">X</button>
+        </div>
+      </div>
+
+      <!-- Expression Files -->
+      <div *ngIf="expressionFiles.length > 0" class="file-type-group">
+        <h3>Expression Files:</h3>
+        <span class="file-list-title"> Please order your time series data. Drag and drop to reorder</span>
+        <div class="expression-file-list">
+          <div 
+            *ngFor="let file of expressionFiles; let i = index"
+            draggable="true"
+            (dragstart)="onDragStart($event, i)"
+            (dragover)="onDragOver($event, i)"
+            (drop)="onDrop($event, i)"
+            (dragend)="onDragEnd()"
+            [class.dragging]="draggedIndex === i"
+            [class.drag-over]="hoveredIndex === i"
+            class="expression-file-item"
+          >
+            <div class="file-number">{{ i + 1 }}.</div> <!-- ADD this -->
+            <div class="file-name">{{ file.name }}</div>
+            <button class="remove-button" (click)="removeFileByName(file.name)">X</button>
+          </div>
+        </div>
+        
+        
       </div>
 
       <!-- -------------- CHECKBOXES AND INPUT NUMBER -------------- -->

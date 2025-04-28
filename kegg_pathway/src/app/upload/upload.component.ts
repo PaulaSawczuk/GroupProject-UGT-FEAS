@@ -20,10 +20,14 @@ interface UploadedFile {
 
 export class UploadComponent {
   uploadedFiles: UploadedFile[] = []; // To store the uploaded files
+  annotationFiles: any[] = [];
+  expressionFiles: any[] = [];
   showFileList = false;  // To toggle the file list display
   unsupportedFileTypeMessage: string = ''; // Unsupported file type message - only txt and csv files are supported
   validationMessage: string = ''; // Validation message - to select all dropdown options
   warningMessage: string = ''; // Warning message - incompatible file format (wrong separator)
+
+
 
   // Dropdown options
   uniqueKingdoms: string[] = []; 
@@ -85,6 +89,8 @@ export class UploadComponent {
       }
     }
     this.showFileList = this.uploadedFiles.length > 0; // Show the file list if files are uploaded
+    this.preIdentifyUploadedFiles();
+    
   }
 
   // Fetch and populate the kingdoms dropdown
@@ -151,19 +157,84 @@ export class UploadComponent {
   }
 
   // Remove a file from the uploaded files list
-  removeFile(index: number): void {
-    this.uploadedFiles.splice(index, 1); // Remove the file from the list
+  // removeFile(index: number): void {
+  //   this.uploadedFiles.splice(index, 1); // Remove the file from the list
     
+  //   // Hide the file list if all files are removed
+  //   if (this.uploadedFiles.length === 0) {
+  //     this.showFileList = false;
+  //     this.resetDropdowns(); // Reset dropdowns when all files are removed
+  //   }
+  //   // Reset the warning messages each time a file is removed
+  //   this.unsupportedFileTypeMessage = '';
+  //   this.validationMessage = '';
+  //   this.warningMessage = '';
+  // }
+
+  // removeFile(index: number): void {
+  //   this.uploadedFiles.splice(index, 1); // Remove the file from the list
+  
+  //   // Reset uploaded file type statuses
+  //   this.expressionUploaded = false;
+  //   this.annotationUploaded = false;
+  
+  //   // Recheck what files are still there
+  //   for (const fileObj of this.uploadedFiles) {
+  //     const fileExtension = fileObj.name.split('.').pop()?.toLowerCase();
+  //     if (!fileExtension || !['txt', 'csv'].includes(fileExtension)) continue;
+  
+  //     const nameLower = fileObj.name.toLowerCase();
+  //     if (nameLower.includes('expression') || nameLower.includes('log2foldchange')) {
+  //       this.expressionUploaded = true;
+  //     }
+  //     if (nameLower.includes('annotation') || nameLower.includes('sequence.name') || nameLower.includes('enzyme')) {
+  //       this.annotationUploaded = true;
+  //     }
+  //   }
+  
+  //   // Hide the file list if all files are removed
+  //   if (this.uploadedFiles.length === 0) {
+  //     this.showFileList = false;
+  //     this.resetDropdowns();
+  //   }
+  
+  //   // Reset the warning messages each time a file is removed
+  //   this.unsupportedFileTypeMessage = '';
+  //   this.validationMessage = '';
+  //   this.warningMessage = '';
+  // }
+
+  removeFileByName(fileName: string): void {
+    // Remove from expression and annotation file arrays
+    this.annotationFiles = this.annotationFiles.filter(file => file.name !== fileName);
+    this.expressionFiles = this.expressionFiles.filter(file => file.name !== fileName);
+  
+    // Recalculate uploaded statuses
+    this.expressionUploaded = this.expressionFiles.length > 0;
+    this.annotationUploaded = this.annotationFiles.length > 0;
+  
+    // Also remove from uploadedFiles if needed (optional)
+    this.uploadedFiles = this.uploadedFiles.filter(file => file.name !== fileName);
+  
     // Hide the file list if all files are removed
     if (this.uploadedFiles.length === 0) {
       this.showFileList = false;
-      this.resetDropdowns(); // Reset dropdowns when all files are removed
+      this.resetDropdowns();
     }
-    // Reset the warning messages each time a file is removed
+  
+    // Reset the warning messages
     this.unsupportedFileTypeMessage = '';
     this.validationMessage = '';
     this.warningMessage = '';
+  
+    console.log("File removed:", fileName);
+    console.log("Remaining files:", this.uploadedFiles);
+    console.log("Expression files:", this.expressionFiles);
+    console.log("Annotation files:", this.annotationFiles);
   }
+  
+  
+  
   // Reset the dropdowns
   private resetDropdowns(): void {
     this.selectedKingdom = null;
@@ -183,11 +254,71 @@ export class UploadComponent {
   }
 
 
-  
+expressionUploaded: boolean = false;
+annotationUploaded: boolean = false;
+
+preIdentifyUploadedFiles(): void {
+  const validExtensions = ['txt', 'csv'];
+
+  this.annotationFiles = [];  // Reset before re-processing
+  this.expressionFiles = [];
+
+  const dataLoadPromises = this.uploadedFiles.map(fileObj =>
+    new Promise<void>((resolve, reject) => {
+      const fileExtension = fileObj.name.split('.').pop()?.toLowerCase();
+      if (!fileExtension || !validExtensions.includes(fileExtension)) {
+        return reject();
+      }
+
+      const fileReader = new FileReader();
+      fileReader.onload = (event: any) => {
+        const content = event.target.result;
+        const parsedData = this.parseFileContent(content, fileObj.name, fileExtension);
+
+        if (!parsedData || parsedData.length === 0) {
+          return reject();
+        }
+
+        const fileType = this.identifyFileType(parsedData, fileObj.name);
+
+        switch (fileType) {
+          case 'expression':
+            this.expressionUploaded = true;
+            this.expressionFiles.push(fileObj);
+            break;
+          case 'annotation':
+            this.annotationUploaded = true;
+            this.annotationFiles.push(fileObj);
+            break;
+        }
+        resolve();
+      };
+
+      fileReader.onerror = () => {
+        reject();
+      };
+
+      fileReader.readAsText(fileObj.file);
+    })
+  );
+
+  Promise.allSettled(dataLoadPromises)
+    .then(() => {
+      console.log('Pre-identification complete.');
+    })
+    .catch((err) => {
+      console.warn("Pre-identification error:", err);
+    });
+}
+
+
 
 //=====MABLES=====
   // Process the uploaded files
   processFiles(): void {
+    console.log("Processing files: ", this.uploadedFiles);
+    this.uploadedFiles = [...this.annotationFiles, ...this.expressionFiles];
+    console.log("New order: ", this.uploadedFiles);
     const validExtensions = ['txt', 'csv'];
     const expressionData: { [filename: string]: string[][] } = {};
     const dataLoadPromises = this.uploadedFiles.map(fileObj =>
@@ -307,7 +438,9 @@ export class UploadComponent {
 
         this.fileDataService.setCombinedData(allCombined);
         this.fileDataService.setMultipleCombinedArrays(combinedArrayList);
-        
+        console.log(expressionData)
+
+        this.fileDataService.setUploadedExpressionFiles(this.expressionFiles);
         this.router.navigate(['/display']);
       })
       .catch((err) => {
@@ -1116,5 +1249,44 @@ showInformation() {
 hideInformation() {
   this.showInformationPopOut = false;
 }
+
+// ------------------ DRAG EXPRESSION LIST ------------------
+
+draggedIndex: number | null = null;
+hoveredIndex: number | null = null; 
+
+onDragStart(event: DragEvent, index: number): void {
+  this.draggedIndex = index;
+}
+
+onDragOver(event: DragEvent, index: number): void {
+  event.preventDefault();
+  this.hoveredIndex = index; 
+}
+
+onDrop(event: DragEvent, dropIndex: number): void {
+  event.preventDefault();
+  if (this.draggedIndex === null || this.draggedIndex === dropIndex) return;
+
+  const movedItem = this.expressionFiles[this.draggedIndex];
+
+  // Remove from old position
+  this.expressionFiles.splice(this.draggedIndex, 1);
+
+  // Insert into new position
+  this.expressionFiles.splice(dropIndex, 0, movedItem);
+
+  // Reset states
+  this.draggedIndex = null;
+  this.hoveredIndex = null;
+  console.log('Moved item:', movedItem);
+  console.log('New expression files order:', this.expressionFiles);
+}
+
+onDragEnd(): void {
+  this.hoveredIndex = null; // Clear hover if drag canceled
+}
+
+
 
 }
