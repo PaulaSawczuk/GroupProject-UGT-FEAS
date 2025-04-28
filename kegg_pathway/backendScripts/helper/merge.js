@@ -16,6 +16,7 @@ const { processKGML } = require('./get_go_map');
 const { processRN } = require('./get_go_map');
 const { addCompoundLinks } = require('./get_go_map');
 const { getMapNodes } = require('./visualise_map');
+const util = require('util');
 
 
 // Takes Compound Name extracted from KEGG text response
@@ -177,6 +178,8 @@ async function processInput(code) {
     console.log('------------');
     //console.log(nodeData);
     //console.log(linkData);
+    //console.log(util.inspect(nodeData, { showHidden: false, depth: null, colors: true }));
+    //console.log(util.inspect(linkData, { showHidden: false, depth: null, colors: true }));
     return {nodeData,linkData,enzymeList};
   }
 

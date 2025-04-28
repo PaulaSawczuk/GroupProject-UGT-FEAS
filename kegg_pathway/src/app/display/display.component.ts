@@ -404,27 +404,6 @@ private resizeNodeByLogFC(logfc: number) {
 }
 
 
-// Getting line width realtive to logfc value of the enzyme ndoe
-// Used to highlight metabolix flux
-private getLineWidth(logfc: number, baseline = 3) {
-  const difference = Math.abs(logfc - baseline);
-
-  // Set min and max width values
-  const minWidth = 3;
-  const maxWidth = 15;
-
-  // You can tweak this multiplier for scaling effect
-  const scaleFactor = 2;
-
-  let width = minWidth + difference * scaleFactor;
-
-  // Clamp the width so it doesn't go beyond max
-  width = Math.min(width, maxWidth);
-
-  return width;
-}
-
-
 // ----------- Matching Genes to Enzyme Ndoes ----------------
 // Called when changing Node information when map is selected/ timepoint changes 
 
@@ -481,11 +460,7 @@ private matchGenesNoSize(genes: any[], nodes: any[]): any[] {
       if (logfcList[0]) {
         let mean = this.findMean(logfcList); // Calculating mean of Genes logfc
         let rgb = this.newlogfcToRGB(mean, this.selectedColorLow,this.selectedColorHigh); // Getting colout relative to logfc
-        //let result = this.resizeNodeByLogFC(mean); // resizing node
-        //let height = result[0];
-        //let width = result[1];
-        //newNodes[i].width = width; // Assign node attributes 
-        //newNodes[i].height = height;
+
         newNodes[i].logfc = mean;
         newNodes[i].colour = rgb;
         newNodes[i].logfcList = logfcList;
@@ -553,9 +528,7 @@ private matchGenes(genes: any[], nodes: any[]): any[] {
       }
 
       if (logfcList[0]) {
-        //console.log(logfcList);
-        //console.log("LogFC List with genes");
-        //console.log(logfcGene);
+
         let mean = this.findMean(logfcList); // Calculating mean of Genes logfc
         let rgb = this.newlogfcToRGB(mean, this.selectedColorLow,this.selectedColorHigh); // Getting colout relative to logfc
         let result = this.resizeNodeByLogFC(mean); // resizing node
@@ -720,10 +693,7 @@ private getMetabolicFlux(nodes: any[], links: any[]){
       const rIndex = key.indexOf("R"); // Finding 'R' character in link key 
       if (rIndex !== -1) {
         const reactKey = key.substring(rIndex);
-        //console.log('Reaction Key');
-        //console.log(reactKey); 
-        //console.log("Group ID");
-        //console.log(group);
+
 
         // Loop through links to get any that match with that reaction key
       for (let j = 0; j < newLinks.length; j++) { // Matching 'to' links
@@ -1214,7 +1184,8 @@ async getAllPathwayNames(): Promise<void>{
     // calls this method when user selects another pathway, updates the dropdown node values
     this.populateNodeCategories();
     if (this.myDiagram){
-    this.setLegend(this.myDiagram);}
+    this.setLegend(this.myDiagram);
+    this.setLabels(this.myDiagram);}
 
     this.isLoading = false;
   }
@@ -1629,7 +1600,7 @@ async getAllPathwayNames(): Promise<void>{
 
     // for populating the node categories 
     this.populateNodeCategories();   
-    /*
+    
     // Focus in by default after diagram is initialized, added to make the minimap relevant
     this.myDiagram.addDiagramListener("InitialLayoutCompleted", () => {
       // Delay zoom to ensure layout is fully rendered
@@ -1638,8 +1609,10 @@ async getAllPathwayNames(): Promise<void>{
       if (this.myDiagram) {
         //this.clearAnimations(this.myDiagram);
         this.setLegend(this.myDiagram);
+        this.setLabels(this.myDiagram);
         this.animateLinksFromNodeKeys(this.myDiagram, this.regulatedLinks);
-      }*/
+      }
+    });
       /*
       setTimeout(() => {
         const allNodes = this.myDiagram!.nodes;
@@ -1680,7 +1653,7 @@ async getAllPathwayNames(): Promise<void>{
 
 
  // method for populating the node categories
-  populateNodeCategories(): void {
+populateNodeCategories(): void {
     if (!this.myDiagram) return;
   
     //console.log("🧠 Full node data array:", this.myDiagram.model.nodeDataArray);
@@ -1848,6 +1821,7 @@ async getAllPathwayNames(): Promise<void>{
       console.log('Diagram Data Cleared')
       this.updateDiagram(nodes,links);
       this.setLegend(this.myDiagram);
+      this.setLabels(this.myDiagram);
       this.myDiagram.addDiagramListener("InitialLayoutCompleted", () => {
         if (this.myDiagram) {
           this.clearAnimations(this.myDiagram);
@@ -1976,14 +1950,14 @@ async getAllPathwayNames(): Promise<void>{
       ),
 
       $(go.Panel, "Horizontal", { row: 5 },
-        $(go.TextBlock, "Low DGE", { font: "6pt sans-serif", margin: new go.Margin(0, 40, 0, 2) }),
-        $(go.TextBlock, "High DGE", { font: "6pt sans-serif", margin: new go.Margin(0, 2, 0, 40) })
+        $(go.TextBlock, "Down-regulated", { font: "6pt sans-serif", margin: new go.Margin(0, 40, 0, 2) }),
+        $(go.TextBlock, "Up-regulated", { font: "6pt sans-serif", margin: new go.Margin(0, 2, 0, 40) })
       ),
 
       // Node Type: Selected Isoform Colour
       $(go.Panel, "Horizontal", { row: 6 },
         $(go.Shape, "Rectangle", { width: 15, height: 15, fill: this.selectedColorIsoform, margin: 2 }),
-        $(go.TextBlock, "Isoform", { margin: 2,font: "8pt sans-serif"})
+        $(go.TextBlock, "Gene Paralogs", { margin: 2,font: "8pt sans-serif"})
       ),
     
       // Link: Reversible
@@ -2012,6 +1986,57 @@ async getAllPathwayNames(): Promise<void>{
     
     // Add the legend to the diagram
     myDiagram.add(legend);
+
+  }
+
+  private setLabels(myDiagram: go.Diagram): void{
+    const $ = go.GraphObject.make;
+
+    myDiagram.parts.each(part => {
+      if (part.name === "Labels") {
+        myDiagram.remove(part);
+      }
+    });
+
+
+    const lables = $(
+      go.Part, "Table",
+      {
+        name: "Labels",
+        layerName: "ViewportForeground",  // Ensures it's in the foreground and fixed in the viewport
+        isLayoutPositioned: false,        // Prevents layout from affecting its position
+        selectable: false,
+        alignment: go.Spot.BottomLeft,    // Aligns to the bottom-left of the viewport
+        alignmentFocus: go.Spot.BottomLeft,
+        margin: new go.Margin(10, 10, 10, 10) // Adds padding from the viewport edges
+      },
+    
+      // Title
+      $(go.TextBlock, this.SelectedPathwayName,
+        {
+          row: 0,
+          font: "bold 10pt sans-serif",
+          stroke: "#333",
+          margin: new go.Margin(0, 0, 6, 0),
+          columnSpan: 2
+        }
+      ),
+      $(go.TextBlock, "Timepoint: "+(this.selectedTimeIndex + 1),
+        {
+          row: 1,
+          font: "10pt sans-serif",
+          stroke: "#333",
+          margin: new go.Margin(0, 0, 6, 0),
+          columnSpan: 2
+        }
+      ),
+    
+
+      
+    );
+    
+    // Add the legend to the diagram
+    myDiagram.add(lables);
 
   }
 
@@ -2313,7 +2338,8 @@ async getAllPathwayNames(): Promise<void>{
     const pathwayData = this.ALLpathwayData.find((obj => obj.pathway === code));
     this.setMap(code, this.selectedTimeIndex, pathwayData);
     if(this.myDiagram){
-    this.setLegend(this.myDiagram);}
+    this.setLegend(this.myDiagram);
+    this.setLabels(this.myDiagram)}
   }
 
   // ------------------ SORT BY FUNCTIONALITY -------------------
