@@ -1523,6 +1523,8 @@ async getAllPathwayNames(): Promise<void>{
       const pos = this.myDiagram!.transformDocToView(
         node.getDocumentPoint(go.Spot.BottomCenter)
       );
+
+      console.log("📁 data passing through: ", this.popupNodeData)
     
       // Set temporary top position, delay horizontal calculation
       this.popupPosition = {
@@ -3369,7 +3371,6 @@ Once all the steps are completed, click the Process button to move to get visual
     this.selectNodeFromDropdown(this.selectedPathwayCustom, 'map');
   }  
 
-
   getArrowFontSize(logfc: number | undefined): string | null {
     if (logfc === undefined || logfc === null) {
       return null;
@@ -3383,6 +3384,12 @@ Once all the steps are completed, click the Process button to move to get visual
     this.isPopupVisible = false;
   }
 
+<<<<<<< HEAD
+=======
+  onGeneListScroll(event: WheelEvent | TouchEvent): void {
+    event.stopPropagation();
+  }  
+>>>>>>> df57a0a (pop-ups in HTML with links)
 
   //  ------------------ TIME SLIDER -------------------
   timepoints = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];

@@ -1679,6 +1679,31 @@ button:hover {
   font-family: 'Segoe UI', sans-serif;
 }
 
+.popup-content ul {
+  padding-left: 18px;
+  margin-top: 4px;
+  margin-bottom: 8px;
+}
+
+.popup-content li {
+  font-size: 13px;
+  color: #444;
+  line-height: 1.4;
+}
+
+.gene-logfc-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.gene-list-scrollable {
+  max-height: 110px;
+  overflow-y: auto;
+  margin: 0;
+  padding-left: 16px;
+  list-style-type: disc;
+}
+
 .popup-header {
   display: flex;
   justify-content: space-between;
