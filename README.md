@@ -89,8 +89,9 @@ a). *Required columns:*
 b). *Format considerations:*  
 - Column names are case-insensitive (can be upper, lower, or mixed case).
 - The "gene" column must contain string data.
-- The "log2foldchange" column must contain numeric data.
+- The "log2foldchange" column must contain numeric data.  
 
+**Note:**  If the dataset includes time series data, each expression file should be named according to its corresponding time point (e.g., 1hr, Day1, or Time0). 
 
 
 #### 2. Annotation File Format:
