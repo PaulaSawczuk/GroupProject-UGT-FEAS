@@ -27,6 +27,7 @@ setUploadedExpressionFiles(files: UploadedFile[]): void {
 }
 
 getUploadedExpressionFiles(): UploadedFile[] {
+  console.log('Getting Uploaded Expression files:', this.uploadedExpressionFiles);
   return this.uploadedExpressionFiles;
 }
 
