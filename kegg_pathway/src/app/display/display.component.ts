@@ -3499,7 +3499,7 @@ Once all the steps are completed, click the Process button to move to get visual
         if (this.myDiagram){
         this.clearAnimations(this.myDiagram);};
         
-        await this.delay(2000);// 1 Second between pathway refresh (large pathays take a while to load)
+        await this.delay(1750);// 1 Second between pathway refresh (large pathays take a while to load)
         }
     
   }
