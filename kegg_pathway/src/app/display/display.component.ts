@@ -3384,12 +3384,9 @@ Once all the steps are completed, click the Process button to move to get visual
     this.isPopupVisible = false;
   }
 
-<<<<<<< HEAD
-=======
   onGeneListScroll(event: WheelEvent | TouchEvent): void {
     event.stopPropagation();
   }  
->>>>>>> df57a0a (pop-ups in HTML with links)
 
   zoomIn() {
     this.myDiagram?.commandHandler.increaseZoom();
@@ -3547,6 +3544,10 @@ Once all the steps are completed, click the Process button to move to get visual
     return this.selectedColorLow;
   }
 
+
+  // Taking Paralog Colour from User 
+  // Reassiging the global variable
+  // Reloading Pathway Data for animation
   onColorChangeIsoform(event: Event): string {
     const input = event.target as HTMLInputElement;
     this.selectedColorIsoform = input.value;
