@@ -60,7 +60,7 @@ export class DisplayComponent implements OnInit, AfterViewInit {
   pathwayResponse: any[]=[]; // Array for temporarily storing response when newly updated pathway list 
                                         // Allows for comparison of pathway list before overwriting 
 
-  enzymePathwayList: string[] = [];
+  //enzymePathwayList: string[] = [];
 
   filteredGenes: any[] = []; // Array of Genes, Logfc and EC number of combined Data 
 
@@ -68,7 +68,6 @@ export class DisplayComponent implements OnInit, AfterViewInit {
 
   fileNames: any[] = [];
 
-  pathwaySizeData: any[] = []; // Stores sorted files size data 
 
   loadedPathwayData: any[] = []; // Array for Storing Loaded Pathways (name, nodes (parallel to filtered Genes))
 
@@ -79,13 +78,18 @@ export class DisplayComponent implements OnInit, AfterViewInit {
   pathwayTally: any[] = []; // Array recieved from back-end with all pathways regulated by the Enzymes Extracted
                                           // From users data
 
-  highlightedPathways: any[] = [];
+  highlightedPathways: any[] = []; // Loaded Pathway Tally mapped to Pathway Name 
+                                                      // contains code, pathway, number of enzymes
 
+
+  // ------  Metabolic Flux Animation Attributes ---------
   regulatedLinks: any[] = []; // Storing current regulated links for animating 
 
   animatedParts: go.Part[] = []; // Store animated parts (dots)
   
   animatedIntervals: number[] = [];
+
+
 
   StatsArray: any[] = [];
 
@@ -94,6 +98,9 @@ export class DisplayComponent implements OnInit, AfterViewInit {
   UploadedExpressionFiles: UploadedExpressionFile[] = [];
   UploadedAnnoationFiles: UploadedAnnoationFile[] = [];
   ExpressionFileNames: string[] = [];
+
+
+  //-------- Visualisation Attributes --------
 
   // Creating a GoJS Diagram 
   private myDiagram: go.Diagram | null = null;
@@ -721,13 +728,7 @@ private getMultipleGenes(nodes: any[]): any[]{
 }
 
 
-// ----------- Processing Function Before Matching Nodes ----------------
-// Takes nodes of selected Map 
-// Gets relevant timepoint, retrieves annotated genes
-// Both function indentical but call variations in matchGenes(NoSize) 
-// Dependent on User interaction
-
-// ------------- METABOLIC FLUX - LINE WIDTHS -----------------
+// ------------- METABOLIC FLUX - LOGFC -----------------
 // Gets enzyme nodes that are impacted by genes and are not due to isoforms (by colour)
 // Gets the node group key and finds 'from' links by match the key to the link key (e.g. Group: 76, Link 37R76)
 // Ensures that 
@@ -1043,7 +1044,7 @@ private getLoadedPathways(): void{
     // Loading Pathway Data to Loaded Pathway Array
     // Loads edited Nodes (logfc, genes, colour)
     this.getLoadedPathways();
-    const loadedData = this.loadedPathwayData;
+    //const loadedData = this.loadedPathwayData;
     //console.log(loadedData);
     console.log("--------------------")
     console.log('Pathway Data Loaded Successfully');
@@ -2348,34 +2349,6 @@ populateNodeCategories(): void {
   }
 
   // -------  PATHWAY SORTING FUNCTIONS -----------
-
-  // Determining Pathway Size - Ranking complexity 
-  // Called from sortPathways 
-  pathwaySize(): any[]{
-    let list = this.pathways;
-    let data = this.ALLpathwayData;
-
-    var pathwaysSize = [];
-    for (let j=0;j<list.length;j++){
-      //console.log(list[j]);
-      let pathway = list[j];
-      for (let i = 0; i< data.length;i++){
-        //console.log(data[i].name);
-        //console.log(data[i]);
-        if (pathway == data[i].name){
-          //console.log(data[i].enzymes);
-          let enzymes = data[i].enzymes;
-          let number = enzymes.length;
-          //console.log(number);
-          pathwaysSize.push({
-            name: pathway,
-            size: number,
-          })
-        }
-      }
-    }
-    return pathwaysSize;
-}
 
   // ------ SORTING PATHWAYS--------
   // Takes Criteria Selected from User (Drop Down Menu)
