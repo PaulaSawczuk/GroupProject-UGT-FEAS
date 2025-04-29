@@ -41,7 +41,7 @@ html {
   /* top: 5px; */
   left: 15px;
   right: 15px;
-  z-index: 30;
+  z-index: 998;
   border-radius: 100px;
   font-family: 'DM Sans', sans-serif;
 
@@ -211,29 +211,33 @@ html {
 }
 
 .uploaded-files-modal-content {
-  background-color: #e9ecef;
+  resize: both;
+  overflow: auto;
+  min-width: 300px;
+  min-height: 300px;
+  max-width: 100%;
+  max-height: 90vh;
+  width: 500px;
+  height: 600px;
   padding: 20px;
   border-radius: 15px;
-  width: 400px;
-  height: 500px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  max-width: 100%;
+  background-color: #e9ecef;
   display: flex;
   flex-direction: column;
+  position: relative;
 }
 
 .uploaded-files-modal-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 10px;
   font-family: 'DM Sans', sans-serif;
   color: #343a40;
-  font-size: 12px;
+  font-size: 14px;
   letter-spacing: 1px;
-  border-bottom: 1px solid #ddd;
-  margin-left: 0px;
-  margin-right: 0px; 
+  padding-bottom: 10px;
+  border-bottom: 1px solid #ccc;
 }
 
 .uploaded-files-close-btn {
@@ -244,9 +248,21 @@ html {
 }
 
 .uploaded-files-modal-body {
-  margin-top: 10px;
-  flex-grow: 1;
+  flex: 1;
   overflow-y: auto;
+  min-height: 0;
+  margin-top: 10px;
+}
+
+.uploaded-files-modal-content::after {
+  content: "";
+  position: absolute;
+  right: 8px;
+  bottom: 8px;
+  width: 16px;
+  height: 16px;
+  background: url("data:image/svg+xml;utf8,<svg fill='%236c757d' height='16' width='16' xmlns='http://www.w3.org/2000/svg'><path d='M0 14h2v2H0v-2zm4 0h2v2H4v-2zm4 0h2v2H8v-2zM0 10h2v2H0v-2zm4 0h2v2H4v-2zm4 0h2v2H8v-2zM0 6h2v2H0V6zm4 0h2v2H4V6zm4 0h2v2H8V6z'/></svg>") no-repeat center center;
+  pointer-events: none;
 }
 
 /* ------------- EXPRESSION FILE LIST --------------- */
@@ -431,7 +447,9 @@ html {
 .no-files-message {
   font-size: 14px;
   color: #888;
-  margin-top: 8px;
+  margin-top: 4px;
+  font-family: 'DM Sans', sans-serif;
+
 }
 
 
@@ -443,6 +461,17 @@ html {
   font-size: 14px; 
   color: #333436;
   margin-top: 10px;
+}
+
+.expression-file-item.new-upload {
+  background-color: #39b439d0;
+}
+
+.upload-instructions{
+  font-family: 'DM Sans', sans-serif;
+  font-size: 11px;
+  color: #333436;
+  margin-top: -7px;
 }
 
 /* ------------ Submenu - IMPORT ------------  */
@@ -511,6 +540,7 @@ html {
 }
 
 .choose-files-button {
+  margin-top: 8px;
   padding: 8px 15px; 
   background-color: #343a40;
   color: #e9ecef;
@@ -522,7 +552,7 @@ html {
 }
 
 .choose-files-button:hover {
-  background-color: #115ba9;
+  background-color: #7f80828f;
 }
 
 .uploaded-files-list {
@@ -1607,32 +1637,176 @@ button:hover {
 }
 
 /* ------------ DISPLAY FRAME ------------ */
+
+.diagram-wrapper {
+  position: relative;         
+  height: 80%;    
+  top: 7%;  
+}
+
 .myDiagramDiv {
-  height: 80%;
+  height: 100%;
+  box-sizing: border-box;
   background-color: #f8f9fa;
   border-radius: 8px;
   display: flex;
   justify-content: center;
   align-items: center;
   border: 2px solid #3E424B;
-  margin-bottom: 80px;
+  margin-bottom: 0;
   position: relative;
-  top: 7%;
   z-index:0;
 }
 
+.mini-map-zoom-container {
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+  align-items: center;
+  position: absolute;
+  top: 9%;
+  right: 2%;
+}
 
 #overviewDiv {  /* Floating Mini-Map Panel */
   position: absolute;
-  top: 80px;
-  right: 30px;
+  display: flex;
+  top: 9%;
+  right: 4%;
   width: 250px;
   height: 200px;
-  border: 2px solid #ccc;
+  border: 1px solid #141313;
   background-color: white;
-  z-index: 10;
+  z-index: 800;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
   border-radius: 4px;
+}
+
+.zoom-controls {
+  position: relative;
+  flex-direction: row;
+  display: flex;
+  margin-top: 2px;
+  top: 9%; 
+  right: 620%;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  z-index: 800; 
+}
+
+.zoom-controls button {
+  width: 25px;
+  height: 30px;
+  font-size: 16px;
+  border-radius: 4px;
+  margin: 5px 0;
+  justify-content: center;
+  align-items: center;
+  color: #2f2929;
+  font-weight: bold;
+  border: 1px solid #101010;
+  background-color: white;
+  cursor: pointer;
+  display: flex;
+  border-radius: 6px;
+  transition: background-color 0.2s ease;
+}
+
+.zoom-controls button:hover {
+  background-color: #f0f0f0;
+}
+
+.popup-clipper {
+  position: absolute;
+  top: 2px;     /* Start clipping 2px down */
+  left: 2px;    /* Start clipping 2px from the left */
+  width: calc(100% - 20px);   /* Clip 2px left + 18px right */
+  height: calc(100% - 20px);  /* Clip 2px top + 18px bottom */
+  overflow: hidden;
+  pointer-events: none;
+}
+
+/* GoJS-HTML popup*/
+.go-html-info {
+  position: absolute;
+  z-index: 1000;
+  background: #fff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  padding: 12px;
+  min-width: 180px;
+  font-family: "Segoe UI", sans-serif;
+}
+
+/* Popup styles */
+.popup-overlay {
+  position: absolute;
+  background-color: #ffffff;
+  border: 1px solid #ccc;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border-radius: 6px;
+  padding: 12px;
+  max-width: 260px;
+  z-index: 600;
+  pointer-events: auto;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+.popup-content ul {
+  padding-left: 18px;
+  margin-top: 4px;
+  margin-bottom: 8px;
+}
+
+.popup-content li {
+  font-size: 13px;
+  color: #444;
+  line-height: 1.4;
+}
+
+.gene-logfc-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.gene-list-scrollable {
+  max-height: 110px;
+  overflow-y: auto;
+  margin: 0;
+  padding-left: 16px;
+  list-style-type: disc;
+}
+
+.popup-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.popup-title {
+  font-weight: bold;
+  font-size: 14px;
+  color: #333;
+}
+
+.popup-close {
+  cursor: pointer;
+  font-size: 14px;
+  color: #900;
+}
+
+.popup-close:hover {
+  color: #c00;
+}
+
+.popup-content p {
+  margin: 4px 0;
+  font-size: 13px;
+  color: #444;
 }
 
 /* ------------ LOADING ------------ */
@@ -1767,6 +1941,8 @@ button:hover {
   display: flex;
   align-items: center;
   gap: 10px;
+  position: relative;
+  top: 72px;
   /* margin-top: -10px; */
 }
 

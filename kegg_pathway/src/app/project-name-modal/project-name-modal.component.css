@@ -1,0 +1,81 @@
+.modal-backdrop {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+
+  }
+  
+  .modal-box {
+    width: 300px;
+    height: 180px;
+    padding: 20px;
+    border-radius: 15px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    background-color: #e9ecef;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+  }
+  
+  .actions {
+    margin-top: 20px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+  }
+
+  .modal-box h2{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: 'DM Sans', sans-serif;
+    color: #343a40;
+    font-size: 20px;
+    letter-spacing: 1px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #ccc;
+  }
+
+  .modal-box label{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: 'DM Sans', sans-serif;
+    color: #343a40;
+    font-size: 16px;
+    letter-spacing: 1px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #ccc;
+  }
+
+  .input-box{
+    display: flex;
+    font-family: 'DM Sans', sans-serif;
+    color: #343a40;
+    border-bottom: 1px solid #ccc;
+  }
+
+  .actions button{
+    /* font-family: 'DM Sans', sans-serif; */
+    padding: 5px 10px;
+    background-color: #48494B;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+  }
+  
+  .actions button:hover {
+    background-color: #7f80828f;
+  }
+  
+  
+  

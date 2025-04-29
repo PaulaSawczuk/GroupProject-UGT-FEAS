@@ -1,4 +1,4 @@
-import { Component, ViewChild, ElementRef , HostListener, ChangeDetectorRef} from '@angular/core';
+import { Component, ViewChild, ElementRef , HostListener, ChangeDetectorRef, OnInit, AfterViewInit} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { enzymeApiServicePost } from '../services/kegg_enzymepathwaysPost.serice';
@@ -9,6 +9,9 @@ import { parseFileContent, identifyFileType } from '../helper/file-utils';
 import {MatSliderModule} from '@angular/material/slider';
 import { match } from 'assert';
 import { Router } from '@angular/router';
+import JSZip from 'jszip';
+import { saveAs } from 'file-saver';
+import { ProjectNameModalComponent } from '../project-name-modal/project-name-modal.component';
 
 
 interface GuideElement {
@@ -35,12 +38,12 @@ export interface StatsArrayType {
 @Component({
   selector: 'app-display',
   standalone: true,
-  imports: [CommonModule, FormsModule, MatSliderModule],
+  imports: [CommonModule, FormsModule, MatSliderModule, ProjectNameModalComponent],
   templateUrl: './display.component.html',
   styleUrls: ['./display.component.css']
 })
 
-export class DisplayComponent {
+export class DisplayComponent implements OnInit, AfterViewInit {
   LoadingMessage: string = '';
 
 
@@ -60,7 +63,7 @@ export class DisplayComponent {
   pathwayResponse: any[]=[]; // Array for temporarily storing response when newly updated pathway list 
                                         // Allows for comparison of pathway list before overwriting 
 
-  enzymePathwayList: string[] = [];
+  //enzymePathwayList: string[] = [];
 
   filteredGenes: any[] = []; // Array of Genes, Logfc and EC number of combined Data 
 
@@ -68,7 +71,6 @@ export class DisplayComponent {
 
   fileNames: any[] = [];
 
-  pathwaySizeData: any[] = []; // Stores sorted files size data 
 
   loadedPathwayData: any[] = []; // Array for Storing Loaded Pathways (name, nodes (parallel to filtered Genes))
 
@@ -79,13 +81,18 @@ export class DisplayComponent {
   pathwayTally: any[] = []; // Array recieved from back-end with all pathways regulated by the Enzymes Extracted
                                           // From users data
 
-  highlightedPathways: any[] = [];
+  highlightedPathways: any[] = []; // Loaded Pathway Tally mapped to Pathway Name 
+                                                      // contains code, pathway, number of enzymes
 
+
+  // ------  Metabolic Flux Animation Attributes ---------
   regulatedLinks: any[] = []; // Storing current regulated links for animating 
 
   animatedParts: go.Part[] = []; // Store animated parts (dots)
   
   animatedIntervals: number[] = [];
+
+
 
   StatsArray: any[] = [];
 
@@ -95,15 +102,29 @@ export class DisplayComponent {
   UploadedAnnoationFiles: UploadedAnnoationFile[] = [];
   ExpressionFileNames: string[] = [];
 
+
+  //-------- Visualisation Attributes --------
+
   // Creating a GoJS Diagram 
   private myDiagram: go.Diagram | null = null;
 
-
-  // the below is a part of blocker logic to make the popup not transparent
-  // private activePopups: { nodeKey: any, blocker: go.Part }[] = [];
-
   // to track the number of popups
-  private activePopups: { nodeKey: any }[] = [];
+  //private activePopups: { nodeKey: any }[] = [];
+  
+  // a variable to send the data from a node click to Angular to be used in html 
+  popupNodeData: any = null;
+
+  // a variable to track the popup's position 
+  popupPosition: { top: number, left: number } = { top: 0, left: 0 };
+
+  // a variable to remember which node was clicked (for popups to be placed next to the cliked nodes)
+  popupNodeKey: string | null = null; // ### TBR
+  //////////////////////////////////#############
+
+  @ViewChild('goHtmlPopup', { static: true }) htmlPopupRef!: ElementRef;
+
+  // 
+  isPopupVisible = false;
 
   // Toggle for nodes dropdown visibility
   nodesOpen: boolean = false;
@@ -136,8 +157,38 @@ export class DisplayComponent {
     document.addEventListener('click', this.onOutsideClick.bind(this));
     this.UploadedExpressionFiles = this.fileDataService.getUploadedExpressionFiles();
     this.UploadedAnnoationFiles = this.fileDataService.getUploadedAnnoationFiles();
-
   }
+
+  ngAfterViewInit(): void {
+  
+    const popup = this.htmlPopupRef.nativeElement;
+  
+    popup.addEventListener('wheel', (event: WheelEvent) => {
+      event.preventDefault(); // block page scroll
+  
+      const diagramDiv = document.getElementById('myDiagramDiv');
+      if (!diagramDiv) return;
+  
+      const canvas = diagramDiv.querySelector('canvas');
+      if (!canvas) return;
+  
+      const newEvent = new WheelEvent('wheel', {
+        bubbles: true,
+        cancelable: true,
+        deltaX: event.deltaX,
+        deltaY: event.deltaY,
+        clientX: event.clientX,
+        clientY: event.clientY,
+        ctrlKey: event.ctrlKey,
+      });
+  
+      requestAnimationFrame(() => {
+        canvas.dispatchEvent(newEvent);
+      });
+      
+    }, { passive: false });
+  }
+
 
   // ------------- SETTING UP PROCESSING FUNCTIONS -------------------------
 
@@ -680,13 +731,7 @@ private getMultipleGenes(nodes: any[]): any[]{
 }
 
 
-// ----------- Processing Function Before Matching Nodes ----------------
-// Takes nodes of selected Map 
-// Gets relevant timepoint, retrieves annotated genes
-// Both function indentical but call variations in matchGenes(NoSize) 
-// Dependent on User interaction
-
-// ------------- METABOLIC FLUX - LINE WIDTHS -----------------
+// ------------- METABOLIC FLUX - LOGFC -----------------
 // Gets enzyme nodes that are impacted by genes and are not due to isoforms (by colour)
 // Gets the node group key and finds 'from' links by match the key to the link key (e.g. Group: 76, Link 37R76)
 // Ensures that 
@@ -1002,7 +1047,7 @@ private getLoadedPathways(): void{
     // Loading Pathway Data to Loaded Pathway Array
     // Loads edited Nodes (logfc, genes, colour)
     this.getLoadedPathways();
-    const loadedData = this.loadedPathwayData;
+    //const loadedData = this.loadedPathwayData;
     //console.log(loadedData);
     console.log("--------------------")
     console.log('Pathway Data Loaded Successfully');
@@ -1215,8 +1260,6 @@ async getAllPathwayNames(): Promise<void>{
   // Creating the First GoJS MAP
   // Creates the Diagram Template and initialises 
   createGoJSMap(nodes: any[], links: any[] ): void {
-
-    this.activePopups = []; // resetting popup tracker for new diagram
 
     console.log("--------------------");
     console.log('Initialising Map');
@@ -1466,150 +1509,78 @@ async getAllPathwayNames(): Promise<void>{
       );
 
 
+    // Show popup on click for all node types except 'map'
+    this.myDiagram.addDiagramListener("ObjectSingleClicked", (e) => {
+      console.log("🖱️ Diagram click detected");
+      const part = e.subject.part;
+      if (!(part instanceof go.Node)) return;
+      console.log("✅ Clicked part is a Node:", part.data);
+    
+      const node = part;
+      const data = node.data || {};
+    
+      if (data.type === 'map') return;
+    
+      this.popupNodeData = data;
+      this.popupNodeKey = data.key;
+    
+      const pos = this.myDiagram!.transformDocToView(
+        node.getDocumentPoint(go.Spot.BottomCenter)
+      );
 
-      // to make the nodes to show a pop up window when clicked
-      this.myDiagram!.addDiagramListener("ObjectSingleClicked", (e) => {
-        const part = e.subject.part;
-        if (!(part instanceof go.Node)) return;
-      
-        const node = part;
-
-        
-        const data = node.data || {};
-
-        // to check the actual data present in it
-        console.log("🧠 Full node data:", data);
-
-        const key = data.key;
-        const type = data.type || "unknown";
-      
-        // Prevent duplicate popups
-        if (this.activePopups.find(p => p.nodeKey === key)) return;
-      
-        // Limit to 2 active popups
-        if (this.activePopups.length >= 2) {
-          const removed = this.activePopups.shift();
-          const oldNode = this.myDiagram!.findNodeForKey(removed!.nodeKey);
-          if (oldNode) oldNode.removeAdornment("popup");
+      console.log("📁 data passing through: ", this.popupNodeData)
+    
+      // Set temporary top position, delay horizontal calculation
+      this.popupPosition = {
+        top: pos.y + 10,
+        left: 0  // temporary value until we get correct width
+      };
+      this.isPopupVisible = true;
+      this.cdr.detectChanges();
+    
+      // Delay centering until Angular has rendered the popup
+      setTimeout(() => {
+        const popup = this.htmlPopupRef.nativeElement;
+        const width = popup.offsetWidth;
+    
+        this.popupPosition = {
+          top: pos.y + 10,
+          left: pos.x - width / 2
+        };
+    
+        this.cdr.detectChanges();
+      }, 0);
+    });
+    
+    
+    this.myDiagram?.addDiagramListener("ViewportBoundsChanged", () => {
+      if (this.popupNodeData && this.popupNodeKey) {
+        const node = this.myDiagram?.findNodeForKey(this.popupNodeKey);
+        if (!node) {
+          console.log("⚠️ Node not found for popupKey:", this.popupNodeKey);
         }
-      
-        // Emoji and color mappings
-        const emojiMap: { [key: string]: string } = {
-          enzyme: "🧬",
-          compound: "⚗️",
-          map: "🗺️",
-          reaction: "🔁",
-        };
-        const colorMap: { [key: string]: string } = {
-          enzyme: "#d4edda",      // Soft green
-          compound: "#e6f0ff",    // Soft blue
-          map: "#e2e3e5",         // Gray-blue
-          reaction: "#fff3cd",    // Soft yellow
-          unknown: "#f8d7da"      // Red/pink fallback
-        };
-      
-        const emoji = emojiMap[type] || "❓";
-        const bgColor = colorMap[type] || colorMap["unknown"];
-        const title = `${emoji} ${type.toUpperCase()}`;
-        const contentText = `
-        KEY: ${data.key}
-        EC: ${data.text ?? "?"}
-        Gene(s): ${Array.isArray(data.gene) ? data.gene.join(", ") : data.gene ?? "N/A"}
-        logFC: ${data.logfc ?? "N/A"}
-        Name: ${data.name ?? "N/A"}
-        `.trim();
+        if (node) {
+          const pos = this.myDiagram?.transformDocToView(node.getDocumentPoint(go.Spot.BottomCenter));
+          if (pos) {
 
-      
-        // Build the full popup box
-        const box = go.GraphObject.make(go.Adornment, "Spot",
-          {
-            location: node.getDocumentPoint(go.Spot.Bottom),
-            layerName: "Tool",
-            opacity: 0,
-            zOrder: 10 // higher value to keep the box infront of the blocker
-          },
-          go.GraphObject.make(go.Panel, "Auto",
-            go.GraphObject.make(go.Shape, "RoundedRectangle", {
-              fill: bgColor,
-              stroke: "#ccc",
-              strokeWidth: 1,
-              shadowVisible: true,
-            }),
+            const popup = this.htmlPopupRef.nativeElement;
+            const width = popup.offsetWidth;  
 
-            go.GraphObject.make(go.Panel, "Vertical",
-              go.GraphObject.make(go.Panel, "Horizontal",
-                {
-                  background: "#e6f0ff",
-                  padding: new go.Margin(4, 8, 4, 8)
-                },
-                go.GraphObject.make(go.TextBlock, title, {
-                  font: "bold 12px sans-serif",
-                  stroke: "#004080",
-                  width: 120
-                }),
-                go.GraphObject.make(go.TextBlock, "✖", {
-                  font: "bold 12px sans-serif",
-                  stroke: "red",
-                  cursor: "pointer",
-                  isActionable: true,
-                  margin: new go.Margin(4, 4, 0, 0),
-                  click: (e, obj) => {
-                    console.log("Clicked X"); // ✅ Checkpoint 1
-                  
-                    if (!obj || !obj.part) {
-                      console.warn("No obj.part");
-                      return;
-                    }
-                  
-                    const adorned = (obj.part as go.Adornment).adornedPart;
-                    if (!adorned) {
-                      console.warn("No adornedPart");
-                      return;
-                    }
-                  
-                    const key = adorned.data?.key;
-                    console.log("Closing for:", key); // ✅ Checkpoint 2
-                  
-                    adorned.removeAdornment("popup");
-                    
-                    this.activePopups = this.activePopups.filter(p => p.nodeKey !== key); 
-                  }
-                  
-                })                
-              ),
-              go.GraphObject.make(go.TextBlock, contentText, {
-                margin: 8,
-                font: "12px 'Segoe UI', sans-serif",
-                stroke: "#333"
-              })
-            )
-          )
-        );        
-      
-        node.removeAdornment("popup");   
-        
-
-        box.adornedObject = node; // Link the popup to the node properly
-        node.addAdornment("popup", box);
-        //this.activePopups.push({ nodeKey: key ,blocker});
-        this.activePopups.push({ nodeKey: key });
-
-
-        const anim = new go.Animation();
-        anim.duration = 300;
-        anim.easing = go.Animation.EaseOutQuad;
-        anim.add(box, "opacity", 0, 1);
-        anim.add(box, "location", box.location.offset(0, -10), box.location);
-        anim.start();
-      });      
-            
-      this.myDiagram!.addDiagramListener("BackgroundSingleClicked", () => {
-        this.myDiagram!.clearSelection();
-        this.myDiagram!.nodes.each(n => n.clearAdornments());
-
-        // now updates active popups
-        this.activePopups = [];
-      }); 
+            this.popupPosition = {
+              top: pos.y + 10,        // match your original vertical offset
+              left: pos.x - width / 2 // horizontal centering
+            };
+          }
+        }
+      }
+    });    
+          
+    this.myDiagram!.addDiagramListener("BackgroundSingleClicked", () => {
+      this.myDiagram!.clearSelection();
+      this.isPopupVisible = false;
+      this.popupNodeKey = null;
+      this.popupNodeData = null;
+    }); 
 
     var model = $(go.GraphLinksModel);
     model.nodeDataArray = nodes; 
@@ -1789,30 +1760,14 @@ populateNodeCategories(): void {
     this.myDiagram.commandHandler.scrollToPart(node);
     this.myDiagram.scale = 1.1;
     this.myDiagram.centerRect(node.actualBounds);
+    this.setLegend(this.myDiagram);
   }
-
-/*
-  private updateMiddleArrowAngle(link: go.Link) {
-    const arrow = link.findObject("MiddleArrow");
-    if (arrow && link.pointsCount > 1) {
-      const points = link.points;
-      const from = points.first();
-      const to = points.last();
   
-      // Ensure from and to are not null
-      if (from && to) {
-        const angle = Math.atan2(to.y - from.y, to.x - from.x) * (180 / Math.PI); // Calculate angle
-        arrow.angle = angle;  // Set the angle of the arrow
-      } else {
-        console.warn("❌ Invalid link points: 'from' or 'to' is null.");
-      }
-    } else {
-      console.warn("❌ Link has insufficient points to calculate the angle.");
-    }
-  }*/
+  // for the popup
+  isArray(value: any): boolean {
+    return Array.isArray(value);
+  }
   
-  
-
   // --------------- Updating GO.js Model -------------------
   // Updates the pre-existing Diagram Model
   updateDiagram(nodes: any[], links: any[]): void{
@@ -1829,6 +1784,13 @@ populateNodeCategories(): void {
   // If exists - Updates the Model with new nodes + links (updateDiagram()))
   // If doesnt exist - Creates first Diagram Model (createGOJSMap())
   changeDiagram(nodes: any[], links: any[]): void {
+
+    // ✅ Reset popup when diagram changes
+    this.popupNodeData = null;
+    this.popupNodeKey = null;
+    this.isPopupVisible = false;
+    this.cdr.detectChanges();
+
     // If diagram exists, clear it first
     console.log("--------------------");
     console.log('Changing Diagram');
@@ -2391,34 +2353,6 @@ populateNodeCategories(): void {
 
   // -------  PATHWAY SORTING FUNCTIONS -----------
 
-  // Determining Pathway Size - Ranking complexity 
-  // Called from sortPathways 
-  pathwaySize(): any[]{
-    let list = this.pathways;
-    let data = this.ALLpathwayData;
-
-    var pathwaysSize = [];
-    for (let j=0;j<list.length;j++){
-      //console.log(list[j]);
-      let pathway = list[j];
-      for (let i = 0; i< data.length;i++){
-        //console.log(data[i].name);
-        //console.log(data[i]);
-        if (pathway == data[i].name){
-          //console.log(data[i].enzymes);
-          let enzymes = data[i].enzymes;
-          let number = enzymes.length;
-          //console.log(number);
-          pathwaysSize.push({
-            name: pathway,
-            size: number,
-          })
-        }
-      }
-    }
-    return pathwaysSize;
-}
-
   // ------ SORTING PATHWAYS--------
   // Takes Criteria Selected from User (Drop Down Menu)
   sortPathways(criteria: string) {
@@ -2824,7 +2758,7 @@ processNewFiles(): void{
     // Update the uploadedFiles array with the newly selected valid files
     this.uploadedFiles = [...this.uploadedFiles, ...newFiles];
     this.showFileList = this.uploadedFiles.length > 0; // Show the file list if files are uploaded
-    this.UploadedExpressionFiles =  [...this.UploadedExpressionFiles, ...newFiles];
+    // this.UploadedExpressionFiles =  [...this.UploadedExpressionFiles, ...newFiles];
   }
 
   // Remove a specific file from the uploadedFiles list
@@ -3163,70 +3097,317 @@ Once all the steps are completed, click the Process button to move to get visual
     }
 
     // Move file to removal list
-    moveToRemove(file: any) {
-      this.remainingExpressionFiles = this.remainingExpressionFiles.filter(f => f !== file);
-      this.filesMarkedForRemoval.push(file);
+    moveToRemove(file: File): void {
+      const isNewUpload = this.newlyUploadedFiles.includes(file);
+      if (isNewUpload) {
+        // Just remove it completely
+        this.remainingExpressionFiles = this.remainingExpressionFiles.filter(f => f !== file);
+        this.newlyUploadedFiles = this.newlyUploadedFiles.filter(f => f !== file);
+      } else {
+        this.remainingExpressionFiles = this.remainingExpressionFiles.filter(f => f !== file);
+        this.filesMarkedForRemoval.push(file);
+      }
     }
 
     // Restore file back
-    restoreFile(file: any) {
+    restoreFile(file: File): void {
+      // Prevent duplicate restoration
+      const alreadyExists = this.remainingExpressionFiles.some(f => f.name === file.name);
+      if (!alreadyExists) {
+        this.remainingExpressionFiles.push(file);
+      }
       this.filesMarkedForRemoval = this.filesMarkedForRemoval.filter(f => f !== file);
-      this.remainingExpressionFiles.push(file);
     }
 
-    // Apply all changes
-    applyChanges() {
-      const removedFiles = this.filesMarkedForRemoval.map(f => f.name);
-      const reorderChanged = !this.isSameOrder(this.initialExpressionFiles, [...this.remainingExpressionFiles, ...this.filesMarkedForRemoval]);
+// Apply all changes
+applyChanges() {
 
-      let message = '';
+  console.log('Applying changes to uploaded files');
+  
+  // Removed files
+  const removedFiles = this.filesMarkedForRemoval.map(f => f.name);
+  console.log('Removed files list:', removedFiles);
 
-      if (removedFiles.length > 0) {
-        message += `You are about to remove these files:\n- ${removedFiles.join('\n- ')}\n\n`;
-      }
-
-      if (reorderChanged) {
-        message += `You have reordered the remaining files.\n\n`;
-      }
-
-      if (message === '') {
-        alert('No changes to apply.');
-        return;
-      }
-
-      const confirmed = window.confirm(message + 'Are you sure you want to apply these changes?');
-      if (confirmed) {
-        // Update main UploadedExpressionFiles list
-        this.UploadedExpressionFiles = [...this.remainingExpressionFiles];
-
-        // Clear everything and close
-        this.closeUploadedFilesModal();
-      }
+  // File format parser
+  const properlyFormattedFiles = this.remainingExpressionFiles.map(file => {
+    if (file.name && file.file instanceof File) {
+      return file;
     }
+    return {
+      name: file.name,
+      file: file,
+    };
+  });
+
+  // List of current files
+  const currentFiles = [...properlyFormattedFiles];
+  // Names of already processed files
+  const alreadyProcessedNames = this.initialExpressionFiles.map(f => f.name);
+  // Names of new files to process
+  const newFilesToProcess = currentFiles.filter(f => !alreadyProcessedNames.includes(f.name));
+
+  // Check if the order of files has changed
+  const initialWithoutRemoved = this.initialExpressionFiles
+    .filter(f => !this.filesMarkedForRemoval.some(r => r.name === f.name))
+    .map(f => f.name);
+
+  // Newly added files
+  const addedFiles = newFilesToProcess.map(f => f.name);
+  // list of current files
+  const currentNames = currentFiles.map(f => f.name);
+  // Order initially
+  const expectedOrder = [...initialWithoutRemoved, ...addedFiles];
+  // Boolean to check if the order has changed
+  const reorderChanged = !this.isSameOrder(expectedOrder, currentNames);
+
+  // Display message to user
+  // Check if any files were removed
+  // Check if any files were added
+  // Check if the order of files has changed
+  let message = '';
+  if (removedFiles.length > 0) {
+    message += `You are about to remove these files:\n- ${removedFiles.join('\n- ')}\n\n`;
+  }
+  if (addedFiles.length > 0 && !reorderChanged) {
+    message += `You have added these new files:\n- ${addedFiles.join('\n- ')}\n\n`;
+  }
+  if (reorderChanged) {
+    message += `You have reordered the files.\n\n`;
+  }
+
+  if (message === '') {
+    alert('No changes to apply.');
+    this.closeUploadedFilesModal();
+    return;
+  }
+
+  const confirmed = window.confirm(message + 'Are you sure you want to apply these changes?');
+  if (!confirmed) return;
+
+  // Assign the current files to the initial expression files
+  this.UploadedExpressionFiles = currentFiles;
+  this.ExpressionFileNames = this.UploadedExpressionFiles.map(file => file.name);
+
+  // Assign the current files to the uploaded files
+  this.uploadedFiles = currentFiles;
+
+  const validExtensions = ['txt', 'csv'];
+  const expressionData: { [filename: string]: string[][] } = {};
+
+  // Process the new files
+  const dataLoadPromises = newFilesToProcess.map(fileObj =>
+    new Promise<void>((resolve, reject) => {
+      const fileExtension = fileObj.name.split('.').pop()?.toLowerCase();
+      // Check if the file extension is valid
+      if (!fileExtension || !validExtensions.includes(fileExtension)) {
+        this.unsupportedFileTypeMessage = `File ${fileObj.name} is not supported.`;
+        return reject();
+      }     
+      // Read the file content
+      const reader = new FileReader();
+      reader.onload = (event: any) => {
+        const content = event.target.result;
+        const parsedData = parseFileContent(content, fileObj.name, fileExtension);
+        // Parse the file content
+        // Check if the parsed data is valid and not empty
+        if (!parsedData || parsedData.length === 0) {
+          this.warningMessage = `File ${fileObj.name} is empty or invalid.`;
+          return reject();
+        }
+        
+        const fileType = identifyFileType(parsedData, fileObj.name);
+        const shortName = (fileObj.name || '').replace(/\.[^/.]+$/, '');
+
+        // Check if the file is an expression file
+        if (fileType === 'expression') {
+          expressionData[shortName] = parsedData;
+        } else {
+          this.warningMessage = `File ${fileObj.name} must be an expression file.`;
+          return reject();
+        }
+
+        resolve();
+      };
+
+      reader.onerror = () => {
+        this.warningMessage = `Error reading file ${fileObj.name}.`;
+        reject();
+      };
+      reader.readAsText(fileObj.file);
+    })
+  );
+  // Wait for all file processing to complete
+  // Process the expression data and merge with annotation data
+  Promise.all(dataLoadPromises).then(() => {
+    // Get the annotation data
+    const annotationData = this.fileDataService.getAnnotationData();
+    // Get the existing combined data
+    const existingCombined = this.fileDataService.getMultipleCombinedArrays() || [];
+    // Placeholder for new combined data
+    const newCombined: any[][] = [];
+
+    // Iterate through the expression data
+    for (const [exprFilename, exprData] of Object.entries(expressionData)) {
+      const headerExpr = exprData[0].map(h => h.toLowerCase());
+      const geneIndexExpr = headerExpr.findIndex(col => col === 'gene');
+      // Check if the gene index is valid
+      // If not, skip this file
+      if (geneIndexExpr === -1) continue;
+      
+      // Iterate through the expression data rows
+      const mergedGenes: any[] = exprData.slice(1).map(row => {
+        const gene = row[geneIndexExpr];
+        const geneData: any = { gene };
+        // Iterate through the column data
+        for (let j = 0; j < row.length; j++) {
+          // Skip the gene index column
+          // Add the data to the geneData object
+          if (j !== geneIndexExpr && headerExpr[j]) {
+            geneData[`${exprFilename}_${headerExpr[j]}`] = row[j];
+          }
+        }
+        // Iterate through the annotation data
+        for (const [annFile, annData] of Object.entries(annotationData)) {
+          const headerAnn = annData[0].map(h => h.toLowerCase());
+          const geneIndexAnn = headerAnn.findIndex(col => col === 'sequence.name' || col.includes('gene') || col === 'id');
+          if (geneIndexAnn === -1) continue;
+
+          const annRow = annData.find(row => row[geneIndexAnn] === gene);
+          if (annRow) {
+            for (let k = 0; k < annRow.length; k++) {
+              if (k !== geneIndexAnn && headerAnn[k]) {
+                geneData[`${annFile}_${headerAnn[k]}`] = annRow[k];
+              }
+            }
+          }
+        }
+        return geneData;
+      });
+      // find the index of the file in the current files
+      const fileIndex = currentFiles.findIndex(f => f.name.replace(/\.[^/.]+$/, '') === exprFilename);
+      console.log('File index:', fileIndex);
+      // add merged genes to the new combined data in the correct index
+      newCombined[fileIndex] = mergedGenes;
+    }
+
+    // Map the current files to the new combined data
+    const combined = currentFiles.map((f, i) => newCombined[i] || existingCombined.find((_, j) => this.initialExpressionFiles[j]?.name === f.name));
+
+    // Set the combined data in the fileDataService
+    this.fileDataService.setCombinedData(combined.flat());
+    this.fileDataService.setMultipleCombinedArrays(combined);
+    this.timepoints = this.rangeFromOne(combined);
+    console.log('Timepoints: '+ this.timepoints);
+    console.log('Combined data:', combined);
+    this.isLoading = true;
+    this.LoadingMessage = 'Loading New File Data...';
+
+    this.processNewFiles();
+    this.getEnzymeGenes();
+    this.extractECNumbers();
+
+    const currentPaths = this.pathways;
+
+    const postData = [this.enzymeList, this.pathwayNumber];
+    this.enzymeApiServicePost.postEnzymeData(postData).subscribe(
+      (response) => {
+        console.log('Updated Pathways:', response);
+        this.pathwayTally = response[1];
+        this.pathwayData = response[0].paths;
+
+        this.loadNames();
+        this.loadTally();
+
+        const result = this.comparePathways(currentPaths, this.pathways);
+        this.summaryData = {
+          newItems: result.newItems,
+          oldItems: result.oldItems,
+          similarities: result.similarities,
+        };
+        this.showSummaryBox = true;
+        this.getMapData(this.pathwayData);
+      },
+      (error) => {
+        console.error('Error:', error);
+        this.isLoading = false;
+      }
+    );
+
+    this.closeUploadedFilesModal();
+  }).catch(err => {
+    console.warn('Failed to process added files:', err);
+  });
+}
+
+    
 
     // Helper: check if two arrays have same order
-    isSameOrder(arr1: any[], arr2: any[]) {
+    isSameOrder(arr1: string[], arr2: string[]) {
       if (arr1.length !== arr2.length) return false;
       for (let i = 0; i < arr1.length; i++) {
-        if (arr1[i].name !== arr2[i].name) return false;
+        if (arr1[i] !== arr2[i]) return false;
       }
       return true;
     }
 
+    newlyUploadedFiles: File[] = [];
+
+    handleFileInput(event: any): void {
+      const files: FileList = event.target.files;
+      const validNewFiles: File[] = [];
+    
+      for (let i = 0; i < files.length; i++) {
+        const file = files.item(i);
+        if (!file) continue;
+    
+        const isDuplicate =
+          this.remainingExpressionFiles.some(f => f.name === file.name) ||
+          this.newlyUploadedFiles.some(f => f.name === file.name);
+    
+        const isInRemovedList = this.filesMarkedForRemoval.find(f => f.name === file.name);
+    
+        if (isDuplicate) {
+          console.warn(`File already exists: ${file.name}`);
+          continue;
+        }
+    
+        if (isInRemovedList) {
+          // Remove from filesMarkedForRemoval and re-add to main list
+          this.filesMarkedForRemoval = this.filesMarkedForRemoval.filter(f => f.name !== file.name);
+          this.remainingExpressionFiles.push(file);
+        } else {
+          validNewFiles.push(file);
+        }
+      }
+      console.log('Valid new files:', validNewFiles);
+      this.remainingExpressionFiles = [...this.remainingExpressionFiles, ...validNewFiles];
+      this.newlyUploadedFiles = [...this.newlyUploadedFiles, ...validNewFiles];
+    }
+
     // Close modal
     closeUploadedFilesModal() {
+      this.newlyUploadedFiles = [];
       this.isUploadedFileModalOpen = false;
     }
 
   // ------------------- NEW PROJECT subMenu -----------------
 
   openUploadPage() {
-    const confirmed = window.confirm('Are you sure you want to close the current project? All progress will be lost.');
-  
-    if (confirmed) {
-      this.resetEverything();
-      this.router.navigate(['/upload']); // Navigate back to upload page
+    if (!this.isProjectSaved){
+      const confirmed = window.confirm('Are you sure you want to close the current project? All progress will be lost. Save your project before closing.');
+      if (confirmed) {
+        this.resetEverything();
+        this.router.navigate(['/upload']); // Navigate back to upload page
+      }
+    } else {
+      const confirmed = window.confirm('Are you sure you want to close the current project?');
+      if (confirmed) {
+        this.resetEverything();
+        this.router.navigate(['/upload']); // Navigate back to upload page
+      }
     }
+  
+    
   }
 
   resetEverything() {
@@ -3362,7 +3543,6 @@ Once all the steps are completed, click the Process button to move to get visual
 
 
   //  ------------------ POPULATE SELECT BOXES -------------------
-  // MOCK DATA
   enzymeOptions: { ec: string; name: string; logfc?: number; colour?: string }[] = [];
   CompoundOptions: string[] = ['Value 1', 'Value 2', 'Value 3'];
   PathwayOptions: string[] = ['Pathway A', 'Pathway B', 'Pathway C'];
@@ -3417,7 +3597,6 @@ Once all the steps are completed, click the Process button to move to get visual
     this.selectNodeFromDropdown(this.selectedPathwayCustom, 'map');
   }  
 
-
   getArrowFontSize(logfc: number | undefined): string | null {
     if (logfc === undefined || logfc === null) {
       return null;
@@ -3427,6 +3606,21 @@ Once all the steps are completed, click the Process button to move to get visual
     return fontSize;
   }
 
+  closePopup() {
+    this.isPopupVisible = false;
+  }
+
+  onGeneListScroll(event: WheelEvent | TouchEvent): void {
+    event.stopPropagation();
+  }  
+
+  zoomIn() {
+    this.myDiagram?.commandHandler.increaseZoom();
+  }
+  
+  zoomOut() {
+    this.myDiagram?.commandHandler.decreaseZoom();
+  }
 
   //  ------------------ TIME SLIDER -------------------
   timepoints = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
@@ -3467,7 +3661,7 @@ Once all the steps are completed, click the Process button to move to get visual
   }
   
   hasThreeOrMoreFiles(): boolean {
-    return this.ExpressionFileNames.length >= 3;
+    return this.ExpressionFileNames.length >= 4;
   }
   // ------------------ ANIMATION ------------------
 
@@ -3574,6 +3768,10 @@ Once all the steps are completed, click the Process button to move to get visual
     return this.selectedColorLow;
   }
 
+
+  // Taking Paralog Colour from User 
+  // Reassiging the global variable
+  // Reloading Pathway Data for animation
   onColorChangeIsoform(event: Event): string {
     const input = event.target as HTMLInputElement;
     this.selectedColorIsoform = input.value;
@@ -3763,12 +3961,81 @@ removeEcPrefix(pathway: string): string {
   return pathway?.replace(/^ec/, '') || '';
 }
 
-  // ---------- STATS DISPLAY -------------
+  // ---------- SAVE PROJECT -------------
+  showModal = false;
+  isProjectSaved: boolean =  false;
 
+  openSaveModal() {
+    this.showModal = true;
+  }
 
+  onSaveProject(projectName: string): void {
+    this.showModal = false;
 
+    const zip = new JSZip();
+    
+    // Add files to the zip
+    const projectFiles = [
+      { name: 'file1.txt', content: '' },
+      { name: 'file2.txt', content: '' }
+    ];
+
+    projectFiles.forEach(file => {
+      zip.file(file.name, file.content);
+    });
+
+    zip.generateAsync({ type: 'blob' }).then(content => {
+      saveAs(content, `${projectName}.zip`);
+      alert('Project saved successfully');
+      this.isProjectSaved = true;
+    }).catch(err => {
+      console.error('Error saving project:', err);
+      alert('Failed to save project');
+    });
+  }
+
+  // ------------------ OPEN PROJECT -------------------
+
+  openProject(): void {
   
-
+      const fileInput = document.createElement('input');
+      fileInput.type = 'file';
+      fileInput.accept = '.zip';
+    
+      fileInput.onchange = async (event: Event) => {
+        const input = event.target as HTMLInputElement;
+        if (!input.files || input.files.length === 0) return;
+    
+        const zipFile = input.files[0];
+    
+        try {
+          const zip = await JSZip.loadAsync(zipFile);
+    
+          const fileContents: { name: string, content: string }[] = [];
+    
+          // Read each file in the zip
+          await Promise.all(
+            Object.keys(zip.files).map(async (filename) => {
+              const file = zip.files[filename];
+              if (!file.dir) {
+                const content = await file.async('string');
+                fileContents.push({ name: filename, content });
+              }
+            })
+          );
+    
+          console.log('Loaded files:', fileContents);
+    
+          // TODO: HERE MOVE THE FILES TO DISPLAY TO BE LOADED
+          alert('Project loaded successfully');
+    
+        } catch (err) {
+          console.error('Failed to open project:', err);
+          alert('Failed to open project file');
+        }
+      };
+    
+      fileInput.click(); // Open file chooser
+    }
 } 
-
 

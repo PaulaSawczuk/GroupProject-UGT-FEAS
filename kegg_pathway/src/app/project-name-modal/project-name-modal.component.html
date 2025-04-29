@@ -1,0 +1,14 @@
+<div class="modal-backdrop">
+    <div class="modal-box">
+      <h2>Save Project</h2>
+      <label>Project Name:</label>
+      <div class = "input-box">
+      <input type="text" [(ngModel)]="projectName" placeholder="MyProject" />
+      </div>
+      <div class="actions">
+        <button (click)="confirm()">Save</button>
+        <button (click)="cancel()">Cancel</button>
+      </div>
+    </div>
+  </div>
+  
