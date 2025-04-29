@@ -2782,7 +2782,7 @@ processNewFiles(): void{
     // Update the uploadedFiles array with the newly selected valid files
     this.uploadedFiles = [...this.uploadedFiles, ...newFiles];
     this.showFileList = this.uploadedFiles.length > 0; // Show the file list if files are uploaded
-    this.UploadedExpressionFiles =  [...this.UploadedExpressionFiles, ...newFiles];
+    // this.UploadedExpressionFiles =  [...this.UploadedExpressionFiles, ...newFiles];
   }
 
   // Remove a specific file from the uploadedFiles list
@@ -3118,58 +3118,293 @@ Once all the steps are completed, click the Process button to move to get visual
     }
 
     // Move file to removal list
-    moveToRemove(file: any) {
-      this.remainingExpressionFiles = this.remainingExpressionFiles.filter(f => f !== file);
-      this.filesMarkedForRemoval.push(file);
+    moveToRemove(file: File): void {
+      const isNewUpload = this.newlyUploadedFiles.includes(file);
+      if (isNewUpload) {
+        // Just remove it completely
+        this.remainingExpressionFiles = this.remainingExpressionFiles.filter(f => f !== file);
+        this.newlyUploadedFiles = this.newlyUploadedFiles.filter(f => f !== file);
+      } else {
+        this.remainingExpressionFiles = this.remainingExpressionFiles.filter(f => f !== file);
+        this.filesMarkedForRemoval.push(file);
+      }
     }
 
     // Restore file back
-    restoreFile(file: any) {
+    restoreFile(file: File): void {
+      // Prevent duplicate restoration
+      const alreadyExists = this.remainingExpressionFiles.some(f => f.name === file.name);
+      if (!alreadyExists) {
+        this.remainingExpressionFiles.push(file);
+      }
       this.filesMarkedForRemoval = this.filesMarkedForRemoval.filter(f => f !== file);
-      this.remainingExpressionFiles.push(file);
     }
 
-    // Apply all changes
-    applyChanges() {
-      const removedFiles = this.filesMarkedForRemoval.map(f => f.name);
-      const reorderChanged = !this.isSameOrder(this.initialExpressionFiles, [...this.remainingExpressionFiles, ...this.filesMarkedForRemoval]);
+// Apply all changes
+applyChanges() {
 
-      let message = '';
+  console.log('Applying changes to uploaded files');
+  
+  // Removed files
+  const removedFiles = this.filesMarkedForRemoval.map(f => f.name);
+  console.log('Removed files list:', removedFiles);
 
-      if (removedFiles.length > 0) {
-        message += `You are about to remove these files:\n- ${removedFiles.join('\n- ')}\n\n`;
-      }
-
-      if (reorderChanged) {
-        message += `You have reordered the remaining files.\n\n`;
-      }
-
-      if (message === '') {
-        alert('No changes to apply.');
-        return;
-      }
-
-      const confirmed = window.confirm(message + 'Are you sure you want to apply these changes?');
-      if (confirmed) {
-        // Update main UploadedExpressionFiles list
-        this.UploadedExpressionFiles = [...this.remainingExpressionFiles];
-
-        // Clear everything and close
-        this.closeUploadedFilesModal();
-      }
+  // File format parser
+  const properlyFormattedFiles = this.remainingExpressionFiles.map(file => {
+    if (file.name && file.file instanceof File) {
+      return file;
     }
+    return {
+      name: file.name,
+      file: file,
+    };
+  });
+
+  // List of current files
+  const currentFiles = [...properlyFormattedFiles];
+  // Names of already processed files
+  const alreadyProcessedNames = this.initialExpressionFiles.map(f => f.name);
+  // Names of new files to process
+  const newFilesToProcess = currentFiles.filter(f => !alreadyProcessedNames.includes(f.name));
+
+  // Check if the order of files has changed
+  const initialWithoutRemoved = this.initialExpressionFiles
+    .filter(f => !this.filesMarkedForRemoval.some(r => r.name === f.name))
+    .map(f => f.name);
+
+  // Newly added files
+  const addedFiles = newFilesToProcess.map(f => f.name);
+  // list of current files
+  const currentNames = currentFiles.map(f => f.name);
+  // Order initially
+  const expectedOrder = [...initialWithoutRemoved, ...addedFiles];
+  // Boolean to check if the order has changed
+  const reorderChanged = !this.isSameOrder(expectedOrder, currentNames);
+
+  // Display message to user
+  // Check if any files were removed
+  // Check if any files were added
+  // Check if the order of files has changed
+  let message = '';
+  if (removedFiles.length > 0) {
+    message += `You are about to remove these files:\n- ${removedFiles.join('\n- ')}\n\n`;
+  }
+  if (addedFiles.length > 0 && !reorderChanged) {
+    message += `You have added these new files:\n- ${addedFiles.join('\n- ')}\n\n`;
+  }
+  if (reorderChanged) {
+    message += `You have reordered the files.\n\n`;
+  }
+
+  if (message === '') {
+    alert('No changes to apply.');
+    this.closeUploadedFilesModal();
+    return;
+  }
+
+  const confirmed = window.confirm(message + 'Are you sure you want to apply these changes?');
+  if (!confirmed) return;
+
+  // Assign the current files to the initial expression files
+  this.UploadedExpressionFiles = currentFiles;
+  // Assign the current files to the uploaded files
+  this.uploadedFiles = currentFiles;
+
+  const validExtensions = ['txt', 'csv'];
+  const expressionData: { [filename: string]: string[][] } = {};
+
+  // Process the new files
+  const dataLoadPromises = newFilesToProcess.map(fileObj =>
+    new Promise<void>((resolve, reject) => {
+      const fileExtension = fileObj.name.split('.').pop()?.toLowerCase();
+      // Check if the file extension is valid
+      if (!fileExtension || !validExtensions.includes(fileExtension)) {
+        this.unsupportedFileTypeMessage = `File ${fileObj.name} is not supported.`;
+        return reject();
+      }
+      // Read the file content
+      const reader = new FileReader();
+      reader.onload = (event: any) => {
+        const content = event.target.result;
+        const parsedData = parseFileContent(content, fileObj.name, fileExtension);
+        // Parse the file content
+        // Check if the parsed data is valid and not empty
+        if (!parsedData || parsedData.length === 0) {
+          this.warningMessage = `File ${fileObj.name} is empty or invalid.`;
+          return reject();
+        }
+        
+        const fileType = identifyFileType(parsedData, fileObj.name);
+        const shortName = (fileObj.name || '').replace(/\.[^/.]+$/, '');
+
+        // Check if the file is an expression file
+        if (fileType === 'expression') {
+          expressionData[shortName] = parsedData;
+        } else {
+          this.warningMessage = `File ${fileObj.name} must be an expression file.`;
+          return reject();
+        }
+
+        resolve();
+      };
+
+      reader.onerror = () => {
+        this.warningMessage = `Error reading file ${fileObj.name}.`;
+        reject();
+      };
+      reader.readAsText(fileObj.file);
+    })
+  );
+  // Wait for all file processing to complete
+  // Process the expression data and merge with annotation data
+  Promise.all(dataLoadPromises).then(() => {
+    // Get the annotation data
+    const annotationData = this.fileDataService.getAnnotationData();
+    // Get the existing combined data
+    const existingCombined = this.fileDataService.getMultipleCombinedArrays() || [];
+    // Placeholder for new combined data
+    const newCombined: any[][] = [];
+
+    // Iterate through the expression data
+    for (const [exprFilename, exprData] of Object.entries(expressionData)) {
+      const headerExpr = exprData[0].map(h => h.toLowerCase());
+      const geneIndexExpr = headerExpr.findIndex(col => col === 'gene');
+      // Check if the gene index is valid
+      // If not, skip this file
+      if (geneIndexExpr === -1) continue;
+      
+      // Iterate through the expression data rows
+      const mergedGenes: any[] = exprData.slice(1).map(row => {
+        const gene = row[geneIndexExpr];
+        const geneData: any = { gene };
+        // Iterate through the column data
+        for (let j = 0; j < row.length; j++) {
+          // Skip the gene index column
+          // Add the data to the geneData object
+          if (j !== geneIndexExpr && headerExpr[j]) {
+            geneData[`${exprFilename}_${headerExpr[j]}`] = row[j];
+          }
+        }
+        // Iterate through the annotation data
+        for (const [annFile, annData] of Object.entries(annotationData)) {
+          const headerAnn = annData[0].map(h => h.toLowerCase());
+          const geneIndexAnn = headerAnn.findIndex(col => col === 'sequence.name' || col.includes('gene') || col === 'id');
+          if (geneIndexAnn === -1) continue;
+
+          const annRow = annData.find(row => row[geneIndexAnn] === gene);
+          if (annRow) {
+            for (let k = 0; k < annRow.length; k++) {
+              if (k !== geneIndexAnn && headerAnn[k]) {
+                geneData[`${annFile}_${headerAnn[k]}`] = annRow[k];
+              }
+            }
+          }
+        }
+        return geneData;
+      });
+      // find the index of the file in the current files
+      const fileIndex = currentFiles.findIndex(f => f.name.replace(/\.[^/.]+$/, '') === exprFilename);
+      // add merged genes to the new combined data in the correct index
+      newCombined[fileIndex] = mergedGenes;
+    }
+
+    // map the current files to the new combined data
+    const combined = currentFiles.map((f, i) => newCombined[i] || existingCombined.find((_, j) => this.initialExpressionFiles[j]?.name === f.name));
+
+    // Set the combined data in the fileDataService
+    this.fileDataService.setCombinedData(combined.flat());
+    this.fileDataService.setMultipleCombinedArrays(combined);
+    this.timepoints = this.rangeFromOne(combined);
+    console.log('Timepoints: '+this.timepoints);
+    console.log('Combined data:', combined);
+    this.isLoading = true;
+    this.LoadingMessage = 'Loading New File Data...';
+
+    this.processNewFiles();
+    this.getEnzymeGenes();
+    this.extractECNumbers();
+
+    const currentPaths = this.pathways;
+
+    const postData = [this.enzymeList, this.pathwayNumber];
+    this.enzymeApiServicePost.postEnzymeData(postData).subscribe(
+      (response) => {
+        console.log('Updated Pathways:', response);
+        this.pathwayTally = response[1];
+        this.pathwayData = response[0].paths;
+
+        this.loadNames();
+        this.loadTally();
+
+        const result = this.comparePathways(currentPaths, this.pathways);
+        this.summaryData = {
+          newItems: result.newItems,
+          oldItems: result.oldItems,
+          similarities: result.similarities,
+        };
+        this.showSummaryBox = true;
+        this.getMapData(this.pathwayData);
+      },
+      (error) => {
+        console.error('Error:', error);
+        this.isLoading = false;
+      }
+    );
+
+    this.closeUploadedFilesModal();
+  }).catch(err => {
+    console.warn('Failed to process added files:', err);
+  });
+}
+
+    
 
     // Helper: check if two arrays have same order
-    isSameOrder(arr1: any[], arr2: any[]) {
+    isSameOrder(arr1: string[], arr2: string[]) {
       if (arr1.length !== arr2.length) return false;
       for (let i = 0; i < arr1.length; i++) {
-        if (arr1[i].name !== arr2[i].name) return false;
+        if (arr1[i] !== arr2[i]) return false;
       }
       return true;
     }
 
+    newlyUploadedFiles: File[] = [];
+
+    handleFileInput(event: any): void {
+      const files: FileList = event.target.files;
+      const validNewFiles: File[] = [];
+    
+      for (let i = 0; i < files.length; i++) {
+        const file = files.item(i);
+        if (!file) continue;
+    
+        const isDuplicate =
+          this.remainingExpressionFiles.some(f => f.name === file.name) ||
+          this.newlyUploadedFiles.some(f => f.name === file.name);
+    
+        const isInRemovedList = this.filesMarkedForRemoval.find(f => f.name === file.name);
+    
+        if (isDuplicate) {
+          console.warn(`File already exists: ${file.name}`);
+          continue;
+        }
+    
+        if (isInRemovedList) {
+          // Remove from filesMarkedForRemoval and re-add to main list
+          this.filesMarkedForRemoval = this.filesMarkedForRemoval.filter(f => f.name !== file.name);
+          this.remainingExpressionFiles.push(file);
+        } else {
+          validNewFiles.push(file);
+        }
+      }
+      console.log('Valid new files:', validNewFiles);
+      this.remainingExpressionFiles = [...this.remainingExpressionFiles, ...validNewFiles];
+      this.newlyUploadedFiles = [...this.newlyUploadedFiles, ...validNewFiles];
+    }
+
     // Close modal
     closeUploadedFilesModal() {
+      this.newlyUploadedFiles = [];
       this.isUploadedFileModalOpen = false;
     }
 
@@ -3384,12 +3619,9 @@ Once all the steps are completed, click the Process button to move to get visual
     this.isPopupVisible = false;
   }
 
-<<<<<<< HEAD
-=======
   onGeneListScroll(event: WheelEvent | TouchEvent): void {
     event.stopPropagation();
   }  
->>>>>>> df57a0a (pop-ups in HTML with links)
 
   zoomIn() {
     this.myDiagram?.commandHandler.increaseZoom();

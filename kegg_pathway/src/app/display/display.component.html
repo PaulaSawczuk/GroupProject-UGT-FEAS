@@ -235,11 +235,11 @@
           <div class="dropdown">
 
             <!-- ---------------- FILES TAB ---------------- -->
-            <button class="dropdown-button" (click)="openUploadModal()">File</button>
+            <button class="dropdown-button">File</button>
             
             <div class="dropdown-content">
               <!-- ---------------- UPLOADED FILES ---------------- -->
-              <a href="#" (click)="openUploadedFilesModal(); $event.preventDefault()">Uploaded files</a>
+              <a href="#" (click)="openUploadedFilesModal(); $event.preventDefault()">Manage Files</a>
               <!-- ---------------- IMPORT FILES ---------------- -->
               <a href="#" (click)="openUploadModal(); $event.preventDefault()">Import files</a>
 
@@ -509,7 +509,7 @@
     <div class="uploaded-files-modal" *ngIf="isUploadedFileModalOpen">
       <div class="uploaded-files-modal-content">
         <div class="uploaded-files-modal-header">
-          <h2>Uploaded Files</h2>
+          <h2>Manage Files</h2>
           <span class="uploaded-files-close-btn" (click)="closeUploadedFilesModal()">×</span>
         </div>
     
@@ -541,7 +541,7 @@
                   (dragend)="onDragEnd()"
                   [class.dragging]="draggedIndex === i"
                   [class.drag-over]="hoveredIndex === i"
-                  class="expression-file-item"
+                  [ngClass]="{'expression-file-item': true, 'new-upload': newlyUploadedFiles.includes(file)}"
                 >
                   <div class="file-number">{{ i + 1 }}.</div> 
                   <div class="file-name">{{ file.name }}</div>
@@ -549,11 +549,20 @@
                 </div>
               </div>
             </ng-container>
+
+            <!-- Upload New Expression Files -->
+            <div class="upload-new-expression">
+              <input type="file" multiple accept=".csv,.txt" #fileInput (change)="handleFileInput($event)" style="display: none;" />
+              <button class="choose-files-button" (click)="fileInput.click()">+ Add Expression Files</button>
+              <p class="upload-instructions">Only .csv or .txt expression data files are allowed.</p>
+            </div>
+
     
             <ng-template #noExpressionFiles>
               <p class="no-files-message">No expression files uploaded yet.</p>
             </ng-template>
           </div>
+          
     
           <!-- Files to Remove -->
           <div class="file-type-group" *ngIf="filesMarkedForRemoval.length > 0">
