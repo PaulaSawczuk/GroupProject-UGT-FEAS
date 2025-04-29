@@ -475,5 +475,36 @@
   color: #222223;
 }
 
+.open-project-btn {
+  padding: 12px 25px;
+  background-color: #48494B;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.open-project-btn:hover {
+  background-color: #646566;
+}
+
+.button-container {
+  display: flex;
+  gap: 1rem; 
+  justify-content: center;
+  margin-top: 1rem; 
+}
+
+.upload-icon{
+  margin-right: 4px;
+}
+
+.project-icon{
+  margin-right: 4px;
+}
 
 

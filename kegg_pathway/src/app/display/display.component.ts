@@ -9,6 +9,9 @@ import { parseFileContent, identifyFileType } from '../helper/file-utils';
 import {MatSliderModule} from '@angular/material/slider';
 import { match } from 'assert';
 import { Router } from '@angular/router';
+import JSZip from 'jszip';
+import { saveAs } from 'file-saver';
+import { ProjectNameModalComponent } from '../project-name-modal/project-name-modal.component';
 
 
 interface GuideElement {
@@ -35,7 +38,7 @@ export interface StatsArrayType {
 @Component({
   selector: 'app-display',
   standalone: true,
-  imports: [CommonModule, FormsModule, MatSliderModule],
+  imports: [CommonModule, FormsModule, MatSliderModule, ProjectNameModalComponent],
   templateUrl: './display.component.html',
   styleUrls: ['./display.component.css']
 })
@@ -3180,6 +3183,8 @@ applyChanges() {
 
   // Assign the current files to the initial expression files
   this.UploadedExpressionFiles = currentFiles;
+  this.ExpressionFileNames = this.UploadedExpressionFiles.map(file => file.name);
+
   // Assign the current files to the uploaded files
   this.uploadedFiles = currentFiles;
 
@@ -3194,7 +3199,7 @@ applyChanges() {
       if (!fileExtension || !validExtensions.includes(fileExtension)) {
         this.unsupportedFileTypeMessage = `File ${fileObj.name} is not supported.`;
         return reject();
-      }
+      }     
       // Read the file content
       const reader = new FileReader();
       reader.onload = (event: any) => {
@@ -3277,18 +3282,19 @@ applyChanges() {
       });
       // find the index of the file in the current files
       const fileIndex = currentFiles.findIndex(f => f.name.replace(/\.[^/.]+$/, '') === exprFilename);
+      console.log('File index:', fileIndex);
       // add merged genes to the new combined data in the correct index
       newCombined[fileIndex] = mergedGenes;
     }
 
-    // map the current files to the new combined data
+    // Map the current files to the new combined data
     const combined = currentFiles.map((f, i) => newCombined[i] || existingCombined.find((_, j) => this.initialExpressionFiles[j]?.name === f.name));
 
     // Set the combined data in the fileDataService
     this.fileDataService.setCombinedData(combined.flat());
     this.fileDataService.setMultipleCombinedArrays(combined);
     this.timepoints = this.rangeFromOne(combined);
-    console.log('Timepoints: '+this.timepoints);
+    console.log('Timepoints: '+ this.timepoints);
     console.log('Combined data:', combined);
     this.isLoading = true;
     this.LoadingMessage = 'Loading New File Data...';
@@ -3384,12 +3390,21 @@ applyChanges() {
   // ------------------- NEW PROJECT subMenu -----------------
 
   openUploadPage() {
-    const confirmed = window.confirm('Are you sure you want to close the current project? All progress will be lost.');
-  
-    if (confirmed) {
-      this.resetEverything();
-      this.router.navigate(['/upload']); // Navigate back to upload page
+    if (!this.isProjectSaved){
+      const confirmed = window.confirm('Are you sure you want to close the current project? All progress will be lost. Save your project before closing.');
+      if (confirmed) {
+        this.resetEverything();
+        this.router.navigate(['/upload']); // Navigate back to upload page
+      }
+    } else {
+      const confirmed = window.confirm('Are you sure you want to close the current project?');
+      if (confirmed) {
+        this.resetEverything();
+        this.router.navigate(['/upload']); // Navigate back to upload page
+      }
     }
+  
+    
   }
 
   resetEverything() {
@@ -3643,7 +3658,7 @@ applyChanges() {
   }
   
   hasThreeOrMoreFiles(): boolean {
-    return this.ExpressionFileNames.length >= 3;
+    return this.ExpressionFileNames.length >= 4;
   }
   // ------------------ ANIMATION ------------------
 
@@ -3945,12 +3960,81 @@ removeEcPrefix(pathway: string): string {
   return pathway?.replace(/^ec/, '') || '';
 }
 
-  // ---------- STATS DISPLAY -------------
+  // ---------- SAVE PROJECT -------------
+  showModal = false;
+  isProjectSaved: boolean =  false;
 
+  openSaveModal() {
+    this.showModal = true;
+  }
 
+  onSaveProject(projectName: string): void {
+    this.showModal = false;
 
+    const zip = new JSZip();
+    
+    // Add files to the zip
+    const projectFiles = [
+      { name: 'file1.txt', content: '' },
+      { name: 'file2.txt', content: '' }
+    ];
+
+    projectFiles.forEach(file => {
+      zip.file(file.name, file.content);
+    });
+
+    zip.generateAsync({ type: 'blob' }).then(content => {
+      saveAs(content, `${projectName}.zip`);
+      alert('Project saved successfully');
+      this.isProjectSaved = true;
+    }).catch(err => {
+      console.error('Error saving project:', err);
+      alert('Failed to save project');
+    });
+  }
+
+  // ------------------ OPEN PROJECT -------------------
+
+  openProject(): void {
   
-
+      const fileInput = document.createElement('input');
+      fileInput.type = 'file';
+      fileInput.accept = '.zip';
+    
+      fileInput.onchange = async (event: Event) => {
+        const input = event.target as HTMLInputElement;
+        if (!input.files || input.files.length === 0) return;
+    
+        const zipFile = input.files[0];
+    
+        try {
+          const zip = await JSZip.loadAsync(zipFile);
+    
+          const fileContents: { name: string, content: string }[] = [];
+    
+          // Read each file in the zip
+          await Promise.all(
+            Object.keys(zip.files).map(async (filename) => {
+              const file = zip.files[filename];
+              if (!file.dir) {
+                const content = await file.async('string');
+                fileContents.push({ name: filename, content });
+              }
+            })
+          );
+    
+          console.log('Loaded files:', fileContents);
+    
+          // TODO: HERE MOVE THE FILES TO DISPLAY TO BE LOADED
+          alert('Project loaded successfully');
+    
+        } catch (err) {
+          console.error('Failed to open project:', err);
+          alert('Failed to open project file');
+        }
+      };
+    
+      fileInput.click(); // Open file chooser
+    }
 } 
-
 

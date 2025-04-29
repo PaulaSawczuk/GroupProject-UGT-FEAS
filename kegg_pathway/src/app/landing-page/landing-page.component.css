@@ -69,8 +69,37 @@
   letter-spacing: 1px;
 }
 
+.open-project-btn {
+  background-color: #343a40;
+  color: #e9ecef;
+  border: none;
+  padding: 0.8rem 1.5rem;
+  font-size: 1rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  letter-spacing: 1px;
+}
+
+.open-project-btn:hover {
+  background-color: #646566;
+}
+
 .get-started-btn:hover {
   background-color: #646566;
+}
+
+.left-section {
+  flex-direction: column;
+  background-color: transparent;
+  text-align: center;
+}
+
+.button-container {
+  display: flex;
+  gap: 1rem; 
+  justify-content: center;
+  margin-top: 1rem; 
 }
 
 .right-section img {
