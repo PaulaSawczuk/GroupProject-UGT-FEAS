@@ -3022,6 +3022,9 @@ processNewFiles(): void{
               console.log('Getting Mapping Data');
               this.getMapData(this.pathwayData);
 
+              //this.filteredPathways = [...this.pathways];
+              //this.ExpressionFileNames = this.UploadedExpressionFiles.map(file => file.name);
+
             },
             (error) => {
               // Handle errors
@@ -3536,8 +3539,6 @@ Once all the steps are completed, click the Process button to move to get visual
     const code = this.selectedPathway;
     const pathwayData = this.ALLpathwayData.find((obj => obj.pathway === code));
     this.setMap(code, this.selectedTimeIndex, pathwayData);
-
-    
   }
 
   // ------------------ COLOUR PICKER -------------------
