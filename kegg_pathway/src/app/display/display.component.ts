@@ -1,4 +1,4 @@
-import { Component, ViewChild, ElementRef , HostListener, ChangeDetectorRef} from '@angular/core';
+import { Component, ViewChild, ElementRef , HostListener, ChangeDetectorRef, OnInit, AfterViewInit} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { enzymeApiServicePost } from '../services/kegg_enzymepathwaysPost.serice';
@@ -40,7 +40,7 @@ export interface StatsArrayType {
   styleUrls: ['./display.component.css']
 })
 
-export class DisplayComponent {
+export class DisplayComponent implements OnInit, AfterViewInit {
   LoadingMessage: string = '';
 
 
@@ -98,12 +98,23 @@ export class DisplayComponent {
   // Creating a GoJS Diagram 
   private myDiagram: go.Diagram | null = null;
 
-
-  // the below is a part of blocker logic to make the popup not transparent
-  // private activePopups: { nodeKey: any, blocker: go.Part }[] = [];
-
   // to track the number of popups
-  private activePopups: { nodeKey: any }[] = [];
+  //private activePopups: { nodeKey: any }[] = [];
+  
+  // a variable to send the data from a node click to Angular to be used in html 
+  popupNodeData: any = null;
+
+  // a variable to track the popup's position 
+  popupPosition: { top: number, left: number } = { top: 0, left: 0 };
+
+  // a variable to remember which node was clicked (for popups to be placed next to the cliked nodes)
+  popupNodeKey: string | null = null; // ### TBR
+  //////////////////////////////////#############
+
+  @ViewChild('goHtmlPopup', { static: true }) htmlPopupRef!: ElementRef;
+
+  // 
+  isPopupVisible = false;
 
   // Toggle for nodes dropdown visibility
   nodesOpen: boolean = false;
@@ -136,8 +147,38 @@ export class DisplayComponent {
     document.addEventListener('click', this.onOutsideClick.bind(this));
     this.UploadedExpressionFiles = this.fileDataService.getUploadedExpressionFiles();
     this.UploadedAnnoationFiles = this.fileDataService.getUploadedAnnoationFiles();
-
   }
+
+  ngAfterViewInit(): void {
+  
+    const popup = this.htmlPopupRef.nativeElement;
+  
+    popup.addEventListener('wheel', (event: WheelEvent) => {
+      event.preventDefault(); // block page scroll
+  
+      const diagramDiv = document.getElementById('myDiagramDiv');
+      if (!diagramDiv) return;
+  
+      const canvas = diagramDiv.querySelector('canvas');
+      if (!canvas) return;
+  
+      const newEvent = new WheelEvent('wheel', {
+        bubbles: true,
+        cancelable: true,
+        deltaX: event.deltaX,
+        deltaY: event.deltaY,
+        clientX: event.clientX,
+        clientY: event.clientY,
+        ctrlKey: event.ctrlKey,
+      });
+  
+      requestAnimationFrame(() => {
+        canvas.dispatchEvent(newEvent);
+      });
+      
+    }, { passive: false });
+  }
+
 
   // ------------- SETTING UP PROCESSING FUNCTIONS -------------------------
 
@@ -1216,8 +1257,6 @@ async getAllPathwayNames(): Promise<void>{
   // Creates the Diagram Template and initialises 
   createGoJSMap(nodes: any[], links: any[] ): void {
 
-    this.activePopups = []; // resetting popup tracker for new diagram
-
     console.log("--------------------");
     console.log('Initialising Map');
 
@@ -1466,150 +1505,78 @@ async getAllPathwayNames(): Promise<void>{
       );
 
 
+    // Show popup on click for all node types except 'map'
+    this.myDiagram.addDiagramListener("ObjectSingleClicked", (e) => {
+      console.log("🖱️ Diagram click detected");
+      const part = e.subject.part;
+      if (!(part instanceof go.Node)) return;
+      console.log("✅ Clicked part is a Node:", part.data);
+    
+      const node = part;
+      const data = node.data || {};
+    
+      if (data.type === 'map') return;
+    
+      this.popupNodeData = data;
+      this.popupNodeKey = data.key;
+    
+      const pos = this.myDiagram!.transformDocToView(
+        node.getDocumentPoint(go.Spot.BottomCenter)
+      );
 
-      // to make the nodes to show a pop up window when clicked
-      this.myDiagram!.addDiagramListener("ObjectSingleClicked", (e) => {
-        const part = e.subject.part;
-        if (!(part instanceof go.Node)) return;
-      
-        const node = part;
-
-        
-        const data = node.data || {};
-
-        // to check the actual data present in it
-        console.log("🧠 Full node data:", data);
-
-        const key = data.key;
-        const type = data.type || "unknown";
-      
-        // Prevent duplicate popups
-        if (this.activePopups.find(p => p.nodeKey === key)) return;
-      
-        // Limit to 2 active popups
-        if (this.activePopups.length >= 2) {
-          const removed = this.activePopups.shift();
-          const oldNode = this.myDiagram!.findNodeForKey(removed!.nodeKey);
-          if (oldNode) oldNode.removeAdornment("popup");
+      console.log("📁 data passing through: ", this.popupNodeData)
+    
+      // Set temporary top position, delay horizontal calculation
+      this.popupPosition = {
+        top: pos.y + 10,
+        left: 0  // temporary value until we get correct width
+      };
+      this.isPopupVisible = true;
+      this.cdr.detectChanges();
+    
+      // Delay centering until Angular has rendered the popup
+      setTimeout(() => {
+        const popup = this.htmlPopupRef.nativeElement;
+        const width = popup.offsetWidth;
+    
+        this.popupPosition = {
+          top: pos.y + 10,
+          left: pos.x - width / 2
+        };
+    
+        this.cdr.detectChanges();
+      }, 0);
+    });
+    
+    
+    this.myDiagram?.addDiagramListener("ViewportBoundsChanged", () => {
+      if (this.popupNodeData && this.popupNodeKey) {
+        const node = this.myDiagram?.findNodeForKey(this.popupNodeKey);
+        if (!node) {
+          console.log("⚠️ Node not found for popupKey:", this.popupNodeKey);
         }
-      
-        // Emoji and color mappings
-        const emojiMap: { [key: string]: string } = {
-          enzyme: "🧬",
-          compound: "⚗️",
-          map: "🗺️",
-          reaction: "🔁",
-        };
-        const colorMap: { [key: string]: string } = {
-          enzyme: "#d4edda",      // Soft green
-          compound: "#e6f0ff",    // Soft blue
-          map: "#e2e3e5",         // Gray-blue
-          reaction: "#fff3cd",    // Soft yellow
-          unknown: "#f8d7da"      // Red/pink fallback
-        };
-      
-        const emoji = emojiMap[type] || "❓";
-        const bgColor = colorMap[type] || colorMap["unknown"];
-        const title = `${emoji} ${type.toUpperCase()}`;
-        const contentText = `
-        KEY: ${data.key}
-        EC: ${data.text ?? "?"}
-        Gene(s): ${Array.isArray(data.gene) ? data.gene.join(", ") : data.gene ?? "N/A"}
-        logFC: ${data.logfc ?? "N/A"}
-        Name: ${data.name ?? "N/A"}
-        `.trim();
+        if (node) {
+          const pos = this.myDiagram?.transformDocToView(node.getDocumentPoint(go.Spot.BottomCenter));
+          if (pos) {
 
-      
-        // Build the full popup box
-        const box = go.GraphObject.make(go.Adornment, "Spot",
-          {
-            location: node.getDocumentPoint(go.Spot.Bottom),
-            layerName: "Tool",
-            opacity: 0,
-            zOrder: 10 // higher value to keep the box infront of the blocker
-          },
-          go.GraphObject.make(go.Panel, "Auto",
-            go.GraphObject.make(go.Shape, "RoundedRectangle", {
-              fill: bgColor,
-              stroke: "#ccc",
-              strokeWidth: 1,
-              shadowVisible: true,
-            }),
+            const popup = this.htmlPopupRef.nativeElement;
+            const width = popup.offsetWidth;  
 
-            go.GraphObject.make(go.Panel, "Vertical",
-              go.GraphObject.make(go.Panel, "Horizontal",
-                {
-                  background: "#e6f0ff",
-                  padding: new go.Margin(4, 8, 4, 8)
-                },
-                go.GraphObject.make(go.TextBlock, title, {
-                  font: "bold 12px sans-serif",
-                  stroke: "#004080",
-                  width: 120
-                }),
-                go.GraphObject.make(go.TextBlock, "✖", {
-                  font: "bold 12px sans-serif",
-                  stroke: "red",
-                  cursor: "pointer",
-                  isActionable: true,
-                  margin: new go.Margin(4, 4, 0, 0),
-                  click: (e, obj) => {
-                    console.log("Clicked X"); // ✅ Checkpoint 1
-                  
-                    if (!obj || !obj.part) {
-                      console.warn("No obj.part");
-                      return;
-                    }
-                  
-                    const adorned = (obj.part as go.Adornment).adornedPart;
-                    if (!adorned) {
-                      console.warn("No adornedPart");
-                      return;
-                    }
-                  
-                    const key = adorned.data?.key;
-                    console.log("Closing for:", key); // ✅ Checkpoint 2
-                  
-                    adorned.removeAdornment("popup");
-                    
-                    this.activePopups = this.activePopups.filter(p => p.nodeKey !== key); 
-                  }
-                  
-                })                
-              ),
-              go.GraphObject.make(go.TextBlock, contentText, {
-                margin: 8,
-                font: "12px 'Segoe UI', sans-serif",
-                stroke: "#333"
-              })
-            )
-          )
-        );        
-      
-        node.removeAdornment("popup");   
-        
-
-        box.adornedObject = node; // Link the popup to the node properly
-        node.addAdornment("popup", box);
-        //this.activePopups.push({ nodeKey: key ,blocker});
-        this.activePopups.push({ nodeKey: key });
-
-
-        const anim = new go.Animation();
-        anim.duration = 300;
-        anim.easing = go.Animation.EaseOutQuad;
-        anim.add(box, "opacity", 0, 1);
-        anim.add(box, "location", box.location.offset(0, -10), box.location);
-        anim.start();
-      });      
-            
-      this.myDiagram!.addDiagramListener("BackgroundSingleClicked", () => {
-        this.myDiagram!.clearSelection();
-        this.myDiagram!.nodes.each(n => n.clearAdornments());
-
-        // now updates active popups
-        this.activePopups = [];
-      }); 
+            this.popupPosition = {
+              top: pos.y + 10,        // match your original vertical offset
+              left: pos.x - width / 2 // horizontal centering
+            };
+          }
+        }
+      }
+    });    
+          
+    this.myDiagram!.addDiagramListener("BackgroundSingleClicked", () => {
+      this.myDiagram!.clearSelection();
+      this.isPopupVisible = false;
+      this.popupNodeKey = null;
+      this.popupNodeData = null;
+    }); 
 
     var model = $(go.GraphLinksModel);
     model.nodeDataArray = nodes; 
@@ -1789,30 +1756,14 @@ populateNodeCategories(): void {
     this.myDiagram.commandHandler.scrollToPart(node);
     this.myDiagram.scale = 1.1;
     this.myDiagram.centerRect(node.actualBounds);
+    this.setLegend(this.myDiagram);
   }
-
-/*
-  private updateMiddleArrowAngle(link: go.Link) {
-    const arrow = link.findObject("MiddleArrow");
-    if (arrow && link.pointsCount > 1) {
-      const points = link.points;
-      const from = points.first();
-      const to = points.last();
   
-      // Ensure from and to are not null
-      if (from && to) {
-        const angle = Math.atan2(to.y - from.y, to.x - from.x) * (180 / Math.PI); // Calculate angle
-        arrow.angle = angle;  // Set the angle of the arrow
-      } else {
-        console.warn("❌ Invalid link points: 'from' or 'to' is null.");
-      }
-    } else {
-      console.warn("❌ Link has insufficient points to calculate the angle.");
-    }
-  }*/
+  // for the popup
+  isArray(value: any): boolean {
+    return Array.isArray(value);
+  }
   
-  
-
   // --------------- Updating GO.js Model -------------------
   // Updates the pre-existing Diagram Model
   updateDiagram(nodes: any[], links: any[]): void{
@@ -1829,6 +1780,13 @@ populateNodeCategories(): void {
   // If exists - Updates the Model with new nodes + links (updateDiagram()))
   // If doesnt exist - Creates first Diagram Model (createGOJSMap())
   changeDiagram(nodes: any[], links: any[]): void {
+
+    // ✅ Reset popup when diagram changes
+    this.popupNodeData = null;
+    this.popupNodeKey = null;
+    this.isPopupVisible = false;
+    this.cdr.detectChanges();
+
     // If diagram exists, clear it first
     console.log("--------------------");
     console.log('Changing Diagram');
@@ -3359,7 +3317,6 @@ Once all the steps are completed, click the Process button to move to get visual
 
 
   //  ------------------ POPULATE SELECT BOXES -------------------
-  // MOCK DATA
   enzymeOptions: { ec: string; name: string; logfc?: number; colour?: string }[] = [];
   CompoundOptions: string[] = ['Value 1', 'Value 2', 'Value 3'];
   PathwayOptions: string[] = ['Pathway A', 'Pathway B', 'Pathway C'];
@@ -3414,7 +3371,6 @@ Once all the steps are completed, click the Process button to move to get visual
     this.selectNodeFromDropdown(this.selectedPathwayCustom, 'map');
   }  
 
-
   getArrowFontSize(logfc: number | undefined): string | null {
     if (logfc === undefined || logfc === null) {
       return null;
@@ -3424,6 +3380,24 @@ Once all the steps are completed, click the Process button to move to get visual
     return fontSize;
   }
 
+  closePopup() {
+    this.isPopupVisible = false;
+  }
+
+<<<<<<< HEAD
+=======
+  onGeneListScroll(event: WheelEvent | TouchEvent): void {
+    event.stopPropagation();
+  }  
+>>>>>>> df57a0a (pop-ups in HTML with links)
+
+  zoomIn() {
+    this.myDiagram?.commandHandler.increaseZoom();
+  }
+  
+  zoomOut() {
+    this.myDiagram?.commandHandler.decreaseZoom();
+  }
 
   //  ------------------ TIME SLIDER -------------------
   timepoints = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];

@@ -41,7 +41,7 @@ html {
   /* top: 5px; */
   left: 15px;
   right: 15px;
-  z-index: 30;
+  z-index: 1000;
   border-radius: 100px;
   font-family: 'DM Sans', sans-serif;
 
@@ -1607,20 +1607,26 @@ button:hover {
 }
 
 /* ------------ DISPLAY FRAME ------------ */
+
+.diagram-wrapper {
+  position: relative;         
+  height: 80%;    
+  top: 7%;  
+}
+
 .myDiagramDiv {
-  height: 80%;
+  height: 100%;
+  box-sizing: border-box;
   background-color: #f8f9fa;
   border-radius: 8px;
   display: flex;
   justify-content: center;
   align-items: center;
   border: 2px solid #3E424B;
-  margin-bottom: 80px;
+  margin-bottom: 0;
   position: relative;
-  top: 7%;
   z-index:0;
 }
-
 
 #overviewDiv {  /* Floating Mini-Map Panel */
   position: absolute;
@@ -1628,11 +1634,135 @@ button:hover {
   right: 30px;
   width: 250px;
   height: 200px;
-  border: 2px solid #ccc;
+  border: 1px solid #141313;
   background-color: white;
-  z-index: 10;
+  z-index: 800;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
   border-radius: 4px;
+}
+
+.zoom-controls {
+  position: absolute;
+  top: 82px; /* Adjust as needed */
+  left: 875px; /* Adjust as needed */
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  z-index: 800; /* Similar to overview panel */
+}
+
+.zoom-controls button {
+  width: 25px;
+  height: 30px;
+  font-size: 16px;
+  border-radius: 4px;
+  margin: 5px 0;
+  justify-content: center;
+  align-items: center;
+  color: #2f2929;
+  font-weight: bold;
+  border: 1px solid #101010;
+  background-color: white;
+  cursor: pointer;
+  display: flex;
+  border-radius: 6px;
+  transition: background-color 0.2s ease;
+}
+
+.zoom-controls button:hover {
+  background-color: #f0f0f0;
+}
+
+.popup-clipper {
+  position: absolute;
+  top: 2px;     /* Start clipping 2px down */
+  left: 2px;    /* Start clipping 2px from the left */
+  width: calc(100% - 20px);   /* Clip 2px left + 18px right */
+  height: calc(100% - 20px);  /* Clip 2px top + 18px bottom */
+  overflow: hidden;
+  pointer-events: none;
+}
+
+/* GoJS-HTML popup*/
+.go-html-info {
+  position: absolute;
+  z-index: 1000;
+  background: #fff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  padding: 12px;
+  min-width: 180px;
+  font-family: "Segoe UI", sans-serif;
+}
+
+/* Popup styles */
+.popup-overlay {
+  position: absolute;
+  background-color: #ffffff;
+  border: 1px solid #ccc;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border-radius: 6px;
+  padding: 12px;
+  max-width: 260px;
+  z-index: 600;
+  pointer-events: auto;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+.popup-content ul {
+  padding-left: 18px;
+  margin-top: 4px;
+  margin-bottom: 8px;
+}
+
+.popup-content li {
+  font-size: 13px;
+  color: #444;
+  line-height: 1.4;
+}
+
+.gene-logfc-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.gene-list-scrollable {
+  max-height: 110px;
+  overflow-y: auto;
+  margin: 0;
+  padding-left: 16px;
+  list-style-type: disc;
+}
+
+.popup-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.popup-title {
+  font-weight: bold;
+  font-size: 14px;
+  color: #333;
+}
+
+.popup-close {
+  cursor: pointer;
+  font-size: 14px;
+  color: #900;
+}
+
+.popup-close:hover {
+  color: #c00;
+}
+
+.popup-content p {
+  margin: 4px 0;
+  font-size: 13px;
+  color: #444;
 }
 
 /* ------------ LOADING ------------ */
@@ -1767,6 +1897,8 @@ button:hover {
   display: flex;
   align-items: center;
   gap: 10px;
+  position: relative;
+  top: 72px;
   /* margin-top: -10px; */
 }
 

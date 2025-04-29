@@ -586,15 +586,76 @@
 
     <!-- ---------------- MAIN PANEL WITH THE DISPLAY OF PATHWAYS AND TIME SLIDER ---------------- -->
     <main class="main-panel">
-      
-      <!-- ---------------- VISUALISATION ---------------- -->
-      <div class="myDiagramDiv" id="myDiagramDiv">
-        <div class="pathway-title" *ngIf="selectedPathway">
-          <h2>{{ SelectedPathwayName }}</h2>
+
+      <div class="diagram-wrapper">
+        <!-- ---------------- VISUALISATION ---------------- -->
+        <div class="myDiagramDiv" id="myDiagramDiv">
+          <div class="pathway-title" *ngIf="selectedPathway">
+            <h2>{{ SelectedPathwayName }}</h2>
+          </div>          
         </div>
+
+        <!----------------------------A WRAPPER TO CLIP POPUP OVERFLOW-------------------------------->
+
+        <div class="popup-clipper" id="popup-clipper">
+          <!----------------------------------------POPUPS-------------------------------------------->
+          <div #goHtmlPopup class="go-html-info popup-overlay"
+              [ngStyle]="{
+                display: isPopupVisible ? 'block' : 'none',
+                left: popupPosition?.left + 'px',
+                top: popupPosition?.top + 'px'
+              }">
+              <div class="popup-header">
+                <span class="popup-title">{{ popupNodeData?.type?.toUpperCase() || 'ENTITY' }}</span>
+                <span class="popup-close" (click)="closePopup()">✖</span>
+              </div>
+
+              <div class="popup-content">
+                <p><strong>Name:</strong> {{ popupNodeData?.name || 'N/A' }}</p>
+                <p><strong>EC:</strong> {{ popupNodeData?.text || 'N/A' }}</p>
+                <p><strong>Mean logFC:</strong> {{ popupNodeData?.logfc ?? 'N/A' }}</p>
+              
+                <!-- If geneList exists, show it with internal scroll -->
+                <div *ngIf="popupNodeData?.geneList?.length" 
+                      class="gene-logfc-list" 
+                      (wheel)="onGeneListScroll($event)" 
+                      (touchmove)="onGeneListScroll($event)">
+                    
+                    <p><strong>Genes and logFCs:</strong></p> <!-- Fixed heading -->
+                    
+                    <ul class="gene-list-scrollable">
+                      <li *ngFor="let item of popupNodeData.geneList">
+                        {{ item.gene }} (logFC: {{ item.logfc }})
+                      </li>
+                    </ul>
+                </div>
+              
+                <!-- If geneList does NOT exist but simple gene field exists -->
+                <ng-container *ngIf="!popupNodeData?.geneList?.length && popupNodeData?.gene">
+                  <p><strong>Gene:</strong>
+                    <ng-container *ngIf="isArray(popupNodeData?.gene); else singleGene">
+                      {{ popupNodeData?.gene.join(', ') }}
+                    </ng-container>
+                    <ng-template #singleGene>
+                      {{ popupNodeData?.gene }}
+                    </ng-template>
+                  </p>
+                </ng-container>
+              
+                <!-- Display the link if available -->
+                <ng-container *ngIf="popupNodeData?.link">
+                  <p><strong>More information:</strong> 
+                    <a [href]="popupNodeData.link" target="_blank" rel="noopener noreferrer">View on KEGG</a>
+                  </p>
+                </ng-container>
+              </div>              
+              
+            </div>
+
+        </div>
+
       </div>
       
-
       <div class="slider-animation-wrapper">
         <!-- ---------------- TIME SLIDER ---------------- -->
         <div class="slider-container">
@@ -666,6 +727,12 @@
 
     <!---------------------------------FLOATING MINI MAP PANEL----------------------------------->
     <div id="overviewDiv" class="overview-panel"></div>
+
+    <!--------------------------------ZOOM IN AND OUT BUTTONS------------------------------------>
+    <div class="zoom-controls">
+      <button (click)="zoomIn()">+</button>
+      <button (click)="zoomOut()">-</button>
+    </div>    
 
   </div>
 </div>
