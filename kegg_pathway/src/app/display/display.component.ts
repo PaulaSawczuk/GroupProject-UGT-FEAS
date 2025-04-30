@@ -4009,6 +4009,11 @@ removeEcPrefix(pathway: string): string {
 
     const ExpressionFileNames = JSON.stringify(this.ExpressionFileNames);
 
+    const enzymeCategories = JSON.stringify(this.enzymeCategories);
+    const enzymeCategoryMap = JSON.stringify(this.enzymeCategoryMap);
+    const compoundList = JSON.stringify(this.compoundList);
+    const pathwayList = JSON.stringify(this.pathwayList);
+
 
     // Add files to the zip
     const projectFiles = [
@@ -4035,6 +4040,10 @@ removeEcPrefix(pathway: string): string {
       { name: 'statsArray.txt', content: statsArray },
       { name: 'ExpressionFileNames.txt', content: ExpressionFileNames },
       { name: 'pathwayData.txt', content: pathwayData },
+      { name: 'pathwayList.txt', content: pathwayList },
+      { name: 'compoundList.txt', content: compoundList},
+      { name: 'enzymeCategories.txt', content: enzymeCategories},
+      { name: 'enzymeCategoryMap.txt', content: enzymeCategoryMap },
       
     ];
     console.log("Files transformed to file content ");
