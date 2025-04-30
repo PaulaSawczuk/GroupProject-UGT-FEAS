@@ -3971,6 +3971,9 @@ removeEcPrefix(pathway: string): string {
 
   onSaveProject(projectName: string): void {
     this.showModal = false;
+    this.isLoading = true;
+    this.LoadingMessage = "Saving File";
+
 
     const zip = new JSZip();
 
@@ -4034,15 +4037,17 @@ removeEcPrefix(pathway: string): string {
       { name: 'pathwayData.txt', content: pathwayData },
       
     ];
+    console.log("Files transformed to file content ");
 
     projectFiles.forEach(file => {
       zip.file(file.name, file.content);
     });
-
+    console.log("Generating ZIP ");
     zip.generateAsync({ type: 'blob' }).then(content => {
       saveAs(content, `${projectName}.zip`);
       alert('Project saved successfully');
       this.isProjectSaved = true;
+      this.isLoading = false;
     }).catch(err => {
       console.error('Error saving project:', err);
       alert('Failed to save project');
