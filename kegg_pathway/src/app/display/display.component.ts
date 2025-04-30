@@ -3973,11 +3973,16 @@ removeEcPrefix(pathway: string): string {
     this.showModal = false;
 
     const zip = new JSZip();
-    
+
+   
+    const multiData = JSON.stringify(this.fileDataService.getMultipleCombinedArrays());
+    const allPathwayData = JSON.stringify(this.ALLpathwayData);
+
     // Add files to the zip
     const projectFiles = [
-      { name: 'file1.txt', content: '' },
-      { name: 'file2.txt', content: '' }
+      { name: 'multipleCombinedArray.txt', content: multiData },
+      { name: 'AllPathwayData.txt', content: allPathwayData},
+      
     ];
 
     projectFiles.forEach(file => {
