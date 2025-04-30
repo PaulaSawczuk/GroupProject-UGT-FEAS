@@ -3988,6 +3988,7 @@ removeEcPrefix(pathway: string): string {
     const filteredGenes = JSON.stringify(this.filteredGenes);
     const enzymeList = JSON.stringify(this.enzymeList);
     const pathwayNumber = JSON.stringify(this.pathwayNumber);
+    const  pathwayData = JSON.stringify(this.pathwayData);
 
     const AllKeggPathways = JSON.stringify(this.AllKeggPathways);
     const pathwayTally = JSON.stringify(this.pathwayTally);
@@ -4030,6 +4031,7 @@ removeEcPrefix(pathway: string): string {
       { name: 'colourArray.txt', content: colourArray },
       { name: 'statsArray.txt', content: statsArray },
       { name: 'ExpressionFileNames.txt', content: ExpressionFileNames },
+      { name: 'pathwayData.txt', content: pathwayData },
       
     ];
 
