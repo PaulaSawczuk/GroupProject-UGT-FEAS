@@ -3974,14 +3974,62 @@ removeEcPrefix(pathway: string): string {
 
     const zip = new JSZip();
 
-   
+   // File Service files
     const multiData = JSON.stringify(this.fileDataService.getMultipleCombinedArrays());
+    const combinedData = JSON.stringify(this.fileDataService.getCombinedData());
+    const annoData = JSON.stringify(this.fileDataService.getAnnotationData());
+    const expressData = JSON.stringify(this.fileDataService.getExpressionData());
+    const pathways = JSON.stringify(this.fileDataService.getPathways());
+    const pathwayCount = JSON.stringify(this.fileDataService.getPathwayCount());
+    const uploadedexpressFiles = JSON.stringify(this.fileDataService.getUploadedExpressionFiles());
+    const uploadedAnnoFile = JSON.stringify(this.fileDataService.getUploadedAnnoationFiles());
+
+    // File Processing files
+    const filteredGenes = JSON.stringify(this.filteredGenes);
+    const enzymeList = JSON.stringify(this.enzymeList);
+    const pathwayNumber = JSON.stringify(this.pathwayNumber);
+
+    const AllKeggPathways = JSON.stringify(this.AllKeggPathways);
+    const pathwayTally = JSON.stringify(this.pathwayTally);
+   
+    const highlightedPathways  = JSON.stringify(this.highlightedPathways);
+
+    const MapData = JSON.stringify(this.mapData);
+    const thispathways = JSON.stringify(this.pathways);
+    const pathwayResponse = JSON.stringify(this.pathwayResponse);
+
     const allPathwayData = JSON.stringify(this.ALLpathwayData);
+    const loadedPathwayData = JSON.stringify(this.loadedPathwayData);
+    const colourArray = JSON.stringify(this.colourArray);
+    const statsArray = JSON.stringify(this.StatsArray);
+
+    const ExpressionFileNames = JSON.stringify(this.ExpressionFileNames);
+
 
     // Add files to the zip
     const projectFiles = [
       { name: 'multipleCombinedArray.txt', content: multiData },
-      { name: 'AllPathwayData.txt', content: allPathwayData},
+      { name: 'combineData.txt', content: combinedData },
+      { name: 'annoData.txt', content: annoData },
+      { name: 'expressData.txt', content: expressData },
+      { name: 'pathways.txt', content: pathways },
+      { name: 'pathwayResponse.txt', content: pathwayResponse },
+      { name: 'pathwayNumber.txt', content: pathwayNumber },
+      { name: 'pathwayCount.txt', content: pathwayCount },
+      { name: 'uploadedexpressFiles.txt', content: uploadedexpressFiles },
+      { name: 'uploadedAnnoFile.txt', content: uploadedAnnoFile },
+      { name: 'filteredGenes.txt', content: filteredGenes },
+      { name: 'enzymeList.txt', content: enzymeList },
+      { name: 'allPathwayData.txt', content: allPathwayData},
+      { name: 'AllKeggPathways.txt', content: AllKeggPathways },
+      { name: 'pathwayTally.txt', content: pathwayTally },
+      { name: 'highlightedPathways.txt', content: highlightedPathways },
+      { name: 'MapData.txt', content: MapData },
+      { name: 'loadedPathwayData.txt', content: loadedPathwayData },
+      { name: 'thispathways.txt', content: thispathways },
+      { name: 'colourArray.txt', content: colourArray },
+      { name: 'statsArray.txt', content: statsArray },
+      { name: 'ExpressionFileNames.txt', content: ExpressionFileNames },
       
     ];
 
