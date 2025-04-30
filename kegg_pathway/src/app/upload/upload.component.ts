@@ -4,6 +4,7 @@ import { KeggDataService } from '../services/kegg_organisms-data.service';
 import { KeggPathwaysService } from '../services/kegg_pathways.service';
 import { Router } from '@angular/router';
 import { FileDataService } from '../services/file-data.service';
+import { ProjectLoaderService } from '../services/project-loader.service';
 import JSZip from 'jszip';
 
 // import { getUniquePathways } from '../helper/getGenePathways';
@@ -46,7 +47,7 @@ export class UploadComponent {
   private hardcodedFilePath: string = '../helperData/KEGG_IDs.csv';
   
   // Constructor with injected services
-  constructor(private keggService: KeggDataService, private router: Router, private fileDataService: FileDataService, private keggPathwaysService: KeggPathwaysService) {} // services
+  constructor(private keggService: KeggDataService, private router: Router, private fileDataService: FileDataService, private keggPathwaysService: KeggPathwaysService, private projectLoaderService: ProjectLoaderService ) {} // services
 
   // Once Upload button is clicked, create a file input element and trigger the click event
   onUploadClick(): void {
@@ -378,20 +379,26 @@ preIdentifyUploadedFiles(): void {
         console.log("Expression data files:", expressionData);
         console.log("Annotation data files:", annotationData);
 
+        // Check if expressionData and annotationData are empty
         if (Object.keys(expressionData).length === 0 || Object.keys(annotationData).length === 0) {
           this.warningMessage = "Missing expression or annotation data. Please ensure both are provided.";
           return;
         }
 
         const combinedArrayList: any[][] = [];
-
+        console.log("start on iterating through expression files");
+        // Iterate through each expression file
         for (const [exprFilename, exprData] of Object.entries(expressionData)) {
           const headerExpr = exprData[0].map(h => h.toLowerCase());
+          console.log("header expressio: ", headerExpr);
           const geneIndexExpr = headerExpr.findIndex(col => col === 'gene');
+          console.log("index expressio: ", geneIndexExpr);
+
           if (geneIndexExpr === -1) continue;
 
           const mergedGenes: any[] = [];
 
+          // Iterate through each row in the expression data
           for (let i = 1; i < exprData.length; i++) {
             const row = exprData[i];
             const gene = row[geneIndexExpr];
@@ -405,11 +412,17 @@ preIdentifyUploadedFiles(): void {
             }
 
             // Try to merge with annotation data
+            console.log("start on iterating through annotation files");
             for (const [annFile, annData] of Object.entries(annotationData)) {
+              console.log("Annotation file:", annFile);
               const headerAnn = annData[0].map(h => h.toLowerCase());
-              const geneIndexAnn = headerAnn.findIndex(col => col === 'sequence.name' || col.includes('gene') || col === 'id');
-              if (geneIndexAnn === -1) continue;
+              console.log("header annot: ", headerExpr);
 
+              const geneIndexAnn = headerAnn.findIndex(col => col === 'sequence.name' || col.includes('gene') || col === 'id');
+              console.log("header annot: ", headerExpr);
+
+              if (geneIndexAnn === -1) continue;
+              // Find the row for this gene in the annotation data
               const annRow = annData.find(row => row[geneIndexAnn] === gene);
               if (annRow) {
                 for (let k = 0; k < annRow.length; k++) {
@@ -419,7 +432,7 @@ preIdentifyUploadedFiles(): void {
                 }
               }
             }
-
+            console.log("Merged gene data:", geneData);
             mergedGenes.push(geneData);
           }
 
@@ -443,6 +456,7 @@ preIdentifyUploadedFiles(): void {
 
         this.fileDataService.setUploadedExpressionFiles(this.expressionFiles);
         this.fileDataService.setUploadedAnnoationFiles(this.annotationFiles);
+        console.log("Moving to display page:");
         this.router.navigate(['/display']);
       })
       .catch((err) => {
@@ -1290,8 +1304,7 @@ onDragEnd(): void {
 }
 
 openProject(): void {
-
-    const fileInput = document.createElement('input');
+const fileInput = document.createElement('input');
     fileInput.type = 'file';
     fileInput.accept = '.zip';
   
@@ -1306,7 +1319,6 @@ openProject(): void {
   
         const fileContents: { name: string, content: string }[] = [];
   
-        // Read each file in the zip
         await Promise.all(
           Object.keys(zip.files).map(async (filename) => {
             const file = zip.files[filename];
@@ -1317,18 +1329,20 @@ openProject(): void {
           })
         );
   
-        console.log('Loaded files:', fileContents);
+        // Save the fileContents temporarily in the service
+        this.fileDataService.setTempProjectData(fileContents);
   
-        // TODO: HERE MOVE THE FILES TO DISPLAY TO BE LOADED
-        alert('Project loaded successfully');
-  
+        // Navigate to display component
+        this.router.navigate(['/display'], {
+          state: { fromLanding: true }
+        });
       } catch (err) {
         console.error('Failed to open project:', err);
         alert('Failed to open project file');
       }
     };
   
-    fileInput.click(); // Open file chooser
+    fileInput.click();
   }
 
 
