@@ -20,6 +20,15 @@ private multipleCombinedArrays: any[][] = [];
 private pathwayCount: number = 10; // Default to 10 pathways 
 private uploadedExpressionFiles: UploadedFile[] = [];
 private uploadedAnnoationFiles: UploadedFile[] = [];
+private tempProjectData: { name: string; content: string }[] = [];
+
+setTempProjectData(data: { name: string; content: string }[]) {
+  this.tempProjectData = data;
+}
+
+getTempProjectData() {
+  return this.tempProjectData;
+}
 
 setUploadedExpressionFiles(files: UploadedFile[]): void {
   this.uploadedExpressionFiles = files;
@@ -59,6 +68,10 @@ getPathwayCount(): number{
   return this.pathwayCount;
 }
 
+clearPathwayCount(): void {
+  console.log('Clearing pathway count');
+  this.pathwayCount = 10; 
+}
 
 setFileData(fileName: string, data: string[][]): void {
 this.fileData[fileName] = data;

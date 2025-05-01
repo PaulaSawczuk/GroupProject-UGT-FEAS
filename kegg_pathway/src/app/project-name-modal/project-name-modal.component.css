@@ -62,6 +62,11 @@
     border-bottom: 1px solid #ccc;
   }
 
+  .input-box input[type="text"] {
+    width: 100%;
+    box-sizing: border-box;
+  }
+
   .actions button{
     /* font-family: 'DM Sans', sans-serif; */
     padding: 5px 10px;
@@ -76,6 +81,16 @@
   .actions button:hover {
     background-color: #7f80828f;
   }
+  
+
+  .error-message {
+    color: red;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    margin-top: 5px;
+  }
+
+  
   
   
   
