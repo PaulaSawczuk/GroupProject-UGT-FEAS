@@ -707,7 +707,7 @@ private hasMixedSigns(numbers: number[]): boolean {
 
 private getMultipleGenes(nodes: any[]): any[]{
 
-  console.log('Finding Paralogs...')
+  //console.log('Finding Paralogs...')
 
   var newNodes = nodes.map(node => ({ ...node }));
   //console.log(newNodes);
@@ -718,7 +718,7 @@ private getMultipleGenes(nodes: any[]): any[]{
 
       // If the list of Genes is greater than 1 and there is differential regulation direactionality
       if (firstGenes.length>1 && this.hasMixedSigns(newNodes[i].logfcList)==true){
-        console.log(newNodes[i].logfcList);
+        //console.log(newNodes[i].logfcList);
         const key1 = newNodes[i].key;
         console.log('Changing Colour - Paralog with differential regulation directionality');
         newNodes[i].colour = this.selectedColorIsoform;
