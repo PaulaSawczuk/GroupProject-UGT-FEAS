@@ -5,6 +5,7 @@ import { FileDataService } from './file-data.service';
 @Injectable({
   providedIn: 'root',
 })
+
 export class ProjectLoaderService {
   constructor(private fileDataService: FileDataService) {}
 
@@ -44,6 +45,7 @@ export class ProjectLoaderService {
           break;
         case 'uploadedAnnoFile.txt':
           this.fileDataService.setUploadedAnnoationFiles(content);
+          displayComponent.UploadedAnnoationFiles = content;
           break;
         case 'filteredGenes.txt':
           displayComponent.filteredGenes = content;
