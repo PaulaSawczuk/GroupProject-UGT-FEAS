@@ -34,6 +34,7 @@ async function getPathwayNames(all_paths){
   const tally = all_paths[1];
   //console.log(tally);
   for (const path of allpaths) {
+      await sleep(333);
       //console.log(path);
       var url = 'https://rest.kegg.jp/get/'+path;
       //console.log(url);
@@ -73,6 +74,10 @@ async function getPathwayNames(all_paths){
   }
   //console.log(paths);
   return [{paths},tally];
+}
+
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 module.exports = {

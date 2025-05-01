@@ -8,7 +8,7 @@
     "test": "ng test",
     "serve:ssr:kegg_pathway": "node dist/kegg_pathway/server/server.mjs",
     "start": "concurrently \"npm run server\" \"npm run client\"",
-    "server": "node backendscripts/server.js",
+    "server": "nodemon backendscripts/server.js",
     "client": "ng serve --open"
   },
   "private": true,
@@ -51,6 +51,7 @@
     "karma-coverage": "~2.2.0",
     "karma-jasmine": "~5.1.0",
     "karma-jasmine-html-reporter": "~2.1.0",
+    "nodemon": "^3.1.10",
     "typescript": "~5.7.2"
   }
 }

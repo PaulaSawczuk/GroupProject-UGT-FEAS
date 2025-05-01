@@ -33,6 +33,10 @@ function addUniqueElements(all_paths, paths) {
 }
 
 
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 function getTally(paths, number){
   let tally = {};
 
@@ -83,6 +87,7 @@ async function getEnzymePathways(enzymeIDs,number){
 
   for (const id of enzymeIDs) {
     //console.log(id);
+    await sleep(333);
     var url = 'https://rest.kegg.jp/link/pathway/'+id
     //console.log(url);
     try {
