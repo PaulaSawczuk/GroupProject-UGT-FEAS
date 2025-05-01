@@ -1165,6 +1165,17 @@ button:hover {
   padding: 8px !important;
 }
 
+.show-all-pathways-button {
+  background-color: #343a40;
+  color: #e9ecef;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 14px;
+  padding: 8px 15px;
+}
+
+
 /* ---------- Search Header ---------- */
 #sidebar .search-header {
   display: flex;
@@ -1227,6 +1238,34 @@ button:hover {
   text-align: left;
   letter-spacing: 0.5px;
 }
+
+#sidebar .total-pathways-container {
+  display: flex;
+  flex-direction: row;       
+  align-items: center;        
+  gap: 8px;                  
+  margin-left: 10px;
+  margin-top: -5px;
+}
+
+#sidebar .show-all-pathways-button {
+  background-color: #3e4247;
+  color: #e9ecef;
+  padding: 4px 4px;
+  font-size: 10px;
+  border: none;
+  border-radius: 3px;
+  align-items: center;        
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  width: 42px;
+}
+
+#sidebar .show-all-pathways-button:hover {
+  background-color: #afacac;
+}
+
+
 
 /* ---------- Close Button for Custom ---------- */
 .close-btn {

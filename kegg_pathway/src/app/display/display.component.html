@@ -60,9 +60,15 @@
             </div>
             <hr />
             <!-- Total Count -->
-            <div *ngIf="isMenuOpen" class="total-pathways">
-              Number of Pathways: {{ highlightedPathways.length }}
+            <div *ngIf="isMenuOpen" class="total-pathways-container">
+              <div class="total-pathways">
+                Number of Pathways: {{ highlightedPathways.length }}
+              </div>
+              <button class="show-all-pathways-button" (click)="openSearchPathwayModal()">
+                See All 
+              </button>
             </div>
+            
             <div class="scrollable-pathways">
               <ul class="sub-menu" [class.show]="pathwaysOpen && !customTabOpen && !searchTabOpen">
                 <li *ngFor="let pathway of pathways">
@@ -726,6 +732,7 @@
             <div class="stats-header">
               <p><strong>Information about the pathway:</strong></p>
               <p><strong>Name:</strong> {{ SelectedPathwayName }}</p>
+              <p><strong>Contrast:</strong> {{ currentTimepointLabel }}</p>
             </div>
             <div class="stats-row">
               <div class="stats-column">
