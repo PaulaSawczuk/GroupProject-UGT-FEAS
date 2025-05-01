@@ -3394,6 +3394,7 @@ applyChanges() {
     
         if (isDuplicate) {
           console.warn(`File already exists: ${file.name}`);
+          alert(`You have already uploaded this file: ${file.name}`);
           continue;
         }
     
@@ -4124,6 +4125,14 @@ removeEcPrefix(pathway: string): string {
     this.isLoading = false;
 
   }
+
+  // ------------------ STATS BOX -------------------
+
+  get currentTimepointLabel(): string {
+    const file = this.ExpressionFileNames[this.selectedTimeIndex];
+    return file ? this.removeFileExtension(file) : '';
+  }
+  
 
   // ------------------ OPEN PROJECT -------------------
   skipInitProcessing = false;
