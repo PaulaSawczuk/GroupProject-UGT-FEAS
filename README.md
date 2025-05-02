@@ -101,7 +101,7 @@ Must have at least **ONE** of the following:
 - A column named "sequence.name" (for gene matching) **OR**
 - A column named "annotation.go.id" **OR**
 - A column named "enzyme.code" **OR**.
-- BOTH a column with "go" in its name **AND** a column with "enzyme" in its name (e.g., "annotation.go.id" and "enzyme.code" or any other column names containing these terms).
+- **AND** a column with "enzyme" in its name (this is a must have, e.g.,"enzyme.code" contains this term).
 
 
 b). *Format considerations:*
