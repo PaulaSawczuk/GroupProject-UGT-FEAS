@@ -1,6 +1,8 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { slideUpAnimation } from '../helper/route-animations';
+import { FileDataService } from '../services/file-data.service';
+import { ProjectLoaderService } from '../services/project-loader.service';
 import JSZip from 'jszip';
 @Component({
   selector: 'app-landing-page',
@@ -11,7 +13,7 @@ import JSZip from 'jszip';
 })
 export class LandingPageComponent {
   
-  constructor(private router: Router) {}
+  constructor(private router: Router, private fileDataService: FileDataService, private projectLoaderService: ProjectLoaderService,) {}
   
   isGuideClicked: boolean = false;
 
@@ -26,7 +28,6 @@ export class LandingPageComponent {
   }
 
   openProject(): void {
-
     const fileInput = document.createElement('input');
     fileInput.type = 'file';
     fileInput.accept = '.zip';
@@ -42,7 +43,6 @@ export class LandingPageComponent {
   
         const fileContents: { name: string, content: string }[] = [];
   
-        // Read each file in the zip
         await Promise.all(
           Object.keys(zip.files).map(async (filename) => {
             const file = zip.files[filename];
@@ -53,17 +53,22 @@ export class LandingPageComponent {
           })
         );
   
-        console.log('Loaded files:', fileContents);
+        // Save the fileContents temporarily in the service
+        this.fileDataService.setTempProjectData(fileContents);
   
-        // TODO: HERE MOVE THE FILES TO DISPLAY TO BE LOADED
-        alert('Project loaded successfully');
-  
+        // Navigate to display component
+        this.router.navigate(['/display'], {
+          state: { fromLanding: true }
+        });
       } catch (err) {
         console.error('Failed to open project:', err);
         alert('Failed to open project file');
       }
     };
   
-    fileInput.click(); // Open file chooser
+    fileInput.click();
   }
+  
+
+    
 }

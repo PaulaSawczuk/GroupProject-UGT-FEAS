@@ -9,10 +9,12 @@ import { parseFileContent, identifyFileType } from '../helper/file-utils';
 import {MatSliderModule} from '@angular/material/slider';
 import { match } from 'assert';
 import { Router } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
+import { ProjectLoaderService } from '../services/project-loader.service';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 import { ProjectNameModalComponent } from '../project-name-modal/project-name-modal.component';
-
+import { firstValueFrom } from 'rxjs';
 
 interface GuideElement {
   title: string;
@@ -151,7 +153,9 @@ export class DisplayComponent implements OnInit, AfterViewInit {
     private enzymeApiServicePost: enzymeApiServicePost,
     private fileDataService: FileDataService,
     private cdr: ChangeDetectorRef,
-    private router: Router
+    private router: Router,
+    private route: ActivatedRoute,
+    private projectLoaderService: ProjectLoaderService,
   ) {
     document.addEventListener('click', this.handleClickOutside.bind(this));
     document.addEventListener('click', this.onOutsideClick.bind(this));
@@ -707,7 +711,7 @@ private hasMixedSigns(numbers: number[]): boolean {
 
 private getMultipleGenes(nodes: any[]): any[]{
 
-  console.log('Finding Paralogs...')
+  //console.log('Finding Paralogs...')
 
   var newNodes = nodes.map(node => ({ ...node }));
   //console.log(newNodes);
@@ -718,7 +722,7 @@ private getMultipleGenes(nodes: any[]): any[]{
 
       // If the list of Genes is greater than 1 and there is differential regulation direactionality
       if (firstGenes.length>1 && this.hasMixedSigns(newNodes[i].logfcList)==true){
-        console.log(newNodes[i].logfcList);
+        //console.log(newNodes[i].logfcList);
         const key1 = newNodes[i].key;
         console.log('Changing Colour - Paralog with differential regulation directionality');
         newNodes[i].colour = this.selectedColorIsoform;
@@ -956,71 +960,95 @@ private getLoadedPathways(): void{
 // --------------- INITIAL FUNCTION - PROCESSING + POSTING -------------------
   // Display Initalisation Function - First Function called when Display.component is opened
   async ngOnInit(): Promise<void> {
+    const params = await firstValueFrom(this.route.queryParams);
+    this.skipInitProcessing = params['skipInitProcessing'] === 'true' || history.state?.fromLanding;
 
-    // Updating TimeSlider for the length of the expression files 
-    const allData = this.fileDataService.getMultipleCombinedArrays();
-    const timepoints = this.rangeFromOne(allData);
+    console.log("--------------------");
+    console.log("skip ngOnInit? " + this.skipInitProcessing);
+    console.log("--------------------");
+  
     console.log("--------------------")
-    console.log('Timepoints: '+timepoints);
-    this.timepoints = timepoints;
-
-
-    // Loading Screen
-    this.isLoading = true;
-
-    // Fetching a list of the enzyme pathways from KEGG
-    await this.getAllPathwayNames();
-
-    // Processing Input Data - Match Genes and Extracting LogFc + EC numbers
-    this.getEnzymeGenes();
-    // Getting List of Enzymes from Input Data
-    this.extractECNumbers();
-
-    // Retrieving the Pathway number from the User
-    this.pathwayNumber = this.fileDataService.getPathwayCount();
+    console.log("skip ngOnInit? " + this.skipInitProcessing);
     console.log("--------------------")
-    //console.log("Number of enriched pathways to return:")
-    //console.log(this.pathwayNumber);
+    if (!this.skipInitProcessing) {
+      // Updating TimeSlider for the length of the expression files 
+      const allData = this.fileDataService.getMultipleCombinedArrays();
+      const timepoints = this.rangeFromOne(allData);
+      console.log("--------------------")
+      console.log('Timepoints: '+timepoints);
+      this.timepoints = timepoints;
 
-    // Setting up Data Array to send to back-end API
-    // Sending list of enzymes (from ExtractECNUmber()) and Number of top pathways to get (e.g. 10))
-    const data = [this.enzymeList, this.pathwayNumber];
-    this.enzymeApiServicePost.postEnzymeData(data).subscribe(
-      (response) => {
-        console.log('Response from Backend:')
-        console.log(response);
-        //console.log(response[0]);
-        //console.log(response[1]);
-        this.pathwayTally = response[1];
-        console.log('Pathway Tally');
-        console.log(this.pathwayTally);
-        // Handle the successful response
-        this.pathwayData = response[0].paths;
 
-        
-        this.loadNames();// Loading Pathway names -- for displaying to user
-        this.loadTally();// Loading Tally of all pathways 
-        console.log("--------------------")
-        console.log('Received from backend:', response);
-        console.log("--------------------")
-        console.log('Getting Mapping Data');
-        this.getMapData(this.pathwayData);
+      // Loading Screen
+      this.isLoading = true;
 
-      },
-      (error) => {
-        // Handle errorsF
-        console.error('Error:', error);
-        this.isLoading = false; 
+      // Fetching a list of the enzyme pathways from KEGG
+      await this.getAllPathwayNames();
 
-        //this.responseMessage = 'Error sending data';
+      // Processing Input Data - Match Genes and Extracting LogFc + EC numbers
+      this.getEnzymeGenes();
+      // Getting List of Enzymes from Input Data
+      this.extractECNumbers();
+
+      // Retrieving the Pathway number from the User
+      this.pathwayNumber = this.fileDataService.getPathwayCount();
+      console.log("--------------------")
+      //console.log("Number of enriched pathways to return:")
+      //console.log(this.pathwayNumber);
+
+      // Setting up Data Array to send to back-end API
+      // Sending list of enzymes (from ExtractECNUmber()) and Number of top pathways to get (e.g. 10))
+      const data = [this.enzymeList, this.pathwayNumber];
+      this.enzymeApiServicePost.postEnzymeData(data).subscribe(
+        (response) => {
+          console.log('Response from Backend:')
+          console.log(response);
+          //console.log(response[0]);
+          //console.log(response[1]);
+          this.pathwayTally = response[1];
+          console.log('Pathway Tally');
+          console.log(this.pathwayTally);
+          // Handle the successful response
+          this.pathwayData = response[0].paths;
+
+          
+          this.loadNames();// Loading Pathway names -- for displaying to user
+          this.loadTally();// Loading Tally of all pathways 
+          console.log("--------------------")
+          console.log('Received from backend:', response);
+          console.log("--------------------")
+          console.log('Getting Mapping Data');
+          this.getMapData(this.pathwayData);
+
+        },
+        (error) => {
+          // Handle errorsF
+          console.error('Error:', error);
+          this.isLoading = false; 
+
+          //this.responseMessage = 'Error sending data';
+        }
+      );
+
+      this.filteredPathways = [...this.pathways];
+      
+      this.ExpressionFileNames = this.UploadedExpressionFiles.map(file => file.name);
+    }else{
+      if (history.state?.fromLanding) {
+        const fileContents = this.fileDataService.getTempProjectData();
+        if (fileContents?.length) {
+          this.skipInitProcessing = true;
+          this.isLoading = true;
+          this.LoadingMessage = 'Loading Project...';
+          this.projectLoaderService.loadProjectFiles(fileContents, this).then(() => {
+            this.isLoading = false;
+            this.skipInitProcessing = false;
+            // alert('Project loaded successfully');
+          });
+        }
       }
-    );
-
-    this.filteredPathways = [...this.pathways];
-    
-    this.ExpressionFileNames = this.UploadedExpressionFiles.map(file => file.name);
+    }
   };
-
 
 
 // --------------- Retrieving Mapping Data -------------------
@@ -1223,7 +1251,6 @@ async getAllPathwayNames(): Promise<void>{
     const links = pathwayData.edges;
     console.log("--------------------");
     console.log('Nodes + Edges Retrieved');
-
     //console.log(nodes);
     //console.log(links);
     console.log("--------------------");
@@ -1646,9 +1673,6 @@ async getAllPathwayNames(): Promise<void>{
  // method for populating the node categories
 populateNodeCategories(): void {
     if (!this.myDiagram) return;
-  
-    //console.log("🧠 Full node data array:", this.myDiagram.model.nodeDataArray);
-
 
     const nodeDataArray = this.myDiagram.model.nodeDataArray;
   
@@ -2309,6 +2333,8 @@ populateNodeCategories(): void {
     console.log(this.SelectedPathwayName);
     console.log('Selected:', pathway);
     const nameSelected = pathway;
+    console.log('Pathway Selected: '+nameSelected);
+    console.log(this.pathwayData)
     // Finding corresponding map code to pathway name
     const path = this.pathwayData.find(path => path.name === nameSelected);
     console.log('Corresponding Code: '+path.pathway)
@@ -3368,6 +3394,7 @@ applyChanges() {
     
         if (isDuplicate) {
           console.warn(`File already exists: ${file.name}`);
+          alert(`You have already uploaded this file: ${file.name}`);
           continue;
         }
     
@@ -3393,31 +3420,62 @@ applyChanges() {
   // ------------------- NEW PROJECT subMenu -----------------
 
   openUploadPage() {
-    if (!this.isProjectSaved){
-      const confirmed = window.confirm('Are you sure you want to close the current project? All progress will be lost. Save your project before closing.');
-      if (confirmed) {
-        this.resetEverything();
-        this.router.navigate(['/upload']); // Navigate back to upload page
-      }
-    } else {
-      const confirmed = window.confirm('Are you sure you want to close the current project?');
-      if (confirmed) {
-        this.resetEverything();
-        this.router.navigate(['/upload']); // Navigate back to upload page
-      }
-    }
-  
+    const confirmed = window.confirm(
+      this.isProjectSaved
+        ? 'Are you sure you want to close the current project?'
+        : 'Are you sure you want to close the current project? All progress will be lost. Save your project before closing.'
+    );
     
+    if (confirmed) {
+      this.resetAllProjectData();
+      this.router.navigate(['/upload']);
+    }
   }
 
-  resetEverything() {
-    // Clear all your relevant project data
+  resetAllProjectData(): void {
+    // Clear file-related arrays
     this.UploadedAnnoationFiles = [];
     this.UploadedExpressionFiles = [];
     this.remainingExpressionFiles = [];
     this.filesMarkedForRemoval = [];
-    
+  
+    // Reset flags and state
+    this.skipInitProcessing = false;
+    this.isProjectSaved = false;
+    this.isLoading = false;
+    this.LoadingMessage = '';
+    this.warningMessage = '';
+    this.unsupportedFileTypeMessage = '';
+  
+    // Reset expression and annotation data
+    this.fileDataService.clearAnnotationData();
+    this.fileDataService.clearExpressionData();
+    this.fileDataService.clearCombinedData();
+    this.fileDataService.clearMultipleCombinedArrays();
+    this.fileDataService.clearUploadedExpressionFiles();
+    this.fileDataService.clearUploadedAnnotationFiles();
+    this.fileDataService.clearPathwayCount();
+  
+    // Reset individual project data fields
+    this.pathwayResponse = [];
+    this.pathwayNumber = 0;
+    this.filteredGenes = [];
+    this.enzymeList = [];
+    this.ALLpathwayData = [];
+    this.AllKeggPathways = [];
+    this.pathwayTally = [];
+    this.highlightedPathways = [];
+    this.mapData = [];
+    this.loadedPathwayData = [];
+    this.pathways = [];
+    this.colourArray = [];
+    this.StatsArray = [];
+    this.ExpressionFileNames = [];
+    this.pathwayData = [];
+  
+    console.log('All project data has been reset.');
   }
+  
   
   //  ------------------ VIEW TAB -------------------
   customTabOpen: boolean = false;
@@ -3970,6 +4028,9 @@ removeEcPrefix(pathway: string): string {
   }
 
   onSaveProject(projectName: string): void {
+
+    this.isLoading = true;
+    this.LoadingMessage = 'Saving Project...';
     this.showModal = false;
     this.isLoading = true;
     this.LoadingMessage = "Saving File";
@@ -4054,57 +4115,168 @@ removeEcPrefix(pathway: string): string {
     console.log("Generating ZIP ");
     zip.generateAsync({ type: 'blob' }).then(content => {
       saveAs(content, `${projectName}.zip`);
-      alert('Project saved successfully');
+      // alert('Project saved successfully');
       this.isProjectSaved = true;
       this.isLoading = false;
     }).catch(err => {
       console.error('Error saving project:', err);
       alert('Failed to save project');
     });
+    this.isLoading = false;
+
   }
 
+  // ------------------ STATS BOX -------------------
+
+  get currentTimepointLabel(): string {
+    const file = this.ExpressionFileNames[this.selectedTimeIndex];
+    return file ? this.removeFileExtension(file) : '';
+  }
+  
+
   // ------------------ OPEN PROJECT -------------------
+  skipInitProcessing = false;
 
   openProject(): void {
+    // Create a file input element
+    const fileInput = document.createElement('input');
+    fileInput.type = 'file';
+    fileInput.accept = '.zip';
+    
+    // Set up the file input change event
+    fileInput.onchange = async (event: Event) => {
+      const input = event.target as HTMLInputElement;
+      // If no files are selected, return
+      if (!input.files || input.files.length === 0) return;
+      
+      // Get the selected file
+      const zipFile = input.files[0];
+      
+      // Flag to skip onInit Processing
+      this.skipInitProcessing = true;
+      // Start Loading screen
+      this.isLoading = true;
+      this.LoadingMessage = 'Loading Project...';
+      
+      // Use JSZip to read the zip file
+      try {
+        console.time('zipLoad');
+        const zip = await JSZip.loadAsync(zipFile);
+        console.timeEnd('zipLoad');
+
+        const fileContents: { name: string, content: string }[] = [];
+        // Read all files in the zip
+        console.time('zipParse');
+        await Promise.all(
+          // Iterate through all files in the zip
+          Object.keys(zip.files).map(async (filename) => {
+            const file = zip.files[filename];
+            // Check if the file is not a directory
+            if (!file.dir) {
+              // push the file content to the array
+              const content = await file.async('string');
+              fileContents.push({ name: filename, content });
+            }
+          })
+        );
+        console.timeEnd('zipParse');
+        
+        // // Process the file contents
+        // for (const file of fileContents) {
+        //   console.log('Processing file:', file.name);
+        //   console.time('fileProcessing');
+        //   const content = JSON.parse(file.content);
+          
+        //   switch (file.name) {
+        //     case 'multipleCombinedArray.txt':
+        //       this.fileDataService.setMultipleCombinedArrays(content);
+        //       break;
+        //     case 'combineData.txt':
+        //       this.fileDataService.setCombinedData(content);
+        //       break;
+        //     case 'annoData.txt':
+        //       const filename = 'DefaultFile';
+        //       this.fileDataService.setAnnotationData(filename, content);
+        //       break;
+        //     case 'expressData.txt':
+        //       this.fileDataService.setExpressionData(content);
+        //       break;
+        //     case 'pathways.txt':
+        //       this.fileDataService.setPathways(content);
+        //       break;
+        //     case 'pathwayResponse.txt':
+        //       this.pathwayResponse = content;
+        //       break;
+        //     case 'pathwayNumber.txt':
+        //       this.pathwayNumber = content;
+        //       break;
+        //     case 'pathwayCount.txt':
+        //       this.fileDataService.setPathwayCount(content);
+        //       break;
+        //     case 'uploadedexpressFiles.txt':
+        //       this.fileDataService.setUploadedExpressionFiles(content);
+        //       this.UploadedExpressionFiles = this.fileDataService.getUploadedExpressionFiles();
+        //       break;
+        //     case 'uploadedAnnoFile.txt':
+        //       this.fileDataService.setUploadedAnnoationFiles(content);
+        //       break;
+        //     case 'filteredGenes.txt':
+        //       this.filteredGenes = content;
+        //       break;
+        //     case 'enzymeList.txt':
+        //       this.enzymeList = content;
+        //       break;
+        //     case 'allPathwayData.txt':
+        //       this.ALLpathwayData = content;
+        //       break;
+        //     case 'AllKeggPathways.txt':
+        //       this.AllKeggPathways = content;
+        //       break;
+        //     case 'pathwayTally.txt':
+        //       this.pathwayTally = content;
+        //       break;
+        //     case 'highlightedPathways.txt':
+        //       this.highlightedPathways = content;
+        //       break;
+        //     case 'MapData.txt':
+        //       this.mapData = content;
+        //       break;
+        //     case 'loadedPathwayData.txt':
+        //       this.loadedPathwayData = content;
+        //       break;
+        //     case 'thispathways.txt':
+        //       this.pathways = content;
+        //       break;
+        //     case 'colourArray.txt':
+        //       this.colourArray = content;
+        //       break;
+        //     case 'statsArray.txt':
+        //       this.StatsArray = content;
+        //       break;
+        //     case 'ExpressionFileNames.txt':
+        //       this.ExpressionFileNames = content;
+        //       break;
+        //     case 'pathwayData.txt':
+        //       this.pathwayData = content;
+        //       break;
+        //   }
+        //   console.timeEnd('fileProcessing');
+        // }
+        await this.projectLoaderService.loadProjectFiles(fileContents, this);
+        
+        this.isLoading = false;
+        alert('Project loaded successfully');
+        this.skipInitProcessing = false;
+        this.isProjectSaved = true;
+      } catch (err) {
+        console.error('Failed to open project:', err);
+        alert('Failed to open project file');
+      }
+    };
   
-      const fileInput = document.createElement('input');
-      fileInput.type = 'file';
-      fileInput.accept = '.zip';
-    
-      fileInput.onchange = async (event: Event) => {
-        const input = event.target as HTMLInputElement;
-        if (!input.files || input.files.length === 0) return;
-    
-        const zipFile = input.files[0];
-    
-        try {
-          const zip = await JSZip.loadAsync(zipFile);
-    
-          const fileContents: { name: string, content: string }[] = [];
-    
-          // Read each file in the zip
-          await Promise.all(
-            Object.keys(zip.files).map(async (filename) => {
-              const file = zip.files[filename];
-              if (!file.dir) {
-                const content = await file.async('string');
-                fileContents.push({ name: filename, content });
-              }
-            })
-          );
-    
-          console.log('Loaded files:', fileContents);
-    
-          // TODO: HERE MOVE THE FILES TO DISPLAY TO BE LOADED
-          alert('Project loaded successfully');
-    
-        } catch (err) {
-          console.error('Failed to open project:', err);
-          alert('Failed to open project file');
-        }
-      };
-    
-      fileInput.click(); // Open file chooser
-    }
+    fileInput.click();
+
+  }
+  
 } 
 
