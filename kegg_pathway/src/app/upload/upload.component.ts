@@ -480,7 +480,7 @@ preIdentifyUploadedFiles(): void {
     if (header.includes('sequence.name') ||
       header.includes('annotation.go.id') ||
       header.includes('enzyme.code') ||
-      (header.includes('go') && header.includes('enzyme'))) {
+      header.includes('enzyme')) {
       return 'annotation';
     }
 
