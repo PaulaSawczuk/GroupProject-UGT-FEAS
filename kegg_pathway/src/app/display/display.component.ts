@@ -3696,7 +3696,7 @@ applyChanges() {
         if (this.myDiagram){
         this.clearAnimations(this.myDiagram);};
         
-        await this.delay(1750);// 1 Second between pathway refresh (large pathays take a while to load)
+        await this.delay(2000);// 2 Second between pathway refresh (large pathays take a while to load)
         }
     
   }
@@ -3717,9 +3717,9 @@ applyChanges() {
     if (this.isAnimationActive==true){
     const links = pathwayData.edges;
     this.loopWithDelay(links, nodes); // setting up to loop 10 times before stopping 
-    //this.isAnimationActive = false;
+    this.isAnimationActive = false;
 
-    //this.stopAnimation();
+    this.stopAnimation();
   }
     else{
       this.stopAnimation();
