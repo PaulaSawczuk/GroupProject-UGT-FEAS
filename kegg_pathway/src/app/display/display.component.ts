@@ -517,7 +517,9 @@ private matchGenesNoSize(genes: any[], nodes: any[]): any[] {
       for (let j = 0; j < genes.length; j++) {
         let enzyme = genes[j].enzyme[0]; // Enzyme Name 
         let gene = genes[j].gene; // Gene Name 
-        let logfc = genes[j].logfc; // Logfc Value 
+        let logfc1 = genes[j].logfc; // Logfc Value
+        const parsedNum = parseFloat(logfc1);
+        let logfc = parseFloat(parsedNum.toFixed(4));
 
         if (enzyme === nodetext) { // If they match
           enzymeSet.add(enzyme); // Add to unique list of enzymes 
@@ -533,7 +535,7 @@ private matchGenesNoSize(genes: any[], nodes: any[]): any[] {
       }
 
       if (logfcList[0]) {
-        let mean = this.findMean(logfcList); // Calculating mean of Genes logfc
+        let mean = parseFloat((this.findMean(logfcList).toFixed(4))); // Calculating mean of Genes logfc
         let rgb = this.newlogfcToRGB(mean, this.selectedColorLow,this.selectedColorHigh); // Getting colout relative to logfc
 
         newNodes[i].logfc = mean;
@@ -585,7 +587,9 @@ private matchGenes(genes: any[], nodes: any[]): any[] {
       for (let j = 0; j < genes.length; j++) {
         let enzyme = genes[j].enzyme[0]; // Enzyme Name 
         let gene = genes[j].gene; // Gene Name 
-        let logfc = genes[j].logfc; // Logfc Value 
+        let logfc1 = genes[j].logfc; // Logfc Value
+        const parsedNum = parseFloat(logfc1) 
+        let logfc = parseFloat(parsedNum.toFixed(4))
 
         if (enzyme === nodetext) { // If they match
           enzymeSet.add(enzyme); // Add to unique list of enzymes 
@@ -604,7 +608,7 @@ private matchGenes(genes: any[], nodes: any[]): any[] {
 
       if (logfcList[0]) {
 
-        let mean = this.findMean(logfcList); // Calculating mean of Genes logfc
+        let mean =parseFloat((this.findMean(logfcList).toFixed(4))); // Calculating mean of Genes logfc
         let rgb = this.newlogfcToRGB(mean, this.selectedColorLow,this.selectedColorHigh); // Getting colout relative to logfc
         let result = this.resizeNodeByLogFC(mean); // resizing node
         let height = result[0];
@@ -2239,7 +2243,7 @@ populateNodeCategories(): void {
   // Prevents nodes from staying on the diagram when a different timepoint/pathway 
   // is selected 
   private clearAnimations(diagram: go.Diagram) {
-    console.log("Clearing old animations...");
+    //console.log("Clearing old animations...");
 
     // Clear all intervals (stop animations)
     this.animatedIntervals.forEach(id => clearInterval(id));
@@ -2261,7 +2265,7 @@ populateNodeCategories(): void {
 
     this.animatedLinkIds?.clear?.();
 
-    console.log("All old animations cleared.");
+    //console.log("All old animations cleared.");
   }
 
 
@@ -3743,9 +3747,9 @@ applyChanges() {
 
   async loopWithDelay( links: any[], nodes: any[]): Promise<void> {
     // Number of loops to cycle through before stopping 
-    
+      
       // Looping through the maps (one for each timepoint)
-      for (let i=0; i<this.timepoints.length;i++){
+      for (let i=0; i<this.UploadedExpressionFiles.length;i++){
         const timeNodes = nodes[i];
         // Updating the Diagram 
         this.currentLogFc = [];
@@ -3756,6 +3760,7 @@ applyChanges() {
         
         await this.delay(2000);// 2 Second between pathway refresh (large pathays take a while to load)
         }
+        this.isAnimationActive = false;
     
   }
 
@@ -3767,17 +3772,24 @@ applyChanges() {
     console.log(name);
     const data = this.loadedPathwayData.find((obj => obj.pathway === name));
     console.log(data);
+
+    // Clear Diagram
+    this.currentLogFc = [];
+    this.regulatedLinks = [];
+    const emptylinks: any[] = [];
+    const emptynodes: any[] = [];
+    this.updateDiagram(emptynodes,emptylinks)
     
     const nodes = data.nodes;
     console.log(nodes);
     const pathwayData = this.ALLpathwayData.find((obj => obj.pathway === code));
 
     if (this.isAnimationActive==true){
-    const links = pathwayData.edges;
-    this.loopWithDelay(links, nodes); // setting up to loop 10 times before stopping 
-    this.isAnimationActive = false;
+      const links = pathwayData.edges;
+      this.loopWithDelay(links, nodes); // setting up to loop 10 times before stopping 
 
-    this.stopAnimation();
+      this.stopAnimation();
+      this.isAnimationActive = false;
   }
     else{
       this.stopAnimation();
