@@ -124,7 +124,7 @@ The below image shows two different annotation file formats but both recognised 
   
 The pathway visualization was developed using the GoJS library, which provides powerful diagramming capabilities for complex biochemical networks. The figure below illustrates a representative example of the pathway visualization interface with its key interactive elements.   
 
-![Visualisation_Image](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/Visualisation_Image.png)    
+![Visualisation_Image](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/READMEFile_Images/Visualisation_Image.png)      
 
 ### Visualisation Features  
 
