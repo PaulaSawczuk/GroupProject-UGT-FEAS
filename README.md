@@ -178,33 +178,35 @@ Clicking "Get Started" button (**C**) in (**Fig. 3**) will take you to the File 
 This is where the user uploads the data files:  
 
 ##### **Upload Users Files**
-Click "Upload" button (**A**), as previously described in the [EnStrap.int Test Data and File Format Requirements](#enstrapint-test-data-and-file-format-requirements) section, the user must upload at least one expression file and one annotation file to proceed. Clicking "Open Project" button (**D**) will open an already saved project, just like "Open Project" Button (**C**) in (**Fig. 2**).
+Click "Upload" button (**A**), as previously described in the [EnStrap.int Test Data and File Format Requirements](#enstrapint-test-data-and-file-format-requirements) section, the user must upload at least one expression file and one annotation file to proceed. Clicking "Open Project" button (**D**) will open an already saved project, just like "Open Project" Button (**C**) in (**Fig. 2**).    
+
 
 ##### **Access Upload Instructions**
-In case the user is unsure about the type of files to upload, click the information icon (**B**) at the top-right corner for guidance.  
+In case the user is unsure about the type of files to upload, click the information icon (**B**) at the top-right corner for guidance.  In addition, at the bottom of the "Upload Files" (**A**) button, there is description of what files the user is supposed to load and an indication of whether the files are loaded.   
 
 
 ![Upload Image2](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/READMEFile_Images/Upload_Image2.png)  
 
-*Fig. 4b. Managing Uploaded Files and Configuring Options.**
+*Fig. 4b. Managing Uploaded Files and Configuring Options.*  
 
 ##### **Manage Uploaded Files**
-After uploading, a list of selected files will appear.  
+After uploading the files, they will appear as "Annotation Files" and "Expression Files". If the user has uploaded multiple time-series expression files they can be ordered by dragging and dropping.  
+Just as in [File Upload](#1-file-upload) there is a description on top of the page labelled (**D**) which tells the users what files they have uploaded, if a certain file is missing it will show a **X***.  
 
 - To remove a file, click the **X** button (**C**) next to it.
-- To add more files, simply click the "Upload" button again.  
+- To add more files, simply click the "Upload Files" button again.  
 
 ##### **Configure Settings**
 User can customise how the data will be processed by adjusting the following options:  
 
 ###### a). **Number of Top-Expreesed Pathways:**  
-   - Enter the desired number of pathways or use the up/down arrows (**E**) to specify how many of the top-expressed KEGG pathways should be visualised.  
+   - Enter the desired number of pathways or use the up/down arrows (**E**) to specify how many of the top-expressed KEGG pathways should be visualised, the defualt value is 10.  
 
 ###### b). **Organism Specification:**  
-   - The user can choose to specify the organism or not.
+   - The user can choose to specify the organism or not (**A**).
 
 ###### c). **Time Series Data:**  
-   - User must indicate whether the dataset includes time series analysis (**D**) or not.
+   - User must indicate whether the dataset includes time series analysis (**A**) or not.
    
 ##### **Process and Visualise**
 Click the "Process" button (**F**) once all settings are configured to generate visualisations of the KEGG pathways.
@@ -219,31 +221,35 @@ Click the "Process" button (**F**) once all settings are configured to generate 
 To access file-related options, click the "File" menu (**A**) located in the top menu bar.
    
 ##### a). Manage Files  
-Click "Import Files" (**B**) which will open a pop-up window where the user can upload additional expression files. Take note that **only expression files are accepted here-annotation files are not supported**. 
+Click "Manage FIles" (**B**) which will open a pop-up window where the user can add expression files. Take note that **only expression files are accepted here-annotation files are not supported**. 
         
 
 ![ExtraFile_Image2](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/READMEFile_Images/ManageFile_Image.png)  
 *Fig. 5b. Upload extra files page*
 
-- In the pop-up window, click "Choose Files" (**C**), the user can select multiple expression files.
-- After selecting the extra files, click the "Add" button (**D**) to upload them. This will trigger reprocessing the mapping and displaying the previously selected number of top pathways from all expression files.  
+- In the pop-up window, click "Add Expression Files" (**G**), the user can select multiple expression files.
+- After selecting the extra files, click the "Apply Changes" button (**D**) to upload them. This will trigger reprocessing the mapping and displaying the previously selected number of top pathways from all expression files.
+- The user may also wish to remove files that were initially uploaded, by clicking the **X** icon labelled (**I**). Once removed, the file will appear below the “Add Expression Files” button, along with a “Restore” option labelled (**J**) in case the user changes their mind. Note that the order of the expression files can be changed by dragging and dropping, if the user wishes to see them in a different order on the [Time Series](#6-time-series).
 
-##### b). Open Project
-##### c). Save Project
-##### d). Export Pathway Visualisation  
+##### b). New Project  
+Clicking the “New Project” button (**C**) will restart EnStrap.int and take the user to the [File Upload](#1-file-upload) page . If the user is currently working on an unsaved project, it will be lost.  
+
+##### c). Open Project  
+Clicking the “Open Project” button (**D**) will open the file browser, allowing the user to navigate to the Downloads folder on their local machine, assuming a project was previously saved.  
+
+##### d). Save Project  
+Clicking the “Save Project” button (**E**) opens the pop-up window shown below:    
+![SaveProjectImage](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/READMEFile_Images/SaveProjectImage.png)  
+The user can enter a project name in the text field labelled (**K**), and then choose to either click “Save” (**L**) to store the project or “Cancel” (**M**) to close the window without saving.  
+
+##### e). Export Pathway Visualisation  
 Click on the "Export" button in the [File Menu](#2-file-menu) dropdown (**E**) to access the export feature functionalities.
 
-   **IMAGE**  
-   
-*Fig. 5c. Export pathway visulaisation page.*  
+![Export_Image](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/READMEFile_Images/Export_Image.png)  
 
-   ###### i). *Choose Export Format*  
-   The user will have two options to export the visualisation, as either **PNG** or **SVG**. Then click to choose the desired format.  
+   ###### *Choose Export Format*  
+   The user will have two options to export the visualisation, as either **PNG** labelled (**G**)  or **SVG** labelled (**H**), then click to choose the desired format.  
 
-   ###### ii). *Download File*  
-   Once the user has selected the desired format,and click the "Download" button, the image will automatically be saved to your computer in the Downloads folder.  
-
-   
 #### 3. View Menu     
 
 To access view-related options, click the "View" menu (**A**) located on the top of the menu bar.  
@@ -255,19 +261,19 @@ To access view-related options, click the "View" menu (**A**) located on the top
 ##### a). Customise  
 
 ###### i). Open Customisation  
-- Click the "Customise" button (**B**) to open the customisation panel, which will appear on the left side of the application window.  
+- Click the "Customise" button (**B**) to open the customisation panel, which will appear on the left side of the application window.     
   
 ![View Customise](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/READMEFile_Images/View_Customise.png)  
 
 *Fig. 6b. The customisation page.*    
 
 ###### ii). Change Colours  
-The user can modify the colours used to represent high or low expressed genes including isoforms:
+The user can modify the colours used to represent high or low expressed genes including paralogs:
 - Click the coloured box (**F**) to open the colour picker.
 - Select your desired colour from the palette.    
 
 ###### iii). Close the Colour Picker
-Once the user has selectected the colour and is satisfied with the choice, simply click anywhere outside the colour picker to close it.  
+Once the user has selected the colour and is satisfied with the choice, simply click anywhere outside the colour picker to close it.  
 
 ###### iv). Close Customisation Tab
 To exit the customisation panel, click the **X** button located in the top-right corner of the tab (**H**).  
@@ -277,7 +283,7 @@ To exit the customisation panel, click the **X** button located in the top-right
 To access the search options user should go to the [View Menu](#3-view-menu) (**A**) at the top bar. To open the search panel, click "Search" button (**C**).  
   
 ###### i). *Search For Pathway Elements*  
-If the user would like to search by elements within the pathway, click  "Pathway Elements" button (**D). This will open a search options on the left side of the application window.  
+If the user would like to search by elements within the pathway, click  "Pathway Elements" button (**D**). This will open a search options on the left side of the application window.  
 
 ![View SearchForElements](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/READMEFile_Images/View_SearchForElements.png)  
 
@@ -286,13 +292,12 @@ If the user would like to search by elements within the pathway, click  "Pathway
 Within the panel, the user can choose from three search categories: **Enzyme, Compound and Pathway** by ticking the box next to the desired option (**I**).  
 
   **For example:**
-  If the user select the **Element**, a drop-down box (**J**) will appear displaying a list of elements relevant to the selected category in the current pathway. The user can scroll down through the list and click on a specific element to zoom into it within the visualisation display.  
+  If the user select the **Enzyme** labelled (**I**), a drop-down box (**J**) will appear displaying a list of enzymes in the current pathway. The user can scroll down through the list and click on a specific enzyme to zoom into it within the visualisation display, it will appear with a blue highlight.    
 
-  
 
 ###### ii). *Search For Pathway*  
 
-If the user is looking to search for a specific pathway: Next to "Pathway Elements" button (**D**) in the "Search" panel (accessed via the [View Menu](#3-view-menu)), click on the "For Pathway" button (**E**). Ihis will open a pop-up window containing two tabs that will allow user to search and navigate different pathways.   
+If the user wants to search for a specific pathway: Next to "Pathway Elements" button (**D**) in the "Search" panel (accessed via the [View Menu](#3-view-menu)), click on the "For Pathway" button (**E**). Ihis will open a pop-up window containing two tabs that will allow user to search and navigate different pathways.   
 
 ![View_SearchForPathway_Highlight](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/READMEFILE_Images/View_SearchForPathway_Highlight.png)  
 
@@ -306,7 +311,7 @@ If the user is looking to search for a specific pathway: Next to "Pathway Elemen
 
 **All KEGG Online Search Tab**  
 
-![View_SearchForPathway_AllKEGG](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/READMEFile_Images/View_SearchForPathway_AllKEGG.png)   
+![View_SearchForPathway_AllKEGG](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/READMEFile_Images/View_SearchForPathway_Highlight.png)   
 *Fig. 6e. Online KEGG pathway search page.*  
 
 The KEGG Online Search tab allows users to search for pathway names directly from the KEGG API by typing into the "Search Pathway Box" (**U**).  
