@@ -118,7 +118,7 @@ The system ensures compatibility by transforming all column names to lowercase b
 The below image shows two different annotation file formats but both recognised and accepted by EnStrap.int.  
 
 ![ExpressionFile.png](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/READMEFile_Images/AnnotationFile.png)  
-*Fig. 1b. Shows two different annotation file formats.*
+*Fig. 1b. Shows two different annotation file formats.*  
 
 ## The Pathway Visualisation     
   
