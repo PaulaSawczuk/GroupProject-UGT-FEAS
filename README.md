@@ -345,37 +345,38 @@ When a user clicks on a linked pathway name — for example, the one labeled (**
 
 i). *Enzyme:*  
 Click on the "Enzyme" label (**B**), it opens a pop-up window displaying detailed information about the selected enzyme, which includes: 
-- Enzyme key identifier
-- Enzyme code (EC)
-- Associated gene(s), including isoforms where applicable
-- Log2 fold change (logFC) value
-- Enzyme name  
+- Enzyme name.
+- Enzyme code (EC).
+- Mean logFC.
+- Associated gene(s), including paralogs where applicable logFC value.
+- A hyperlink that takes the user to KEGG database where more information about that particular enzyme can be found.  
 
 ii). *Compound:*  
 Clicking on a "Compound" label (**C**) opens a pop-up window with details about the selected compound, which includes:
 
-- Compound key identifier
-- Enzyme Commission number   
+- Enzyme code
+-  A hyperlink that takes the user to KEGG database where more information about that compound can be found.      
  
 #### 6. Time Series  
 ![TimeSeries_Image1](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/READMEFile_Images/TimeSeries_Image2.png)  
   
-*Fig. 8. Time series animation display.*    
+*Fig. 8. Time series and animation display.*    
 
-The figure above illustrate how users can explore different time points, with names as labeled in their uploaded expression files, by using the slider (**A**) to move through the different time points and observe how the pathway changes over time.  
+The figure above illustrates how users can explore different time points, with names as labeled in the uploaded expression files, by using the slider (**A**) to move through the different time points and observe how the pathway changes over time.  
 
 To create a timelapse animation of the pathway across all time points, click the "Animate" button (**B**). The animation will sequentially display changes across each time point, providing a dynamic view of pathway evolution.  
 
 #### 7. Side Bar Functionality and Pathway Information      
 ##### a). Side Bar Functionality  
-![SideBar_Image0](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/READMEFile_Images/SideBar_Image0.png)   
+![SideBar_Image0](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/READMEFile_Images/SideBar_Image0.png)  
+
 *Fig. 9a. Side bar functionality.*     
-The side bar, located on the left side of the interface, displays a list labelled (**A**) in (**Fig. 8b**) of top-expressed pathways. The number of pathways shown depends on the number previously selected by the user.    
+The sidebar, located on the left side of the interface, displays a list of top-expressed pathways labelled (**A**) in **Fig. 9b.** The number of pathways shown corresponds to the value specified earlier by the user on the [File Upload](#1-file-upload) page (see **Fig. 4b**). In addition to displaying the top pathways, the sidebar also indicates the total number of pathways in which expression hits were detected.  
 
 ![SideBar_Image1](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/READMEFile_Images/SideBar_Image1.png)      
 *Fig. 9b. Sorting pathways and expanding/collapsing the side bar.*    
 
-**Sorting Pathways:** To sort pathways, click the "Sort" button (**B**) which opens a dropdown menu with two main sorting options; alphabetical order in either ascending or descending sequence.  
+**Sorting Pathways:** To sort pathways, click the "Sort" button (**B**) which opens a dropdown menu with two main sorting options; in alphabetical order, either ascending or descending sequence.  
 
 **Expanding and Collapsing the Side Bar:** For the user to collapse the side bar and expand the main display view, click the arrows at the top right corner (**C**). To reopen the side bar, click the same arrows on the collapsed bar (**D**).   
 
@@ -386,7 +387,7 @@ If the [Search](#b-search) and [Customise](#a-customise) tabs are added to the s
 
 To close the [Search](#b-search) and [Customise](#a-customise) sections, click on the **X** button (**F**) at the top right of each section. Closing a section automatically reverts to the "Pathways" section, which is the default view.  
 
-**Note:** The "Pathways" section cannot be closed as it is the defualt view of the side bar.  
+**Note:** The "Pathways" section cannot be closed as it is the defualt view of the sidebar.  
 
 #### b). Pathway Information  
 
@@ -395,9 +396,10 @@ To close the [Search](#b-search) and [Customise](#a-customise) sections, click o
 
 The panel displayed at the bottom of the screen provides key information about the currently visualised pathway. This includes:
 - The name of the pathway currently being viewed.
+- Name of the contrast file you currently in.
 - The total number of genes present in the pathway.
 - The number of unique genes represented in the visualisation.
-- The number of enzymes differentially regulated by the genes based on the uploaded data.  
+- The number of enzymes differentially expressed in the pathway being visualised.   
 
 ## Hands-on Example
 
