@@ -304,29 +304,29 @@ If the user wants to search for a specific pathway: Next to "Pathway Elements" b
 *Fig. 6d. Display pathways with hits and all KEGG pathways online.*   
 
 **Highlight Tab:**
-- This tab displays a table listing all pathways where hits were found in the uploaded expression files. Information about the total number of pathways and the number of pathways currently selected is shown above the table.
+- This tab displays a table listing all pathways where hits were found in the uploaded expression files; those colored in grey (**P**) are the pathways already present in the display (the top-ranked pathways). The pathways are listed together with their "Pathway number" and the number of differentially expressed "Enzymes". Information about the total number of pathways and the number of pathways currently selected is shown above the table.
 - To select pathways, tick the boxes in the "Select" column of the table (**L**) and to deselect a pathway, simply click the checkbox again.
 - Use the "Select All" and "Clear All" buttons (**M**) to quickly select or deselect all pathways.
-- Once user is satisfied with the selection,, click the "Search" button (**N**) to add the chosen pathways to the end of the pathway list in the side bar.  
+- Once user is satisfied with the selection,, click the "Search" button (**N**) to add the chosen pathways to the end of the pathway list in the side bar, and the added pathways will be highlighted in blue.       
 
 **All KEGG Online Search Tab**  
 
 ![View_SearchForPathway_AllKEGG](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/READMEFile_Images/View_SearchForPathway_AllKEGG.png)   
 *Fig. 6e. Online KEGG pathway search page.*  
 
-The KEGG Online Search tab allows users to search for pathway names directly from the KEGG API by typing into the "Search Pathway Box" (**U**).  
+The KEGG Online Search tab allows users to search for pathway names directly from the KEGG API by typing into the "Search Pathway Box" labelled (**U**).  
 
 - As the user begins typing, a list of matching pathway names will appear below the search box.  
 - To add the pathway, simply click on its name and it will be added to the list beneath the search box (**P**).
 - To remove a particular pathway, click on **X** next to its name.
-- Once the desired pathways are selected, click the "Search" button at the bottom of the page to add them to the end of the pathway list in the Sidebar. The user can add multiple pathways.
+- Once the desired pathways are selected, click the "Search" button (**R**) at the bottom of the page to add them to the end of the pathway list in the Sidebar. The user can add multiple pathways.
 
 *Important things to note for the user:* 
 - The pop-up window can be resized by dragging its bottom-right corner, allowing for a more comfortable view of the pathway table.
-- Only one tab can be active at a time. Switching between tabs will reset any selections made in the previously opened tab.  
+- Only one tab can be active at a time. Switching between tabs (**K**) or (**O**), will reset any selections made in the previously opened tab.    
 
 #### 4. Help Menu   
-The Help Menu provides access to the [Guide Section](#guide-section), which users can refer to if they are unsure how to use a specific feature-especially when they are on the main application window rather than the [Welcome Page](#welcome-page). 
+The Help Menu provides access to the [Guide Section](#guide-section), which users can refer to if they are unsure how to use a specific feature-especially when they are on the main application window rather than on the [Welcome Page](#welcome-page).   
 
 
 #### 5. Display Interaction    
@@ -338,15 +338,15 @@ When a user clicks on a linked pathway name — for example, the one labeled (**
 ![InteractivityHyperlink_Image2](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/InteractivityHyperlink_Image2.png)  
 *Fig. 7a. Navigation from pathway name to pathway visualisation.*   
 
-##### b). Pop-Out Windows  
+##### b). Pop-up Windows  
 
-![Interactive_Image1](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/Interactive_Image1.png)      
-*Fig. 7b.  Visualisation interactivity.*       
+![Interactivity_Image1](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/READMEFile_Images/Interactivity_Image1.png)       
+*Fig. 7b.  Interactivity visualisation.*       
 
 i). *Enzyme:*  
-Click on the "Enzyme" label (**B**), opens a pop-up window displaying detailed information about the selected enzyme, which includes: 
+Click on the "Enzyme" label (**B**), it opens a pop-up window displaying detailed information about the selected enzyme, which includes: 
 - Enzyme key identifier
-- Enzyme Commission (EC) code
+- Enzyme code (EC)
 - Associated gene(s), including isoforms where applicable
 - Log2 fold change (logFC) value
 - Enzyme name  
