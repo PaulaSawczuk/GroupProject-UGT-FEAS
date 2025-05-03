@@ -183,7 +183,7 @@ Click "Upload" button (**A**), as previously described in the [EnStrap.int Test 
 In case the user is unsure about the type of files to upload, click the information icon (**B**) at the top-right corner for guidance.  
 
 
-![Upload Image2](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/READMEFILE_Images/Upload_Image2.png)  
+![Upload Image2](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/READMEFile_Images/Upload_Image2.png)  
 
 *Fig. 3b. Managing Uploaded Files and Configuring Options.**
 
@@ -211,7 +211,7 @@ Click the "Process" button (**F**) once all settings are configured to generate 
 
 #### 2. File Menu 
 
-![ExtraFile Image1](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/READMEFILE_Images/ExtraFile_Image1.png)   
+![ExtraFile Image1](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/READMEFile_Images/ExtraFile_Image1.png)   
 
 *Fig. 4a. File menu options.*  
 
@@ -221,7 +221,7 @@ To access file-related options, click the "File" menu (**A**) located in the top
 Click "Import Files" (**B**) which will open a pop-up window where the user can upload additional expression files. Take note that **only expression files are accepted here-annotation files are not supported**. 
         
 
-![ExtraFile_Image2](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/READMEFILE_Images/ManageFile_Image.png)  
+![ExtraFile_Image2](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/READMEFile_Images/ManageFile_Image.png)  
 *Fig. 4b. Upload extra files page*
 
 - In the pop-up window, click "Choose Files" (**C**), the user can select multiple expression files.
