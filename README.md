@@ -30,7 +30,8 @@ This project was generated using [Angular CLI](https://github.com/angular/angula
       - [Display Interaction](#5-display-interaction)
       - [Time Series](#6-time-series)
       - [Side Bar Functionality and Pathway Information](#7-side-bar-functionality-and-pathway-information)
-  - [Hands-on Example](#hands-on-example)  
+  - [Hands-on Example](#hands-on-example)
+    - [References](#references)  
 
 
 ## Installation 
@@ -75,7 +76,7 @@ To get the application up and running on users local machine, follow the steps b
 
 ## EnStrap.int Test Data and File Format Requirements  
 
-When EnStrap.int is launched, the data for testing the app can be accessed via [Test Data Folder on GitHub](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/tree/main/TestData). The tool supports files in .csv and .txt formats only. The data must include at least one *expression file* and its corresponding *annotation file*. 
+When EnStrap.int is launched, the data for testing the app can be accessed via [Test Data Folder](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/tree/main/TestData) on GitHub. The tool supports files in .csv and .txt formats only. The data must include at least one *expression file* and its corresponding *annotation file*. 
 
 ### File Format Requirements  
 The tool is designed to work with two types of files that contain different information, identified by specific column naming conventions.  
@@ -122,7 +123,7 @@ The below image shows two different annotation file formats but both recognised 
 
 ## The Pathway Visualisation     
   
-The pathway visualization was developed using the GoJS library, which provides powerful diagramming capabilities for complex biochemical networks. The figure below illustrates a representative example of the pathway visualization interface with its key interactive elements.   
+The pathway visualization was developed using GoJS library, which provides powerful diagramming capabilities for complex biochemical networks. The figure below illustrates a representative example of the pathway visualization interface with its key elements.   
 
 ![Visualisation_Image](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/READMEFile_Images/Visualisation_Image.png)      
 
@@ -136,7 +137,7 @@ The pathway visualization was developed using the GoJS library, which provides p
 
 **Directionality:** The flow and reversibility of reactions are indicated by arrows (**G**) and (**H**) along with distinctive line styles. Reversible reactions are represented by segmented lines, while irreversible reactions are depicted with solid straight lines. These directional indicators convey crucial information through both their color and size. The color reflects the differential expression of the associated genes, while the arrow size corresponds to the relative log2fold change magnitude of that particular pathway segment. As evidenced by arrows (**G**) and (**H**), both color intensity and arrow dimensions vary to represent different expression levels and fold changes between conditions.  
 
-**Pathway Magnifier:** The feature labeled (**I**) functions as a navigation aid, allowing users to zoom in or out on specific regions of interest within the pathway visualization. This feature enhances the examination of complex pathway sections by providing detailed views of selected areas.    
+**Pathway Magnifier:** The users can zoom in if they click on the **+** or out if they on the **-** sign. The feature labeled (**I**) functions as a navigation aid, allowing users to view the specific regions of interest within the pathway visualization. This feature enhances the examination of complex pathway sections by providing detailed views of selected areas.    
 
 ## Navigating EnStrap.int
 
@@ -401,10 +402,24 @@ The panel displayed at the bottom of the screen provides key information about t
 - The number of unique genes represented in the visualisation.
 - The number of enzymes differentially expressed in the pathway being visualised.   
 
-## Hands-on Example
+## Hands-on Example   
 
+This section demonstrates how a user can explore and interact with data using EnStrap.int, step-by-step, using a real dataset as an example.  
 
-  
+**Objective:** To view genes that were downregulated in the Glycolysis/Gluconeogenesis pathway in response to heat stress. We will use the data in the [Test Data Folder](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/tree/main/TestData) on GitHub.   
+
+### Step 1: Uploading Data  
+
+![HandsOn_Upload](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/READMEFile_Images/HandsOn_Upload.png)  
+
+Navigate to the "Upload Files" page and upload at least one expression file and one annotation file. You will also be prompted to define:
+
+- The number of pathways to display
+- Whether the dataset includes time series data
+- Whether the data is from an organism
+Click Process to begin integration.
+
+### References
 
 
 
