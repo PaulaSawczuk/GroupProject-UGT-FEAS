@@ -170,7 +170,7 @@ Clicking "Get Started" button (**C**) in (**Fig. 2**) will take you to the File 
 
 #### 1. File Upload  
 
-![Upload Image1](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/READMEFILE_Images/Upload_Image1.png) 
+![Upload Image1](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/READMEFile_Images/Upload_Image1.png) 
 
 *Fig. 3a. Initial file upload page.* 
 
@@ -256,7 +256,7 @@ To access view-related options, click the "View" menu (**A**) located on the top
 ###### i). Open Customisation  
 - Click the "Customise" button (**B**) to open the customisation panel, which will appear on the left side of the application window.  
   
-![View Customise](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/READMEFILE_Images/View_Customise.png)  
+![View Customise](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/READMEFile_Images/View_Customise.png)  
 
 *Fig. 5b. The customisation page.*    
 
@@ -278,7 +278,7 @@ To access the search options user should go to the [View Menu](#3-view-menu) (**
 ###### i). *Search For Pathway Elements*  
 If the user would like to search by elements within the pathway, click  "Pathway Elements" button (**D). This will open a search options on the left side of the application window.  
 
-![View SearchForElements](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/READMEFILE_Images/View_SearchForElements.png)  
+![View SearchForElements](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/READMEFile_Images/View_SearchForElements.png)  
 
 *Fig. 5c. Pathway elements page.*    
 
@@ -305,7 +305,7 @@ If the user is looking to search for a specific pathway: Next to "Pathway Elemen
 
 **All KEGG Online Search Tab**  
 
-![View_SearchForPathway_AllKEGG](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/READMEFILE_Images/View_SearchForPathway_AllKEGG.png)  
+![View_SearchForPathway_AllKEGG](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/READMEFile_Images/View_SearchForPathway_AllKEGG.png)   
 *Fig. 5e. Online KEGG pathway search page.*  
 
 The KEGG Online Search tab allows users to search for pathway names directly from the KEGG API by typing into the "Search Pathway Box" (**U**).  
@@ -352,10 +352,8 @@ Clicking on a "Compound" label (**C**) opens a pop-up window with details about 
 - Enzyme Commission number   
  
 #### 6. Time Series  
-![TimeSeries_Image1](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/TimeSeries_Image1.png)
-![TimeSeries_Image2](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/READMEFILE_Images/TimeSeries_Image2.png)
+![TimeSeries_Image1](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/READMEFile_Images/TimeSeries_Image2.png)  
   
-
 *Fig. 7. Time series animation display.*    
 
 The figure above illustrate how users can explore different time points, with names as labeled in their uploaded expression files, by using the slider (**A**) to move through the different time points and observe how the pathway changes over time.  
@@ -364,18 +362,18 @@ To create a timelapse animation of the pathway across all time points, click the
 
 #### 7. Side Bar Functionality and Pathway Information      
 ##### a). Side Bar Functionality  
-![SideBar_Image0](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/READMEFILE_Images/SideBar_Image0.png)  
+![SideBar_Image0](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/READMEFile_Images/SideBar_Image0.png)   
 *Fig. 8a. Side bar functionality.*     
 The side bar, located on the left side of the interface, displays a list labelled (**A**) in (**Fig. 8b**) of top-expressed pathways. The number of pathways shown depends on the number previously selected by the user.    
 
-![SideBar_Image1](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/READMEFILE_Images/assets/READMEFILE_Images/SideBar_Image1.png)    
+![SideBar_Image1](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/READMEFile_Images/SideBar_Image1.png)      
 *Fig. 8b. Sorting pathways and expanding/collapsing the side bar.*    
 
 **Sorting Pathways:** To sort pathways, click the "Sort" button (**B**) which opens a dropdown menu with two main sorting options; alphabetical order in either ascending or descending sequence.  
 
 **Expanding and Collapsing the Side Bar:** For the user to collapse the side bar and expand the main display view, click the arrows at the top right corner (**C**). To reopen the side bar, click the same arrows on the collapsed bar (**D**).   
 
-![SideBar_Image2](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/READMEFILE_Images/SideBar_Image2.png)  
+![SideBar_Image2](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/READMEFile_Images/SideBar_Image2.png)   
 *Fig. 8c. Merging tabs within the side bar.*     
 
 If the [Search](#b-search) and [Customise](#a-customise) tabs are added to the side bar, the user can easily switch between them by clicking the relevant icon or section name. The currently active section will be highlighted (**E**).    
@@ -386,7 +384,7 @@ To close the [Search](#b-search) and [Customise](#a-customise) sections, click o
 
 #### b). Pathway Information  
 
-![StatsDisplay](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/READMEFILE_Images/StatsDisplay.png)  
+![StatsDisplay](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/READMEFile_Images/StatsDisplay.png)    
 *Fig. 8d. Summary of the visualised pathway.*     
 
 The panel displayed at the bottom of the screen provides key information about the currently visualised pathway. This includes:
