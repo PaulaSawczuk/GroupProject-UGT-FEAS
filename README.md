@@ -144,18 +144,19 @@ The pathway visualization was developed using the GoJS library, which provides p
 
 ![Welcome Page](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/READMEFile_Images/Welcome_Page.png)  
 
-*Fig. 1. Users welcome page.*  
+*Fig. 2. Users welcome page.*  
 
 The welcome page is the first screen users will see when they launch the EnStrap.int application.
 
 - Clicking "Get Started" button (**A**) navigates to the Upload Page, where users can submit their data (expression and annotation files).
+- Clicking "Open Project" button (**C**) opens a project assuming it was saved earlier on.
 - The "Guide" Button (**B**) opens the User Guide, providing an overview of EnStrap.int’s features and how to use them effectively.  
 
 ### Guide Section  
 
 ![Guide Page](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/Guide_page.png)  
 
-*Fig. 2. Users guide page.* 
+*Fig. 3. Users guide page.* 
 
 The guide provides detailed instructions on how to use the key features of EnStrap.Int, which includes:
 
@@ -166,18 +167,18 @@ The guide provides detailed instructions on how to use the key features of EnStr
 - Time Series Analysis
 - Side bar and Pathway Information
 
-Clicking "Get Started" button (**C**) in (**Fig. 2**) will take you to the File Upload page, just like "Get Started" Button (**A**) in (**Fig. 1**).  
+Clicking "Get Started" button (**C**) in (**Fig. 3**) will take you to the File Upload page, just like "Get Started" Button (**A**) in (**Fig. 2**).  
 
 #### 1. File Upload  
 
 ![Upload Image1](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/READMEFile_Images/Upload_Image1.png) 
 
-*Fig. 3a. Initial file upload page.* 
+*Fig. 4a. Initial file upload page.* 
 
 This is where the user uploads the data files:  
 
 ##### **Upload Users Files**
-Click "Upload" button (**A**), as previously described in the [EnStrap.int Test Data and File Format Requirements](#enstrapint-test-data-and-file-format-requirements) section, the user must upload at least one expression file and one annotation file to proceed.  
+Click "Upload" button (**A**), as previously described in the [EnStrap.int Test Data and File Format Requirements](#enstrapint-test-data-and-file-format-requirements) section, the user must upload at least one expression file and one annotation file to proceed. Clicking "Open Project" button (**D**) will open an already saved project, just like "Open Project" Button (**C**) in (**Fig. 2**).
 
 ##### **Access Upload Instructions**
 In case the user is unsure about the type of files to upload, click the information icon (**B**) at the top-right corner for guidance.  
@@ -185,7 +186,7 @@ In case the user is unsure about the type of files to upload, click the informat
 
 ![Upload Image2](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/READMEFile_Images/Upload_Image2.png)  
 
-*Fig. 3b. Managing Uploaded Files and Configuring Options.**
+*Fig. 4b. Managing Uploaded Files and Configuring Options.**
 
 ##### **Manage Uploaded Files**
 After uploading, a list of selected files will appear.  
@@ -213,7 +214,7 @@ Click the "Process" button (**F**) once all settings are configured to generate 
 
 ![ExtraFile Image1](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/READMEFile_Images/ExtraFile_Image1.png)   
 
-*Fig. 4a. File menu options.*  
+*Fig. 5a. File menu options.*  
 
 To access file-related options, click the "File" menu (**A**) located in the top menu bar.
    
@@ -222,7 +223,7 @@ Click "Import Files" (**B**) which will open a pop-up window where the user can 
         
 
 ![ExtraFile_Image2](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/READMEFile_Images/ManageFile_Image.png)  
-*Fig. 4b. Upload extra files page*
+*Fig. 5b. Upload extra files page*
 
 - In the pop-up window, click "Choose Files" (**C**), the user can select multiple expression files.
 - After selecting the extra files, click the "Add" button (**D**) to upload them. This will trigger reprocessing the mapping and displaying the previously selected number of top pathways from all expression files.  
@@ -234,7 +235,7 @@ Click on the "Export" button in the [File Menu](#2-file-menu) dropdown (**E**) t
 
    **IMAGE**  
    
-*Fig. 4c. Export pathway visulaisation page.*  
+*Fig. 5c. Export pathway visulaisation page.*  
 
    ###### i). *Choose Export Format*  
    The user will have two options to export the visualisation, as either **PNG** or **SVG**. Then click to choose the desired format.  
@@ -249,7 +250,7 @@ To access view-related options, click the "View" menu (**A**) located on the top
 
 ![View TopBar](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/View_TopBar.png)  
 
-*Fig. 5a. View menu options.*  
+*Fig. 6a. View menu options.*  
 
 ##### a). Customise  
 
@@ -258,7 +259,7 @@ To access view-related options, click the "View" menu (**A**) located on the top
   
 ![View Customise](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/READMEFile_Images/View_Customise.png)  
 
-*Fig. 5b. The customisation page.*    
+*Fig. 6b. The customisation page.*    
 
 ###### ii). Change Colours  
 The user can modify the colours used to represent high or low expressed genes including isoforms:
@@ -280,7 +281,7 @@ If the user would like to search by elements within the pathway, click  "Pathway
 
 ![View SearchForElements](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/READMEFile_Images/View_SearchForElements.png)  
 
-*Fig. 5c. Pathway elements page.*    
+*Fig. 6c. Pathway elements page.*    
 
 Within the panel, the user can choose from three search categories: **Enzyme, Compound and Pathway** by ticking the box next to the desired option (**I**).  
 
@@ -295,7 +296,7 @@ If the user is looking to search for a specific pathway: Next to "Pathway Elemen
 
 ![View_SearchForPathway_Highlight](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/READMEFILE_Images/View_SearchForPathway_Highlight.png)  
 
-*Fig. 5d. Display pathways with hits and all KEGG pathways online.*   
+*Fig. 6d. Display pathways with hits and all KEGG pathways online.*   
 
 **Highlight Tab:**
 - This tab displays a table listing all pathways where hits were found in the uploaded expression files. Information about the total number of pathways and the number of pathways currently selected is shown above the table.
@@ -306,7 +307,7 @@ If the user is looking to search for a specific pathway: Next to "Pathway Elemen
 **All KEGG Online Search Tab**  
 
 ![View_SearchForPathway_AllKEGG](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/READMEFile_Images/View_SearchForPathway_AllKEGG.png)   
-*Fig. 5e. Online KEGG pathway search page.*  
+*Fig. 6e. Online KEGG pathway search page.*  
 
 The KEGG Online Search tab allows users to search for pathway names directly from the KEGG API by typing into the "Search Pathway Box" (**U**).  
 
@@ -330,12 +331,12 @@ The figures illustrate the interactive features of the visualisations.
 When a user clicks on a linked pathway name — for example, the one labeled (**A**) in the visualisation — the application dynamically renders the selected pathway. See figure below:  
 
 ![InteractivityHyperlink_Image2](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/InteractivityHyperlink_Image2.png)  
-*Fig. 6a. Navigation from pathway name to pathway visualisation.*   
+*Fig. 7a. Navigation from pathway name to pathway visualisation.*   
 
 ##### b). Pop-Out Windows  
 
 ![Interactive_Image1](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/Interactive_Image1.png)      
-*Fig. 6b.  Visualisation interactivity.*       
+*Fig. 7b.  Visualisation interactivity.*       
 
 i). *Enzyme:*  
 Click on the "Enzyme" label (**B**), opens a pop-up window displaying detailed information about the selected enzyme, which includes: 
@@ -354,7 +355,7 @@ Clicking on a "Compound" label (**C**) opens a pop-up window with details about 
 #### 6. Time Series  
 ![TimeSeries_Image1](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/READMEFile_Images/TimeSeries_Image2.png)  
   
-*Fig. 7. Time series animation display.*    
+*Fig. 8. Time series animation display.*    
 
 The figure above illustrate how users can explore different time points, with names as labeled in their uploaded expression files, by using the slider (**A**) to move through the different time points and observe how the pathway changes over time.  
 
@@ -363,18 +364,18 @@ To create a timelapse animation of the pathway across all time points, click the
 #### 7. Side Bar Functionality and Pathway Information      
 ##### a). Side Bar Functionality  
 ![SideBar_Image0](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/READMEFile_Images/SideBar_Image0.png)   
-*Fig. 8a. Side bar functionality.*     
+*Fig. 9a. Side bar functionality.*     
 The side bar, located on the left side of the interface, displays a list labelled (**A**) in (**Fig. 8b**) of top-expressed pathways. The number of pathways shown depends on the number previously selected by the user.    
 
 ![SideBar_Image1](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/READMEFile_Images/SideBar_Image1.png)      
-*Fig. 8b. Sorting pathways and expanding/collapsing the side bar.*    
+*Fig. 9b. Sorting pathways and expanding/collapsing the side bar.*    
 
 **Sorting Pathways:** To sort pathways, click the "Sort" button (**B**) which opens a dropdown menu with two main sorting options; alphabetical order in either ascending or descending sequence.  
 
 **Expanding and Collapsing the Side Bar:** For the user to collapse the side bar and expand the main display view, click the arrows at the top right corner (**C**). To reopen the side bar, click the same arrows on the collapsed bar (**D**).   
 
 ![SideBar_Image2](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/READMEFile_Images/SideBar_Image2.png)   
-*Fig. 8c. Merging tabs within the side bar.*     
+*Fig. 9c. Merging tabs within the side bar.*     
 
 If the [Search](#b-search) and [Customise](#a-customise) tabs are added to the side bar, the user can easily switch between them by clicking the relevant icon or section name. The currently active section will be highlighted (**E**).    
 
@@ -385,7 +386,7 @@ To close the [Search](#b-search) and [Customise](#a-customise) sections, click o
 #### b). Pathway Information  
 
 ![StatsDisplay](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/READMEFile_Images/StatsDisplay.png)    
-*Fig. 8d. Summary of the visualised pathway.*     
+*Fig. 9d. Summary of the visualised pathway.*     
 
 The panel displayed at the bottom of the screen provides key information about the currently visualised pathway. This includes:
 - The name of the pathway currently being viewed.
