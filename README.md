@@ -142,7 +142,7 @@ The pathway visualization was developed using the GoJS library, which provides p
 
 ### Welcome Page  
 
-![Welcome Page](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/READMEFILE_Images/Welcome_Page.png)  
+![Welcome Page](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/READMEFile_Images/Welcome_Page.png)  
 
 *Fig. 1. Users welcome page.*  
 
@@ -153,7 +153,7 @@ The welcome page is the first screen users will see when they launch the EnStrap
 
 ### Guide Section  
 
-![Guide Page](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/Guide_page.png)  
+![Guide Page](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/READMEFile_Images/Guide_page.png)  
 
 *Fig. 2. Users guide page.* 
 
