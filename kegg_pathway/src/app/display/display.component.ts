@@ -65,8 +65,6 @@ export class DisplayComponent implements OnInit, AfterViewInit {
   pathwayResponse: any[]=[]; // Array for temporarily storing response when newly updated pathway list 
                                         // Allows for comparison of pathway list before overwriting 
 
-  //enzymePathwayList: string[] = [];
-
   filteredGenes: any[] = []; // Array of Genes, Logfc and EC number of combined Data 
 
   pathwayNumber: number = 10; // Hard Coded - but can add functionality for user to change this
