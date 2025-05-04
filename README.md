@@ -474,5 +474,7 @@ The user can click on "KEGG Online" tab to search through the KEGG database, whe
 
 ### References
 
+Kourani, M., Anastasiadi, M., Hammond, P. J., Mohareb, F. (2024, September). Prolonged heat stress in *Brassica napus* during flowering negatively impacts yield and alters glucosinolate and sugars metabolism. bioRxiv. Accessed on May 4, 2025, from https://www.biorxiv.org/content/10.1101/2024.04.01.587615v2.
+
 
 
