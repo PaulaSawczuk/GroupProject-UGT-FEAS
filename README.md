@@ -429,8 +429,8 @@ Once processed, a list of pathways is displayed in the sidebar. Selecting a path
 The number of differentially expressed enzymes in the information about the pathway encompasses both high and low.  
 
 ### Step 3: Exploring Additional Files  
-
-![HandsOn_TPCOmparison](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/READMEFile_Images/HandsOn_TPCOmparison.png)  
+![HandsOn_ManageFiles](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/READMEFile_Images/HandsOn_ManageFiles.png)  
+  
 *Fig. 4. Illustrates the process of adding extra expression files after the initial upload.*  
 
 To add more expression files (Day 6 and 12), go to the file menu and click on "Manage Files", then "Add Expreesion Files". You can orders the files by "drag and drop", the newly added files will appear in a green color at the bottom of the expression files initially loaded.
@@ -443,6 +443,8 @@ The tool compares results and shows a Pathways Comparison Summary, identifying:
 Newly added pathways
 Removed pathways
 Similar pathways
+
+![HandsOn_TPCOmparison](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/READMEFile_Images/HandsOn_TPCOmparison.png)
 ### References
 
 
