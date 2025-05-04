@@ -413,12 +413,9 @@ This section demonstrates how a user can explore and interact with data using En
 ![HandsOn_Upload](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/READMEFile_Images/HandsOn_Upload.png)  
 *Fig. 1. The EnStrap.int upload page showing file selection.*  
 
-Navigate to the "Upload Files" page and upload three expression files and the annotation file. Once uploaded you can drag and drop the exppression files to put them in the desired order (to be viewed on the time-series slider).
+Navigate to the "Upload Files" page and upload three expression files and the annotation file. Once uploaded you can drag and drop the exppression files to put them in the desired order (to be viewed on the time-series slider).  
 
-- The number of pathways to display.
-- Whether the dataset includes time-series data.
-- Whether the data is from an organism (our data is from *B.napus* plants.  
-Click Process to begin integration.
+The user will have to specify the number of pathways to be displayed (11 in this case), whether the dataset contains time series dataor not (in our case it contains a time-series) and whether it is from an organism /plant (pplant in our case). After completing the selections, the user can click the “Process” button to begin data integration and analysis.  
 
 ### Step 2: Visualising Pathways
 Once processed, a list of pathways is displayed in the sidebar. Selecting a pathway (e.g., “Glycolysis / Gluconeogenesis”) opens an interactive visualisation, which shows expression changes with color-coded enzymes, compounds (grey circle) and linked pathways (blue rectangles).  
@@ -426,25 +423,55 @@ Once processed, a list of pathways is displayed in the sidebar. Selecting a path
 ![HandsOn_Visualisation](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/READMEFile_Images/HandsOn_Visualisation.png)  
 *Fig. 2. The list of pathways with the Glycolysis/Gluconeogenesis pathway.*  
 
-The number of differentially expressed enzymes in the information about the pathway encompasses both high and low.  
+The number of differentially expressed enzymes in the information about the pathway includes both high and low.    
 
 ### Step 3: Exploring Additional Files  
 ![HandsOn_ManageFiles](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/READMEFile_Images/HandsOn_ManageFiles.png)  
   
 *Fig. 4. Illustrates the process of adding extra expression files after the initial upload.*  
 
-To add more expression files (Day 6 and 12), go to the file menu and click on "Manage Files", then "Add Expreesion Files". You can orders the files by "drag and drop", the newly added files will appear in a green color at the bottom of the expression files initially loaded.
+To add more expression files (Day 6 and 12), go to the file menu and click on "Manage Files", then "Add Expreesion Files". You can orders the files by "drag and drop", the newly added files will appear in a green color at the bottom of the expression files initially loaded.  
+If the user applies the changes another pop-up window will appear, showing the "Top Pathways Comparison Summary", which includes the pathways added to the already existing ones, those removed from the top enriched pathways on the display and the similar pathways. After clicking the “Okay” button, the updated list of “Pathways” will be displayed, including any newly added pathways. Users can observe the change by noting the updated number of pathways listed beneath the “Pathways” sidebar, which in this case increased from 126 to 130 (see **Figure. 5** below).   
 
-Go to the File menu
-Click Import Files
-Select new expression files and click Add
-The tool compares results and shows a Pathways Comparison Summary, identifying:
+![HandsOn_NewPathwaylist](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/READMEFile_Images/HandsOn_NewPathwaylist.png)  
+*Fig. 5. Shows the inital list before adding extra files and the new list after adding extra files.*  
 
-Newly added pathways
-Removed pathways
-Similar pathways
+### Step 4: Tracking Changes Over Time  
+
+Use the time slider to move between different time points (e.g., Day 0, Day 1, Day 2) and observe how the visualised pathway changes in time due to heat stress.  
 
 ![HandsOn_TPCOmparison](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/READMEFile_Images/HandsOn_TPCOmparison.png)
+*Fig. 6. Time slider.*  
+
+As shown in the figure above:
+•	At Time Point 1 (**Day0**):  At Day 0, 23 genes are involved, with 8 enzymes differentially expressed.
+•	A Time Point 2 (**Day1**): The response appears to subside, with 43 genes and 12 differentially expressed enzymes after Day 1.
+•	At Time Point 3 (**Day0**): At Day 2, the number of affected genes increases significantly to 74, with 13 enzymes showing differential expression, indicating a stronger transcriptional response at this stage. Note that most of the enzymes are coloured purple (13), which indicates that they are downregulated/lowly expressed.
+
+### Step 6: Searching for Downregulated Enzyme
+
+You may wish to search for a downregulated enzyme within the Glycolysis pathway on day 2. You can click on the "View menu", then "Pathway Elements" then tick the "Enzyme" checkbox and search for the "phosphoglycerate mutase" which upon selection will appear in the display with a blue highlight. You can click on te enzyme a pop-up window will appear and if you want more information about the enzyme click on the "View on KEGG" hyperlink which will take you to the KEGG database.  
+
+![HandsOn_Enzyme](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/READMEFile_Images/HandsOn_Enzyme.png)  
+*Fig. 7. Searching for the enzyme phosphoglycerate mutase(PGM).*  
+
+
+### Step 7: Searching for Pathways
+You may also search for addition pathways that were not intially in the top pathways displayed (the 11 pathways selected at the initial upload). Click on the "Search" button in the [View Menu](#3-view-menu) and choose the "For Pathway" option.
+
+#### Highlight Tab  
+We will add the "Pyruvate metabolism" and "Fructose and mannose metabolism" pathways. Once there are selected, they will be appended at the end of the pathway list in the display highlighted in blue.   
+
+![HandsOn_Highlighted](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/READMEFile_Images/HandsOn_Highlighted.png)
+*Fig. 12. Search for pathways that are not included in the top-ranked display list.*  
+
+#### KEGG Online  
+
+The user can click on "KEGG Online" tab to search through the KEGG database, when the pathway is added to the list just like above it will be highlighted in blue.  
+
+![HandsOn_KEGG](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/READMEFile_Images/HandsOn_KEGG.png)
+*Fig. 9. Searching for pathways online via KEGG.*  
+
 ### References
 
 
