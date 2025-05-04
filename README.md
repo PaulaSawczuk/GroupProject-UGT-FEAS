@@ -406,19 +406,43 @@ The panel displayed at the bottom of the screen provides key information about t
 
 This section demonstrates how a user can explore and interact with data using EnStrap.int, step-by-step, using a real dataset as an example.  
 
-**Objective:** To view genes that were downregulated in the Glycolysis/Gluconeogenesis pathway in response to heat stress. We will use the data in the [Test Data Folder](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/tree/main/TestData) on GitHub.   
+**Objective:** To view genes that were downregulated in the Glycolysis/Gluconeogenesis pathway on the second day after treatment (expression file in Day2), in response to heat stress. We will use the data in the [Test Data Folder](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/tree/main/TestData) on GitHub.   
 
 ### Step 1: Uploading Data  
 
 ![HandsOn_Upload](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/READMEFile_Images/HandsOn_Upload.png)  
+*Fig. 1. The EnStrap.int upload page showing file selection.*  
 
-Navigate to the "Upload Files" page and upload at least one expression file and one annotation file. You will also be prompted to define:
+Navigate to the "Upload Files" page and upload three expression files and the annotation file. Once uploaded you can drag and drop the exppression files to put them in the desired order (to be viewed on the time-series slider).
 
-- The number of pathways to display
-- Whether the dataset includes time series data
-- Whether the data is from an organism
+- The number of pathways to display.
+- Whether the dataset includes time-series data.
+- Whether the data is from an organism (our data is from *B.napus* plants.  
 Click Process to begin integration.
 
+### Step 2: Visualising Pathways
+Once processed, a list of pathways is displayed in the sidebar. Selecting a pathway (e.g., “Glycolysis / Gluconeogenesis”) opens an interactive visualisation, which shows expression changes with color-coded enzymes, compounds (grey circle) and linked pathways (blue rectangles).  
+
+![HandsOn_Visualisation](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/READMEFile_Images/HandsOn_Visualisation.png)  
+*Fig. 2. The list of pathways with the Glycolysis/Gluconeogenesis pathway.*  
+
+The number of differentially expressed enzymes in the information about the pathway encompasses both high and low.  
+
+### Step 3: Exploring Additional Files  
+
+![HandsOn_TPCOmparison](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/READMEFile_Images/HandsOn_TPCOmparison.png)  
+*Fig. 4. Illustrates the process of adding extra expression files after the initial upload.*  
+
+To add more expression files (Day 6 and 12), go to the file menu and click on "Manage Files", then "Add Expreesion Files". You can orders the files by "drag and drop", the newly added files will appear in a green color at the bottom of the expression files initially loaded.
+
+Go to the File menu
+Click Import Files
+Select new expression files and click Add
+The tool compares results and shows a Pathways Comparison Summary, identifying:
+
+Newly added pathways
+Removed pathways
+Similar pathways
 ### References
 
 
