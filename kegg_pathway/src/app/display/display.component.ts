@@ -381,7 +381,7 @@ private getTopEnzymes(items: string[]): string[] {
   const sortedTally = this.sortTally(tally);  
 
   // Step 3: Select the top items and extract only the names
-  const top100Names = sortedTally.slice(0, 750).map(entry => entry[0]);
+  const top100Names = sortedTally.slice(0, 1000).map(entry => entry[0]);
   return top100Names;
 }
 
