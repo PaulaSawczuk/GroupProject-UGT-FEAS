@@ -666,6 +666,12 @@
                   </p>
                 </ng-container>
               
+                <!-- Show navigation button only for pathway/map nodes -->
+                <ng-container *ngIf="popupNodeData?.type === 'map'">
+                  <p><strong>View this pathway in the app:</strong></p>
+                  <button (click)="goToPathwayFromPopup(popupNodeData)">Launch</button>
+                </ng-container>
+
                 <!-- Display the link if available -->
                 <ng-container *ngIf="popupNodeData?.link">
                   <p><strong>More information:</strong> 
