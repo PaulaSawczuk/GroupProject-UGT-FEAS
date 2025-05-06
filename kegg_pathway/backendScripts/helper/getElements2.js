@@ -79,8 +79,6 @@ function getCompounds(anno_data){
         if (start != end) {
             //console.log(match[1]);
             if (match) {
-              //console.log("Found:", match[1]);
-              //compound_names += compound_names + match[1];
               name = match[1];
               name = name.trimStart()
 
@@ -88,21 +86,15 @@ function getCompounds(anno_data){
               //console.log("No match found.");
             }
             
-            //console.log(matches);
             // Log the matches
             if (matches) {
-              //console.log("Found:", matches);
-              //compound_id += compound_id + matches;
               id = matches;
 
             } else {
-              //console.log("No match found.");
               matches = 0;
             }
 
-            //console.log(matches.length)
             if (matches.length>=1){
-              //console.log("adding to compound array")
               compounds.push({
                     id: id[0],
                     name: name
@@ -140,14 +132,14 @@ function getEnzymes(anno_data){
   for (let i = start; i < anno_data.length; i++) {
       var line = anno_data[i].split('  ');
       names.push(line);
-      //console.log(line);
+
       if (start != end-1) {
       
       var ko_matches = [...anno_data[i].matchAll(/\[K[^\]]*\]/g)];
 
       var ec_matches = [...anno_data[i].matchAll(/\[EC:[^\]]*\]/g)];
       ec_matches = ec_matches.map(match => match[0]);
-      //console.log(ec_matches);
+
       ec_codes.push(ec_matches);
       start++
       }else{
@@ -222,7 +214,7 @@ async function getEnzymeNames(pathway){
   
 
   var anno_data='';
-  const url = 'https://rest.kegg.jp/get/'+pathway;
+  const url = 'https://rest.kegg.jp/get/'+pathway; // Setting up the URL with pathway code
   console.log(url);
   var elements = await fetchAndParseURL(url).then(lines => {
   anno_data=lines;

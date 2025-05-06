@@ -23,6 +23,7 @@ async function getAllPathways(){
     console.log("----------------------");
     var all_paths=[];
 
+    // Defining blacklist of pathways 
     const blacklist = new Set([
         'ec01120',
         'ec01100',
@@ -30,7 +31,6 @@ async function getAllPathways(){
         'ec00190',
         'ec00533',
         'ec01310']);
-
 
     // URL for KEGG API - retrieves list of EC pathways 
     var url = 'https://rest.kegg.jp/list/pathway/ec'
@@ -47,13 +47,17 @@ async function getAllPathways(){
         }
 
         const text = await response.text();
+        // Splitting text by line
         const lines = text.split('\n');
-        //console.log(lines);
+        // splitting text by tab (\t)
         const result = lines.map(line => line.split('\t'));
-        //console.log(result);
+        
+        // Extracting only EC pathway codes (exclusing 'map___' codes)
         for (let i=0; i<result.length;i++){
             if (result[i][0].startsWith('ec')){
-                //console.log(result[i][0])
+
+                // Adding to an array 
+                // Storing name and code
                 all_paths.push({
                     name:result[i][1],
                     pathway:result[i][0]
@@ -67,12 +71,14 @@ async function getAllPathways(){
     }catch(error) {
         console.error('There was a problem with the fetch operation:', error);
     }
-    //console.log(all_paths);
 
     console.log('Filtering against blacklist')
     console.log("----------------------");
+    // Filtering pathway code against blacklist 
+    // removed if matches
     const filteredPaths = all_paths.filter(obj => !blacklist.has(obj.pathway));
-    //console.log(filteredPaths);
+    
+    // Returning filtered list of all KEGG metabolic pathways 
     return filteredPaths;
 }
 

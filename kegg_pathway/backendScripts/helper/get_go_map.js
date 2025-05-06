@@ -22,7 +22,9 @@ const xpath =require ("xml2js-xpath");
 const https = require('https')
 const util = require('util');
 
-
+// ---- URL requesting function ------
+// Sets up URL request with mapCode provided 
+// Parses the data as a string chunk
 async function getKGML(mapCode) {
     var url = 'https://rest.kegg.jp/get/'+mapCode+'/kgml';
     console.log(url);
@@ -48,6 +50,10 @@ async function getKGML(mapCode) {
     });
 }
 
+// ----------- KGML PARSING FUNCTIONS -----------
+// Parsing Functions that get each element within the KGML
+// Takes text data retrieved from KEGG API
+// Find specific defined tokens "entry", "reaction", "relation"
 function getEntries(data){
     var entries = '';
     xml2js.parseString(data, function(err, json) {
@@ -75,6 +81,11 @@ function getRelations(data){
     return relations;
 }
 
+
+// ------ Retrieving and Processing KGML ---------
+// Takes relevant mapcode.
+// Calls getKGML fetch request and then passes into KGML extraction functions
+// to retrieve entries, reactions  & relations (get.....)(defined above)
  async function processKGML(mapCode) {
 
     //var mapCode='ec00020'
@@ -101,24 +112,8 @@ function getRelations(data){
 }
 
 
-
-
-
-
-
-function getPosition(entry){
-
-    //console.log(entry.graphics);
-        //console.log(entries[i].graphics['$'])
-    const element = entry.graphics;
-        //console.log(entry[0]['$'].name);
-    //console.log(element[0]['$'].x);
-    const x = element[0]['$'].x;
-    //console.log(element[0]['$'].y);
-    const y = element[0]['$'].y;
-    return{x,y};
-}
-
+// ----- Extracting Enzymes -----
+// Extracts and Transforms EC KGML to get Enzyme Nodes 
 function getNodesEdges(entries, reactions, relations){
     //console.log(reactions);
     var nodes = [];
@@ -192,6 +187,11 @@ function getNodesEdges(entries, reactions, relations){
     console.log('------------');
     return{ uniqueNodes, edges}
 }
+
+
+// --- Processing RN KGML elements ---
+// Checks against already extracted nodes from the EC KGML
+// Find compound-compound entries that are missing 
 
 function processRN(entries, relations, reactions, nodes){
     // get list of reaction names 
@@ -308,6 +308,11 @@ function processRN(entries, relations, reactions, nodes){
     return {compoundLinks, entryLinks};
 }
 
+
+// -------- GETTING KEGG LINKS ----------
+// Extracts URL KEGG link for each entry passed.
+// Prevents re-writing the same script repeatedly 
+// Only for compound entries
 function getURLLinks(entries,id){
     var link;
     for (let i=0; i<entries.length; i++){
@@ -319,6 +324,11 @@ function getURLLinks(entries,id){
 
 }
 
+// -------- GETTING REACTION NODES ----------
+// Extract all reactions within KGML
+// Manually creates ID and Node object 
+// Finds substrates and products --> transforms to Nodes
+// Converts substrate - reaction / reaction - product into link 
 function getReactionNodes(reactions,entries){
 
     var nodes = [];
@@ -371,13 +381,13 @@ function getReactionNodes(reactions,entries){
             let link = getURLLinks(entries, reactions[i].product[j].$.id);
             nodes.push({
                 // Adding Product Nodes
-                    key: reactions[i].product[j].$.id,
-                    text: reactions[i].product[j].$.name,
+                    key: reactions[i].product[j].$.id, // Entry key
+                    text: reactions[i].product[j].$.name, //Entry Name
                     type: 'compound',
                     category: 'compound',
-                    link: link
+                    link: link // Adding KEGG Website Link 
                     
-        });
+        });// Adding associated Edge/Link - with Reaction Node 
             edges.push({
                     from: reaction_id,
                     to: reactions[i].product[j].$.id,
@@ -388,6 +398,10 @@ function getReactionNodes(reactions,entries){
     return {nodes, edges, reaction_nodes};
 }
 
+// -------- GETTING ENZYME NODES ----------
+// Extract all entries in KGML with type 'enzyme'
+// Tranforms to a Node object 
+// Groups each to a reaction node 
 function getEnzymeNodes (reaction_nodes, entries){
     var nodes = [];
 
@@ -406,19 +420,16 @@ function getEnzymeNodes (reaction_nodes, entries){
                     //console.log(matches);
                     for (let k = 0; k < matches.length; k++){
                         var edge_id = entries[i].$.id+matches[k];
-                        //console.log('Edge ID: '+edge_id);
-                        //const positions= getPosition(entries[i]);
-                        //console.log(positions);
+
                         nodes.push({
                             // Adding Enzyme Nodes
-                                key: edge_id,
-                                text: entries[i].$.name,
+                                key: edge_id, // Original ID 
+                                text: entries[i].$.name, // Entry Name
                                 type: 'enzyme',
                                 category:'enzyme',
                                 colour: "lightgrey", // Standard colour for enzyme nodes
-                                group: matches[k],
-                                //position: positions,
-                                link: entries[i].$.link,
+                                group: matches[k], // Reaction grouping
+                                link: entries[i].$.link, // KEGG website link 
                                 width: 75, // Standard Height and width for enzyme nodes
                                 height: 40
                             });
@@ -431,6 +442,9 @@ function getEnzymeNodes (reaction_nodes, entries){
 
 }
 
+// -------- GETTING MAP NODES ----------
+// Extract all entries in KGML with type 'map'
+// Tranforms to a Node object 
 function getMapNodes(entries){
     var nodes = [];
     for (let i = 0; i < entries.length; i++){
@@ -439,16 +453,16 @@ function getMapNodes(entries){
             nodes.push({
                 // Adding Map Nodes
                         key: entries[i].$.id,
-                        text: entries[i].$.name,
-                        name: entries[i].graphics[0].$.name,
-                        link: entries[i].$.link,
+                        text: entries[i].$.name, // Entry Code
+                        name: entries[i].graphics[0].$.name, // Entry Name
+                        link: entries[i].$.link, // KEGG Website Link
                         type: 'map',
                         category:'map'
     
     
             });
         }
-    }
+    } // Removing Map node that contains title -- prevents it from floating
     for (let i=0; i<nodes.length; i++){
         //console.log(nodes[i].name);
         if (nodes[i].name.includes('TITLE:')){
@@ -462,6 +476,11 @@ function getMapNodes(entries){
     return nodes;
 }
 
+// -------- GETTING COMPOUND NODES ----------
+// Extract all entries in KGML with type 'map'
+// Tranforms to a Node object 
+// Ensure no gaps 
+// All compound are present even if no reaction associated with it
 function getCompoundNodes(entries){
     var nodes = [];
     for (let i = 0; i < entries.length; i++){
@@ -483,6 +502,12 @@ function getCompoundNodes(entries){
 
     return nodes;
 }
+
+
+// --------- Gets unique Map links -------------
+// Find all map realtion entries
+// To simplify the visualisation, links with same parent and child ndoes 
+// are removed.
 
 function getMapLinks(nodes, relations){
 
@@ -534,6 +559,8 @@ function getMapLinks(nodes, relations){
         return links;
     }
 
+
+// called from getMapLinks to evaluate pairs.
 function isPairInMap(pair,seenReactions) {
         for (let [key, value] of seenReactions) {
           if (key === pair[0] && value === pair[1]) {
@@ -543,6 +570,8 @@ function isPairInMap(pair,seenReactions) {
         return false;  // No match found
     }
 
+// Compares Nodes creates to compounds
+// Adds any that are missing.  
 function addCompounds(uniqueNodes,compoundIDs,entries){
         var no = 0;
         var knownNodes = [];
@@ -592,7 +621,10 @@ function addCompounds(uniqueNodes,compoundIDs,entries){
         //console.log(nodes);
         return nodes;
     }
+  
     
+// Get a list of all compound entries present 
+// List is used for comparative purposes. 
 function getCompoundEntries(entries){
     
         //console.log(entries);
@@ -609,7 +641,10 @@ function getCompoundEntries(entries){
         return compoundList;
     
     }
-    
+
+// ------ Adding in Compound-compound RN KGML links ------
+// Takes known links identified and already formatted links
+// Push each to the links array
 function addCompoundLinks(compoundLinks,links){
     //console.log(compoundLinks);
     //console.log(links);
@@ -622,7 +657,8 @@ function addCompoundLinks(compoundLinks,links){
     //console.log(links);
     return links;
 }
-    
+ 
+
 function removeDuplicates(list) {
     let uniqueObjects = [];  // To store unique objects
     let seen = new Set();  // To track unique {from, to} combinations

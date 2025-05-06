@@ -19,6 +19,7 @@ const { getMapNodes } = require('./visualise_map');
 const util = require('util');
 
 
+// -------- Relabelling Compounds --------
 // Takes Compound Name extracted from KEGG text response
 // Assignns names to matching and updating Nodes
 function getCompoundNames(compounds, nodes){
@@ -55,6 +56,7 @@ function getCompoundNames(compounds, nodes){
     console.log('ALL DONE - getCompound Names');
 }
 
+// -------- Relabelling Enzymes --------
 // Takes Enzyme Names extracted from KEGG text response
 // Assignns names to matching enzymes -- updates nodes
 function matchEnzymeNames(enzymeNames, nodes){
@@ -142,14 +144,20 @@ async function processInput(code) {
     // -------- Processing Reaction KGML and Realtions Absent in EC KGML------------
 
     // Processing RN 
+    // Getting Unique compound entries and compound-compound links
     var RNcompoundLinks = processRN(rn_elements.entries, rn_elements.relations, rn_elements.reactions, map_elements.uniqueNodes);
+    // Adding in compound-compound links 
     var finalEdges = addCompoundLinks(RNcompoundLinks.entryLinks,map_elements.edges);
 
 
     // --------------------Re-Labelling Compounds---------------------------
     // Linking names retireved in getElements to Nodes and re-labelling 
+    // Overwrites 'text' attribute 
     getCompoundNames(compounds, map_elements.uniqueNodes);
 
+    // --------------------Re-Labelling Enzymes---------------------------
+    // Linking names retireved in getElements to Nodes and re-labelling 
+    // Assigns to new "name" attribute 
     matchEnzymeNames(enzymeNames,map_elements.uniqueNodes);
     
 
@@ -176,10 +184,9 @@ async function processInput(code) {
     console.log('------------');
     console.log('All Links and Nodes Generated');
     console.log('------------');
-    //console.log(nodeData);
-    //console.log(linkData);
-    //console.log(util.inspect(nodeData, { showHidden: false, depth: null, colors: true }));
-    //console.log(util.inspect(linkData, { showHidden: false, depth: null, colors: true }));
+
+    // Returning Mapping Data to the front-end
+    // Nodes, Links and list of all enzymes in pathway map
     return {nodeData,linkData,enzymeList};
   }
 

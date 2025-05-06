@@ -30,7 +30,10 @@ app.use(express.text()); // To parse selected ec code from user as string
 
 
   //------------ Retrieving Mapping Data -------------
-  // 
+  // Endpoint 1 for Map data Retrieval 
+  // Takes a single pathway code
+  // Passes it into the same processing function in merge.js
+
 app.post('/api/getMap', (req, res) => {
     console.log('------------');
     console.log('Getting Diagram Model');
@@ -52,6 +55,11 @@ app.post('/api/getMap', (req, res) => {
 
   });
 
+
+  //------------ Retrieving Mapping Data -------------
+  // Endpoint 2 for Map data Retrieval 
+  // Takes list of all pathways and loops through each
+  // Passes it into the same processing function in merge.js
 
   app.post('/api/getMap2', (req, res) => {
     console.log('------------');
@@ -132,6 +140,8 @@ app.post('/api/getPathways', (req, res) => {
     })
   });
 
+  
+  // Defining local host port - 4000
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);

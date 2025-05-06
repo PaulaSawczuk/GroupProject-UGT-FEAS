@@ -16,6 +16,7 @@
 const go = require('gojs');
 
 
+// ----- Removing Duplicate Reaction Nodes ---- 
   // Function to remove duplicate reaction-type nodes
   // Regroups Enzymes based on reaction nodes removed 
 function removeDuplicateReactionNodes(myDiagram) {
@@ -71,14 +72,10 @@ function removeDuplicateReactionNodes(myDiagram) {
     // Remove the duplicate nodes
     nodesToRemove = [...new Set(nodesToRemove)]; // Remove duplicates from the removal list
 
-    //console.log(nodesToRemove);
-
     var enzyme_groups=[];
     myDiagram.nodes.each(function(node) {
       if (node.data.type == "enzyme"){
-        //console.log(node.data.type);
-        //console.log(node.data.group);
-        //console.log(node.data.text);
+
         enzyme_groups.push({
           key: node.data.key,
           group: node.data.group,
@@ -97,11 +94,9 @@ function removeDuplicateReactionNodes(myDiagram) {
 
     var enzyme_matches=[];
     enzyme_groups.forEach(function(enzyme){
-     //console.log(enzyme);
-      
+
       for (let i=0; i<nodesToRemove.length;i++){
 
-        //console.log("------------")
         if (enzyme.group == nodesToRemove[i]){
 
           enzyme_matches.push({
@@ -134,7 +129,7 @@ function removeDuplicateReactionNodes(myDiagram) {
           return [];
         }
       
-        // Step 1: Get the parent node (nodes that have outgoing links from the current node)
+        // Get the parent node (nodes that have outgoing links from the current node)
         const parentNodes = new Set();
         diagram.links.each(link => {
           if (link.toNode === node) {
@@ -147,7 +142,7 @@ function removeDuplicateReactionNodes(myDiagram) {
           return [];
         }
       
-        // Step 2: Get the child nodes (nodes that are connected via outgoing links from the current node)
+        // Get the child nodes (nodes that are connected via outgoing links from the current node)
         const childNodes = new Set();
         diagram.links.each(link => {
           if (link.fromNode === node) {
@@ -155,12 +150,12 @@ function removeDuplicateReactionNodes(myDiagram) {
           }
         });
       
-        // Step 3: Find nodes that share the same parent and child nodes
+        // Find nodes that share the same parent and child nodes
         const result = [];
         diagram.nodes.each(otherNode => {
           if (otherNode === node) return;  // Skip the node itself
       
-          // Step 3a: Check if the node shares the same parent
+          // Check if the node shares the same parent
           const otherNodeParentNodes = new Set();
           diagram.links.each(link => {
             if (link.toNode === otherNode) {
@@ -168,7 +163,7 @@ function removeDuplicateReactionNodes(myDiagram) {
             }
           });
       
-          // Step 3b: Check if the node shares the same children
+          // Check if the node shares the same children
           const otherNodeChildNodes = new Set();
           diagram.links.each(link => {
             if (link.fromNode === otherNode) {
@@ -176,7 +171,7 @@ function removeDuplicateReactionNodes(myDiagram) {
             }
           });
           
-          // Step 3c: Compare the parent and child nodes
+          // Compare the parent and child nodes
           if (areSetsEqual(parentNodes, otherNodeParentNodes) && areSetsEqual(childNodes, otherNodeChildNodes)) {
             result.push(otherNode.data);
           }
@@ -192,50 +187,41 @@ function removeDuplicateReactionNodes(myDiagram) {
   
   var corresponding_reactions = [];
   nodesToRemove.forEach(node=>{
-        //console.log("Searching: "+node);
+        // Assessing nodes for parent and child relationships
         const nodesWithSameParentAndChild = getNodesWithSameParentAndChild2(myDiagram, node);
-        //console.log(nodesWithSameParentAndChild);
+        
         let filteredNodes = removeMatchingObjects(nodesWithSameParentAndChild,nodesToRemove);
-        //console.log(filteredNodes);
+
         corresponding_reactions.push({
           removednode: node,
           matchingnodes: filteredNodes[0].key
         })
     });
 
-    //console.log(corresponding_reactions);
-
-    //console.log(enzyme_matches[0]);
     enzyme_matches.forEach(match=>{
       //console.log(match);
       nodesToRemove.forEach(node=>{
         if (node == match.group){
-          //console.log(node);
-          //console.log("match!");
+
           var enzyme_node = myDiagram.findNodeForKey(match.key);
-          //console.log(enzyme_node.data);
-          //console.log(enzyme_node.group);
+
+          
 
           if (enzyme_node) {
             corresponding_reactions.forEach(node_removed=>{
-              //console.log(node_removed.removednode);
-              //console.log(enzyme_node.data.group);
+
               if (enzyme_node.data.group == node_removed.removednode){
-                //console.log("match");
-                //console.log("Current group:"+enzyme_node.data.group);
-                //console.log('New Reaction group: '+node_removed.matchingnodes);
+
                 let group = node_removed.matchingnodes
                 myDiagram.model.setDataProperty(enzyme_node.data, "group", group);
               }
             })
-            // Detach the node from the group
-            //myDiagram.model.setDataProperty(enzyme_node.data, "group",null );
+
           }
           var enzyme_node = myDiagram.findNodeForKey(match.key);
-          //console.log(enzyme_node.data);
+
         }
       })
-      //console.log("Enzyme-Nodes to Remove matches:" +match);
     });
 
 
@@ -249,43 +235,13 @@ function removeDuplicateReactionNodes(myDiagram) {
     console.log("Removed Duplicate Nodes:", nodesToRemove);
   }
 
-  /*
-// Function for removing duplicate Enzymes 
-function removeDuplicateEnzymeNodes(myDiagram) {
-    const nodes = myDiagram.nodes;
-    const nodeNamesAndGroups = {};  // To track nodes by their name and group combination
-  
-    // Iterate over all nodes in the diagram
-    nodes.each(function(node) {
-      const nodeName = node.data.text;  // Assuming the name is stored in the data field
-      const nodeGroup = node.data.group;  // Assuming the group is stored in the data field
-      
-      // Create a unique key combining name and group
-      const key = `${nodeName}_${nodeGroup}`;
-  
-      // Check if this combination of name and group has already been encountered
-      if (nodeNamesAndGroups[key]) {
-        // If found, remove the duplicate node
-        //console.log("Node Removed: "+nodeNamesAndGroups[key])
-        myDiagram.remove(node);
-      } else {
-        // If not found, store this combination in the nodeNamesAndGroups object
-        nodeNamesAndGroups[key] = true;
-      }
-    });
-  }
-*/
-
-
-
-
 // --------------  Processing Function ------------------
 // Creates Go.js model to assign nodes and edges 
 // Calls above functions 
 // Returns Processed Nodes and Edges for Mapping 
 
 function getMapNodes(inputNodes,inputEdges){
-  //console.log('Initialising Map');
+
 
   var $ = go.GraphObject.make;
   
@@ -317,14 +273,12 @@ function getMapNodes(inputNodes,inputEdges){
     // Get the name of the current node
       let nodeName = node.data.text;
       let reaction =node.data.group;
-      //console.log(reaction)
-      //console.log(seenNames.has(nodeName));
-     // console.log(seenReactions.has(reaction));
+
       // If the name has already been seen, remove this node
       if (seenNames.has(nodeName)&& seenReactions.has(reaction)) {
 
         myDiagram.remove(node);
-        //console.log("Node Removed: "+nodeName)
+
         } else {
         seenNames.add(nodeName);
         seenReactions.add(reaction);
@@ -341,7 +295,7 @@ function getMapNodes(inputNodes,inputEdges){
 
   // Turns the go.Object of Nodes into an Array of Objects to be parsed to the front end.
   var finalNodes = [];
-  //console.log('Accessing go.ObjectData')
+
   nodesProcessed.forEach((nodeData) => {
     finalNodes.push(nodeData);
     return finalNodes;
