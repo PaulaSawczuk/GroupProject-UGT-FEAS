@@ -161,6 +161,9 @@ export class DisplayComponent implements OnInit, AfterViewInit {
     this.UploadedAnnoationFiles = this.fileDataService.getUploadedAnnoationFiles();
   }
 
+  // it stops the scroll event signals that happen inside the popups,
+  // therefore prevents the page from responding to these signals and 
+  // sends tese signals to GoJS canvas to keep in sync with diagram's panning events
   ngAfterViewInit(): void {
   
     const popup = this.htmlPopupRef.nativeElement;
@@ -1479,11 +1482,11 @@ async getAllPathwayNames(): Promise<void>{
     this.myDiagram.nodeTemplateMap.add("map",
       new go.Node("Auto",
         {
-          click: (e: go.InputEvent, obj: go.GraphObject) => {
+          /*click: (e: go.InputEvent, obj: go.GraphObject) => {
             const node = obj.part as go.Node;
             const data = node.data;
             this.handleMapNodeClick(data);
-        }
+        }*/
       }
       ) 
         .add(
@@ -1523,28 +1526,25 @@ async getAllPathwayNames(): Promise<void>{
       );
 
 
-    // Show popup on click for all node types except 'map'
+    // Shows popup on click for all node types
     this.myDiagram.addDiagramListener("ObjectSingleClicked", (e) => {
-      console.log("🖱️ Diagram click detected");
+      console.log("Diagram click detected");
+      // Extracting data from the node and populates the variables with the data
       const part = e.subject.part;
       if (!(part instanceof go.Node)) return;
-      console.log("✅ Clicked part is a Node:", part.data);
     
       const node = part;
       const data = node.data || {};
     
-      if (data.type === 'map') return;
-    
       this.popupNodeData = data;
       this.popupNodeKey = data.key;
     
+      // To fix the position of the pop-up below the node 
       const pos = this.myDiagram!.transformDocToView(
         node.getDocumentPoint(go.Spot.BottomCenter)
       );
-
-      console.log("📁 data passing through: ", this.popupNodeData)
     
-      // Set temporary top position, delay horizontal calculation
+      // Sets temporary top position, delay horizontal calculation
       this.popupPosition = {
         top: pos.y + 10,
         left: 0  // temporary value until we get correct width
@@ -1566,14 +1566,15 @@ async getAllPathwayNames(): Promise<void>{
       }, 0);
     });
     
-    
+    // Triggered when the user pans or zooms the diagram. 
+    // Recalculates the popup's position to stay aligned with its associated node.
     this.myDiagram?.addDiagramListener("ViewportBoundsChanged", () => {
       if (this.popupNodeData && this.popupNodeKey) {
         const node = this.myDiagram?.findNodeForKey(this.popupNodeKey);
         if (!node) {
           console.log("⚠️ Node not found for popupKey:", this.popupNodeKey);
         }
-        if (node) {
+        if (node) { // to maintain position of the popup at the bottom centre of the clicked node
           const pos = this.myDiagram?.transformDocToView(node.getDocumentPoint(go.Spot.BottomCenter));
           if (pos) {
 
@@ -1589,8 +1590,10 @@ async getAllPathwayNames(): Promise<void>{
       }
     });    
           
+    // For clearing the pop-up when the background (or the canvas) is clicked.
     this.myDiagram!.addDiagramListener("BackgroundSingleClicked", () => {
       this.myDiagram!.clearSelection();
+      // Resetting pop-up related variables, cleared of any reference to the previously selected node.
       this.isPopupVisible = false;
       this.popupNodeKey = null;
       this.popupNodeData = null;
@@ -1606,62 +1609,24 @@ async getAllPathwayNames(): Promise<void>{
     // for populating the node categories 
     this.populateNodeCategories();   
     
-    // Focus in by default after diagram is initialized, added to make the minimap relevant
+    // runs once the initial layout of the diagram is complete
     this.myDiagram.addDiagramListener("InitialLayoutCompleted", () => {
-      // Delay zoom to ensure layout is fully rendered
-      // Animate zoom-in to center of the diagram
-      //this.myDiagram!.zoomToFit(); // Show whole map first
       if (this.myDiagram) {
         //this.clearAnimations(this.myDiagram);
         this.setLegend(this.myDiagram);
         this.animateLinksFromNodeKeys(this.myDiagram, this.regulatedLinks);
       }
     });
-      /*
-      setTimeout(() => {
-        const allNodes = this.myDiagram!.nodes;
-        const firstNode = allNodes.first();
-        if (!firstNode) return;
-      
-        this.myDiagram!.commandHandler.scrollToPart(firstNode);
-        this.myDiagram!.startTransaction("initialZoom");
-      
-        this.myDiagram!.scale = 0.65; // Controlled zoom-in level
-        this.myDiagram!.centerRect(firstNode.actualBounds); // Center the node
-        this.myDiagram!.commitTransaction("initialZoom");
-      }, 400);*/
-      /*
-      if (this.myDiagram){
-      this.myDiagram.addDiagramListener("InitialLayoutCompleted", () => {
-        if (this.myDiagram) {
-          //this.clearAnimations(this.myDiagram);
-          this.setLegend(this.myDiagram);
-          this.animateLinksFromNodeKeys(this.myDiagram, this.regulatedLinks);
-        }
-      });}*/
-      /*
-      setTimeout(() => {
-        const bounds = this.myDiagram!.documentBounds;
-        const center = bounds.center;
-        const scale = Math.min(1.5, this.myDiagram!.scale * 1.5);
-      
-        const anim = new go.Animation();
-        anim.duration = 800;
-        anim.easing = go.Animation.EaseOutExpo;
-        anim.add(this.myDiagram!, "scale", this.myDiagram!.scale, scale);
-        anim.add(this.myDiagram!, "position", this.myDiagram!.position, center.offset(-300, -300));
-        anim.start();
-      }, 300);     
-    });*/
   }
 
 
  // method for populating the node categories
-populateNodeCategories(): void {
+  populateNodeCategories(): void {
     if (!this.myDiagram) return;
-
+    // extracting node data from the diagram model
     const nodeDataArray = this.myDiagram.model.nodeDataArray;
-  
+    
+    // initialising variables
     this.enzymeCategories = [];
     this.enzymeCategoryMap = {};
     this.compoundList = [];
@@ -1711,7 +1676,7 @@ populateNodeCategories(): void {
     }
     this.compoundList.sort();
     this.pathwayList.sort();
-
+    
     // to populate the drop downs
     for (const category of this.enzymeCategories) {
       for (const enzyme of this.enzymeCategoryMap[category]) {
@@ -1743,6 +1708,9 @@ populateNodeCategories(): void {
   
     let match: any;
 
+    // Based on the selected type (enzyme, compound, or map), 
+    // the method searches the diagram's nodeDataArray for a matching node.
+    // The match is determined using either the text field (for enzymes and compounds) or the name field (for map nodes).
     if (nodeType === 'enzyme') {
       match = nodeDataArray.find(n => n['type'] === 'enzyme' && n['text'] === nodeKeyOrName);
     } else if (nodeType === 'compound') {
@@ -1755,7 +1723,7 @@ populateNodeCategories(): void {
       console.warn(`${nodeType === 'map' ? 'Map name' : 'Node'} not found: ${nodeType} →`, nodeKeyOrName);
       return;
     }
-  
+    // If a match is found, it retrieves the actual GoJS Node object using findNodeForData().
     const node = this.myDiagram.findNodeForData(match);
     if (!node) {
       console.warn(`Node instance not found for:`, match);
@@ -1763,7 +1731,7 @@ populateNodeCategories(): void {
     }
 
     // Highlight node
-    this.myDiagram.select(node);
+    this.myDiagram.select(node); // to highlight the node
     this.myDiagram.centerRect(node.actualBounds);
 
     // Zoom and center
@@ -3598,16 +3566,19 @@ applyChanges() {
     }
   }
 
+  // when an enzyme node is clicked form the dropdown
   onEnzymeChange() {
     console.log('Selected enzyme:', this.selectedEnzyme);
     this.selectNodeFromDropdown(this.selectedEnzyme, 'enzyme');
   }  
 
+  // when a compound node is clicked from the dropdown
   onCompoundChange() {
     console.log('Selected compound:', this.selectedCompound);
     this.selectNodeFromDropdown(this.selectedCompound, 'compound');
   }
 
+  // when a pathway node is clicked from the dopdown
   onPathwayChange() {
     console.log('Selected pathway:', this.selectedPathwayCustom);
     this.selectNodeFromDropdown(this.selectedPathwayCustom, 'map');
@@ -3622,18 +3593,27 @@ applyChanges() {
     return fontSize;
   }
 
+  // connected to the 'X' button in the popups. It closes the popups
   closePopup() {
     this.isPopupVisible = false;
   }
 
+  // connected to the 'Launch' button inside the pathway popups
+  goToPathwayFromPopup(nodeData: any): void {
+    this.handleMapNodeClick(nodeData);
+  }  
+
+  // related to stopping scrolling event signal from being sent to gojs on the gene list in the popup 
   onGeneListScroll(event: WheelEvent | TouchEvent): void {
     event.stopPropagation();
   }  
 
+  // connected to the button for zooming in
   zoomIn() {
     this.myDiagram?.commandHandler.increaseZoom();
   }
   
+  // connected to the button for zooming out
   zoomOut() {
     this.myDiagram?.commandHandler.decreaseZoom();
   }
