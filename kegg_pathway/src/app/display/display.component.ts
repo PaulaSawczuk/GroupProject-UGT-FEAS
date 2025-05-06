@@ -4045,10 +4045,11 @@ removeEcPrefix(pathway: string): string {
     this.isLoading = true;
     this.LoadingMessage = "Saving File";
 
-
+  
     const zip = new JSZip();
 
-   // File Service files
+    // Assigning each required file to a local variable
+    // File Service files
     const multiData = JSON.stringify(this.fileDataService.getMultipleCombinedArrays());
     const combinedData = JSON.stringify(this.fileDataService.getCombinedData());
     const annoData = JSON.stringify(this.fileDataService.getAnnotationData());
@@ -4058,15 +4059,13 @@ removeEcPrefix(pathway: string): string {
     const uploadedexpressFiles = JSON.stringify(this.fileDataService.getUploadedExpressionFiles());
     const uploadedAnnoFile = JSON.stringify(this.fileDataService.getUploadedAnnoationFiles());
 
-    // File Processing files
+    // File Processing files from display.component
     const filteredGenes = JSON.stringify(this.filteredGenes);
     const enzymeList = JSON.stringify(this.enzymeList);
     const pathwayNumber = JSON.stringify(this.pathwayNumber);
     const  pathwayData = JSON.stringify(this.pathwayData);
-
     const AllKeggPathways = JSON.stringify(this.AllKeggPathways);
     const pathwayTally = JSON.stringify(this.pathwayTally);
-   
     const highlightedPathways  = JSON.stringify(this.highlightedPathways);
 
     const MapData = JSON.stringify(this.mapData);
@@ -4079,14 +4078,13 @@ removeEcPrefix(pathway: string): string {
     const statsArray = JSON.stringify(this.StatsArray);
 
     const ExpressionFileNames = JSON.stringify(this.ExpressionFileNames);
-
     const enzymeCategories = JSON.stringify(this.enzymeCategories);
     const enzymeCategoryMap = JSON.stringify(this.enzymeCategoryMap);
     const compoundList = JSON.stringify(this.compoundList);
     const pathwayList = JSON.stringify(this.pathwayList);
 
 
-    // Add files to the zip
+    // Defining each file for the ZIP
     const projectFiles = [
       { name: 'multipleCombinedArray.txt', content: multiData },
       { name: 'combineData.txt', content: combinedData },
@@ -4119,6 +4117,7 @@ removeEcPrefix(pathway: string): string {
     ];
     console.log("Files transformed to file content ");
 
+    // Adding each file to the ZIP
     projectFiles.forEach(file => {
       zip.file(file.name, file.content);
     });
