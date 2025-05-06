@@ -1264,7 +1264,7 @@ async getAllPathwayNames(): Promise<void>{
     this.populateNodeCategories();
     if (this.myDiagram){
     this.setLegend(this.myDiagram);
-    this.setLabels(this.myDiagram);}
+    }
 
     this.isLoading = false;
   }
@@ -1614,7 +1614,6 @@ async getAllPathwayNames(): Promise<void>{
       if (this.myDiagram) {
         //this.clearAnimations(this.myDiagram);
         this.setLegend(this.myDiagram);
-        this.setLabels(this.myDiagram);
         this.animateLinksFromNodeKeys(this.myDiagram, this.regulatedLinks);
       }
     });
@@ -1815,7 +1814,6 @@ populateNodeCategories(): void {
       console.log('Diagram Data Cleared')
       this.updateDiagram(nodes,links); // Assigning new Nodes & Links
       this.setLegend(this.myDiagram); // Setting Updated Legend
-      this.setLabels(this.myDiagram); // Setting Updates Labels
       // Lisenting for layout completion --> staring Metabolic Arrow Animation
       this.myDiagram.addDiagramListener("InitialLayoutCompleted", () => {
         if (this.myDiagram) {
@@ -1976,62 +1974,7 @@ populateNodeCategories(): void {
 
   }
 
-// ----------- CREATINg Label for each map retrieval -------------
-// Called each time a map is intialised / changed 
-// Label is updated with Title and Timepoint of map
-// Rendered in bottom left-hand corner of the Display Div as GoJS element
 
-  private setLabels(myDiagram: go.Diagram): void{
-    const $ = go.GraphObject.make;
-
-    myDiagram.parts.each(part => {
-      if (part.name === "Labels") {
-        myDiagram.remove(part);
-      }
-    });
-
-
-    const lables = $(
-      go.Part, "Table",
-      {
-        name: "Labels",
-        layerName: "ViewportForeground",  // Ensures it's in the foreground and fixed in the viewport
-        isLayoutPositioned: false,        // Prevents layout from affecting its position
-        selectable: false,
-        alignment: go.Spot.BottomLeft,    // Aligns to the bottom-left of the viewport
-        alignmentFocus: go.Spot.BottomLeft,
-        margin: new go.Margin(10, 10, 10, 10) // Adds padding from the viewport edges
-      },
-    
-      // Title
-      $(go.TextBlock, this.SelectedPathwayName, // Assigning the selected Pathway Title 
-        {
-          row: 0,
-          font: "bold 10pt sans-serif",
-          stroke: "#333",
-          margin: new go.Margin(0, 0, 6, 0),
-          columnSpan: 2
-        }
-      ),
-      $(go.TextBlock, "Timepoint: "+(this.selectedTimeIndex + 1), // Assiging the selected timepoint
-      // Dependent on files being in correct order
-        {
-          row: 1,
-          font: "10pt sans-serif",
-          stroke: "#333",
-          margin: new go.Margin(0, 0, 6, 0),
-          columnSpan: 2
-        }
-      ),
-    
-
-      
-    );
-    
-    // Add the legend to the diagram
-    myDiagram.add(lables);
-
-  }
 
 
 // ---------- METABOLIC FLUX ANIMATIONS ----------
@@ -2355,7 +2298,8 @@ populateNodeCategories(): void {
     this.setMap(code, this.selectedTimeIndex, pathwayData);
     if(this.myDiagram){
     this.setLegend(this.myDiagram);
-    this.setLabels(this.myDiagram)}
+
+    }
   }
 
   // ------------------ SORT BY FUNCTIONALITY -------------------
