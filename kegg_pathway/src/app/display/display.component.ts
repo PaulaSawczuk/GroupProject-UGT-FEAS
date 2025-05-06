@@ -486,9 +486,11 @@ private resizeNodeByLogFC(logfc: number) {
 
 // TWO BRACNHES
 // - 'No Size' - This does not changes node size -- required for Animation functionality (links dont move)
-// - Other branch includes size change - this is called on demand when the user selects individual timepoints/ maps
+// - 'On demand" - Other branch includes size change - this is called on demand when the user selects individual timepoints/ maps
 //        Enhances node size for easier viewing -- Map link move in response 
 
+
+// ----- Animation Branch Function ------
 // No Size Change
 private matchGenesNoSize(genes: any[], nodes: any[]): any[] {
   // Matching Genes to Enzymes in Selected Map Data 
@@ -558,6 +560,7 @@ private matchGenesNoSize(genes: any[], nodes: any[]): any[] {
   return [newNodes,colourArray, stats];
 }
 
+// ----- "On Demand" Branch Function ------
 // With Size Change 
 private matchGenes(genes: any[], nodes: any[]): any[] {
   // Matching Genes to Enzymes in Selected Map Data 
@@ -650,7 +653,6 @@ private matchGenes(genes: any[], nodes: any[]): any[] {
 
 // With Size Change - called when user selects individual pathways/timepoints
 private compareEnzymes(nodes: any[],timepoint: number): any[]{
-  //console.log("--------------------")
   //console.log('Extracting Logfc Data - Comparing to Enzymes');
   // Get Genes with logfc for the timepoint  (index this in future)
   const localNodes = nodes;
@@ -676,12 +678,10 @@ private compareEnzymesNoSize(nodes: any[],timepoint: number): any[]{
   // Get Genes with logfc for the timepoint  (index this in future)
   const localNodes = nodes;
   console.log("--------------------")
-  //console.log('Selected Timepoint: '+timepoint);
   const genes = this.filteredGenes[timepoint];
   
   // Taking Genes from file and matching them to enzyme nodes 
   // Change enzyme node attributes accordingly 
-
   const elements = this.matchGenesNoSize(genes, localNodes)
   const updatedNodes = elements[0];
   const colourArray = elements[1];
@@ -689,12 +689,6 @@ private compareEnzymesNoSize(nodes: any[],timepoint: number): any[]{
   const finalNodes = this.getMultipleGenes(updatedNodes);
   return [finalNodes, colourArray, stats];
 }
-
-
-
-
-      
-
 
 
 // ------------ PARALOG IDENTIFCATION ---------------------
@@ -712,8 +706,6 @@ private hasMixedSigns(numbers: number[]): boolean {
 
 
 private getMultipleGenes(nodes: any[]): any[]{
-
-  //console.log('Finding Paralogs...')
 
   var newNodes = nodes.map(node => ({ ...node }));
   //console.log(newNodes);
@@ -779,13 +771,10 @@ private getMetabolicFlux(nodes: any[], links: any[]){
 
         }
         if (newLinks[j].from == group){ // Matching 'from' links
-          //console.log('Match Found: (Link from) ');
           let category = newLinks[j].category;
-          //console.log(category);
           newLinks[j].colour = colour; // Adding new colour attribute to link 
           newLinks[j].logfc = logfc;
-          //const width = this.getLineWidth(logfc); // Calculating line width realtive to logFc
-          //newLinks[j].size = width; // Assinging caluclated width to the link 
+
           regulatedLink.push(group);
         }else{
           continue;
@@ -800,7 +789,7 @@ private getMetabolicFlux(nodes: any[], links: any[]){
   }
   this.currentLogFc = currentLogFc;
   this.regulatedLinks = regulatedLink;
-  //console.log(newLinks);
+
   // Returns new links to 
   return newLinks;
 }
@@ -824,8 +813,6 @@ private getLoadedPathways(): void{
     edges: item.edges.map((edge: any[]) => ({ ...edge })) // Deep copy of edges if necessary
   }));
   console.log('Pathway Data to load:')
-  //console.log(pathwayData);
-  
   
   for (let i = 0; i < pathwayData.length; i++) {
     const nodes = pathwayData[i].nodes; // Already a deep copy
@@ -839,23 +826,20 @@ private getLoadedPathways(): void{
 
     // Cycle through timepoints
     for (let j = 0; j < timepointData.length; j++) {
-      //const genes = timepointData[j];
-      //console.log('Genes to match: ');
-      //console.log(genes);
 
       var elements = this.compareEnzymesNoSize(nodes,j);
       // Extract Colour and Nodes
-      //console.log(elements)
+
+      // Highlighting regulated links - metabolic flux 
       var updatedNodes = elements[0];
       var updatedEdges = this.getMetabolicFlux(updatedNodes,edges);
-      //console.log(updatedEdges);
 
+      // Extracting colour array
       var colours = elements[1];
-      //console.log(colours);
 
+      // Extracting Stats Array
       var stats = elements[2];
-      //console.log(stats);
-      
+
       // Add updated nodes and colours to respective arrays
       edgesArray.push(updatedEdges);
       nodesArray.push(updatedNodes);
@@ -886,13 +870,16 @@ private getLoadedPathways(): void{
   // Assign the processed data to component properties
   this.colourArray = ALLcolourArray;
   this.loadedPathwayData = loadedPathwayData;
-  //this.ALLpathwayData = response; // You might still want to keep this for reference
+
 
   console.log('--------- LoadMapData Finished -------');
 }
 
+
+
   /** -------- Data Processing Functions -------- **/
 
+  // ------ Loding Pathway Names from back-end --------
   // Function for loading Names of each pathway that is fetched from the backend
   // Produces a list of pathway names to display in the menu
   loadNames(): void {
@@ -902,6 +889,7 @@ private getLoadedPathways(): void{
     this.pathways = this.pathwayData.map(pathway => pathway.name);
   }
 
+  // ------ Loding Enzyme List from back-end --------
   loadEnzymes(): any[] {
     var enzymeData=[];
     console.log("--------------------")
@@ -918,6 +906,7 @@ private getLoadedPathways(): void{
     return enzymeData;
   }
 
+  // ------ Loading Pathway Tally from back-end --------
   loadTally(): void {
     console.log("--------------------")
     console.log('Processing Pathway Tally');
@@ -954,7 +943,7 @@ private getLoadedPathways(): void{
 
   /** --------  POST REQUEST Functions -------- **/
 
-  // -------------- Sending Pathway Request to Back-end ---------------------
+  // -------------- Sending Pathway Requests to Back-end ---------------------
   // Fetches relevant pathways when the Display component is initialised
 
 
@@ -995,8 +984,6 @@ private getLoadedPathways(): void{
       // Retrieving the Pathway number from the User
       this.pathwayNumber = this.fileDataService.getPathwayCount();
       console.log("--------------------")
-      //console.log("Number of enriched pathways to return:")
-      //console.log(this.pathwayNumber);
 
       // Setting up Data Array to send to back-end API
       // Sending list of enzymes (from ExtractECNUmber()) and Number of top pathways to get (e.g. 10))
@@ -1005,8 +992,7 @@ private getLoadedPathways(): void{
         (response) => {
           console.log('Response from Backend:')
           console.log(response);
-          //console.log(response[0]);
-          //console.log(response[1]);
+
           this.pathwayTally = response[1];
           console.log('Pathway Tally');
           console.log(this.pathwayTally);
@@ -1028,7 +1014,6 @@ private getLoadedPathways(): void{
           console.error('Error:', error);
           this.isLoading = false; 
 
-          //this.responseMessage = 'Error sending data';
         }
       );
 
@@ -1045,7 +1030,7 @@ private getLoadedPathways(): void{
           this.projectLoaderService.loadProjectFiles(fileContents, this).then(() => {
             this.isLoading = false;
             this.skipInitProcessing = false;
-            // alert('Project loaded successfully');
+
           });
         }
       }
@@ -1069,16 +1054,15 @@ private getLoadedPathways(): void{
     (response) =>{
     //console.log(response);
     
+    // Assigning Global & Local attributes
     const ALLpathwayData = response;
     this.pathwayResponse = response;
     this.ALLpathwayData = ALLpathwayData;
-    //console.log(this.ALLpathwayData);
 
     // Loading Pathway Data to Loaded Pathway Array
     // Loads edited Nodes (logfc, genes, colour)
     this.getLoadedPathways();
-    //const loadedData = this.loadedPathwayData;
-    //console.log(loadedData);
+
     console.log("--------------------")
     console.log('Pathway Data Loaded Successfully');
     this.isLoading = false;
@@ -1105,6 +1089,7 @@ private getLoadedPathways(): void{
       
       const pathwayResponse = response;
 
+      // Adding New Pathways to already loaded pathways 
       console.log(this.ALLpathwayData);
       pathwayResponse.forEach(item => {
         this.ALLpathwayData.push(item);
@@ -1128,7 +1113,6 @@ private getLoadedPathways(): void{
       });
       console.log(this.pathwayData);
 
-  
       // Loading Pathway Data to Loaded Pathway Array
       // Loads edited Nodes (logfc, genes, colour)
 
@@ -1153,8 +1137,9 @@ private getLoadedPathways(): void{
 
 
 // -------------- Get REQUEST for all Pathway Names + Code --------------
-// Does Get request for Pathway Names and asscoiated EC pathway codes
+// GET request for Pathway Names and asscoiated EC pathway codes
 // Returns list after filtering against blacklist 
+// Occurs regardless of loading stage
 
 async getAllPathwayNames(): Promise<void>{
     console.log("--------------------")
@@ -1168,7 +1153,7 @@ async getAllPathwayNames(): Promise<void>{
         console.log('Response from backend:')
         console.log(response);
         this.AllKeggPathways = response;
-        //console.log(this.AllKeggPathways);
+
       },
       (error) => {
         // Handle errors
@@ -1794,6 +1779,7 @@ populateNodeCategories(): void {
     return Array.isArray(value);
   }
   
+
   // --------------- Updating GO.js Model -------------------
   // Updates the pre-existing Diagram Model
   updateDiagram(nodes: any[], links: any[]): void{
@@ -1811,7 +1797,7 @@ populateNodeCategories(): void {
   // If doesnt exist - Creates first Diagram Model (createGOJSMap())
   changeDiagram(nodes: any[], links: any[]): void {
 
-    // ✅ Reset popup when diagram changes
+    // Reset popup when diagram changes
     this.popupNodeData = null;
     this.popupNodeKey = null;
     this.isPopupVisible = false;
@@ -1825,27 +1811,30 @@ populateNodeCategories(): void {
       console.log("--------------------");
       console.log('Diagram Exists')
       this.clearAnimations(this.myDiagram);
-      this.myDiagram.model = new go.GraphLinksModel([], []);
+      this.myDiagram.model = new go.GraphLinksModel([], []); // Clearing Nodes & Links
       console.log('Diagram Data Cleared')
-      this.updateDiagram(nodes,links);
-      this.setLegend(this.myDiagram);
-      this.setLabels(this.myDiagram);
+      this.updateDiagram(nodes,links); // Assigning new Nodes & Links
+      this.setLegend(this.myDiagram); // Setting Updated Legend
+      this.setLabels(this.myDiagram); // Setting Updates Labels
+      // Lisenting for layout completion --> staring Metabolic Arrow Animation
       this.myDiagram.addDiagramListener("InitialLayoutCompleted", () => {
         if (this.myDiagram) {
-          this.clearAnimations(this.myDiagram);
+          this.clearAnimations(this.myDiagram); // Clearing previous Animations
+          // Starting new animations with highlighted links
           this.animateLinksFromNodeKeys(this.myDiagram, this.regulatedLinks);
         }
       });
 
     }else{
-    // Create a new a Diagram with template
+    //  Initialisaing first diagram with template
       this.createGoJSMap(nodes, links);
-    if (this.myDiagram) {
+    if (this.myDiagram) { // Animating Metabolic Flux 
           this.clearAnimations(this.myDiagram);
           this.animateLinksFromNodeKeys(this.myDiagram, this.regulatedLinks);
         }}
       
   }
+
 
 
 // ------------- Linked Map retrieval Function ----------------
@@ -1863,18 +1852,20 @@ populateNodeCategories(): void {
     const matchingItems = this.ALLpathwayData.find((obj => obj.pathway === code));
     //console.log(matchingItems);
     if (matchingItems){
-
+      // If the pathway is already loaded --> visualise map for this pathway
       this.setMap(code, this.selectedTimeIndex,matchingItems)
     }else{
+      // Looking through all Kegg Pathways
       console.log('Searching all Kegg Pathways');
+      // Retrieving Code for pathway if present
       const allMatch = this.AllKeggPathways.find((obj => obj.pathway === code));
       if (allMatch){
-
+        // Setting request for specific pathway map data 
+        // Uses getMap endpoint of back-end
         this.getSpecificPathway(allMatch);
 
       }else{
-      //console.log('No Match Found');
-
+        
     }}
   }
 
@@ -1882,11 +1873,10 @@ populateNodeCategories(): void {
 // ----------- CREATING LEGEND for each map retrieval -------------
 // Called each time a map is intialised / changed 
 // Legend is updated with user-selected colours 
-// Rendered in bottom left-hand corner of the Display Div
+// Rendered in bottom right-hand corner of the Display Div as GoJS element
 
   private setLegend(myDiagram: go.Diagram): void{
     const $ = go.GraphObject.make;
-
 
     const legend = $(
       go.Part, "Table",
@@ -1928,18 +1918,7 @@ populateNodeCategories(): void {
         $(go.Shape, "Rectangle", { width: 15, height: 15, fill: 'lightgrey', margin: 2 }),
         $(go.TextBlock, "Enzyme - No change", { margin: 2,font: "8pt sans-serif"})
       ),
-      /*
-      // Node Type: Selected Upregulated Colour
-      $(go.Panel, "Horizontal", { row: 4 },
-        $(go.Shape, "Rectangle", { width: 15, height: 15, fill: this.selectedColorHigh, margin: 2 }),
-        $(go.TextBlock, "High Expression", { margin: 2 ,font: "8pt sans-serif"})
-      ),
-
-      // Node Type: Selected Downregulated Colour
-      $(go.Panel, "Horizontal", { row: 5 },
-        $(go.Shape, "Rectangle", { width: 15, height: 15, fill: this.selectedColorLow, margin: 2 }),
-        $(go.TextBlock, "Low Expression", { margin: 2,font: "8pt sans-serif"})
-      ),*/
+ 
       // Expression Gradient
       $(go.Panel, "Horizontal", { row: 4 },
         $(go.Shape, "Rectangle", {
@@ -1997,6 +1976,11 @@ populateNodeCategories(): void {
 
   }
 
+// ----------- CREATINg Label for each map retrieval -------------
+// Called each time a map is intialised / changed 
+// Label is updated with Title and Timepoint of map
+// Rendered in bottom left-hand corner of the Display Div as GoJS element
+
   private setLabels(myDiagram: go.Diagram): void{
     const $ = go.GraphObject.make;
 
@@ -2020,7 +2004,7 @@ populateNodeCategories(): void {
       },
     
       // Title
-      $(go.TextBlock, this.SelectedPathwayName,
+      $(go.TextBlock, this.SelectedPathwayName, // Assigning the selected Pathway Title 
         {
           row: 0,
           font: "bold 10pt sans-serif",
@@ -2029,7 +2013,8 @@ populateNodeCategories(): void {
           columnSpan: 2
         }
       ),
-      $(go.TextBlock, "Timepoint: "+(this.selectedTimeIndex + 1),
+      $(go.TextBlock, "Timepoint: "+(this.selectedTimeIndex + 1), // Assiging the selected timepoint
+      // Dependent on files being in correct order
         {
           row: 1,
           font: "10pt sans-serif",
@@ -2057,6 +2042,8 @@ populateNodeCategories(): void {
   // Extracts colours from the links to assigns as the arrow colour
   // calls animtaion function for each link (animateAlongLink) for dynamic animation along the selected links
 
+
+  // Finds Minimum and Maximum of logfc list -- to get relative arrow size
  private getMinMax(values: number[]): { min: number; max: number } {
     if (!values.length) {
       throw new Error("Empty array passed to getMinMax");
@@ -2073,15 +2060,21 @@ populateNodeCategories(): void {
     return { min, max };
   }
 
-
+  // ---- LINK IDENTIFICATION AND PROCESSING -----
+  // Find links associated to passed Node keys 
+  // Stores the identified links in a set 
+  // If the length of the link is >2 then calls animation function 
+  // Removes default arrow of links that have animation 
 
   private animateLinksFromNodeKeys(diagram: go.Diagram, fromNodeKeys: string[]) {
     if (!diagram) return;
-  
+    
+    // Ensuring that the diagram has no animations remaining 
     this.clearAnimations(diagram);
     diagram.startTransaction("animate links");
     const animatedLinkIds = new Set<string>();
-  
+    
+    // Find node objects for each key passed.
     fromNodeKeys.forEach(fromKey => {
       const node = diagram.findNodeForKey(fromKey);
       if (!node) {
@@ -2089,7 +2082,7 @@ populateNodeCategories(): void {
         return;
       }
   
-      // Get BOTH incoming and outgoing links
+      // Get BOTH incoming and outgoing links for the reaction node
       const linksOut = node.findLinksOutOf();
       const linksIn = node.findLinksInto();
       
@@ -2102,6 +2095,8 @@ populateNodeCategories(): void {
         const from = link.data?.from;
         const to = link.data?.to;
 
+        // If node has to and from link add to set of links
+        // Required to remove default arrow
         if (from && to) {
           const linkId = `${from}->${to}`;
           animatedLinkIds.add(linkId);
@@ -2113,24 +2108,26 @@ populateNodeCategories(): void {
         const min = result.min;
         const max = result.max;
   
-        if (pointsCount < 2) {
+        if (pointsCount < 2) { // Determines in Link is long enough for animation
           console.warn(`Link from ${from} to ${to} has insufficient points`);
         } else {
-
+          // Calling animation function for highlighted link
           this.animateAlongLink(diagram, link, min,max);
         }
       });
     });
-    // Removing 'Middle Arrow" for links that now have animations
+    // Removing default 'Middle Arrow" for links that now have animations
+    // This Arrow is defined in the link template of createGOJSMap()
     this.updateArrowVisibilityForAnimations(animatedLinkIds);
     
-    // Starting Diagram Transaction
+    // Commiting Diagram Transaction - Transaction no longer active
     diagram.commitTransaction("animate links");
 
-    // Updating list of animated links --> used to remove "MiddleArrow" 
+    // Updating list of animated links
     this.animatedLinkIds = animatedLinkIds;
   }
 
+// ------- ANIMATION FUNCTION ---------
 // Function that defines animation attributes
 // Called for each highlighted link within the selected pathway map
   private animateAlongLink(diagram: go.Diagram, link: go.Link,minLogfc: number, maxLogfc: number) {
@@ -2150,15 +2147,15 @@ populateNodeCategories(): void {
     }
 
 
-    //const normalized = (logfc - minLogfc) / (maxLogfc - minLogfc);
+    // Compute arrow scale based on absolute logfc
+    // Setting clamps to prevent overly large or small scaling 
     const clamped = Math.max(0, Math.min(1, normalized));   
     const minScale = 1;
     const maxScale = 4;
     const arrowScale = minScale + clamped * (maxScale - minScale);
-    // Compute arrow scale based on absolute logfc
-    //const arrowScale = 1 + Math.min(3, Math.abs(logfc)) * 0.5;
+
     // Arrow Shape Attributes 
-    const shape = new go.Shape();
+    const shape = new go.Shape(); // Initalising a new shape 
     shape.geometryString = "F1 M0 0 L10 5 L0 10 Z"; // Arrow
     shape.fill = linkColour; // Same colours as link - relative to DGE
     shape.stroke = null;
@@ -2237,22 +2234,27 @@ populateNodeCategories(): void {
     this.animatedIntervals.push(interval);
   }
 
+
+  // ------ ANIMATION CLEARING FUNCTION -------
   // Function to clear existing animations
   // Prevents nodes from staying on the diagram when a different timepoint/pathway 
   // is selected 
+  // Employs several different methods to ensure no previous animation remains 
+  // Clear global attributes and GoJS diagram attributes
   private clearAnimations(diagram: go.Diagram) {
-    //console.log("Clearing old animations...");
 
     // Clear all intervals (stop animations)
     this.animatedIntervals.forEach(id => clearInterval(id));
     this.animatedIntervals = [];
 
+    // Manually removing
     // Remove all animation parts (dots) from the diagram
     this.animatedParts.forEach(part => {
       if (diagram.findPartForKey(part.key)) {
         diagram.remove(part);
       }
     });
+    // Assinging empty array
     this.animatedParts = [];
 
     diagram.parts.each(part => {
@@ -2261,12 +2263,16 @@ populateNodeCategories(): void {
       }
     });
 
+    // Clearing list of animated links
     this.animatedLinkIds?.clear?.();
 
     //console.log("All old animations cleared.");
   }
 
-
+  // ---- REMOVING DEFAULT ARROW ----------
+  // Takes all animated link 
+  // Removed static default arrow assigned in GoJS diagram template
+  // Sets invisible rather than removed to ensure it is not a permenant change
   private updateArrowVisibilityForAnimations(animatedLinkIds: Set<string>) {
     if (this.myDiagram){
     this.myDiagram.links.each(link => {
@@ -2274,12 +2280,12 @@ populateNodeCategories(): void {
       const arrow = link.findObject("MiddleArrow") as go.Shape;
       if (arrow) {
         arrow.visible = !animatedLinkIds.has(id);
+        // Making the default arrow invisible 
       }
     });}
   }
 
-
-
+  //------ FILE FORMAT / USER INTERACTION ATTRIBUTES -----
   // Setting more global Attributes 
 
   isMenuOpen = true;
@@ -2386,7 +2392,7 @@ populateNodeCategories(): void {
   sortPathways(criteria: string) {
     console.log(`Sorting by ${criteria}`);
 
-    // Sort A-Z
+    // ----  Sort A-Z
     if (criteria == 'name'){
       // sorting A-Z
       let list = this.pathways;
@@ -2394,7 +2400,7 @@ populateNodeCategories(): void {
       console.log(list);
       this.pathways = list;
     }
-    // Sort Z-A
+    // ----  Sort Z-A
     if (criteria == 'length'){
       let list = this.pathways;
       list = list.sort((a, b) => b.localeCompare(a));
@@ -2402,36 +2408,40 @@ populateNodeCategories(): void {
       this.pathways = list;
     }
 
-    // Sorting High DE enzymes
+    // ---  Sorting High DE enzymes
     if (criteria == 'highDGE'){
       
       console.log('Sorting Pathways by No. of DE Enzymes - High to low');
       const pathwayTally = this.pathwayTally;
-      let list = this.pathways;
+      let list = this.pathways; // Getting list of displayed pathways 
 
+      // Comparing to All KEGG Pathways --> get name
       const result = this.AllKeggPathways.filter(item1 =>
         list.some(item2 => item2 === item1.name)
       );
 
+      // Getting Tally result (number of enzymes)
       const tally = result.map(item => {
         const match = pathwayTally.find(([path]) => path === item.pathway);
         return match ? { name: item.name, number: match[1] } : null;
       }).filter(Boolean);
+      // Sorting the resulting list by tally number
       const sortedTally = tally.sort((a, b) => {
         if (a === null && b === null) return 0;
         if (a === null) return 1;  // push nulls to the end
         if (b === null) return -1;
         return b.number - a.number;
       });
-      //console.log(sortedTally);
+      // Sorting high to low (Descending)
       const sortedNames = sortedTally
           .filter(item => item !== null)
             .map(item => item.name);
+      // Assinging the displayed list to the new tally sorted list
       this.pathways=sortedNames;
 
       };
 
-    // Sorting Low DE Enzymes
+    // ---  Sorting Low DE Enzymes
     if (criteria == 'lowDGE'){
       console.log('Sorting Pathways by No. of DE Enzymes - Low to High');
       const pathwayTally = this.pathwayTally;
@@ -2450,19 +2460,21 @@ populateNodeCategories(): void {
         return match ? { name: item.name, number: match[1] } : null;
       }).filter(Boolean);
 
+      // Sorting Low to high (ascending)
       const sortedTally = tally.sort((a, b) => {
         if (a === null && b === null) return 0;
         if (a === null) return 1;  // push nulls to the end
         if (b === null) return -1;
         return a.number - b.number;
       });
-      //console.log(sortedTally);
+
       const sortedNames = sortedTally
           .filter(item => item !== null)
             .map(item => item.name);
+      // Assinging the displayed list to the new tally sorted list
       this.pathways=sortedNames;
     }
-    
+    // Closing Modal 
     this.sortDropdownOpen = false;
   }
 
@@ -3735,7 +3747,7 @@ applyChanges() {
       this.stopAnimation();
     }
   }
-
+  // -------- Delay function --------
   // Delay between each element in the loop 
   // Allows for pathway rendering 
   delay(ms: number) {
@@ -3743,6 +3755,8 @@ applyChanges() {
   }
 
 
+  // ---- Animation looping with Delay -------------
+  // Setting up Diagram Initialisation with Delay
   async loopWithDelay( links: any[], nodes: any[]): Promise<void> {
     // Number of loops to cycle through before stopping 
       
@@ -3853,6 +3867,7 @@ applyChanges() {
 
   // ------------------ SEARCH BAR FOR PATHWAYS -------------------
 
+  // Defining Attributes 
   searchTerm: string = '';
   filteredPathways: string[] = [];
   selectedPathways: string[] = [];
@@ -3873,7 +3888,7 @@ applyChanges() {
     this.isSearchPathwayModalOpen = false;
   }
 
-  // ----- KEEG ALL ----
+  // ----- Searhing ALL KEGG Pathways  ----
   
   openDropdown() {
     this.isDropdownOpen = true;
@@ -3950,7 +3965,7 @@ applyChanges() {
     // Checking if Pathway data is already loaded 
     selectedPathwaysKEGG.forEach(pathway=>{
         const matchingItems = this.ALLpathwayData.find((obj => obj.name === pathway));
-        //console.log(matchingItems);
+
         if (matchingItems){
           console.log('Match Found');
           matchingList.push(matchingItems.name);
