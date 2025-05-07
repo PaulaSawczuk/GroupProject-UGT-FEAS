@@ -155,7 +155,7 @@ The welcome page is the first screen users will see when they launch the EnStrap
 
 ### Guide Section  
 
-![Guide Page](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/Guide_page.png)  
+![Guide Page](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/READMEFile_Images/Guide_Page.png)  
 
 *Fig. 3. Users guide page.* 
 
