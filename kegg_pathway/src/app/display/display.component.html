@@ -19,6 +19,7 @@
       <div class="sidebar-content">
         <ul>
           <li>
+            <!-- Toggle Icon (double arrow) + Side Bar Toggle -->
             <div class="toggle-container" [class.right]="isMenuOpen" >
               <button id="toggle-btn" (click)="toggleMenu()" [class.rotate]="isMenuOpen">
                 <svg xmlns="http://www.w3.org/2000/svg" height="20" viewBox="0 -960 960 960" width="20" fill="#48494B">
@@ -29,6 +30,7 @@
           </li>
 
           <li>
+            <!-- ---------------- PATHWAY TAB ---------------- -->
             <div class="pathways-header" [class.active]="isPathwaysActive()" >             
               <div class="icons-container" (click)="showPathwaysFromIcon($event)">
                 <div class="icons">
@@ -37,11 +39,10 @@
                     <path d="M744-144q-41 0-72-24t-42-60H396q-55 0-93.5-38.5T264-360q0-55 38.5-93.5T396-492h120q34.65 0 59.33-24.75Q600-541.5 600-576.25t-24.67-59.25Q550.65-660 516-660H330q-11 36-42 60t-72 24q-50 0-85-35t-35-85q0-50 35-85t85-35q41 0 72 24t42 60h186q65 0 110.5 45.5T672-576q0 65-45.5 110.5T516-420H396q-24.75 0-42.37 17.68Q336-384.65 336-359.82q0 24.82 17.63 42.32Q371.25-300 396-300h234q11-36 42-60t72-24q50 0 85 35t35 85q0 50-35 85t-85 35ZM216-648q20.4 0 34.2-13.8Q264-675.6 264-696q0-20.4-13.8-34.2Q236.4-744 216-744q-20.4 0-34.2 13.8Q168-716.4 168-696q0 20.4 13.8 34.2Q195.6-648 216-648Z" />
                   </svg>
                 </div>
+                <!-- Pathway header -->
                 <span class="menu-text">Pathways</span>
               </div>
-
-
-              
+  
               <!-- ---------------- SORT BY ---------------- -->
               <div class="sort-container" (click)="toggleSortDropdown($event)"> 
                 <span class="sort-label">Sort</span>
@@ -49,26 +50,28 @@
                   <path d="M480-360 280-560h400L480-360Z"/>
                 </svg>
               </div>
-
+              <!-- Sort by options -->
               <ul *ngIf="sortDropdownOpen" class="sort-dropdown">
                 <li (click)="onSortClick('name')">Name: A to Z</li>
                 <li (click)="onSortClick('length')">Name: Z to A</li>
                 <li (click)="onSortClick('highDGE')">DE Enzymes: High to Low</li>
                 <li (click)="onSortClick('lowDGE')">DE Enzymes: Low to High</li>
               </ul>
-
             </div>
+
             <hr />
-            <!-- Total Count -->
+
+            <!-- Total Pathway Count -->
             <div *ngIf="isMenuOpen" class="total-pathways-container">
               <div class="total-pathways">
                 Number of Pathways: {{ highlightedPathways.length }}
               </div>
+              <!-- See All Pathways Button -->
               <button class="show-all-pathways-button" (click)="openSearchPathwayModal()">
                 See All 
               </button>
             </div>
-            
+            <!-- List of Pathways -->
             <div class="scrollable-pathways">
               <ul class="sub-menu" [class.show]="pathwaysOpen && !customTabOpen && !searchTabOpen">
                 <li *ngFor="let pathway of pathways">
@@ -78,7 +81,7 @@
             </div> 
           </li>
 
-          <!-- ---------------- CUSTOMISE ---------------- -->
+          <!-- ---------------- CUSTOMISE TAB ---------------- -->
           <li *ngIf="customTabExists">
             <div class="customise-header" [class.active]="customTabOpen" (click)="showCustomiseView()">
               <div class="icons-container">
@@ -89,14 +92,14 @@
         
               <span class="menu-text">Customise</span>
             
-              <!-- ---------------- CUSTOMISE CLOSE BUTTON---------------- -->
+              <!-- ---------------- CUSTOMISE TAB CLOSE BUTTON---------------- -->
               <button *ngIf="customTabOpen" class="close-btn" (click)="closeCustomTab(); $event.stopPropagation()">x</button>
             </div>
           
             <ng-container *ngIf="customTabOpen">
               <ul class="sub-menu show">
 
-                <!-- ---------------- COLOUR PICKER ---------------- -->
+                <!-- ---------------- COLOUR PICKERS ---------------- -->
                 <li class="label-row">
                   <label class="main-label">Customise colour for data expression:</label>
                 </li>
@@ -139,7 +142,7 @@
               </ul>
             </ng-container>
           </li>
-          <!-- ---------------- SEARCH ---------------- -->
+          <!-- ---------------- SEARCH TAB ---------------- -->
           <li *ngIf="searchTabExists">
             <div class="search-header" [class.active]="searchTabOpen" (click)="showSearchView()">
               <div class="icons-container">
@@ -149,7 +152,7 @@
               </div>
           
               <span class="menu-text">Search</span>
-              <!-- ---------------- CLOSE BUTTON---------------- -->
+              <!-- ---------------- SEARCH TAB CLOSE BUTTON---------------- -->
               <button *ngIf="searchTabOpen" class="search-close-btn" (click)="closeSearchTab(); $event.stopPropagation()">x</button>
             </div>
           
@@ -160,7 +163,8 @@
                 <li class="label-selectDropdown">
                   <label class="main-label">In a current pathway look for: </label>
                 </li>
-            
+                
+                <!-- Check Boxes -->
                 <li>
                   <label class="checkbox-label">
                     <input type="checkbox" id="enzymeCheckbox" [(ngModel)]="showEnzymeDropdown" (change)="onCheckboxChange('enzyme')">
@@ -176,20 +180,8 @@
                   </label>
                 </li>
                 <li>
-                  <!-- <ng-container *ngIf="showEnzymeDropdown">
-                    <select id="enzymeSelect" [(ngModel)]="selectedEnzyme" (change)="onEnzymeChange()">
-                      <option value="">-- Select Enzyme --</option>
-                      <optgroup *ngFor="let category of enzymeCategories" [label]="category">
-                        <option 
-                          *ngFor="let enzyme of enzymeCategoryMap[category]" 
-                          [value]="enzyme.ec"
-                          [ngStyle]="enzyme.logfc ? { 'background-color': enzyme.colour } : {}">
-                          {{ enzyme.name }}
-                        </option>
-                      </optgroup>
-                    </select>
-                  </ng-container> -->
-                  
+                  <!-- DropDown Lists for each CheckBox -->
+                   <!-- Enzyme -->
                   <ng-container *ngIf="showEnzymeDropdown">
                     <select id="enzymeSelect" [(ngModel)]="selectedEnzyme" (change)="onEnzymeChange()">
                       <option value="">-- Select Enzyme --</option>
@@ -210,13 +202,15 @@
                     </select>
                   </ng-container>
                   
+                  <!-- Compound -->
                   <ng-container *ngIf="showCompoundDropdown">
                     <select id="CompoundSelect" [(ngModel)]="selectedCompound" (change)="onCompoundChange()">
                       <option value="">-- Select Compound --</option>
                       <option *ngFor="let option of CompoundOptions" [value]="option">{{ option }}</option>
                     </select>
                   </ng-container>
-  
+                  
+                  <!-- Pathway -->
                   <ng-container *ngIf="showPathwayDropdown">
                     <select id="pathwaySelect" [(ngModel)]="selectedPathwayCustom" (change)="onPathwayChange()">
                       <option value="">-- Select Related Pathway --</option>
@@ -246,8 +240,6 @@
             <div class="dropdown-content">
               <!-- ---------------- UPLOADED FILES ---------------- -->
               <a href="#" (click)="openUploadedFilesModal(); $event.preventDefault()">Manage Files</a>
-              <!-- ---------------- IMPORT FILES ---------------- -->
-              <!-- <a href="#" (click)="openUploadModal(); $event.preventDefault()">Import files</a> -->
 
               <!-- ---------------- NEW PROJECT ---------------- -->
               <a href="#" (click)="openUploadPage(); $event.preventDefault()">New Project</a>
@@ -264,6 +256,7 @@
                   <span>Export</span>
                   <span class="submenu-icon">›</span>
                 </a>
+                <!-- Export Options -->
                 <div class="submenu-content" *ngIf="exportSubmenuOpen">
                   <a href="#" (click)="exportImage('png'); $event.preventDefault()">png</a>
                   <a href="#" (click)="exportImage('svg'); $event.preventDefault()">svg</a>
@@ -277,15 +270,18 @@
             <div class="dropdown">
               <button class="dropdown-button">View</button>
               <div class="dropdown-content">
+                <!-- ---------------- CUSTOMISE ---------------- -->
                 <a href="#" (click)="openCustomTab(); $event.preventDefault() ">Customise</a>
-
+                <!-- ---------------- SEARCH ---------------- -->
                 <div class="submenu" (click)="onSubmenuClick($event)">
                   <a href="#" (click)="toggleSearchSubmenu($event)" class="submenu-trigger">
                     <span>Search...</span>
                     <span class="submenu-icon">›</span>
                   </a>
                   <div class="submenu-content" *ngIf="searchSubmenuOpen">
+                    <!-- ---------------- SEARCH FOR PATHWAY ELEMENTS ---------------- -->
                     <a href="#" (click)="openSearchTab(); $event.preventDefault()">Pathway Elements</a>
+                    <!-- ---------------- SEARCH FOR PATHWAY ---------------- -->
                     <a href="#" (click)="openSearchPathwayModal(); $event.preventDefault()">For Pathway</a>
                   </div>
                 </div>
@@ -304,40 +300,7 @@
           </div>
       </div>
     </aside>
-
-    <!-- ---------------- UPLOAD EXTRA FILES POP-OUT ---------------- -->
-    <!-- <div class="Upload-modal" *ngIf="isUploadModalOpen">
-      <div class="Upload-modal-content">
-        <div class="Upload-modal-header">
-          <h2>Upload Files</h2>
-          <span class="Upload-close-btn" (click)="closeUploadModal()">×</span>
-        </div>
-        <div class="Upload-modal-body">
-          <button class="choose-files-button" (click)="onUploadClick()">Choose Files</button>
-            <div class = "What-to-upload-message">
-              <p>Please upload only Expression data (.csv or .txt). </p>
-            </div>  
-          <div *ngIf="unsupportedFileTypeMessage" class="error-message-box">
-            <span [innerHTML]="unsupportedFileTypeMessage"></span>
-          </div>
-          <div class="uploaded-files-list" *ngIf="uploadedFiles.length > 0">
-            <ul>
-              <li *ngFor="let file of uploadedFiles; let i = index">
-                <span class="file-name">{{ file.name }}</span>
-                <button class="remove-file-button" (click)="removeFile(i)">x</button>
-              </li>
-            </ul>
-          </div>
-          <div *ngIf="!uploadedFiles.length && !unsupportedFileTypeMessage" style="margin-top: 10px; font-family: 'DM Sans', sans-serif; font-size: 14px;">
-            No files selected yet.
-          </div>
-        </div>
-        <div class="Upload-modal-footer">
-          <button class="add-button" [disabled]="uploadedFiles.length === 0" (click)="addFiles()">Add</button>
-        </div>
-      </div>
-    </div> -->
-
+    <!-- ------------- SUMMARY AFTER ADDING EXTRA EXPRESSION FILES -------------  -->
     <div class="summary-box" *ngIf="showSummaryBox">
       <div class="summary-box-content">
         <div class="summary-header">
@@ -403,9 +366,21 @@
           <h2>{{ selectedGuideElement.title }}</h2>
           <span class="pathway-filter-close-btn" (click)="closeGuideDetail()">×</span>
         </div>
-        <div class="pathway-filter-modal-body">
-          <pre class="guide-description">{{ selectedGuideElement.fullContent }}</pre>
+        <div class="pathway-filter-modal-body" *ngIf="selectedGuideElement">
+          <ng-container *ngIf="selectedGuideElement.fullContent && selectedGuideElement.imagePaths?.length">
+            <ng-container *ngFor="let part of splitContent(selectedGuideElement.fullContent, selectedGuideElement.imagePaths); let i = index">
+              <div *ngIf="part.type === 'text'" class="guide-text" [innerHTML]="part.content"></div>
+              <img *ngIf="part.type === 'image'" [src]="part.content" 
+                   [alt]="selectedGuideElement.title + ' - Image ' + (i + 1)"
+                   style="max-width: 100%; height: auto; margin: 1em 0;">
+            </ng-container>
+          </ng-container>
+        
+          <div *ngIf="!selectedGuideElement.imagePaths?.length">
+            <pre class="guide-description">{{ selectedGuideElement.fullContent }}</pre>
+          </div>
         </div>
+        
         <div class="pathway-filter-modal-footer">
           <button class="filter-button-modal-footer" (click)="closeGuideDetail()">Close</button>
         </div>
@@ -645,7 +620,7 @@
                       (wheel)="onGeneListScroll($event)" 
                       (touchmove)="onGeneListScroll($event)">
                     
-                    <p><strong>Genes and logFCs:</strong></p> <!-- Fixed heading -->
+                    <p><strong>Genes and logFCs:</strong></p>
                     
                     <ul class="gene-list-scrollable">
                       <li *ngFor="let item of popupNodeData.geneList">
@@ -732,7 +707,7 @@
             {{ isAnimationActive ? 'Stop' : 'Animate' }}
           </button>
         </div>
-        
+        <!-- ------------- INFORMATION BOX ------------- -->
         <div class="stats-container">
           <div class="stats-content">
             <div class="stats-header">
@@ -765,10 +740,6 @@
       <button (click)="zoomIn()">+</button>
       <button (click)="zoomOut()">-</button>
     </div>
-
     </div>
-    
-    
-
   </div>
 </div>

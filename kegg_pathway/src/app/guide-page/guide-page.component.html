@@ -1,4 +1,5 @@
 <div [@routeAnimations]>
+  <!-- ---------- FADED BACKGROUND ---------- -->
   <div class="faded-background"></div>
   <div class="guide-wrapper">
     <header class="header">
@@ -9,57 +10,55 @@
             <polyline points="15 18 9 12 15 6" />
           </svg>
         </a>
+        <!-- ---------- HEADER AND DESRIPTION FOR THE PAGE ---------- -->
         <h1 class="title">Getting Started</h1>
         <p class="subtitle">
           Welcome to our website! This guide will help you get started and understand the basics.
         </p>
       </div>
     </header>
-  
+    
+    <!-- ---------- MAIN CONTENT ---------- -->
     <main class="main">
+      <!-- ---------- CARD GRID LAYOUT ---------- -->
       <div class="card-grid">
         <div class="card" *ngFor="let section of guideSections">
           <div class="card-header">
+            <!-- ---------- SECTION TITLE ---------- -->
             <h2 class="card-title">{{ section.title }}</h2>
           </div>
           <div class="card-content">
+            <!-- ---------- SECTION PREVIEW TEXT ---------- -->
             <p class="card-description">{{ section.preview }}</p>
-  
+            <!-- ---------- READ MORE BUTTON ---------- -->
             <button class="read-more" (click)="openModal(section)">Read More</button>
-  
-  
           </div>
         </div>
       </div>
   
-      <!-- <div class="modal-overlay" *ngIf="selectedSection" (click)="closeModal()">
-        <div class="modal" (click)="$event.stopPropagation()">
-          <h2>{{ selectedSection?.title }}</h2>
-          <p style="white-space: pre-wrap;">{{ selectedSection?.fullContent }}</p>
-          <button class="close-button" (click)="closeModal()">Close</button>
+      <!-- ---------- MODALS ---------- -->
+      <div *ngIf="selectedSection as section" class="modal-overlay" (click)="closeModal()">
+      <!-- ---------- MODAL CONTENT ---------- -->
+      <div class="modal" (click)="$event.stopPropagation()">
+        <!-- ---------- MODAL X CLOSE BUTTON ---------- -->
+        <button class="modal-close-x" (click)="closeModal()">×</button>
+        <!-- ---------- MODAL HEADER ---------- -->
+        <h2>{{ section.title }}</h2>
+        <!-- ---------- MODAL CONTENT ---------- -->
+        <div *ngIf="section.fullContent && section.imagePaths?.length">
+          <ng-container *ngFor="let part of splitContent(section.fullContent, section.imagePaths); let i = index">
+            <div *ngIf="part.type === 'text'" [innerHTML]="part.content" class="guide-text"></div>
+            <img *ngIf="part.type === 'image'" [src]="part.content" alt="{{ section.title }} - Image {{ i + 1 }}" style="max-width: 100%; height: auto; margin: 1em 0;">
+          </ng-container>
         </div>
-      </div> -->
 
-      <!-- MODAL OVERLAY -->
-<div *ngIf="selectedSection as section" class="modal-overlay" (click)="closeModal()">
-  <!-- MODAL CONTENT -->
-  <div class="modal" (click)="$event.stopPropagation()">
-    <button class="modal-close-x" (click)="closeModal()">×</button>
-    <h2>{{ section.title }}</h2>
-
-    <div *ngIf="section.fullContent && section.imagePaths?.length">
-      <ng-container *ngFor="let part of splitContent(section.fullContent, section.imagePaths); let i = index">
-        <div *ngIf="part.type === 'text'" [innerHTML]="part.content" class="guide-text"></div>
-        <img *ngIf="part.type === 'image'" [src]="part.content" alt="{{ section.title }} - Image {{ i + 1 }}" style="max-width: 100%; height: auto; margin: 1em 0;">
-      </ng-container>
+        <p *ngIf="!section.imagePaths?.length" style="white-space: pre-wrap;">{{ section.fullContent }}</p>
+        <!-- ---------- MODAL CLOSE BUTTON ---------- -->
+        <button class="close-button" (click)="closeModal()">Close</button>
+      </div>
     </div>
 
-    <p *ngIf="!section.imagePaths?.length" style="white-space: pre-wrap;">{{ section.fullContent }}</p>
-
-    <button class="close-button" (click)="closeModal()">Close</button>
-  </div>
-</div>
-  
+      <!-- ---------- GET STARTED BUTTON ---------- -->
       <div class="start-button-container">
         <button class="start-button" (click)="getStarted()">
           Get Started

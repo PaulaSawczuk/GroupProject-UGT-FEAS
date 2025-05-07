@@ -199,7 +199,6 @@
 }
 
 .process-container {
-  /* Align button to the right */
   width: 100%;
   display: flex;
   justify-content: flex-end;
@@ -261,20 +260,6 @@
   font-family: 'DM Sans', sans-serif;
 }
 
-/* .checkbox-container {
-  display: flex;
-  align-items: center;
-  position: absolute; 
-  left: 0; 
-  bottom: 0;
-  margin: 0px; 
-  z-index: 10;
-}
-
-.checkbox-container input[type="checkbox"] {
-  margin-right: 5px;
-} */
-
 /* -------------- CHECK BOXES -------------- */
 .checkbox-container {
   display: flex;
@@ -323,13 +308,11 @@
 
 .tick {
   color: green;
-  /* font-weight: bold; */
   font-family: 'DM Sans', sans-serif;
 
 }
 .cross {
   color: red;
-  /* font-weight: bold; */
   font-family: 'DM Sans', sans-serif;
 
 }
@@ -390,7 +373,6 @@
   position: relative;
 }
 
-/* Number */
 .file-number {
   font-weight: bold;
   color: #4A4459;
@@ -399,14 +381,12 @@
   text-align: center;
 }
 
-/* File name */
 .file-name {
   flex-grow: 1;
   color: #48494B;
   font-family: 'DM Sans', sans-serif;
 }
 
-/* Remove button */
 .remove-button {
   background-color: transparent;
   border: none;
@@ -419,7 +399,6 @@
   background-color: rgba(0, 0, 0, 0.1);
 }
 
-/* Dragging item */
 .expression-file-item.dragging {
   opacity: 0.5;
   transform: scale(1.02);
@@ -459,12 +438,8 @@
 
 .file-list-title{
   font-family: 'DM Sans', sans-serif;
-  /* font-weight: bold; */
-  /* margin-bottom: 2px; */
-  /* position: relative; */
   font-size: 12px; 
   color: #48494B;
-  /* margin-top: -10%; */
 }
 
 .file-type-group h3{
@@ -506,5 +481,4 @@
 .project-icon{
   margin-right: 4px;
 }
-
 

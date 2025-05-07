@@ -1,13 +1,17 @@
 <div class="modal-backdrop">
   <div class="modal-box">
+   <!-- --------- MODALS HEADER ---------  -->
     <h2>Save Project</h2>
+    <!-- --------- PROJECT NAME INPUT --------- -->
     <label>Project Name:</label>
     <div class="input-box">
       <input type="text" [(ngModel)]="projectName" placeholder="MyProject" />
     </div>
+    <!-- --------- ERROR MESSAGE WHEN NAME IS NOT PROVIDED --------- -->
     <div class="error-message" *ngIf="showError">
       Please provide the name of the project.
     </div>
+    <!-- --------- ACTION BUTTONS - SAVE, CLOSE --------- -->
     <div class="actions">
       <button (click)="handleSave()">Save</button>
       <button (click)="cancel()">Cancel</button>

@@ -1,4 +1,5 @@
 <div class="upload-container">
+  <!-- -------------- BACK TO LOADING PAGE BUTTON -------------- -->
   <a class="back-button" (click)="goBackToLanding()">
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
       stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -7,24 +8,22 @@
   </a>
   <div class="upload-box">
     <!-- -------------- INFORMATION MESSAGES -------------- -->
-    
     <!-- Info Button -->
-<button class="information-button" (click)="showInformation()" aria-label="Show information">
-  <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#48494B">
-    <path d="M440-280h80v-240h-80v240Zm40-320q17 0 28.5-11.5T520-640q0-17-11.5-28.5T480-680q-17 0-28.5 11.5T440-640q0 17 11.5 28.5T480-600Zm0 520q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm0-80q134 0 227-93t93-227q0-134-93-227t-227-93q-134 0-227 93t-93 227q0 134 93 227t227 93Zm0-320Z"/>
-  </svg>
-</button>
+    <button class="information-button" (click)="showInformation()" aria-label="Show information">
+      <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#48494B">
+        <path d="M440-280h80v-240h-80v240Zm40-320q17 0 28.5-11.5T520-640q0-17-11.5-28.5T480-680q-17 0-28.5 11.5T440-640q0 17 11.5 28.5T480-600Zm0 520q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm0-80q134 0 227-93t93-227q0-134-93-227t-227-93q-134 0-227 93t-93 227q0 134 93 227t227 93Zm0-320Z"/>
+      </svg>
+    </button>
 
-<!-- Popout Box -->
-<div class="info-popout" *ngIf="showInformationPopOut">
-  <div class="info-content">
-    <h3>Upload Information</h3>
-    <p>• Supported formats: <strong>csv</strong>, <strong>txt</strong></p>
-    <p>• Upload at least one expression and one annotation file</p>
-    <button class="close-info" (click)="hideInformation()">Got it</button>
-  </div>
-</div>
-    
+    <!-- Popout Box -->
+    <div class="info-popout" *ngIf="showInformationPopOut">
+      <div class="info-content">
+        <h3>Upload Information</h3>
+        <p>• Supported formats: <strong>csv</strong>, <strong>txt</strong></p>
+        <p>• Upload at least one expression and one annotation file</p>
+        <button class="close-info" (click)="hideInformation()">Got it</button>
+      </div>
+    </div>
 
     <!-- -------------- TITLE -------------- -->
     <div class="title-button-container">
@@ -38,16 +37,18 @@
           </div>
           Upload Files
         </button>
-        
+          
         <button class="open-project-btn" (click)="openProject()">
           <div class = "project-icon">
             <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#fff">
               <path d="M320-240h320v-80H320v80Zm0-160h320v-80H320v80ZM240-80q-33 0-56.5-23.5T160-160v-640q0-33 23.5-56.5T240-880h320l240 240v480q0 33-23.5 56.5T720-80H240Zm280-520v-200H240v640h480v-440H520ZM240-800v200-200 640-640Z"/>
             </svg>
           </div>
-          Open Project</button>
+          Open Project
+        </button>
       </div>
     </div>
+
     <!-- -------------- WARNING MESSAGES -------------- -->
     <div *ngIf="unsupportedFileTypeMessage || validationMessage || warningMessage" class="warning-message">
       <p *ngIf="unsupportedFileTypeMessage">{{ unsupportedFileTypeMessage }}</p>
@@ -76,13 +77,8 @@
     </div>    
 
     <!-- -------------- LIST OF FILES -------------- -->
-    <!-- <div *ngIf="showFileList" class="file-list">
-      <div *ngFor="let file of uploadedFiles; let i = index" class="file-item">
-        <span>{{ file.name }}</span>
-        <button class="remove-button" (click)="removeFile(i)">X</button>
-      </div> -->
-
-      <div *ngIf="showFileList" class="file-list">
+    
+    <div *ngIf="showFileList" class="file-list">
 
       <!-- Annotation Files -->
       <div *ngIf="annotationFiles.length > 0" class="file-type-group">
@@ -114,8 +110,6 @@
             <button class="remove-button" (click)="removeFileByName(file.name)">X</button>
           </div>
         </div>
-        
-        
       </div>
 
       <!-- -------------- CHECKBOXES AND INPUT NUMBER -------------- -->

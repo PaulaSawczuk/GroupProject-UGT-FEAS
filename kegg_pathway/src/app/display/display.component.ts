@@ -11,14 +11,16 @@ import { match } from 'assert';
 import { Router } from '@angular/router';
 import { ActivatedRoute } from '@angular/router';
 import { ProjectLoaderService } from '../services/project-loader.service';
-import JSZip from 'jszip';
+import JSZip, { file } from 'jszip';
 import { saveAs } from 'file-saver';
 import { ProjectNameModalComponent } from '../project-name-modal/project-name-modal.component';
 import { firstValueFrom } from 'rxjs';
 
 interface GuideElement {
   title: string;
+  preview: string;
   fullContent: string;
+  imagePaths?: string[];
 }
 
 interface UploadedExpressionFile {
@@ -964,6 +966,7 @@ private getLoadedPathways(): void{
     console.log("--------------------")
     console.log("skip ngOnInit? " + this.skipInitProcessing);
     console.log("--------------------")
+    // If user is not opening the saved project
     if (!this.skipInitProcessing) {
       // Updating TimeSlider for the length of the expression files 
       const allData = this.fileDataService.getMultipleCombinedArrays();
@@ -971,7 +974,6 @@ private getLoadedPathways(): void{
       console.log("--------------------")
       console.log('Timepoints: '+timepoints);
       this.timepoints = timepoints;
-
 
       // Loading Screen
       this.isLoading = true;
@@ -1002,7 +1004,6 @@ private getLoadedPathways(): void{
           // Handle the successful response
           this.pathwayData = response[0].paths;
 
-          
           this.loadNames();// Loading Pathway names -- for displaying to user
           this.loadTally();// Loading Tally of all pathways 
           console.log("--------------------")
@@ -1010,7 +1011,7 @@ private getLoadedPathways(): void{
           console.log("--------------------")
           console.log('Getting Mapping Data');
           this.getMapData(this.pathwayData);
-
+          
         },
         (error) => {
           // Handle errorsF
@@ -1018,11 +1019,13 @@ private getLoadedPathways(): void{
           this.isLoading = false; 
 
         }
+        
       );
 
       this.filteredPathways = [...this.pathways];
       
       this.ExpressionFileNames = this.UploadedExpressionFiles.map(file => file.name);
+    // If user is opening a saved project
     }else{
       if (history.state?.fromLanding) {
         const fileContents = this.fileDataService.getTempProjectData();
@@ -2190,15 +2193,13 @@ async getAllPathwayNames(): Promise<void>{
       const id = `${link.data.from}->${link.data.to}`;
       const arrow = link.findObject("MiddleArrow") as go.Shape;
       if (arrow) {
-        arrow.visible = !animatedLinkIds.has(id);
         // Making the default arrow invisible 
+        arrow.visible = !animatedLinkIds.has(id);
       }
     });}
   }
 
-  //------ FILE FORMAT / USER INTERACTION ATTRIBUTES -----
-  // Setting more global Attributes 
-
+  //------ MOCK DATA -----
   isMenuOpen = true;
   pathwaysOpen = true;
   targetAnalysisOpen = false;
@@ -2209,28 +2210,8 @@ async getAllPathwayNames(): Promise<void>{
   selectedPathway: string = this.pathways[0];
   SelectedPathwayName: string = '';
 
-  // @ViewChild('sliderLine') set sliderLineRef(sliderLineRef: ElementRef | undefined) {
-  //   if (sliderLineRef) {
-  //     this.sliderLine = sliderLineRef;
-  //     this.initSliderLineListener();
-  //   }
-  // }
-
-  // get selectedTimepoint() {
-  //   return this.timepoints[this.selectedTimeIndex];
-  // }
-
-  // initSliderLineListener() {
-  //   if (this.sliderLine) {
-  //     this.sliderLine.nativeElement.addEventListener('click', (event: MouseEvent) => {
-  //       this.updateTimeFromClick(event);
-  //     });
-  //   }
-  // }
-
-  /** --------  USER INTERACTION FUNCTIONS -------- **/
-
   // ------------------ PATHWAY SIDE BAR -------------------
+  // Open/Close sidebar
   toggleMenu() {
     this.isMenuOpen = !this.isMenuOpen;
     if (!this.isMenuOpen) {
@@ -2240,11 +2221,11 @@ async getAllPathwayNames(): Promise<void>{
       this.pathwaysOpen = true;
     }
   }
-
+  // Close all dropdowns
   closeAllDropdowns() {
     this.pathwaysOpen = false;
   }
-
+  // On select Pathway
   selectPathway(event: Event, pathway: string) {
     event.stopPropagation();
     this.SelectedPathwayName = pathway;
@@ -2273,17 +2254,18 @@ async getAllPathwayNames(): Promise<void>{
   // ------------------ SORT BY FUNCTIONALITY -------------------
   sortDropdownOpen = false;
   
+  // Open/close sort dropdown
   toggleSortDropdown(event: MouseEvent) {
     event.stopPropagation();
     this.sortDropdownOpen = !this.sortDropdownOpen;
   }
-
+  // Mnage sorting
   onSortClick(sortType: string) {
-    console.log('onSortClick called with:', sortType); // Added console log
+    console.log('onSortClick called with:', sortType); 
     this.sortPathways(sortType);
     this.sortDropdownOpen = false;
   }
-
+  // Close the sort by if clicked outside
   handleClickOutside = (event: Event) => {
     const target = event.target as HTMLElement;
     if (this.sortDropdownOpen && !target.closest('.sort-container')) {
@@ -2390,22 +2372,6 @@ async getAllPathwayNames(): Promise<void>{
     this.sortDropdownOpen = false;
   }
 
-
-  // updateTimeFromClick(event: MouseEvent) {
-  //   if (this.sliderLine) {
-  //     const rect = this.sliderLine.nativeElement.getBoundingClientRect();
-  //     const clickPosition = event.clientX - rect.left;
-  //     const sliderWidth = rect.width;
-  //     const timeIndex = Math.round((clickPosition / sliderWidth) * (this.timepoints.length - 1));
-
-  //     if (timeIndex >= 0 && timeIndex < this.timepoints.length) {
-  //       this.selectedTimeIndex = timeIndex;
-  //       console.log(this.selectedTimeIndex);
-  //     }
-  //   }
-  // }
-
-
   //  ------------------ EXPORTING -------------------
   
   exportSubmenuOpen = false;
@@ -2415,12 +2381,13 @@ async getAllPathwayNames(): Promise<void>{
     event.stopPropagation(); 
     this.exportSubmenuOpen = !this.exportSubmenuOpen;
   }
-
+  // Handles clicks on the submenu
   onSubmenuClick(event: MouseEvent) {
     event.stopPropagation(); 
   }
 
   @HostListener('document:click', ['$event'])
+  // Listens for clicks outside the component
   onDocumentClick(event: MouseEvent) {
     // Close submenu if clicked outside
     if (this.exportSubmenuOpen) {
@@ -2433,6 +2400,7 @@ async getAllPathwayNames(): Promise<void>{
 
   }
 
+  // Exporting the diagram as an image
   exportImage(format: string) {
     if (!this.myDiagram) return;
     
@@ -2454,7 +2422,7 @@ async getAllPathwayNames(): Promise<void>{
     const safeTimePointName = timePointName.replace(/\s+/g, '_').replace(/[^\w\-]/g, '').replace(/\.(csv|txt)$/i, '');
     
     const fileName = `${safePathwayName}_${safeTimePointName}`;
-  
+    // For png format set background to white, scale to fit within maxWidth and maxHeight
     if (format === 'png') {
       const pngData = this.myDiagram.makeImageData({
         background: "white",
@@ -2462,7 +2430,7 @@ async getAllPathwayNames(): Promise<void>{
         maxSize: new go.Size(maxWidth, maxHeight),
         type: "image/png"
       });
-  
+      // if pngData is generated successfully, create a link and trigger download
       if (pngData) {
         const link = document.createElement('a');
         if (typeof pngData === 'string') {
@@ -2476,13 +2444,13 @@ async getAllPathwayNames(): Promise<void>{
       } else {
         console.error('Failed to generate PNG image.');
       }
-  
+    // For svg format set background to white
     } else if (format === 'svg') {
       const svg = this.myDiagram.makeSvg({
         scale: scale,
         background: 'white'
       });
-  
+      // if svg is generated successfully, create a link and trigger download
       if (svg) {
         const serializer = new XMLSerializer();
         const svgData = serializer.serializeToString(svg);
@@ -2584,7 +2552,7 @@ async getAllPathwayNames(): Promise<void>{
   //console.log("Filteref out enzymes: "+ filteredFiles_enzymes[0]);
   return filteredFiles_enzymes;
 }
-
+// Process New Files
 processNewFiles(): void{
     this.isLoading = true;
     this.LoadingMessage = 'Processing New Files...'
@@ -2603,7 +2571,6 @@ processNewFiles(): void{
 
     var filteredFiles = [];
     for (let i = previousLength; i<allData.length;i++){
-      //console.log("New Data:", allData[i]);
       console.log('Processing New Data');
       const file = allData[i];
       const geneEnzymes = this.updateEnzymeGenes(file);
@@ -2615,11 +2582,9 @@ processNewFiles(): void{
 
     //var newArray = originalData.push(newFilteredGenes);
     console.log('Adding New Filtered Data to Array');
-    //console.log(newArray);
     newFilteredGenes.forEach(item =>{
       this.filteredGenes.push(item);
     })
-    //console.log(this.filteredGenes);
     
   }
 
@@ -2725,8 +2690,8 @@ processNewFiles(): void{
     oldItems: [] as string[],
     similarities: [] as string[],
   };
+  
   // Add files
-    // Add files
   addFiles() {
       if (this.uploadedFiles.length > 0) {
         console.log('Files to be added:', this.uploadedFiles);
@@ -2922,7 +2887,6 @@ processNewFiles(): void{
           );
           this.closeUploadModal(); // Close modal after merge
           
-          //this.isLoading = false;
         }).catch(err => {
           console.warn('Failed to process added files:', err);
           this.unsupportedFileTypeMessage = 'Failed to process added files, make sure you are only uploading Expression Data';
@@ -2932,64 +2896,316 @@ processNewFiles(): void{
       }
     }
   
-
   //  ------------------ HELP - GUIDE -------------------
   isFilterPathwayModalOpen = false;
   selectedGuideElement: GuideElement | null = null;
   maxTitleHeight = 0;
-
+  
+  // Guide Context
   guideElements: GuideElement[] = [
     {
       title: 'File Upload',
-      fullContent: `To upload a file, click the Upload button and select your file.
-- Supported formats include .csv and .txt.
-- Make sure your file is formatted correctly - tab separated.
-- Uploaded files should at least include one expression and one annotation file.
-- Pick the number of the top expressed pathways you want to be displayed.
-- Pick if you want to specify and organism and if you have a time series data.
+      preview: 'To upload upload annotation and expression files...',
+      fullContent: `[[IMAGE_1]]
+      <strong>Step 1: Upload Your Files</strong><br>
+      Click the “Upload” button <strong>(A)</strong> to select your files. You need at least one expression file and one annotation file to proceed.<br>
+      <strong>Supported file formats:</strong> .csv and .txt.<br><br>
 
-(You will be able to add more files later on.)
-Once all the steps are completed, click the Process button to move to get visualisation of the KEGG pathways.`,
+      <strong>Step 2: Access Information</strong><br>
+      You will also be displayed with the check information if the required files were uploaded or not <strong>(C)</strong><br>
+      But if you're still unsure about which files to upload, click the information button <strong>(D)</strong> at the top-right corner for guidance.<br><br>
+
+      <strong>Open Project</strong><br>
+      To open a project, click the “Open Project” button <strong>(B)</strong>.<br>
+      <li>This will open a pop-up window where you can select the project file to upload.</li>
+      <li>Once selected, the project file will be uploaded and you will be redirected to Display Page.</li>
+
+      [[IMAGE_2]]
+      <strong>Step 3: Manage Uploaded Files</strong><br>
+      Upon uploading, you'll see a list of all selected files separated in two groups - Annotaion File List <strong>(E)</strong> and Expression File List <strong>(F)</strong> .<br>
+      <li>To remove a file from the list, click the x button <strong>(G)</strong> next to the file.</li>
+      <li>To change an order of your time points, drag the expression file to the designed location and drop it. You will be able to change the order of the files later on as well.</li>
+      <li>To add additional files, click the “Upload” button again. You can upload more files at any time.</li><br>
+
+      <strong>Step 4: Configure Settings</strong><br>
+      You will see three settings options:<br><br>
+
+      <strong>Number of Top-Expressed Pathways:</strong><br>
+      <li>Enter the desired number or adjust it using the up or down arrows <strong>(I)</strong>.</li><br>
+
+      <strong>Organism Specification:</strong><br>
+      <li>Choose whether to specify an organism. <em>(Note: This feature is not yet implemented.)</em></li><br>
+
+      <strong>Time Series Data:</strong><br>
+      <li>Indicate if your data includes time series analysis <strong>(H)</strong>.</li><br>
+
+      <strong>Final Step: Process and Visualise</strong><br>
+      Once all settings are configured, click the “Process” button <strong>(J)</strong> to generate visualisations of the KEGG pathways.`,
+      imagePaths: ['assets/newImg/Upload1.png', 'assets/newImg/Upload2.png'],
+    },
+    
+    {
+      title: 'Manage Files, Imports and Exports',
+      preview: 'To upload extra files, open/save projects or export a mapping view...',
+      fullContent: `[[IMAGE_1]]
+                    <h3>File Management: Upload Extra Expression Files, Remove Files and Reorder Timepoints</h3>                 
+                    <strong>Step 1: Open File Manager</strong><br>
+                    At the top bar, click the <strong>File</strong> button <strong>(A)</strong>.<br>
+                    And then click Manage Files <strong>(B)</strong> which will desplay a File Manager Modal <br><br>
+                    [[IMAGE_2]]
+
+                    <strong>Step 2: Manage Files</strong><br>
+                    Manage Files modal contains two lists - Uploaded Annoatnion files <strong>(G)</strong> and Uploaded Expression Files <strong>(H)</strong> for which you can:<br>
+                    
+                    <h4>Upload Extra Expression Files</h4>
+                    Click <strong>+ Add Expression Files</strong> button. A pop-up window will appear, allowing you to upload additional expression files if needed.<br>
+                    <li>You can import multiple expression files</li>
+                    <li>The new Expression files will be added to the list of Expression files and marked as green <strong>(I)</strong> </li><br>
+                    
+                    <h4>Remove Expression Files</h4>
+                    To remove files from the Expression List click the x button next to the file from the list <strong>(J)</strong>.<br>
+
+                    <h4>Reorder Expression Files</h4>
+                    To reorder the expression files, drag the file to the desired position in the expression list and drop.<br>
+                    
+                    <strong>Step 3: Save the Changes</strong><br>
+                    Once you are satisfied with the list of files, click the <strong>Apply Changes</strong> button <strong>(M)</strong>.<br>
+                    <li>This will reprocess the mapping and display the previously chosen number of top pathways from all expression files.</li>
+                    
+                    <h3>Open, Save and Start a Project</h3> 
+                    
+                    <h4>Open Project</h4>
+                    
+                    <strong>Step 1: Open Project</strong><br>
+                    Click the <strong>File</strong> button <strong>(A)</strong> at the top bar.<br>
+                    Then click the <strong>Open Project</strong> button <strong>(D)</strong>.<br>
+                    
+                    <strong>Step 2: Select Project File</strong><br>
+                    A pop-up window will appear, allowing you to select the project file to upload.<br>
+                    Once selected, the project file will be uploaded and you will be redirected to Display Page.<br>
+                    
+                    <h4>Save Project</h4>
+
+                    <strong>Step 1: Save Project</strong><br>
+                    Click the <strong>File</strong> button <strong>(A)</strong> at the top bar.<br>
+                    Then click the <strong>Save Project</strong> button <strong>(E)</strong>.<br>
+                    
+                    <strong>Step 2: Specify Project Name</strong><br>
+                    A pop-up window will appear, allowing you to set a project name to save the project file as.<br>
+                    Once selected, the project file will be saved under chosen name into your <strong>Downloads</strong> folder.</li><br>
+                    
+                    <h4>Start New Project</h4>
+                    
+                    <strong>Step 1: Start New Project</strong><br>
+                    Click the <strong>File</strong> button <strong>(A)</strong> at the top bar.<br>
+                    Then click the <strong>New Project</strong> button <strong>(C)</strong>.<br>
+                    
+                    <strong>Step 2: Confirm New Project</strong><br>
+                    A pop-up window will appear, asking you to confirm if you want to start a new project.<br>
+                    <li>This will remove all previously uploaded files and settings.</li>
+                    <li>Click <strong>Yes</strong> to proceed.</li>
+                    <Li>You will be redirected to the upload page from where you can start a new.</li><br>
+
+                    <h3>Export Pathway Visualisation</h3>     
+                    
+                    <strong>Step 1: Access Export Options</strong><br>
+                    Go to the <strong>File</strong> menu at the top bar <strong>(A)</strong>.<br><br>
+
+                    <strong>Step 2: Initiate Export</strong><br>
+                    Click the <strong>Export</strong> button in the dropdown <strong>(F)</strong>.<br><br>
+
+                    <strong>Step 3: Choose Export Format</strong><br>
+                    <li>You will have two options to export the image: <strong>PNG</strong> and <strong>SVG</strong>.</li>
+                    <li>Click your desired format.</li><br>`,
+                   imagePaths: ['assets/newImg/TopBar1.png','assets/newImg/FileManagement.png']
     },
     {
-      title: 'Interactivity',
-      fullContent: `The pathway display offers various interactivity for the user:
-- Click on nodes to see detailed information.
-- Use the zoom feature to navigate through the pathways.
-- Use the search feature to find specific enzymes, compounds or pathways.
-- Customise the colours of the gene expression levels.
-- The download feature allows you to save the current view as an image.
-- If you have a time series data, you can see the changes in the expression levels over time.`,
-    },
-    {
-      title: 'Files',
-      fullContent: `At the top of the page in the File section, you will be able to:
-- Upload more files.
-- Export the current view as an image in svg or png formats.`,
-    },
-    {
-      title: 'View',
-      fullContent: `At the top of the page in the View section, you will be able to:
-- In Search: Find specific enzymes, compounds or pathways by picking it from a drop down list.
-- In Customise: Change the colour of expression of the genes by picking them from a colour picker.`,
+      title: 'Customise / Search',
+      preview: 'To Customise visualiastion and Search for elements...',
+      fullContent: `[[IMAGE_1]]
+                    <h3>Customise the Colours of Certain Nodes on the Display</h3>
+                    <strong>Step 1: Access the View Options</strong><br>
+                    Go to the <strong>View</strong> menu <strong>(A)</strong> at the top bar.<br><br>
+
+                    <strong>Step 2: Open Customisation</strong><br>
+                    Click the <strong>Customise</strong> button <strong>(B)</strong>.<br>
+                    <li>This will open a tab on the left side of the website with customisation options.</li><br>
+                    [[IMAGE_2]]
+                    <strong>Step 3: Change Colours</strong><br>
+                    You can change the colours of up or down regulated genes and Paralogs:<br>
+                    <li>Click the coloured box <strong>(F)</strong> to open a colour picker.</li>
+                    <li>Pick a desired colour from the colour picker.</li><br>
+
+                    <strong>Final Step: Close the Colour Picker</strong><br>
+                    Once satisfied with the colour choice, click outside the colour picker to close it.<br><br>
+
+                    <strong>To Close the Customisation Tab:</strong>
+                    Click the <strong>x</strong> button in the top right corner of the tab <strong>(H)</strong>.
+                    
+                    <h3>Search for Certain Elements in the Display</h3>
+
+                    <strong>Step 1: Access the View Options</strong><br>
+                    Go to the <strong>View</strong> menu <strong>(A)</strong> at the top bar.<br><br>
+
+                    <strong>Step 2: Open Search Options</strong><br>
+                    Click <strong>Search</strong> <strong>(C)</strong> and then <strong>Pathway Elements</strong> <strong>(D)</strong>.<br>
+                    <li>This will open a tab on the left side of the website with search options.</li><br>
+                    [[IMAGE_3]]
+                    <strong>Step 3: Choose an Element Category</strong><br>
+                    You will see three options: <strong>Enzyme</strong>, <strong>Compound</strong>, and <strong>Pathway</strong>.<br>
+                    <li>Choose the option corresponding to the element you want to find within the current display.</li>
+                    <li>Tick the box next to the desired option <strong>(I)</strong>.</li><br>
+
+                    <strong>Step 4: Search for the Element</strong><br>
+                    A drop-down box <strong>(J)</strong> will appear with a list of elements in the current pathway belonging to the selected category.<br>
+                    <li>Scroll through the list to find the element you are looking for.</li>
+                    <li>Click on the element to zoom into it in the Visualisation Display.</li><br>
+
+                    <h3>Search for Pathway</h3>
+
+                    <strong>Step 1: Access the View Options</strong><br>
+                    Go to the <strong>View</strong> menu <strong>(A)</strong> at the top bar.<br><br>
+
+                    <strong>Step 2: Open Search for Pathway</strong><br>
+                    Click the <strong>Search</strong> button <strong>(C)</strong>, then click <strong>Pathway</strong> <strong>(E)</strong>.<br>
+                    <li>This will open a pop-out with two tabs for searching pathways.</li><br>
+                    [[IMAGE_4]]
+                    <strong>Highlight Tab <strong>(K):</strong></strong><br>
+                    <li>Displays a table listing all the pathways where uploaded expression files found hits.</li>
+                    <li>See information on the total number of pathways and how many you have selected above the table.</li>
+                    <li>To select pathways, click the tick boxes in the <strong>Select</strong> column of the table <strong>(L)</strong>. You can select multiple pathways. The grayed out pathway indicate pathways that are already within your display.</li>
+                    <li>To unselect a pathway, click the tick box again.</li>
+                    <li>Use the <strong>Select All</strong> and <strong>Clear All</strong> buttons <strong>(M)</strong> to quickly select or clear selections.</li>
+                    <li>Once satisfied with your selections, click <strong>Search</strong> <strong>(N)</strong> to add these pathways to the end of the pathway list in the Side Bar.</li><br>
+                    [[IMAGE_5]]
+                    <strong>All KEGG Tab <strong>(O):</strong></strong><br>
+                    <li>Allows searching for a pathway avaiable in KEGG API by typing the pathway name in the <strong>Search Pathway Box</strong> <strong>(U)</strong>.</li>
+                    <li>A list of matching pathways to the search term will appear below the search box.<br>
+                    <li>To add a pathway, click its name; it will be added to a list below the search box <strong>(P)</strong>.</li>
+                    <li>You can add multiple pathways. To remove a pathway, click the <strong>x</strong> next to its name.</li>
+                    <li>Once happy with the selection, click <strong>Search</strong> to add the pathways to the end of the pathway list in the Side Bar.</li><br>
+
+                    <strong>Note:</strong><br>
+                    1. The pop-out can be resized by dragging the bottom right corner for a more comfortable view of the table.<br>
+                    2. Only one tab can be used at a time. Switching tabs will reset the selections in the closed tab.<br>
+                    `,
+        imagePaths: ['assets/newImg/TopBar2.png', 'assets/newImg/Customise.png', 'assets/newImg/SearchForElements.png', 'assets/newImg/SearchPatwayHighlight.png', 'assets/View_SearchForPathway_AllKEGG.png' ]
     },
     {
       title: 'Time Series',
-      fullContent: '',
+      preview: 'Working with Time Series Data...',
+      fullContent:
+        `<strong>Working with Time Series Data</strong><br><br>
+
+        If you have time series data, you can access tools to operate it at the bottom of the page, below the display.<br><br>
+        [[IMAGE_1]]
+
+        [[IMAGE_2]]
+        <strong>Viewing Different Time Points</strong><br>
+        <li>Use the <strong>slider</strong> <strong>(A)</strong> to move through different time points and see the display for each.</li><br>
+
+        <strong>Creating a Timelapse</strong><br>
+        - Click the <strong>Animate</strong> button <strong>(B)</strong> to create a timelapse of all the time points for a pathway.<br>
+        - This will animate the display, showing all time points sequentially.<br>`,
+        imagePaths: ['assets/newImg/TimeSliderPage.png','assets/newImg/TimeSlider.png']
+    },
+    {
+      title: 'Display Interaction',
+      preview: 'Display Interaction and Functionality...',
+      fullContent:
+        `<h3>Display Elements</h3>
+        [[IMAGE_1]]
+        <li><strong>Linked Pathway:</strong> Represented by the light blue rectangular box labeled <strong>(A)</strong>, this element serves as a gateway to another pathway
+        visualisation. Clicking on this interactive element opens up a popout with a button that allows to navigate to related metabolic pathways</li>
+
+        <li><strong>Enzyme: </strong> Rectangular boxes such as the one labeled <strong>(I)</strong>, enzymes are color-coded to reflect differential gene expression levels. The color
+        spectrum transitions from in this case blue <strong>(C)</strong> for downregulation to red <strong>(B)</strong> upregulation (however it can be changed see Customisation
+        section of this guide), indicating varying degrees of expression. Gray enzymes <strong>(I)</strong> signify neutral expression levels, indicating no significant change in gene
+        activity. The legend <strong>(J)</strong> in the bottom corner provides a complete reference for interpreting these color variations. </li>
+
+        <li><strong>Paralogs: </strong> Another boxes that is colour separated from the others are Paralogs <strong>(D)</strong> here represented in yellow as default however it can
+        be changed in the Customisation section in View. (See Customisation section of this guide)</li>
+        
+        <li><strong>Compound:</strong> Illustrated by gray circles <strong>(E)</strong>, these elements represent metabolites or chemical compounds that participate in the
+        biochemical reactions within the pathway.</li>
+
+        <li><strong>Directionality:</strong> The flow and reversibility of reactions are indicated by arrows <strong>(K)</strong> and <strong>(L)</strong> along with distinctive line
+        styles. Reversible reactions are represented by segmented lines, while irreversible reactions are depicted with solid straight lines. These directional indicators convey crucial
+        information through both their color and size. The color reflects the differential expression of the associated genes, while the arrow size corresponds to the relative log2fold
+        change magnitude of that particular pathway segment. As evidenced by arrows <strong>(K)</strong> and <strong>(L)</strong>, both colour intensity and arrow dimensions vary to
+        represent different expression levels and fold changes between conditions.</li>
+
+        <li><strong>Pathway Magnifier:</strong> You can zoom in if they click on the + or out if they on the - sign <strong>(G)</strong>(It is also possible to zoom in and zoom out using
+        computer mouse). The feature labeled <strong>(H)</strong> functions as a navigation mini map, allowing to view the specific regions of interest within the pathway visualisation.
+        This feature enhances the examination of complex pathway sections by providing detailed views of selected areas.</li>​
+
+        [[IMAGE_2]]
+        <li><strong>Annoation Popout:</strong> After clicking on any kind of node you will be displayed with a pop-out window that contains annoation and possibility of viewing that
+        element within Kegg <strong>(M)</strong>. In case of pathway nodes, in addition you get an option to navigate to this pathway within the app by clikcing <strong>Launch</strong>
+        button <strong>(N)</strong></li>`,
+        imagePaths: ['assets/newImg/Display.png', 'assets/newImg/popout.png']
+    },
+    {
+      title: 'Side Bar / Pathway Information',
+      preview: 'Side Bar Functionality and Pathway Information...',
+      fullContent:
+        `<h3>Side Bar Functionality</h3>
+
+        [[IMAGE_1]]
+        The Side Bar, located on the left side of the website, displays a list <strong>(A)</strong> of top-expressed pathways. The number of pathways displayed depends on the number previously selected by the user.<br><br>
+        <li>Under the Pathway title side bar displays the total number of pathways that had hits within users data</li>
+        <li>Also by clicking <strong>See All</strong> button <strong>(C)</strong> it will open the modal with all the pathways (see more in <strong>Customise / Search -> Search for Pathway -> Highlight</strong> section of this guide ) </li>
+        [[IMAGE_2]]
+
+        <strong>Sorting Pathways</strong><br>
+        <li>Click the <strong>Sort</strong> button <strong>(B)</strong> to open a dropdown menu with sorting options for the list.</li><br>
+
+        <strong>Expanding and Collapsing the Side Bar</strong><br>
+        <li>To collapse the Side Bar and expand the Display View, click the arrows at the top right corner <strong>(C)</strong>.</li>
+        <li>To reopen the Side Bar, click the same arrows on the closed bar <strong>(D)</strong>.</li><br>
+        [[IMAGE_3]]
+        <strong>Managing Tabs within the Side Bar</strong><br>
+        If the <strong>Search</strong> or <strong>Customisation</strong> tabs are added to the Side Bar:<br>
+        <li>Switch between options by clicking either the icon or the section name. The section icon will be highlighted <strong>(E)</strong> indicating the current section.</li>
+        <li>To close the Search or Customisation sections, click the <strong>x</strong> button <strong>(F)</strong> at the top right of each section.</li>
+        <li>Closing a section will automatically revert to the Pathway section, which is the default view.</li>
+        <li>Note: The Pathway section cannot be closed as it is the default view of the Side Bar.</li><br>
+
+        <h3>Information about the Pathway</h3>
+        [[IMAGE_4]]
+        Below the display, information about the pathway is shown, including:<br>
+        <li><strong>Name</strong></li>
+        <li><strong>Contrast/Time Point</strong></li>
+        <li><strong>Total number of genes</strong></li>
+        <li><strong>Number of unique genes</strong></li>
+        <li><strong>Number of affected enzymes</strong></li>`,
+        imagePaths: ['/assets/newImg/SideBarPage.png', '/assets/newImg/SideBar1.png', '/assets/newImg/SideBar2.png', '/assets/newImg/InformationPage.png']
     },
   ];
-
+  // Format the Guide context to be displayed as images and text
+  splitContent(fullContent: string, imagePaths: string[] = []): { type: 'text' | 'image'; content: string }[] {
+    const parts: { type: 'text' | 'image'; content: string }[] = [];
+    const textParts = fullContent.split(/\[\[IMAGE_\d+\]\]/);
+  
+    textParts.forEach((textPart, index) => {
+      if (textPart.trim()) {
+        parts.push({ type: 'text', content: textPart.trim() });
+      }
+      if (imagePaths[index]) {
+        parts.push({ type: 'image', content: imagePaths[index] });
+      }
+    });
+  
+    return parts;
+  }
+  
+  // Open Guide section
   openGuideDetail(element: GuideElement) {
     this.selectedGuideElement = element;
   }
-
+  // Close Guide section
   closeGuideDetail() {
     this.selectedGuideElement = null;
-  }
-
-  applyGuide() {
-    console.log('Guide Applied');
-    this.closeFilterPathwayModal();
   }
 
   openFilterPathwayModal() {
@@ -3010,191 +3226,200 @@ Once all the steps are completed, click the Process button to move to get visual
   remainingExpressionFiles: any[] = []; // Working list (after removal, reordering)
   filesMarkedForRemoval: any[] = []; // Files to remove
 
-    // When opening modal, prepare data
-    openUploadedFilesModal() {
-      this.isUploadedFileModalOpen = true;
-      this.initialExpressionFiles = [...this.UploadedExpressionFiles]; // Save original
-      this.remainingExpressionFiles = [...this.UploadedExpressionFiles];
-      this.filesMarkedForRemoval = [];
+  // When opening modal, prepare data
+  openUploadedFilesModal() {
+    this.isUploadedFileModalOpen = true;
+    this.initialExpressionFiles = [...this.UploadedExpressionFiles]; // Save original
+    this.remainingExpressionFiles = [...this.UploadedExpressionFiles];
+    this.filesMarkedForRemoval = [];
+  }
+
+  // Start dragging
+  onDragStart(event: DragEvent, index: number) {
+    this.draggedIndex = index;
+  }
+
+  // Drag over
+  onDragOver(event: DragEvent, index: number) {
+    event.preventDefault();
+    this.hoveredIndex = index;
+  }
+
+  // Drop
+  onDrop(event: DragEvent, index: number) {
+    event.preventDefault();
+    if (this.draggedIndex === null) return;
+
+    const file = this.remainingExpressionFiles[this.draggedIndex];
+    this.remainingExpressionFiles.splice(this.draggedIndex, 1);
+    this.remainingExpressionFiles.splice(index, 0, file);
+
+    this.draggedIndex = null;
+    this.hoveredIndex = null;
+  }
+
+  // End dragging
+  onDragEnd() {
+    this.draggedIndex = null;
+    this.hoveredIndex = null;
+  }
+
+  // Move file to removal list
+  moveToRemove(file: File): void {
+    const isNewUpload = this.newlyUploadedFiles.includes(file);
+    if (isNewUpload) {
+      // Just remove it completely
+      this.remainingExpressionFiles = this.remainingExpressionFiles.filter(f => f !== file);
+      this.newlyUploadedFiles = this.newlyUploadedFiles.filter(f => f !== file);
+    } else {
+      this.remainingExpressionFiles = this.remainingExpressionFiles.filter(f => f !== file);
+      this.filesMarkedForRemoval.push(file);
     }
+  }
 
-    // Start dragging
-    onDragStart(event: DragEvent, index: number) {
-      this.draggedIndex = index;
+  // Restore file back
+  restoreFile(file: File): void {
+    // Prevent duplicate restoration
+    const alreadyExists = this.remainingExpressionFiles.some(f => f.name === file.name);
+    if (!alreadyExists) {
+      this.remainingExpressionFiles.push(file);
     }
+    this.filesMarkedForRemoval = this.filesMarkedForRemoval.filter(f => f !== file);
+  }
 
-    // Drag over
-    onDragOver(event: DragEvent, index: number) {
-      event.preventDefault();
-      this.hoveredIndex = index;
-    }
+  // Apply all changes
+  applyChanges() {
+    this.skipInitProcessing = false;
+    console.log('Applying changes to uploaded files');
+    
+    // Removed files
+    const removedFiles = this.filesMarkedForRemoval.map(f => f.name);
+    console.log('Removed files list:', removedFiles);
 
-    // Drop
-    onDrop(event: DragEvent, index: number) {
-      event.preventDefault();
-      if (this.draggedIndex === null) return;
-
-      const file = this.remainingExpressionFiles[this.draggedIndex];
-      this.remainingExpressionFiles.splice(this.draggedIndex, 1);
-      this.remainingExpressionFiles.splice(index, 0, file);
-
-      this.draggedIndex = null;
-      this.hoveredIndex = null;
-    }
-
-    // End dragging
-    onDragEnd() {
-      this.draggedIndex = null;
-      this.hoveredIndex = null;
-    }
-
-    // Move file to removal list
-    moveToRemove(file: File): void {
-      const isNewUpload = this.newlyUploadedFiles.includes(file);
-      if (isNewUpload) {
-        // Just remove it completely
-        this.remainingExpressionFiles = this.remainingExpressionFiles.filter(f => f !== file);
-        this.newlyUploadedFiles = this.newlyUploadedFiles.filter(f => f !== file);
-      } else {
-        this.remainingExpressionFiles = this.remainingExpressionFiles.filter(f => f !== file);
-        this.filesMarkedForRemoval.push(file);
+    // File format parser
+    const properlyFormattedFiles = this.remainingExpressionFiles.map(file => {
+      if (file.name && file.file instanceof File) {
+        return file;
       }
-    }
-
-    // Restore file back
-    restoreFile(file: File): void {
-      // Prevent duplicate restoration
-      const alreadyExists = this.remainingExpressionFiles.some(f => f.name === file.name);
-      if (!alreadyExists) {
-        this.remainingExpressionFiles.push(file);
-      }
-      this.filesMarkedForRemoval = this.filesMarkedForRemoval.filter(f => f !== file);
-    }
-
-// Apply all changes
-applyChanges() {
-
-  console.log('Applying changes to uploaded files');
-  
-  // Removed files
-  const removedFiles = this.filesMarkedForRemoval.map(f => f.name);
-  console.log('Removed files list:', removedFiles);
-
-  // File format parser
-  const properlyFormattedFiles = this.remainingExpressionFiles.map(file => {
-    if (file.name && file.file instanceof File) {
-      return file;
-    }
-    return {
-      name: file.name,
-      file: file,
-    };
-  });
-
-  // List of current files
-  const currentFiles = [...properlyFormattedFiles];
-  // Names of already processed files
-  const alreadyProcessedNames = this.initialExpressionFiles.map(f => f.name);
-  // Names of new files to process
-  const newFilesToProcess = currentFiles.filter(f => !alreadyProcessedNames.includes(f.name));
-
-  // Check if the order of files has changed
-  const initialWithoutRemoved = this.initialExpressionFiles
-    .filter(f => !this.filesMarkedForRemoval.some(r => r.name === f.name))
-    .map(f => f.name);
-
-  // Newly added files
-  const addedFiles = newFilesToProcess.map(f => f.name);
-  // list of current files
-  const currentNames = currentFiles.map(f => f.name);
-  // Order initially
-  const expectedOrder = [...initialWithoutRemoved, ...addedFiles];
-  // Boolean to check if the order has changed
-  const reorderChanged = !this.isSameOrder(expectedOrder, currentNames);
-
-  // Display message to user
-  // Check if any files were removed
-  // Check if any files were added
-  // Check if the order of files has changed
-  let message = '';
-  if (removedFiles.length > 0) {
-    message += `You are about to remove these files:\n- ${removedFiles.join('\n- ')}\n\n`;
-  }
-  if (addedFiles.length > 0 && !reorderChanged) {
-    message += `You have added these new files:\n- ${addedFiles.join('\n- ')}\n\n`;
-  }
-  if (reorderChanged) {
-    message += `You have reordered the files.\n\n`;
-  }
-
-  if (message === '') {
-    alert('No changes to apply.');
-    this.closeUploadedFilesModal();
-    return;
-  }
-
-  const confirmed = window.confirm(message + 'Are you sure you want to apply these changes?');
-  if (!confirmed) return;
-
-  // Assign the current files to the initial expression files
-  this.UploadedExpressionFiles = currentFiles;
-  this.ExpressionFileNames = this.UploadedExpressionFiles.map(file => file.name);
-
-  // Assign the current files to the uploaded files
-  this.uploadedFiles = currentFiles;
-
-  const validExtensions = ['txt', 'csv'];
-  const expressionData: { [filename: string]: string[][] } = {};
-
-  // Process the new files
-  const dataLoadPromises = newFilesToProcess.map(fileObj =>
-    new Promise<void>((resolve, reject) => {
-      const fileExtension = fileObj.name.split('.').pop()?.toLowerCase();
-      // Check if the file extension is valid
-      if (!fileExtension || !validExtensions.includes(fileExtension)) {
-        this.unsupportedFileTypeMessage = `File ${fileObj.name} is not supported.`;
-        return reject();
-      }     
-      // Read the file content
-      const reader = new FileReader();
-      reader.onload = (event: any) => {
-        const content = event.target.result;
-        const parsedData = parseFileContent(content, fileObj.name, fileExtension);
-        // Parse the file content
-        // Check if the parsed data is valid and not empty
-        if (!parsedData || parsedData.length === 0) {
-          this.warningMessage = `File ${fileObj.name} is empty or invalid.`;
-          return reject();
-        }
-        
-        const fileType = identifyFileType(parsedData, fileObj.name);
-        const shortName = (fileObj.name || '').replace(/\.[^/.]+$/, '');
-
-        // Check if the file is an expression file
-        if (fileType === 'expression') {
-          expressionData[shortName] = parsedData;
-        } else {
-          this.warningMessage = `File ${fileObj.name} must be an expression file.`;
-          return reject();
-        }
-
-        resolve();
+      return {
+        name: file.name,
+        file: file,
       };
+    });
 
+    // List of current files
+    const currentFiles = [...properlyFormattedFiles];
+    // Names of already processed files
+    const alreadyProcessedNames = this.initialExpressionFiles.map(f => f.name);
+    // Names of new files to process
+    const newFilesToProcess = currentFiles.filter(f => !alreadyProcessedNames.includes(f.name));
+
+    // Check if the order of files has changed
+    const initialWithoutRemoved = this.initialExpressionFiles
+      .filter(f => !this.filesMarkedForRemoval.some(r => r.name === f.name))
+      .map(f => f.name);
+
+    // Newly added files
+    const addedFiles = newFilesToProcess.map(f => f.name);
+    // list of current files
+    const currentNames = currentFiles.map(f => f.name);
+    // Order initially
+    const expectedOrder = [...initialWithoutRemoved, ...addedFiles];
+    // Boolean to check if the order has changed
+    const reorderChanged = !this.isSameOrder(expectedOrder, currentNames);
+
+    // Display message to user
+    // Check if any files were removed
+    // Check if any files were added
+    // Check if the order of files has changed
+    let message = '';
+    if (removedFiles.length > 0) {
+      message += `You are about to remove these files:\n- ${removedFiles.join('\n- ')}\n\n`;
+    }
+    if (addedFiles.length > 0 && !reorderChanged) {
+      message += `You have added these new files:\n- ${addedFiles.join('\n- ')}\n\n`;
+    }
+    if (reorderChanged) {
+      message += `You have reordered the files.\n\n`;
+    }
+
+    if (message === '') {
+      alert('No changes to apply.');
+      this.closeUploadedFilesModal();
+      return;
+    }
+    // Check with the user if they want to apply the changes
+    const confirmed = window.confirm(message + 'Are you sure you want to apply these changes?');
+    if (!confirmed) return;
+
+    // Assign the current files to the initial expression files
+    this.UploadedExpressionFiles = currentFiles;
+    this.ExpressionFileNames = this.UploadedExpressionFiles.map(file => file.name);
+
+    // Assign the current files to the uploaded files
+    this.uploadedFiles = currentFiles;
+
+    const validExtensions = ['txt', 'csv'];
+    const expressionData: { [filename: string]: string[][] } = {};
+
+    // Process the new files
+    const dataLoadPromises = newFilesToProcess.map(fileObj =>
+      new Promise<void>((resolve, reject) => {
+
+        const fileExtension = fileObj.name.split('.').pop()?.toLowerCase();
+        // Check if the file extension is valid
+        if (!fileExtension || !validExtensions.includes(fileExtension)) {
+          this.unsupportedFileTypeMessage = `File ${fileObj.name} is not supported.`;
+          return reject();
+        }    
+
+        // Read the file content
+        const reader = new FileReader();
+        
+        reader.onload = (event: any) => {
+
+          const content = event.target.result;
+          const parsedData = parseFileContent(content, fileObj.name, fileExtension);
+          // Parse the file content
+          // Check if the parsed data is valid and not empty
+          if (!parsedData || parsedData.length === 0) {
+            this.warningMessage = `File ${fileObj.name} is empty or invalid.`;
+            return reject();
+          }
+          const fileType = identifyFileType(parsedData, fileObj.name);
+          const shortName = (fileObj.name || '').replace(/\.[^/.]+$/, '');
+
+          // Check if the file is an expression file
+          if (fileType === 'expression') {
+            expressionData[shortName] = parsedData;
+          } else {
+            this.warningMessage = `File ${fileObj.name} must be an expression file.`;
+            return reject();
+          }
+
+          resolve();
+
+        };
+
+      // Handle file read error      
       reader.onerror = () => {
         this.warningMessage = `Error reading file ${fileObj.name}.`;
         reject();
       };
       reader.readAsText(fileObj.file);
-    })
+
+  })
   );
   // Wait for all file processing to complete
   // Process the expression data and merge with annotation data
   Promise.all(dataLoadPromises).then(() => {
+
     // Get the annotation data
     const annotationData = this.fileDataService.getAnnotationData();
+    console.log('Annotation data:', annotationData);
     // Get the existing combined data
     const existingCombined = this.fileDataService.getMultipleCombinedArrays() || [];
+    console.log('Existing combined data:', existingCombined);
     // Placeholder for new combined data
     const newCombined: any[][] = [];
 
@@ -3244,32 +3469,36 @@ applyChanges() {
 
     // Map the current files to the new combined data
     const combined = currentFiles.map((f, i) => newCombined[i] || existingCombined.find((_, j) => this.initialExpressionFiles[j]?.name === f.name));
-
+    
     // Set the combined data in the fileDataService
     this.fileDataService.setCombinedData(combined.flat());
     this.fileDataService.setMultipleCombinedArrays(combined);
+    // Get the timepoints from the combined data
     this.timepoints = this.rangeFromOne(combined);
     console.log('Timepoints: '+ this.timepoints);
     console.log('Combined data:', combined);
     this.isLoading = true;
     this.LoadingMessage = 'Loading New File Data...';
-
+    // Process the new files
     this.processNewFiles();
+    // Get the Enzyme genes
     this.getEnzymeGenes();
+    // Extract EC numbers
     this.extractECNumbers();
-
+    // Current pathways
     const currentPaths = this.pathways;
 
     const postData = [this.enzymeList, this.pathwayNumber];
     this.enzymeApiServicePost.postEnzymeData(postData).subscribe(
       (response) => {
+        // Update the pathways
         console.log('Updated Pathways:', response);
         this.pathwayTally = response[1];
         this.pathwayData = response[0].paths;
 
         this.loadNames();
         this.loadTally();
-
+        // Compare the pathways
         const result = this.comparePathways(currentPaths, this.pathways);
         this.summaryData = {
           newItems: result.newItems,
@@ -3277,6 +3506,7 @@ applyChanges() {
           similarities: result.similarities,
         };
         this.showSummaryBox = true;
+        // Get the map data
         this.getMapData(this.pathwayData);
       },
       (error) => {
@@ -3284,14 +3514,12 @@ applyChanges() {
         this.isLoading = false;
       }
     );
-
+    // Close the modal
     this.closeUploadedFilesModal();
-  }).catch(err => {
-    console.warn('Failed to process added files:', err);
-  });
-}
-
-    
+    }).catch(err => {
+      console.warn('Failed to process added files:', err);
+    });
+  }
 
     // Helper: check if two arrays have same order
     isSameOrder(arr1: string[], arr2: string[]) {
@@ -3303,11 +3531,12 @@ applyChanges() {
     }
 
     newlyUploadedFiles: File[] = [];
-
+    
+    // Handle file input
     handleFileInput(event: any): void {
       const files: FileList = event.target.files;
       const validNewFiles: File[] = [];
-    
+      // 
       for (let i = 0; i < files.length; i++) {
         const file = files.item(i);
         if (!file) continue;
@@ -3344,20 +3573,22 @@ applyChanges() {
     }
 
   // ------------------- NEW PROJECT subMenu -----------------
-
+  // Open new project
   openUploadPage() {
+    // Ask user for confirmation
     const confirmed = window.confirm(
       this.isProjectSaved
         ? 'Are you sure you want to close the current project?'
         : 'Are you sure you want to close the current project? All progress will be lost. Save your project before closing.'
     );
-    
+    // If confirmed, reset all project data and navigate to upload page
     if (confirmed) {
       this.resetAllProjectData();
       this.router.navigate(['/upload']);
     }
   }
 
+  // Reset all project data
   resetAllProjectData(): void {
     // Clear file-related arrays
     this.UploadedAnnoationFiles = [];
@@ -3432,21 +3663,21 @@ applyChanges() {
       this.searchTabOpen = false;
     }
   }
-
+  // Pathway open
   isPathwaysActive(): boolean {
     // If both exist and both are closed then make pathways active
     // If custom tab is closed and exists and search tab doesnt exist
     // If search tab closed and exist and custom tab doesnt exist
     return (!this.customTabOpen && this.customTabExists && !this.searchTabOpen && this.searchTabExists)|| (!this.customTabOpen && this.customTabExists && !this.searchTabExists) || (!this.searchTabOpen && this.searchTabExists && !this.customTabOpen);
   }
-
+  // When Pathway tab was clicked
   showPathwaysFromIcon(event: Event): void {
     event.stopPropagation();
     this.customTabOpen = false;
     this.searchTabOpen = false;
     this.pathwaysOpen = true;
   }
-
+  // If customisation tab existed but was hidden and then was clicked
   showCustomiseView(): void {
     this.customTabExists = true;
     this.customTabOpen = true;
@@ -3457,18 +3688,18 @@ applyChanges() {
     console.log('pathwaysOpen false');
 
   }
-
+  // Print Customisation Option
   selectCustomOption(): void {
     console.log('Customisation option selected');
   }
 
-  
+  // If we close customisation tab with "x" then pathway tab opens
   showPathways() {
     this.customTabOpen = false;
     this.searchTabOpen = false;
     this.pathwaysOpen = true;
   }
-
+  // To open customisation tab
   isCustomiseOpen(): boolean {
     console.log('isCustomiseOpen() called');
     console.log('customTabOpen: ', this.customTabOpen);
@@ -3478,18 +3709,20 @@ applyChanges() {
 
   //  ------------------ SEARCH subTAB -------------------
 
+  // If we open search tab customisation tab closes and pathways tab if exists closes
   openSearchTab(): void {
     this.searchTabOpen = true;
     this.searchTabExists = true;
     this.customTabOpen = false;
     this.pathwaysOpen = false;
   }
+  // If search tab closes pathway tab opens
   closeSearchTab(): void {
     this.searchTabOpen = false;
     this.searchTabExists = false;
     this.pathwaysOpen = true;
   }
-
+  // If search tab open, pathway tab closes and customisation tab if exists closes
   showSearchView(): void {
     this.searchTabExists = true;
     this.searchTabOpen = true;
@@ -3501,21 +3734,21 @@ applyChanges() {
     console.log('pathwaysOpen false');
 
   }
-
+  // If search that exists, was closed but clicked on the tab
   showTabView(): void {
     this.searchTabExists = true;
     this.searchTabOpen = true;
     this.pathwaysOpen = false;
     this.customTabOpen = false;
   }
-
+  // To open search tab
   isSearchOpen(): boolean {
     console.log('isSearchOpen() called');
     console.log('customTabOpen: ', this.searchTabOpen);
     return this.searchTabOpen;
   }
 
-  //  ------------------ SEARCH SUBSECTIONS -------------------
+  //  ------------------ SEARCH TAB -------------------
   
   searchSubmenuOpen = false;
 
@@ -3541,6 +3774,7 @@ applyChanges() {
   showCompoundDropdown: boolean = false;
   showPathwayDropdown: boolean = false;
   
+  // Check which box was clicked and show the corresponding dropdown
   onCheckboxChange(checkboxName: 'enzyme' | 'compound' | 'pathway') {
     this.showEnzymeDropdown = false;
     this.showCompoundDropdown = false;
@@ -3584,6 +3818,7 @@ applyChanges() {
     this.selectNodeFromDropdown(this.selectedPathwayCustom, 'map');
   }  
 
+  //  ------------------ ARROWS -------------------
   getArrowFontSize(logfc: number | undefined): string | null {
     if (logfc === undefined || logfc === null) {
       return null;
@@ -3623,7 +3858,8 @@ applyChanges() {
   selectedTimeIndex: number = 0;
   
   value: number = this.timepoints[this.selectedTimeIndex];
-
+  
+  // update the value when the timepoint changes
   updateValue(): void {
     this.value = this.timepoints[this.selectedTimeIndex];
     console.log('Uploaded Expression Files:', this.UploadedExpressionFiles);
@@ -3646,23 +3882,23 @@ applyChanges() {
     }
     return name;
   }
-  
+  // Select time index
   selectTimeIndex(index: number) {
     this.selectedTimeIndex = index;
     this.updateValue(); 
   }
-
+  // Remove file extension from the name
   removeFileExtension(fileName: string): string {
     return fileName.replace(/\.(csv|txt)$/i, '');
   }
-  
+  // Check if there are 3 or more files
   hasThreeOrMoreFiles(): boolean {
     return this.ExpressionFileNames.length >= 4;
   }
   // ------------------ ANIMATION ------------------
 
   isAnimationActive = false;
-
+  
   toggleAnimation(): void {
     this.isAnimationActive = !this.isAnimationActive;
     if (this.isAnimationActive) {
@@ -3699,7 +3935,7 @@ applyChanges() {
         this.isAnimationActive = false;
     
   }
-
+  // Start the animation
   startAnimation(): void {
     console.log("Time lapse started");
 
@@ -3719,7 +3955,7 @@ applyChanges() {
     const nodes = data.nodes;
     console.log(nodes);
     const pathwayData = this.ALLpathwayData.find((obj => obj.pathway === code));
-
+    
     if (this.isAnimationActive==true){
       const links = pathwayData.edges;
       this.loopWithDelay(links, nodes); // setting up to loop 10 times before stopping 
@@ -3733,6 +3969,7 @@ applyChanges() {
 
   }
 
+  // Stop the animation
   stopAnimation(): void {
     this.isAnimationActive = false;
     console.log("Time lapse stopped");
@@ -3756,6 +3993,12 @@ applyChanges() {
     this.isLoading = true;
     this.LoadingMessage = 'Updating High Expression colour ...';
     this.getLoadedPathways(); // Reloading data with changed colours
+
+    // Update the map with the new colour
+    const pathwayData = this.ALLpathwayData.find(obj => obj.pathway === this.selectedPathway);
+    if (pathwayData) {
+      this.setMap(this.selectedPathway, this.selectedTimeIndex, pathwayData);
+    }
     this.isLoading = false;
     return this.selectedColorHigh;
   }
@@ -3770,6 +4013,13 @@ applyChanges() {
     this.isLoading = true;
     this.LoadingMessage = 'Updating Low Expression colour ...';
     this.getLoadedPathways(); // Reloading data with changed colours
+    
+    // Update the map with the new colour
+    const pathwayData = this.ALLpathwayData.find(obj => obj.pathway === this.selectedPathway);
+    if (pathwayData) {
+      this.setMap(this.selectedPathway, this.selectedTimeIndex, pathwayData);
+    }
+
     this.isLoading = false;
     return this.selectedColorLow;
   }
@@ -3785,6 +4035,13 @@ applyChanges() {
     this.isLoading = true;
     this.LoadingMessage = 'Updating Isoform colour ...';
     this.getLoadedPathways(); // Reloading data with changed colours
+    
+    // Update the map with the new colour
+    const pathwayData = this.ALLpathwayData.find(obj => obj.pathway === this.selectedPathway);
+    if (pathwayData) {
+      this.setMap(this.selectedPathway, this.selectedTimeIndex, pathwayData);
+    }
+
     this.isLoading = false;
     return this.selectedColorIsoform;
   }
@@ -3797,9 +4054,9 @@ applyChanges() {
   selectedPathways: string[] = [];
   selectedPathwaysKEGG: string[] = [];
   isDropdownOpen = false;
-  // to handle open and close of the modal
   isSearchPathwayModalOpen = false;
 
+  // to handle open of the modal
   openSearchPathwayModal() {
     this.isSearchPathwayModalOpen = true;
     this.searchTerm = '';
@@ -3808,6 +4065,7 @@ applyChanges() {
     this.isDropdownOpen = false;
   }
 
+  // to handle close of the modal
   closeSearchPathwayModal() {
     this.isSearchPathwayModalOpen = false;
   }
@@ -3829,6 +4087,7 @@ applyChanges() {
     }
   }
 
+  // Function to handle selection of a pathway
   addPathway(pathway: string) {
     if (!this.selectedPathwaysKEGG.includes(pathway)) {
       this.selectedPathwaysKEGG.push(pathway);
@@ -3838,12 +4097,13 @@ applyChanges() {
       this.filterPathways();
   }
   
-
+  // Function to remove a pathway from the selected list
   removePathway(pathway: string) {
     this.selectedPathwaysKEGG = this.selectedPathwaysKEGG.filter(p => p !== pathway);
     this.filterPathways(); 
   }
 
+  // Function to handle click outside the dropdown
   onOutsideClick = (event: Event) => {
     const target = event.target as HTMLElement;
     const clickedInside = target.closest('.search-input-wrapper');
@@ -3881,7 +4141,7 @@ applyChanges() {
   }
 
 
- // ------- Search processing function
+ // ------- Search processing function -------
 
   // Compare to already loaded pathways, and remove any that match
   private getMatches(selectedPathwaysKEGG: any[]){
@@ -3904,7 +4164,7 @@ applyChanges() {
       return filteredArray;
   }
 
-
+  // Process the selected pathways to get the correct format
   private processPathways(selectedPathwaysKEGG: any[]) {
     var pathwayData: any[] = [];
     console.log(selectedPathwaysKEGG);
@@ -3917,6 +4177,7 @@ applyChanges() {
     return pathwayData;
   }
 
+  // Check if the pathway is already in the list
   isAlreadyInList(pathwayName: string): boolean {
     return this.pathways.includes(pathwayName);
   }
@@ -3926,6 +4187,7 @@ applyChanges() {
 
   selectedHighlightPathway: any = null;
 
+  // Select pathway
   onHighlightRowClick(pathway: any) {
     this.selectedHighlightPathway = pathway;
     console.log('Clicked Pathway:', pathway);
@@ -3962,11 +4224,11 @@ applyChanges() {
   }
 
   this.activeTab = tab;
-}
-
-removeEcPrefix(pathway: string): string {
-  return pathway?.replace(/^ec/, '') || '';
-}
+  }
+  // remove the EC prefix from the pathway name
+  removeEcPrefix(pathway: string): string {
+    return pathway?.replace(/^ec/, '') || '';
+  }
 
   // ---------- SAVE PROJECT -------------
   showModal = false;
@@ -4063,7 +4325,6 @@ removeEcPrefix(pathway: string): string {
     console.log("Generating ZIP ");
     zip.generateAsync({ type: 'blob' }).then(content => {
       saveAs(content, `${projectName}.zip`);
-      // alert('Project saved successfully');
       this.isProjectSaved = true;
       this.isLoading = false;
     }).catch(err => {
@@ -4075,13 +4336,13 @@ removeEcPrefix(pathway: string): string {
   }
 
   // ------------------ STATS BOX -------------------
-
+  
+  // Get the current timepoint label
   get currentTimepointLabel(): string {
     const file = this.ExpressionFileNames[this.selectedTimeIndex];
     return file ? this.removeFileExtension(file) : '';
   }
   
-
   // ------------------ OPEN PROJECT -------------------
   skipInitProcessing = false;
 
@@ -4128,88 +4389,7 @@ removeEcPrefix(pathway: string): string {
           })
         );
         console.timeEnd('zipParse');
-        
-        // // Process the file contents
-        // for (const file of fileContents) {
-        //   console.log('Processing file:', file.name);
-        //   console.time('fileProcessing');
-        //   const content = JSON.parse(file.content);
-          
-        //   switch (file.name) {
-        //     case 'multipleCombinedArray.txt':
-        //       this.fileDataService.setMultipleCombinedArrays(content);
-        //       break;
-        //     case 'combineData.txt':
-        //       this.fileDataService.setCombinedData(content);
-        //       break;
-        //     case 'annoData.txt':
-        //       const filename = 'DefaultFile';
-        //       this.fileDataService.setAnnotationData(filename, content);
-        //       break;
-        //     case 'expressData.txt':
-        //       this.fileDataService.setExpressionData(content);
-        //       break;
-        //     case 'pathways.txt':
-        //       this.fileDataService.setPathways(content);
-        //       break;
-        //     case 'pathwayResponse.txt':
-        //       this.pathwayResponse = content;
-        //       break;
-        //     case 'pathwayNumber.txt':
-        //       this.pathwayNumber = content;
-        //       break;
-        //     case 'pathwayCount.txt':
-        //       this.fileDataService.setPathwayCount(content);
-        //       break;
-        //     case 'uploadedexpressFiles.txt':
-        //       this.fileDataService.setUploadedExpressionFiles(content);
-        //       this.UploadedExpressionFiles = this.fileDataService.getUploadedExpressionFiles();
-        //       break;
-        //     case 'uploadedAnnoFile.txt':
-        //       this.fileDataService.setUploadedAnnoationFiles(content);
-        //       break;
-        //     case 'filteredGenes.txt':
-        //       this.filteredGenes = content;
-        //       break;
-        //     case 'enzymeList.txt':
-        //       this.enzymeList = content;
-        //       break;
-        //     case 'allPathwayData.txt':
-        //       this.ALLpathwayData = content;
-        //       break;
-        //     case 'AllKeggPathways.txt':
-        //       this.AllKeggPathways = content;
-        //       break;
-        //     case 'pathwayTally.txt':
-        //       this.pathwayTally = content;
-        //       break;
-        //     case 'highlightedPathways.txt':
-        //       this.highlightedPathways = content;
-        //       break;
-        //     case 'MapData.txt':
-        //       this.mapData = content;
-        //       break;
-        //     case 'loadedPathwayData.txt':
-        //       this.loadedPathwayData = content;
-        //       break;
-        //     case 'thispathways.txt':
-        //       this.pathways = content;
-        //       break;
-        //     case 'colourArray.txt':
-        //       this.colourArray = content;
-        //       break;
-        //     case 'statsArray.txt':
-        //       this.StatsArray = content;
-        //       break;
-        //     case 'ExpressionFileNames.txt':
-        //       this.ExpressionFileNames = content;
-        //       break;
-        //     case 'pathwayData.txt':
-        //       this.pathwayData = content;
-        //       break;
-        //   }
-        //   console.timeEnd('fileProcessing');
-        // }
+        // Load the project files into the fileDataService
         await this.projectLoaderService.loadProjectFiles(fileContents, this);
         
         this.isLoading = false;

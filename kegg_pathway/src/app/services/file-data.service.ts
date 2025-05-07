@@ -8,158 +8,188 @@ interface UploadedFile {
 providedIn: 'root',
 })
 
-
+/**
+ * This service is responsible for managing and storing differnet types of data
+ * related to the project. It acts as a centralised data store for the application,
+ * providing methods to set, get, and clear data for different file types and
+ * project-related information.
+ *
+ * ### Key Responsibilities:
+ * - **File Data Management**: Stores and retrieves data from uploaded files.
+ * - **Pathway Data Management**: Handles pathway-related data, including counts and lists.
+ * - **Expression Data Management**: Manages expression data for different files.
+ * - **Annotation Data Management**: Stores and retrieves annotation data, including gene-specific information.
+ * - **Combined Data Management**: Handles combined data and multiple combined arrays.
+ * - **Temporary Project Data**: Stores temporary project data for intermediate processing.
+ * - **Gene and Enzyme Information**: Provides methods to retrieve gene-specific annotations and genes with EC numbers.
+ */
 export class FileDataService {
 private fileData: { [fileName: string]: string[][] } = {};
 private pathways: string[] = []; // Add pathways property
 private expressionData: { [fileName: string]: string[][] } = {};
-//private countMatrixData: { [fileName: string]: string[][] } = {};
 private combinedData: any[] = []; // Added for combined data
 private annotationData: { [filename: string]: string[][] } = {}; // Added for annotation data
 private multipleCombinedArrays: any[][] = [];
 private pathwayCount: number = 10; // Default to 10 pathways 
-private uploadedExpressionFiles: UploadedFile[] = [];
-private uploadedAnnoationFiles: UploadedFile[] = [];
-private tempProjectData: { name: string; content: string }[] = [];
+private uploadedExpressionFiles: UploadedFile[] = []; // Array to store uploaded expression files
+private uploadedAnnoationFiles: UploadedFile[] = []; // Array to store uploaded annotation files
+private tempProjectData: { name: string; content: string }[] = []; // Array to store temporary project data
 
+// Set Temporary project data
 setTempProjectData(data: { name: string; content: string }[]) {
   this.tempProjectData = data;
 }
 
+// Get Temporary project data
 getTempProjectData() {
   return this.tempProjectData;
 }
 
+// set Uploaded expression files
 setUploadedExpressionFiles(files: UploadedFile[]): void {
   this.uploadedExpressionFiles = files;
   console.log('Uploaded Expression files set:', this.uploadedExpressionFiles);
 }
 
+// get Uploaded expression files
 getUploadedExpressionFiles(): UploadedFile[] {
   console.log('Getting Uploaded Expression files:', this.uploadedExpressionFiles);
   return this.uploadedExpressionFiles;
 }
 
+// clear Uploaded expression files
 clearUploadedExpressionFiles(): void {
   this.uploadedExpressionFiles = [];
 }
 
+// set Uploaded annotation files
 setUploadedAnnoationFiles(files: UploadedFile[]): void {
   this.uploadedAnnoationFiles = files;
   console.log('Uploaded Annotation files set:', this.uploadedAnnoationFiles);
 }
 
+// get Uploaded annotation files
 getUploadedAnnoationFiles(): UploadedFile[] {
   return this.uploadedAnnoationFiles;
 }
 
+// clear Uploaded annotation files
 clearUploadedAnnotationFiles(): void {
   this.uploadedAnnoationFiles = [];
 }
 
+// Set the count of pathways
 setPathwayCount(numberEntered: number): void{
   console.log('Setting PathwayCount');
   this.pathwayCount = numberEntered;
 }
 
+// Get the count of pathways
 getPathwayCount(): number{
   console.log('Pathway Count:')
   console.log(this.pathwayCount);
   return this.pathwayCount;
 }
 
+// Clear the pathway count
 clearPathwayCount(): void {
   console.log('Clearing pathway count');
   this.pathwayCount = 10; 
 }
 
+// Set File Data
 setFileData(fileName: string, data: string[][]): void {
 this.fileData[fileName] = data;
  }
+
+// Get File Data
 getFileData(): { [fileName: string]: string[][] } {
 return this.fileData;
  }
+
+// Get File Data
 clearFileData(): void {
 this.fileData = {};
  }
-// New methods for managing pathways
+
+// Set Pathways
 setPathways(pathways: string[]): void {
 this.pathways = pathways;
  }
+
+// Get Pathways
 getPathways(): string[] {
 return this.pathways;
  }
+
+// Clear Pathways
 clearPathways(): void {
 this.pathways = [];
  }
-// New methods for managing expressionData and countMatrixData
+
+// Set Expression Data
 setExpressionData(data: { [fileName: string]: string[][] }): void {
 this.expressionData = data;
  }
+
+// Get Expression Data
 getExpressionData(): { [fileName: string]: string[][] } {
 return this.expressionData;
  }
+
+// Clear Expression Data
 clearExpressionData(): void {
 this.expressionData = {};
  }
-// setCountMatrixData(data: { [fileName: string]: string[][] }): void {
-// this.countMatrixData = data;
-//  }
-// getCountMatrixData(): { [fileName: string]: string[][] } {
-// return this.countMatrixData;
-//  }
-// clearCountMatrixData(): void {
-// this.countMatrixData = {};
-//  }
 
-// New methods for combined data and annotation data
+// Set Combined Data
 setCombinedData(data: any[]): void {
   this.combinedData = data;
 }
 
+// Get Combined Data
 getCombinedData(): any[] {
   return this.combinedData;
 }
 
+// Set Multiple Combined Arrays
 setMultipleCombinedArrays(data: any[][]): void {
   this.multipleCombinedArrays = data;
 }
 
+// Get Multiple Combined Arrays
 getMultipleCombinedArrays(): any[][] {
   return this.multipleCombinedArrays;
 }
 
+// Clear Multiple Combined Arrays
 clearMultipleCombinedArrays(): void {
   this.multipleCombinedArrays = [];
 }
-
-
+// Clear Combined Data
 clearCombinedData(): void {
   this.combinedData = [];
 }
-
+// Set Annotation Data
 setAnnotationData(filename: string, data: string[][]): void {
   this.annotationData[filename] = data;
 }
-
+// Get Annotation Data
 getAnnotationData(): { [filename: string]: string[][] } {
   return this.annotationData;
 }
-
+// Clear Annotation Data
 clearAnnotationData(): void {
   this.annotationData = {};
 }
-
-
-
-
+// Find annotation information for a specific gene
 getAnnotationForGene(geneName: string): any {
-  // Find annotation information for a specific gene
-  const result: any = {};
   
+  const result: any = {};
+  // Iterate through each annotation file
   for (const [filename, data] of Object.entries(this.annotationData)) {
     if (data.length < 2) continue;
-    
+    // Get the header row and convert to lowercase
     const headerRow = data[0].map(h => h.toLowerCase());
     
     // Find the gene column index (sequence.name or similar)
@@ -198,8 +228,6 @@ getAnnotationForGene(geneName: string): any {
   
   return result;
 }
-
-
 
 // Get all genes that have EC numbers
 getGenesWithECNumbers(): string[] {
