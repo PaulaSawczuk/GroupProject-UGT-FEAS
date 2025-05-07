@@ -226,8 +226,8 @@ html, body {
   border-radius: 12px;
   width: 90%;
   max-width: 600px;
-  max-height: 80vh; /* smaller and limited to viewport */
-  overflow-y: auto;  /* scroll when needed */
+  max-height: 80vh; 
+  overflow-y: auto;  
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
 }
 
@@ -266,7 +266,6 @@ html, body {
   background: transparent;
   border: none;
   font-size: 24px;
-  /* font-weight: bold; */
   cursor: pointer;
   color: #48494B;
   line-height: 1;

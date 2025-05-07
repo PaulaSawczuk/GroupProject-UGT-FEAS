@@ -1,18 +1,22 @@
 <div class="landing-container faded-background">
   <div class="vertical-divider"></div>
   <div class="left-section">
+    <!-- ---------- LANDING PAGE HEADER AND DESCRIPTION ---------- -->
     <h1 class="title">Welcome to EnStrap.int</h1>
     <p class="description">
       Interactive Pathway Visualiser for RNA-Seq Gene Expression Data
     </p>
+    <!-- ---------- GET STARTED AND OPEN PROJECT BUTTONS ---------- -->
     <div class="button-container">
       <button class="get-started-btn" (click)="getStarted()">Get Started</button>
       <button class="open-project-btn" (click)="openProject()">Open Project</button>
     </div>
   </div>
+  <!-- ---------- LANDING PAGE IMAGE ---------- -->
   <div class="right-section">
     <img src="assets/Enstrap_Logo.jpg" alt="Landing Image">
   </div>
+  <!-- ---------- GUIDE BUTTON ---------- -->
   <div class="guide">
     <p>Guide</p>
     <button id="guide-btn" (click)="openGuide()" [class.animate]="!isGuideClicked">

@@ -5,7 +5,6 @@ import { slideUpAnimation } from './helper/route-animations';
 
 @Component({
   selector: 'app-root',
-  // imports: [RouterOutlet],
   imports: [RouterOutlet, UploadComponent],
   animations: [slideUpAnimation],
   templateUrl: './app.component.html',
