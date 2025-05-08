@@ -1815,6 +1815,7 @@ async getAllPathwayNames(): Promise<void>{
   private handleMapNodeClick(data: any): void {
     console.log("Clicked map node:", data);
     const pathCode = data.text;
+    const pathName = data.name;
     const code = pathCode.replace("path:", "");
     //console.log(code);
 
@@ -1836,6 +1837,7 @@ async getAllPathwayNames(): Promise<void>{
       }else{
         
     }}
+    this.SelectedPathwayName = pathName;
   }
 
 
@@ -3836,6 +3838,7 @@ processNewFiles(): void{
   // connected to the 'Launch' button inside the pathway popups
   goToPathwayFromPopup(nodeData: any): void {
     this.handleMapNodeClick(nodeData);
+
   }  
 
   // related to stopping scrolling event signal from being sent to gojs on the gene list in the popup 
