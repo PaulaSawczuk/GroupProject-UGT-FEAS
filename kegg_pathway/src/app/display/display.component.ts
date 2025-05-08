@@ -3240,6 +3240,8 @@ processNewFiles(): void{
     this.isUploadedFileModalOpen = true;
     this.initialExpressionFiles = [...this.UploadedExpressionFiles]; // Save original
     this.remainingExpressionFiles = [...this.UploadedExpressionFiles];
+    console.log(this.remainingExpressionFiles);
+    console.log(this.UploadedExpressionFiles);
     this.filesMarkedForRemoval = [];
   }
 
@@ -4267,9 +4269,11 @@ processNewFiles(): void{
     const expressData = JSON.stringify(this.fileDataService.getExpressionData());
     const pathways = JSON.stringify(this.fileDataService.getPathways());
     const pathwayCount = JSON.stringify(this.fileDataService.getPathwayCount());
-    const uploadedexpressFiles = JSON.stringify(this.fileDataService.getUploadedExpressionFiles());
-    const uploadedAnnoFile = JSON.stringify(this.fileDataService.getUploadedAnnoationFiles());
+    //const uploadedexpressFiles = JSON.stringify(this.fileDataService.getUploadedExpressionFiles());
+    //const uploadedAnnoFile = JSON.stringify(this.fileDataService.getUploadedAnnoationFiles());
 
+    const uploadedexpressFiles = JSON.stringify(this.UploadedExpressionFiles);
+    const uploadedAnnoFile = JSON.stringify(this.UploadedAnnoationFiles);
     // File Processing files from display.component
     const filteredGenes = JSON.stringify(this.filteredGenes);
     const enzymeList = JSON.stringify(this.enzymeList);
