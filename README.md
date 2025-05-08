@@ -375,7 +375,7 @@ The sidebar, located on the left side of the interface, displays a list of top-e
 ![SideBar_Image1](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/READMEFile_Images/SideBar_Image1.png)      
 *Fig. 11b. Sorting pathways and expanding/collapsing the side bar.*    
 
-**Sorting Pathways:** To sort pathways, click the "Sort" button (**B**) which opens a dropdown menu with two main sorting options; in alphabetical order, either ascending or descending sequence.  
+**Sorting Pathways:** To sort pathways, click the "Sort" button (**B**) which opens a dropdown menu with four main sorting options; in alphabetical order, either ascending or descending sequence, and by the differentially expressed enzymes (from highest to lowest or vice versa).  
 
 **Expanding and Collapsing the Side Bar:** For the user to collapse the side bar and expand the main display view, click the arrows at the top right corner (**C**). To reopen the side bar, click the same arrows on the collapsed bar (**D**).   
 
