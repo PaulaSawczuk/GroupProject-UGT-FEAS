@@ -1637,7 +1637,6 @@ async getAllPathwayNames(): Promise<void>{
   
   
     for (const node of nodeDataArray) {
-      //console.log("🔍 Node:", node);
       const type = node['type'];
       const ec = node['text'];
 
@@ -1651,17 +1650,17 @@ async getAllPathwayNames(): Promise<void>{
           this.enzymeCategories.push(category);
         }
   
-        // Avoid duplicate entries
-        const alreadyExists = this.enzymeCategoryMap[category].some(e => e.ec === ec);
-        if (!alreadyExists) {
-          this.enzymeCategoryMap[category].push({
-            ec,
-            name,
-            logfc: node?.['logfc'] ?? null,
-            colour: node?.['colour'] ?? null,
-          });
-          
+        if (!ec || !name) {
+          console.warn("Missing EC or name for node:", node);
         }
+        
+        this.enzymeCategoryMap[category].push({
+          ec,
+          name,
+          logfc: node?.['logfc'] ?? null,
+          colour: node?.['colour'] ?? null,
+        });
+           
       }
   
       if (type === 'compound' && !this.compoundList.includes(name)) {
@@ -1685,7 +1684,11 @@ async getAllPathwayNames(): Promise<void>{
       for (const enzyme of this.enzymeCategoryMap[category]) {
         // Find matching node in nodeDataArray
         const node = nodeDataArray.find(n => n['text'] === enzyme.ec && n['type'] === 'enzyme');
-    
+        
+        if (!node) {
+          console.warn("Could not find node for enzyme:", enzyme.ec);
+        }        
+
         this.enzymeOptions.push({
           ec: enzyme.ec,
           name: enzyme.name,
@@ -1699,8 +1702,8 @@ async getAllPathwayNames(): Promise<void>{
 
     console.log('enzymeOptions:', this.enzymeOptions);
 
-  this.CompoundOptions = [...this.compoundList];
-  this.PathwayOptions = [...this.pathwayList];
+    this.CompoundOptions = [...this.compoundList];
+    this.PathwayOptions = [...this.pathwayList];
   }
   
   // method for highlighting the node when an item in the dropdown is clicked
@@ -1738,9 +1741,13 @@ async getAllPathwayNames(): Promise<void>{
     this.myDiagram.centerRect(node.actualBounds);
 
     // Zoom and center
-    this.myDiagram.commandHandler.scrollToPart(node);
-    this.myDiagram.scale = 1.1;
-    this.myDiagram.centerRect(node.actualBounds);
+    requestAnimationFrame(() => {
+      const bounds = node.actualBounds;
+      this.myDiagram!.scale = 1.1;
+      this.myDiagram!.centerRect(bounds);
+      this.myDiagram!.commandHandler.scrollToPart(node);
+    });
+    
     this.setLegend(this.myDiagram);
   }
   
