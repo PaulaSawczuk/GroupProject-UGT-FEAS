@@ -3,7 +3,7 @@
 EnStrap.int is a user-friendly web-based application designed to integrate and visualise KEGG pathways with time-series differential gene expression data, focusing on uncovering metabolic flux changes. This application allows users to upload their gene expression data, including an annotation file, to generate dynamic metabolic pathway maps, explore pathway-level regulation patterns over time and under different experimental conditions, filter results by gene families or contrasts, and export the resulting visualisations for downstream use. 
 The tool aims to empower researchers, especially those without programming expertise, to explore pathway-level changes over time and across experimental conditions.  
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 19.2.3. For more information refer to the official [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page. The application was built using TypeScript/JavaScript for logic and functionality, HTML for structuring web content, and CSS for styling and layout.
+This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 19.2.6. For more information refer to the official [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page. The application was built using TypeScript/JavaScript for logic and functionality, HTML for structuring web content, and CSS for styling and layout.
 
 ## Table of Contents
 
@@ -72,11 +72,11 @@ To get the application up and running on users local machine, follow the steps b
 
   This will launch the app in your default web browser.
   
-**Note:** Ensure that Node.js and npm are installed on your system follow instructions on the official [Node.js](https://nodejs.org/en/download/) download site.
+**Note:** Ensure that Node.js and npm are installed on your system. Follow instructions on the official [Node.js](https://nodejs.org/en/download/) download site.
 
 ## EnStrap.int Test Data and File Format Requirements  
 
-When EnStrap.int is launched, the data for testing the app can be accessed via [Test Data Folder](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/tree/main/TestData) on GitHub. The tool supports files in .csv and .txt formats only. The data must include at least one *expression file* and its corresponding *annotation file*. 
+When EnStrap.int is launched, the data for testing the app can be accessed via the [Test Data Folder](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/tree/main/TestData) on GitHub. The tool supports files in .csv and .txt formats only. The data must include at least one *expression file* and its corresponding *annotation file*. 
 
 ### File Format Requirements  
 The tool is designed to work with two types of files that contain different information, identified by specific column naming conventions.  
@@ -123,7 +123,7 @@ The below image shows two different annotation file formats but both recognised 
 
 ## The Pathway Visualisation     
   
-The pathway visualization was developed using GoJS library, which provides powerful diagram creation capabilities for complex biochemical networks. The figure below illustrates a representative example of the pathway visualization interface with its key elements.   
+The pathway visualisation was developed using GoJS library, which provides powerful diagram creation capabilities for complex biochemical networks. The figure below illustrates a representative example of the pathway visualisation interface with its key elements.   
 
 ![Visualisation_Image](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/READMEFile_Images/Visualisation_Image.png)  
 *Fig. 2. Shows example of pathway elements.*  
@@ -131,15 +131,15 @@ The pathway visualization was developed using GoJS library, which provides power
 
 ### Visualisation Features  
 
-**Linked Pathway:** Represented by the light blue rectangular box labelled (**A**), this element serves as a gateway to another pathway visualization. Clicking on this interactive element opens a pop-up window which contains informationabout the pathway but also allows users to navigate to related metabolic pathways, facilitating comprehensive exploration of interconnected biochemical processes as below in [Display Interaction](#5-display-interaction).    
+**Linked Pathway:** Represented by the light blue rectangular box labelled (**A**), this element serves as a gateway to another pathway visualisation. Clicking on this interactive element opens a pop-up window which contains information about the pathway but also allows users to navigate to related metabolic pathways, facilitating comprehensive exploration of interconnected biochemical processes as below in [Display Interaction](#5-display-interaction).    
 
-**Enzyme:** Depicted by rectangular boxes such as the one labelled (**D**), enzymes are colour-coded to reflect differential gene expression levels. The colour spectrum transitions from blue (**J**) to red (**B**), indicating varying degrees of expression. Gray enzymes (**D**) signify neutral expression levels, indicating no significant change in gene activity. The legend (**F**) in the bottom corner provides a complete reference for interpreting these colour variations.    
+**Enzyme:** Depicted by rectangular boxes such as the one labelled (**D**), enzymes are colour-coded to reflect differential gene expression levels. The colour spectrum transitions from blue (**J**) to red (**B**), indicating varying degrees of expression. Grey enzymes (**D**) signify neutral expression levels, indicating no significant change in gene activity. The legend (**F**) in the bottom corner provides a complete reference for interpreting these colour variations.    
 
-**Compound:** Illustrated by gray circles (**C**), these elements represent metabolites or chemical compounds that participate in the biochemical reactions within the pathway.    
+**Compound:** Illustrated by grey circles (**C**), these elements represent metabolites or chemical compounds that participate in the biochemical reactions within the pathway.    
 
 **Directionality:** The flow and reversibility of reactions are indicated by arrows (**G**) and (**H**) along with distinctive line styles. Reversible reactions are represented by segmented lines, while irreversible reactions are depicted with solid straight lines. These directional indicators convey crucial information through both their colour and size. The colour reflects the differential expression of the associated genes, while the arrow size corresponds to the relative log2fold change magnitude of that particular pathway segment. As evidenced by arrows (**G**) and (**H**), both colour intensity and arrow dimensions vary to represent different expression levels and fold changes between conditions.  
 
-**Pathway Magnifier:** The users can zoom in if they click on the **+** or out if they click on the **-** sign. The feature labeled (**I**) functions as a navigation aid, allowing users to view the specific regions of interest within the pathway visualization. This feature enhances the examination of complex pathway sections by providing detailed views of selected areas.    
+**Pathway Magnifier:** The users can zoom in if they click on the **+**, or out if they click on the **-** sign. The feature labelled (**I**) functions as a navigation aid, allowing users to view the specific regions of interest within the pathway visualisation. This feature enhances the examination of complex pathway sections by providing detailed views of selected areas.    
 
 ## Navigating EnStrap.int
 
@@ -150,8 +150,8 @@ The pathway visualization was developed using GoJS library, which provides power
 
 The welcome page is the first screen users will see when they launch the EnStrap.int application.
 
-- Clicking "Get Started" button (**A**) navigates to the Upload Page, where users can submit their data (expression and annotation files).
-- Clicking "Open Project" button (**C**) allows the user to open a project that was saved earlier on.
+- Clicking the "Get Started" button (**A**) navigates to the Upload Page, where users can submit their data (expression and annotation files).
+- Clicking the "Open Project" button (**C**) allows the user to open a project that was saved earlier.
 - The "Guide" Button (**B**) opens the User Guide, providing an overview of EnStrap.int’s features and how to use them.  
 
 ### Guide Section  
@@ -168,9 +168,9 @@ The guide provides detailed instructions on how to use the key features of EnStr
 - Exporting Pathways
 - Opening, Saving and Starting a Project
 - Time Series Analysis
-- Side bar and Pathway Information
+- Sidebar and Pathway Information
 
-Clicking "Get Started" button (**C**) in (**Fig. 4**) will take you to the File Upload page, just like "Get Started" Button (**A**) in (**Fig. 3**).  
+Clicking the "Get Started" button (**C**) in (**Fig. 4**) will take you to the File Upload page, just like the "Get Started" Button (**A**) in (**Fig. 3**).  
 
 #### 1. File Upload  
 
@@ -180,7 +180,7 @@ Clicking "Get Started" button (**C**) in (**Fig. 4**) will take you to the File 
 This is where the user uploads the data files:  
 
 ##### **Upload Users Files**
-Click "Upload" button (**A**), as previously described in the [EnStrap.int Test Data and File Format Requirements](#enstrapint-test-data-and-file-format-requirements) section, the user must upload at least one expression file and one annotation file to proceed. Clicking "Open Project" button (**D**) will open an already saved project, just like "Open Project" Button (**C**) in (**Fig. 3**).    
+Click the "Upload" button (**A**), as previously described in the [EnStrap.int Test Data and File Format Requirements](#enstrapint-test-data-and-file-format-requirements) section, the user must upload at least one expression file and one annotation file to proceed. Clicking the "Open Project" button (**D**) will open an already saved project, just like the "Open Project" Button (**C**) in **Fig. 3**.    
 
 
 ##### **Access Upload Instructions**
@@ -191,14 +191,14 @@ In case the user is unsure about the type of files to upload, click the informat
 *Fig. 5b. Managing Uploaded Files and Configuring Options.*  
 
 ##### **Manage Uploaded Files**
-After uploading the files, they will be separated into "Annotation Files" and "Expression Files". If the user has uploaded multiple time-series expression files they can be ordered by drag and drop option.  
-Just as in [File Upload](#1-file-upload) there is a description on top of the page labelled (**D**) which tells the users what files they have uploaded, if a certain file is missing it will show a **X not uploaded**.  
+After uploading the files, they will be separated into "Annotation Files" and "Expression Files". If the user has uploaded multiple time-series expression files they can be ordered by drag-and-drop option.  
+Just as in [File Upload](#1-file-upload) there is a description on top of the page labelled (**D**) which tells the users what files they have uploaded, if a certain file is missing it will show an **X not uploaded**.  
 
 - To remove a file, click the **X** button (**C**) next to it.
 - To add more files, simply click the "Upload Files" button again.  
 
 ##### **Configure Settings**
-User can customise how the data will be processed by adjusting the following options:  
+The user can customise how the data will be processed by adjusting the following options:  
 
 ##### a). **Number of Top-Expreesed Pathways:**  
    - Enter the desired number of pathways or use the up/down arrows (**E**) to specify how many of the top-expressed KEGG pathways should be visualised, the defualt value is 10.  
@@ -270,7 +270,7 @@ To access view-related options, click the "View" menu (**A**) located on the top
 *Fig. 7b. The customisation page.*    
 
 ##### ii). Change Colours  
-The user can modify the colours used to represent up or down regulated genes and paralogs:
+The user can modify the colours used to represent up- or down-regulated genes and paralogs:
 - Click the coloured box (**F**) to open the colour picker.
 - Select your desired colour from the palette.    
 
@@ -285,7 +285,7 @@ Once the user has selected the colour and is satisfied with the choice, simply c
 To access the search options user should go to the [View Menu](#3-view-menu) (**A**) at the top bar. To open the search panel, click "Search" button (**C**) which will display two options:  
   
 ###### i). *Search For Pathway Elements*  
-If the user would like to search by elements within the pathway, click  "Pathway Elements" button (**D**). This will open a search options on the left side of the application window (as a tab in the side bar).  
+If the user would like to search by elements within the pathway, click the  "Pathway Elements" button (**D**). This will open a search options on the left side of the application window (as a tab in the side bar).  
 
 ![View SearchForElements](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/READMEFile_Images/View_SearchForElements.png)  
 *Fig. 7c. Pathway elements page.*    
@@ -361,7 +361,7 @@ Clicking on a "Compound" label (**C**) opens a pop-up window with details about 
 ![TimeSeries_Image1](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/READMEFile_Images/TimeSeries_Image2.png)   
 *Fig. 9. Time series and animation display.*    
 
-The figure above illustrates how users can explore different time points, with names as labeled in the uploaded expression files, by using the slider (**A**) to move through the different time points and observe how the pathway changes over time.  
+The figure above illustrates how users can explore different time points, with names as labelled in the uploaded expression files, by using the slider (**A**) to move through the different time points and observe how the pathway changes over time.  
 
 To create a timelapse animation of the pathway across all time points, click the "Animate" button (**B**). The animation will sequentially display changes across each time point, providing a dynamic view of pathway evolution.  
 
@@ -413,7 +413,7 @@ This section demonstrates how a user can explore and interact with data using En
 
 Navigate to the "Upload Files" page and upload three expression files and the annotation file. Once uploaded you can drag and drop the exppression files to put them in the desired order (to be viewed on the time-series slider).  
 
-The user will have to specify the number of pathways to be displayed (11 in this case), whether the dataset contains time series data or not (in our case it contains a time-series) and whether it is from an organism /plant (plant in our case). After completing the selections, the user can click the “Process” button to begin data integration and analysis.  
+The user will have to specify the number of pathways to be displayed (11 in this case), whether the dataset contains time series data or not (in our case it contains a time series) and whether it is from an organism /plant (plant in our case). After completing the selections, the user can click the “Process” button to begin data integration and analysis.  
 
 ### Step 2: Visualising Pathways
 Once processed, a list of pathways is displayed in the sidebar. Selecting a pathway (e.g., “Glycolysis / Gluconeogenesis”) opens an interactive visualisation, which shows expression changes with colour-coded enzymes, compounds (grey circle) and linked pathways (blue rectangles).  
@@ -441,18 +441,18 @@ Use the time slider to move between different time points (e.g., Contrast 0, Con
 *Fig. 16. Time slider.*  
 
 As shown in the figure above:
-•	At Time Point 1 (**Contrast0**):  At Contrast 0, 23 genes are involved, with 8 enzymes differentially expressed.
-•	A Time Point 2 (**Contrast1**): The response appears to subside, with 43 genes and 12 differentially expressed enzymes after Contrast 1.
-•	At Time Point 3 (**Contrast2**): At Contrast 2, the number of affected genes increases significantly to 74, with 13 enzymes showing differential expression, indicating a stronger transcriptional response at this stage. Note that most of the enzymes are coloured purple (13), which indicates that they are downregulated/lowly expressed.
+•	At Time Point 1 (**Contrast 0**):  At Contrast 0, 23 genes are involved, with 8 enzymes differentially expressed.
+•	A Time Point 2 (**Contrast 1**): The response appears to subside, with 43 genes and 12 differentially expressed enzymes after Contrast 1.
+•	At Time Point 3 (**Contrast 2**): At Contrast 2, the number of affected genes increases significantly to 74, with 13 enzymes showing differential expression, indicating a stronger transcriptional response at this stage. Note that most of the enzymes are coloured purple (13), which indicates that they are downregulated/lowly expressed.
 
-### Step 6: Searching for Downregulated Enzyme
+### Step 5: Searching for Downregulated Enzyme
 
 You may wish to search for a downregulated enzyme within the Glycolysis pathway on day 2. You can click on the "View menu", then "Pathway Elements" then tick the "Enzyme" checkbox and search for the "phosphoglycerate mutase" which upon selection will appear in the display with a blue highlight. You can click on te enzyme a pop-up window will appear and if you want more information about the enzyme click on the "View on KEGG" hyperlink which will take you to the KEGG database.  
 
 ![HandsOn_Enzyme](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/READMEFile_Images/HandsOn_Enzyme.png)  
-*Fig. 17. Searching for the enzyme phosphoglycerate mutase(PGM).*   
+*Fig. 17. Searching for the enzyme phosphoglycerate mutase (PGM).*   
 
-### Step 7: Searching for Pathways
+### Step 6: Searching for Pathways
 You may also search for addition pathways that were not intially in the top pathways displayed (the 11 pathways selected at the initial upload). Click on the "Search" button in the [View Menu](#3-view-menu) and choose the "For Pathway" option.
 
 #### Highlight Tab  
