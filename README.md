@@ -298,7 +298,7 @@ Within the panel, the user can choose from three search categories: **Enzyme, Co
 
 ###### ii). *Search For Pathway*  
 
-If the user wants to search for a specific pathway: Below the "Pathway Elements" button (**D**) in the "Search" panel (accessed via the [View Menu](#3-view-menu)), click on the "For Pathway" button (**E**). Ihis will open a pop-up window containing two tabs that will allow user to search and navigate to different pathways.   
+If the user wants to search for a specific pathway: Below the "Pathway Elements" button (**D**) in the "Search" panel (accessed via the [View Menu](#3-view-menu)), click on the "For Pathway" button (**E**). This will open a pop-up window containing two tabs that will allow user to search and navigate to different pathways.   
 
 ![View_SearchForPathway_Highlight](https://github.com/PaulaSawczuk/GroupProject-UGT-FEAS/blob/main/kegg_pathway/src/assets/READMEFile_Images/View_SearchForPathway_Highlight.png)  
 *Fig. 7d. Display pathways with hits and all KEGG pathways online.*   
